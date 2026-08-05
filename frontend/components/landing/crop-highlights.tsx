@@ -51,7 +51,7 @@ export function CropHighlights() {
         </div>
 
         <footer className="mt-16 flex flex-col gap-4 border-t border-ink/10 pt-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-bold text-ink">텃밭 플래너</p>
+          <p className="font-bold text-ink">심어봄</p>
           <p>공식 자료의 일반 기준을 바탕으로 계획을 돕는 시뮬레이션 서비스입니다.</p>
         </footer>
       </div>

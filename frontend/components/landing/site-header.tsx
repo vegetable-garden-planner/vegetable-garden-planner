@@ -10,9 +10,9 @@ export function SiteHeader() {
   return (
     <header className="relative z-20 border-b border-ink/8 bg-cream/85 backdrop-blur-xl">
       <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
-        <a className="flex items-center gap-3 font-bold tracking-[-0.02em]" href="#top" aria-label="텃밭 플래너 홈">
+        <a className="flex items-center gap-3 font-bold tracking-[-0.02em]" href="#top" aria-label="심어봄 홈">
           <BrandMark />
-          <span className="text-lg">텃밭 플래너</span>
+          <span className="text-lg">심어봄</span>
         </a>
 
         <nav className="hidden items-center gap-8 text-sm font-semibold text-muted md:flex" aria-label="주요 메뉴">

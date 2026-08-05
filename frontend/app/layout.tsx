@@ -8,11 +8,11 @@ const geist = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "텃밭 플래너 | 내 밭에 맞는 재배 계획",
+  title: "심어봄 | 내 밭에 맞는 재배 계획",
   description:
     "밭 크기와 작물을 입력하면 배치 수량, 간격 경고, 재배 일정을 만들어주는 한국형 텃밭 계획 도구입니다.",
   openGraph: {
-    title: "텃밭 플래너 | 내 밭에 맞는 재배 계획",
+    title: "심어봄 | 내 밭에 맞는 재배 계획",
     description:
       "밭 크기와 작물을 입력하면 배치 수량, 간격 경고, 재배 일정을 한눈에 확인할 수 있어요.",
     locale: "ko_KR",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "텃밭 플래너 | 내 밭에 맞는 재배 계획",
+    title: "심어봄 | 내 밭에 맞는 재배 계획",
     description: "내 밭에 꼭 맞는 재배 계획을 한눈에 확인하세요.",
   },
 };

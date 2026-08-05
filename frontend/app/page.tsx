@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/landing/site-header";
 
 export default function Home() {
   return (
-    <div className="min-h-screen overflow-hidden bg-cream text-ink">
+    <div id="top" className="min-h-screen overflow-hidden bg-cream text-ink">
       <SiteHeader />
 
       <main>
