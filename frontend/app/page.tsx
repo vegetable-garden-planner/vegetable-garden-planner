@@ -2,6 +2,7 @@ import { FeatureFlow } from "@/components/landing/feature-flow";
 import { CropHighlights } from "@/components/landing/crop-highlights";
 import { PlannerPreview } from "@/components/landing/planner-preview";
 import { SiteHeader } from "@/components/landing/site-header";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -26,13 +27,13 @@ export default function Home() {
                 간격 경고, 재배 일정까지 한 번에 계획해 드려요.
               </p>
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-                <a
+                <Link
                   className="inline-flex min-h-13 items-center justify-center rounded-full bg-leaf px-7 py-3 font-bold text-white shadow-[0_12px_30px_rgba(45,91,54,0.22)] transition hover:-translate-y-0.5 hover:bg-leaf-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-leaf"
-                  href="#planner"
+                  href="/start"
                 >
-                  내 텃밭 계획하기
+                  나에게 맞는 시작 찾기
                   <span className="ml-2" aria-hidden="true">→</span>
-                </a>
+                </Link>
                 <a
                   className="inline-flex min-h-13 items-center justify-center rounded-full border border-ink/10 bg-white/70 px-7 py-3 font-bold text-ink transition hover:border-leaf/30 hover:bg-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-leaf"
                   href="#how-it-works"
