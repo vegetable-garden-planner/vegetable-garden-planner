@@ -19,6 +19,7 @@ export default function SpacesPage() {
           <Link className="flex items-center gap-3 font-bold" href="/"><BrandMark /><span>심어봄</span></Link>
           <div className="flex items-center gap-2">
             <AuthHeaderMenu />
+            <Link className="rounded-full border border-ink/15 px-4 py-2.5 text-sm font-bold" href="/seasons">시즌 관리</Link>
             <Link className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white" href="/spaces/new">공간 추가</Link>
           </div>
         </header>
