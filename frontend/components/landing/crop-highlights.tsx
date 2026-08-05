@@ -44,10 +44,10 @@ export function CropHighlights() {
           <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-bold tracking-[-0.035em] sm:text-4xl">
             배치부터 관리 일정까지 한곳에서
           </h2>
-          <a className="mt-7 inline-flex min-h-13 items-center justify-center rounded-full bg-leaf px-7 py-3 font-bold text-white transition hover:bg-leaf-dark" href="#planner">
-            텃밭 계획 미리보기
-            <span className="ml-2" aria-hidden="true">↑</span>
-          </a>
+          <Link className="mt-7 inline-flex min-h-13 items-center justify-center rounded-full bg-leaf px-7 py-3 font-bold text-white transition hover:bg-leaf-dark" href="/start">
+            시작 진단하기
+            <span className="ml-2" aria-hidden="true">→</span>
+          </Link>
         </div>
 
         <footer className="mt-16 flex flex-col gap-4 border-t border-ink/10 pt-8 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
@@ -58,3 +58,4 @@ export function CropHighlights() {
     </section>
   );
 }
+import Link from "next/link";
