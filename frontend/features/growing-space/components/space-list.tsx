@@ -1,12 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useSyncExternalStore } from "react";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
-import {
-  getGrowingSpacesSnapshot,
-  parseGrowingSpacesSnapshot,
-} from "@/features/growing-space/infrastructure/space-storage";
+import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 
 const TYPE_LABELS: Record<GrowingSpace["type"], string> = {
   indoor: "실내 화분",
@@ -21,24 +17,10 @@ const SUNLIGHT_LABELS: Record<GrowingSpace["sunlight"], string> = {
 };
 
 export function SpaceList() {
-  const snapshot = useSyncExternalStore(
-    subscribeToStorage,
-    () => getGrowingSpacesSnapshot(window.localStorage),
-    getEmptySnapshot,
-  );
-  const result = useMemo(() => {
-    try {
-      return { spaces: parseGrowingSpacesSnapshot(snapshot), error: "" };
-    } catch (loadError) {
-      return {
-        spaces: [],
-        error: loadError instanceof Error ? loadError.message : "공간 목록을 불러오지 못했습니다.",
-      };
-    }
-  }, [snapshot]);
+  const result = useGrowingSpaces();
 
-  if (result.error) {
-    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{result.error}</p>;
+  if (result.status === "error") {
+    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{result.message}</p>;
   }
 
   const { spaces } = result;
@@ -63,17 +45,9 @@ export function SpaceList() {
             <div><dt className="text-muted">햇빛</dt><dd className="mt-1 font-bold">{SUNLIGHT_LABELS[space.sunlight]}</dd></div>
             <div className="col-span-2"><dt className="text-muted">지역</dt><dd className="mt-1 font-bold">{space.region}</dd></div>
           </dl>
+          <Link className="mt-6 inline-flex rounded-full border border-leaf/25 px-4 py-2 text-sm font-bold text-leaf" href={`/seasons/new?spaceId=${encodeURIComponent(space.id)}`}>이 공간에 시즌 등록</Link>
         </li>
       ))}
     </ul>
   );
-}
-
-function subscribeToStorage(onStoreChange: () => void) {
-  window.addEventListener("storage", onStoreChange);
-  return () => window.removeEventListener("storage", onStoreChange);
-}
-
-function getEmptySnapshot() {
-  return "";
 }
