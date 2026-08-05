@@ -1,26 +1,79 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --cream: #f7f3e9;
+  --paper: #fffdf7;
+  --ink: #213026;
+  --muted: #647066;
+  --leaf: #2d5b36;
+  --leaf-dark: #21472a;
+  --leaf-soft: #dfe8d8;
+  --soil: #b66b45;
+  --sun: #e6ad46;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-cream: var(--cream);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-leaf: var(--leaf);
+  --color-leaf-dark: var(--leaf-dark);
+  --color-leaf-soft: var(--leaf-soft);
+  --color-soil: var(--soil);
+  --color-sun: var(--sun);
+  --font-sans: var(--font-geist), "Pretendard", "Noto Sans KR", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: var(--font-geist), "Pretendard", "Noto Sans KR", sans-serif;
+}
+
+a {
+  text-decoration: none;
+}
+
+.hero-glow {
+  position: absolute;
+  z-index: -1;
+  top: -10rem;
+  right: -10rem;
+  width: min(54rem, 90vw);
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 45% 45%, rgba(231, 205, 126, 0.36), transparent 58%),
+    radial-gradient(circle at 65% 65%, rgba(128, 166, 102, 0.22), transparent 68%);
+  filter: blur(4px);
+}
+
+.garden-grid {
+  background-color: #d6c39c;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.52) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.52) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
 }
