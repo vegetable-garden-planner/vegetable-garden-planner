@@ -1,5 +1,6 @@
 import { BrandMark } from "@/components/brand-mark";
 import Link from "next/link";
+import { AuthHeaderMenu } from "@/features/auth/components/auth-header-menu";
 
 const navigation = [
   { label: "서비스 소개", href: "#how-it-works" },
@@ -25,9 +26,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <span className="hidden cursor-not-allowed rounded-full px-4 py-2 text-sm font-bold text-muted/65 sm:block" title="로그인 기능 준비 중">
-            로그인
-          </span>
+          <AuthHeaderMenu />
           <Link className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white transition hover:bg-leaf-dark" href="/start">
             시작하기
           </Link>

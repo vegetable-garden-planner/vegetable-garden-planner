@@ -1,15 +1,11 @@
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
+import type { KeyValueStorage } from "@/shared/infrastructure/key-value-storage";
 import {
   isGrowingSpaceType,
   isSunlightExposure,
 } from "../../../shared/domain/growing-environment.ts";
 
 const STORAGE_KEY = "simeobom:growing-spaces";
-
-export interface KeyValueStorage {
-  getItem(key: string): string | null;
-  setItem(key: string, value: string): void;
-}
 
 export class InvalidGrowingSpaceDataError extends Error {
   constructor() {

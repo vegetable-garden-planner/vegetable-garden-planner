@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
+import type { KeyValueStorage } from "../../../shared/infrastructure/key-value-storage.ts";
 import {
   addGrowingSpace,
   InvalidGrowingSpaceDataError,
   loadGrowingSpaces,
-  type KeyValueStorage,
 } from "./space-storage.ts";
 
 function createMemoryStorage(initial?: string): KeyValueStorage {
@@ -13,6 +13,7 @@ function createMemoryStorage(initial?: string): KeyValueStorage {
   return {
     getItem: () => value,
     setItem: (_key, nextValue) => { value = nextValue; },
+    removeItem: () => { value = null; },
   };
 }
 
