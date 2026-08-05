@@ -2,8 +2,8 @@ import type {
   CareTime,
   GrowingGoal,
   SpaceAvailability,
-  Sunlight,
 } from "@/features/start-diagnosis/domain/diagnosis";
+import type { SunlightExposure } from "@/shared/domain/growing-environment";
 
 export interface DiagnosisOption<T extends string> {
   value: T;
@@ -22,7 +22,7 @@ export const SUNLIGHT_OPTIONS = [
   { value: "low", label: "거의 들지 않아요", description: "밝지만 직접 햇빛은 2시간 미만이에요." },
   { value: "partial", label: "조금 들어요", description: "하루 약 2~5시간 햇빛이 들어요." },
   { value: "full", label: "충분히 들어요", description: "하루 6시간 이상 햇빛이 들어요." },
-] satisfies readonly DiagnosisOption<Sunlight>[];
+] satisfies readonly DiagnosisOption<SunlightExposure>[];
 
 export const CARE_TIME_OPTIONS = [
   { value: "low", label: "주 1회 정도", description: "자주 돌보기 어려워요." },

@@ -1,16 +1,21 @@
+import type {
+  GrowingSpaceType,
+  SunlightExposure,
+} from "@/shared/domain/growing-environment";
+
 export type SpaceAvailability = "none" | "indoor" | "balcony" | "outdoor";
-export type Sunlight = "low" | "partial" | "full";
 export type CareTime = "low" | "medium" | "high";
 export type GrowingGoal = "easy" | "edible" | "flowers";
 
 export interface DiagnosisAnswers {
   space: SpaceAvailability;
-  sunlight: Sunlight;
+  sunlight: SunlightExposure;
   careTime: CareTime;
   goal: GrowingGoal;
 }
 
 export interface DiagnosisRecommendation {
+  spaceTypeKey: GrowingSpaceType;
   spaceType: "실내 화분" | "베란다 재배" | "마당·텃밭";
   title: string;
   description: string;
@@ -46,6 +51,7 @@ function createIndoorRecommendation(
   const plants = selectIndoorPlants(answers);
 
   return {
+    spaceTypeKey: "indoor",
     spaceType: "실내 화분",
     title: answers.space === "none" ? "작은 화분 하나로 시작해 보세요" : "창가 한쪽이면 충분해요",
     description:
@@ -61,6 +67,7 @@ function createBalconyRecommendation(
   const plants = selectBalconyPlants(answers);
 
   return {
+    spaceTypeKey: "balcony",
     spaceType: "베란다 재배",
     title: "화분 두세 개로 작은 베란다 정원을 시작해 보세요",
     description:
@@ -76,6 +83,7 @@ function createOutdoorRecommendation(
   const plants = selectOutdoorPlants(answers);
 
   return {
+    spaceTypeKey: "garden",
     spaceType: "마당·텃밭",
     title: "작은 구역부터 텃밭 계획을 시작해 보세요",
     description:

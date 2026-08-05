@@ -1,0 +1,33 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { SpaceForm } from "@/features/growing-space/components/space-form";
+import { isGrowingSpaceType } from "@/shared/domain/growing-environment";
+
+export const metadata: Metadata = {
+  title: "재배 공간 등록 | 심어봄",
+  description: "실내 화분, 베란다 또는 텃밭 공간의 환경과 크기를 등록하세요.",
+};
+
+export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
+  const query = await props.searchParams;
+  const requestedType = query.type;
+  const initialType = typeof requestedType === "string" && isGrowingSpaceType(requestedType)
+    ? requestedType
+    : "indoor";
+
+  return (
+    <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
+      <div className="mx-auto max-w-3xl">
+        <Link className="text-sm font-bold text-muted hover:text-leaf" href="/spaces">← 내 공간 목록</Link>
+        <div className="mb-8 mt-10">
+          <p className="text-sm font-bold text-leaf">재배 공간 등록</p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">식물을 키울 공간을 알려주세요</h1>
+          <p className="mt-4 leading-7 text-muted">지금은 브라우저에 임시 저장되며, Laravel API가 준비되면 계정 데이터로 전환할 예정입니다.</p>
+        </div>
+        <section className="rounded-3xl border border-ink/10 bg-white p-6 sm:p-9">
+          <SpaceForm initialType={initialType} />
+        </section>
+      </div>
+    </main>
+  );
+}
