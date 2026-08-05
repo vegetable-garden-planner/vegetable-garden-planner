@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SpaceForm } from "@/features/growing-space/components/space-form";
 import { isGrowingSpaceType } from "@/shared/domain/growing-environment";
+import { AuthGate } from "@/features/auth/components/auth-gate";
 
 export const metadata: Metadata = {
   title: "재배 공간 등록 | 심어봄",
@@ -14,9 +15,11 @@ export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
   const initialType = typeof requestedType === "string" && isGrowingSpaceType(requestedType)
     ? requestedType
     : "indoor";
+  const returnPath = `/spaces/new?type=${initialType}`;
 
   return (
-    <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
+    <AuthGate loginHref={`/login?next=${encodeURIComponent(returnPath)}`}>
+      <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
       <div className="mx-auto max-w-3xl">
         <Link className="text-sm font-bold text-muted hover:text-leaf" href="/spaces">← 내 공간 목록</Link>
         <div className="mb-8 mt-10">
@@ -28,6 +31,7 @@ export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
           <SpaceForm initialType={initialType} />
         </section>
       </div>
-    </main>
+      </main>
+    </AuthGate>
   );
 }

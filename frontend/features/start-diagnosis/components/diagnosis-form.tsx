@@ -80,7 +80,7 @@ export function DiagnosisForm() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link className="rounded-full bg-leaf px-5 py-3 text-center font-bold text-white" href={`/spaces/new?type=${recommendation.spaceTypeKey}`}>
+          <Link className="rounded-full bg-leaf px-5 py-3 text-center font-bold text-white" href={`/login?next=${encodeURIComponent(`/spaces/new?type=${recommendation.spaceTypeKey}`)}`}>
             이 공간으로 시작하기
           </Link>
           <button className="rounded-full border border-ink/15 px-5 py-3 font-bold" onClick={goBack} type="button">
