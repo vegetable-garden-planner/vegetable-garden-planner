@@ -23,6 +23,59 @@ for (const [index, diagram] of diagrams.entries()) {
   await writeFile(path.join(projectRoot, "docs", outputs[index]), svg, "utf8");
 }
 
+const firstRelease = {
+  entities: [
+    entity("REGIONS", "bigint id PK", "string name UK"),
+    entity("USERS", "bigint id PK", "bigint region_id FK", "string email UK", "string password", "string nickname", "string role", "string status"),
+    entity("GARDENS", "bigint id PK", "bigint owner_id FK", "bigint region_id FK", "string name", "decimal width", "decimal height", "decimal cell_size", "string environment"),
+    entity("SEASONS", "bigint id PK", "bigint garden_id FK", "string name", "date start_date", "date end_date", "string status"),
+    entity("TASK_TYPES", "bigint id PK", "string name UK", "string icon"),
+    entity("CROP_FAMILIES", "bigint id PK", "string name UK", "int rotation_years"),
+    entity("CROPS", "bigint id PK", "bigint family_id FK", "string name UK", "string difficulty", "text description"),
+    entity("PLANTINGS", "bigint id PK", "bigint season_id FK", "bigint crop_id FK", "int start_x", "int start_y", "int width", "int height"),
+    entity("TASKS", "bigint id PK", "bigint season_id FK", "bigint planting_id FK", "bigint task_type_id FK", "date due_date", "string status"),
+    entity("TASK_COMPLETIONS", "bigint id PK", "bigint task_id FK", "bigint user_id FK", "datetime completed_at", "text memo"),
+    entity("CULTIVATION_RULES", "bigint id PK", "bigint crop_id FK", "bigint region_id FK", "string environment", "date sowing_start", "date sowing_end"),
+    entity("PLANT_SPACING_RULES", "bigint id PK", "bigint crop_id FK,UK", "decimal plant_spacing", "decimal row_spacing"),
+    entity("PLANTING_DETAILS", "bigint id PK", "bigint planting_id FK,UK", "int quantity", "date sowing_date", "date transplant_date", "date harvest_start"),
+    entity("WATERING_SCHEDULES", "bigint id PK", "bigint planting_id FK,UK", "int interval_days", "datetime next_watering_at", "boolean enabled"),
+    entity("WATERING_LOGS", "bigint id PK", "bigint planting_id FK", "bigint user_id FK", "datetime watered_at", "decimal amount", "text memo"),
+  ],
+  relations: [
+    relation("REGIONS", "USERS", "사용 지역"),
+    relation("REGIONS", "GARDENS", "텃밭 지역"),
+    relation("REGIONS", "CULTIVATION_RULES", "지역별 규칙"),
+    relation("USERS", "GARDENS", "소유"),
+    relation("GARDENS", "SEASONS", "재배 시즌"),
+    relation("CROP_FAMILIES", "CROPS", "작물 과"),
+    relation("CROPS", "CULTIVATION_RULES", "재배 규칙"),
+    relation("CROPS", "PLANT_SPACING_RULES", "재식 간격", "||", "o|"),
+    relation("SEASONS", "PLANTINGS", "작물 배치"),
+    relation("CROPS", "PLANTINGS", "배치 작물"),
+    relation("PLANTINGS", "PLANTING_DETAILS", "수량·날짜", "||", "o|"),
+    relation("SEASONS", "TASKS", "재배 일정"),
+    relation("PLANTINGS", "TASKS", "대상 작물"),
+    relation("TASK_TYPES", "TASKS", "작업 종류"),
+    relation("TASKS", "TASK_COMPLETIONS", "완료 기록"),
+    relation("PLANTINGS", "WATERING_SCHEDULES", "물주기 일정", "||", "o|"),
+    relation("PLANTINGS", "WATERING_LOGS", "물주기 기록"),
+  ],
+};
+
+await writeFile(
+  path.join(projectRoot, "docs", "erd-first-release.svg"),
+  renderDiagram(firstRelease, 3),
+  "utf8",
+);
+
+function entity(name, ...attributes) {
+  return { name, attributes };
+}
+
+function relation(from, to, label, fromCardinality = "||", toCardinality = "o{") {
+  return { from, to, label, fromCardinality, toCardinality };
+}
+
 function parseDiagram(diagram) {
   const entities = [];
   const relations = [];
@@ -65,8 +118,8 @@ function parseDiagram(diagram) {
 }
 
 function renderDiagram({ entities, relations }, diagramIndex) {
-  const columns = diagramIndex === 0 ? 5 : 4;
-  const boxWidth = diagramIndex === 0 ? 280 : 300;
+  const columns = diagramIndex === 0 || diagramIndex === 3 ? 5 : 4;
+  const boxWidth = diagramIndex === 0 ? 310 : diagramIndex === 3 ? 340 : 330;
   const headerHeight = 34;
   const rowHeight = 24;
   const gapX = 110;
@@ -135,7 +188,7 @@ function renderDiagram({ entities, relations }, diagramIndex) {
   <g aria-label="관계선">${relationMarkup}</g>
   <g aria-label="테이블">${entityMarkup}</g>
 </svg>
-`;
+`.replace(/[ \t]+$/gm, "");
 }
 
 function renderEntity(entity, position, headerHeight, rowHeight) {
@@ -149,7 +202,7 @@ function renderEntity(entity, position, headerHeight, rowHeight) {
 
       return `<rect x="${position.x + 1}" y="${y}" width="${position.width - 2}" height="${rowHeight}" fill="${fill}"/>
       <text x="${position.x + 10}" y="${y + 16}" font-size="12" fill="#64748b">${escapeXml(type)}</text>
-      <text x="${position.x + 82}" y="${y + 16}" font-size="12" fill="#111827">${escapeXml(name)}</text>
+      <text x="${position.x + 82}" y="${y + 16}" font-size="12" fill="#111827">${escapeXml(columnTitle(name))}</text>
       ${keyText ? `<text x="${position.x + position.width - 10}" y="${y + 16}" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">${escapeXml(keyText)}</text>` : ""}`;
     })
     .join("\n");
@@ -157,7 +210,7 @@ function renderEntity(entity, position, headerHeight, rowHeight) {
   return `<g filter="url(#shadow)">
     <rect x="${position.x}" y="${position.y}" width="${position.width}" height="${position.height}" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
     <path d="M${position.x + 4} ${position.y}H${position.x + position.width - 4}Q${position.x + position.width} ${position.y} ${position.x + position.width} ${position.y + 4}V${position.y + headerHeight}H${position.x}V${position.y + 4}Q${position.x} ${position.y} ${position.x + 4} ${position.y}Z" fill="#f4b4a6"/>
-    <text x="${position.x + 10}" y="${position.y + 22}" font-size="13" font-weight="600" fill="#3f3f46">${escapeXml(entity.name)}</text>
+    <text x="${position.x + 10}" y="${position.y + 22}" font-size="13" font-weight="600" fill="#3f3f46">${escapeXml(entityTitle(entity.name))}</text>
     ${attributes}
   </g>`;
 }
@@ -202,6 +255,156 @@ function markerFor(cardinality) {
   if (cardinality.includes("{")) return "many";
   if (cardinality.includes("o")) return "optional";
   return "one";
+}
+
+function entityLabels() {
+  return {
+  USERS: "사용자",
+  CLIMATE_ZONES: "기후 구분",
+  REGIONS: "지역",
+  SOCIAL_ACCOUNTS: "소셜 로그인 계정",
+  USER_SETTINGS: "사용자 설정",
+  PASSWORD_RESET_TOKENS: "비밀번호 재설정 토큰",
+  GARDENS: "텃밭",
+  GARDEN_MEMBERS: "텃밭 구성원",
+  SEASONS: "재배 시즌",
+  SEASON_REVIEWS: "시즌 평가",
+  SEASON_SNAPSHOTS: "시즌 배치 스냅샷",
+  CROP_FAMILIES: "작물 과",
+  CROPS: "작물",
+  CROP_CATEGORIES: "작물 분류",
+  CROP_CATEGORY_MAP: "작물·분류 연결",
+  CULTIVATION_RULES: "재배 규칙",
+  PLANT_SPACING_RULES: "재식 간격 규칙",
+  WATERING_RULES: "물주기 규칙",
+  CROP_SCHEDULE_TEMPLATES: "일정 생성 기준",
+  CROP_SOURCES: "작물 정보 출처",
+  PLANTINGS: "배치 작물",
+  PLANTING_DETAILS: "배치 상세",
+  PLANTING_WARNINGS: "배치 경고",
+  LAYOUT_VERSIONS: "배치도 버전",
+  TASK_TYPES: "작업 종류",
+  TASKS: "재배 일정",
+  TASK_RECURRENCES: "반복 일정",
+  TASK_COMPLETIONS: "일정 완료 기록",
+  WATERING_SCHEDULES: "물주기 일정",
+  WATERING_LOGS: "물주기 기록",
+  WATERING_SNOOZES: "물주기 미루기",
+  WORK_LOGS: "작업 기록",
+  GROWTH_RECORDS: "성장 기록",
+  RECORD_IMAGES: "기록 사진",
+  HARVEST_RECORDS: "수확 기록",
+  HARVEST_IMAGES: "수확 사진",
+  HARVEST_REVIEWS: "수확 평가",
+  NOTIFICATIONS: "알림",
+  NOTIFICATION_SETTINGS: "알림 설정",
+  NOTIFICATION_LOGS: "알림 발송 기록",
+  };
+}
+
+function columnLabels() {
+  return {
+  id: "번호",
+  region_id: "지역 번호",
+  climate_zone_id: "기후 구분 번호",
+  owner_id: "소유자 번호",
+  garden_id: "텃밭 번호",
+  season_id: "시즌 번호",
+  family_id: "작물 과 번호",
+  crop_id: "작물 번호",
+  planting_id: "배치 작물 번호",
+  task_type_id: "작업 종류 번호",
+  task_id: "일정 번호",
+  user_id: "사용자 번호",
+  email: "이메일",
+  password: "비밀번호",
+  nickname: "닉네임",
+  role: "권한",
+  status: "상태",
+  notification_enabled: "알림 사용 여부",
+  email_enabled: "이메일 알림 여부",
+  unit: "단위",
+  provider: "로그인 제공자",
+  provider_user_id: "제공자 사용자 번호",
+  token: "인증 토큰",
+  created_at: "생성 시각",
+  joined_at: "가입 시각",
+  name: "이름",
+  width: "가로 크기",
+  height: "세로 크기",
+  cell_size: "격자 크기",
+  environment: "재배 환경",
+  start_date: "시작일",
+  end_date: "종료일",
+  rotation_years: "연작 제한 연수",
+  difficulty: "난이도",
+  description: "설명",
+  rating: "평점",
+  result: "결과",
+  layout_data: "배치 데이터",
+  saved_at: "저장 시각",
+  image: "이미지",
+  category_id: "분류 번호",
+  sowing_start: "파종 시작일",
+  sowing_end: "파종 종료일",
+  plant_spacing: "포기 간격",
+  row_spacing: "줄 간격",
+  growth_stage: "성장 단계",
+  guide_text: "안내 내용",
+  base_event: "기준 사건",
+  offset_days: "기준일 차이",
+  source_name: "출처 이름",
+  source_url: "출처 주소",
+  reviewed_at: "검토 시각",
+  start_x: "시작 X 좌표",
+  start_y: "시작 Y 좌표",
+  quantity: "포기 수",
+  sowing_date: "파종일",
+  transplant_date: "정식일",
+  harvest_start: "수확 시작일",
+  warning_type: "경고 종류",
+  level: "경고 수준",
+  message: "메시지",
+  resolved_at: "해결 시각",
+  created_by: "작성자 번호",
+  version: "버전",
+  icon: "아이콘",
+  due_date: "예정일",
+  frequency: "반복 방식",
+  interval_value: "반복 간격",
+  completed_at: "완료 시각",
+  memo: "메모",
+  interval_days: "반복 일수",
+  next_watering_at: "다음 물주기",
+  enabled: "사용 여부",
+  watered_at: "물을 준 시각",
+  amount: "물의 양",
+  original_date: "원래 예정일",
+  snoozed_until: "미룬 시각",
+  worked_at: "작업 시각",
+  recorded_at: "기록 시각",
+  condition: "상태",
+  record_type: "기록 종류",
+  record_id: "기록 번호",
+  image_url: "이미지 주소",
+  harvested_at: "수확 시각",
+  quality: "품질",
+  type: "유형",
+  title: "제목",
+  read_at: "읽은 시각",
+  channel: "발송 채널",
+  sent_at: "발송 시각",
+  };
+}
+
+function entityTitle(name) {
+  const label = entityLabels()[name];
+  return label ? `${name} · ${label}` : name;
+}
+
+function columnTitle(name) {
+  const label = columnLabels()[name];
+  return label ? `${name} · ${label}` : name;
 }
 
 function escapeXml(value) {

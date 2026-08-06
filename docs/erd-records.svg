@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1620" height="1140" viewBox="0 0 1620 1140" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1740" height="1140" viewBox="0 0 1740 1140" role="img" aria-labelledby="title desc">
   <title id="title">심어봄 데이터베이스 ERD</title>
   <desc id="desc">테이블의 주요 컬럼과 일대일, 일대다 관계를 표시한 엔터티 관계도</desc>
   <defs>
@@ -16,488 +16,488 @@
     </filter>
   </defs>
   <rect width="100%" height="100%" fill="#f8fafc"/>
-  <g aria-label="관계선"><path d="M195 1037V622H195V223" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="160" y="615" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="195" y="625" text-anchor="middle" font-size="9" fill="#475569">schedules</text>
-<path d="M605 1037V630H195V223" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="365" y="615" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="400" y="625" text-anchor="middle" font-size="9" fill="#475569">targets</text>
-<path d="M1015 1037V638H195V223" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="570" y="615" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="605" y="625" text-anchor="middle" font-size="9" fill="#475569">categorizes</text>
-<path d="M345 134H392V122H455" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#optional)"/>
-    <rect x="365" y="113" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="400" y="123" text-anchor="middle" font-size="9" fill="#475569">repeats_by</text>
-<path d="M345 134H605V122H865" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="570" y="113" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="605" y="123" text-anchor="middle" font-size="9" fill="#475569">completed_as</text>
-<path d="M1425 789V502H1015V199" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="1185" y="479" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1220" y="489" text-anchor="middle" font-size="9" fill="#475569">completes</text>
-<path d="M605 1037V610H1425V199" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#optional)"/>
-    <rect x="980" y="603" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1015" y="613" text-anchor="middle" font-size="9" fill="#475569">has</text>
-<path d="M1275 122H1015V358H755" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="980" y="225" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1015" y="235" text-anchor="middle" font-size="9" fill="#475569">postpones</text>
-<path d="M605 1037V762H195V471" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="365" y="739" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="400" y="749" text-anchor="middle" font-size="9" fill="#475569">records</text>
-<path d="M1275 818H802V382H345" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="775" y="585" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="810" y="595" text-anchor="middle" font-size="9" fill="#475569">waters</text>
-<path d="M345 1066H605V382H865" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="570" y="709" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="605" y="719" text-anchor="middle" font-size="9" fill="#475569">records</text>
-<path d="M605 1037V762H1015V471" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="775" y="739" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="810" y="749" text-anchor="middle" font-size="9" fill="#475569">targets</text>
-<path d="M1015 1037V746H1015V471" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="980" y="739" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1015" y="749" text-anchor="middle" font-size="9" fill="#475569">categorizes</text>
-<path d="M1425 789V630H1015V471" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="1185" y="615" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1220" y="625" text-anchor="middle" font-size="9" fill="#475569">performs</text>
-<path d="M755 1066H1023V382H1275" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="980" y="709" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1015" y="719" text-anchor="middle" font-size="9" fill="#475569">grows</text>
-<path d="M605 1037V870H605V719" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="570" y="863" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="605" y="873" text-anchor="middle" font-size="9" fill="#475569">harvested_as</text>
-<path d="M1275 818H1015V630H755" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="980" y="709" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1015" y="719" text-anchor="middle" font-size="9" fill="#475569">harvests</text>
-<path d="M755 630H818V594H865" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="775" y="597" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="810" y="607" text-anchor="middle" font-size="9" fill="#475569">has</text>
-<path d="M755 630H1007V606H1275" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#optional)"/>
-    <rect x="980" y="603" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1015" y="613" text-anchor="middle" font-size="9" fill="#475569">reviewed_as</text>
-<path d="M1275 818H810V878H345" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="775" y="833" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="810" y="843" text-anchor="middle" font-size="9" fill="#475569">receives</text>
-<path d="M865 1066H818V866H755" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="775" y="951" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="810" y="961" text-anchor="middle" font-size="9" fill="#475569">configures</text>
-<path d="M1275 818H1007V866H755" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="980" y="827" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="1015" y="837" text-anchor="middle" font-size="9" fill="#475569">owns</text>
-<path d="M345 878H605V866H865" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
-    <rect x="570" y="857" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
-    <text x="605" y="867" text-anchor="middle" font-size="9" fill="#475569">delivered_as</text></g>
+  <g aria-label="관계선"><path d="M210 1037V622H210V223" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="175" y="615" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="210" y="625" text-anchor="middle" font-size="9" fill="#475569">schedules</text>
+<path d="M650 1037V630H210V223" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="395" y="615" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="430" y="625" text-anchor="middle" font-size="9" fill="#475569">targets</text>
+<path d="M1090 1037V638H210V223" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="615" y="615" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="650" y="625" text-anchor="middle" font-size="9" fill="#475569">categorizes</text>
+<path d="M375 134H422V122H485" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#optional)"/>
+    <rect x="395" y="113" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="430" y="123" text-anchor="middle" font-size="9" fill="#475569">repeats_by</text>
+<path d="M375 134H650V122H925" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="615" y="113" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="650" y="123" text-anchor="middle" font-size="9" fill="#475569">completed_as</text>
+<path d="M1530 789V502H1090V199" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="1275" y="479" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1310" y="489" text-anchor="middle" font-size="9" fill="#475569">completes</text>
+<path d="M650 1037V610H1530V199" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#optional)"/>
+    <rect x="1055" y="603" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1090" y="613" text-anchor="middle" font-size="9" fill="#475569">has</text>
+<path d="M1365 122H1090V358H815" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="1055" y="225" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1090" y="235" text-anchor="middle" font-size="9" fill="#475569">postpones</text>
+<path d="M650 1037V762H210V471" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="395" y="739" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="430" y="749" text-anchor="middle" font-size="9" fill="#475569">records</text>
+<path d="M1365 818H862V382H375" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="835" y="585" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="870" y="595" text-anchor="middle" font-size="9" fill="#475569">waters</text>
+<path d="M375 1066H650V382H925" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="615" y="709" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="650" y="719" text-anchor="middle" font-size="9" fill="#475569">records</text>
+<path d="M650 1037V762H1090V471" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="835" y="739" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="870" y="749" text-anchor="middle" font-size="9" fill="#475569">targets</text>
+<path d="M1090 1037V746H1090V471" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="1055" y="739" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1090" y="749" text-anchor="middle" font-size="9" fill="#475569">categorizes</text>
+<path d="M1365 818H1310V382H1255" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="1275" y="585" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1310" y="595" text-anchor="middle" font-size="9" fill="#475569">performs</text>
+<path d="M815 1066H1098V382H1365" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="1055" y="709" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1090" y="719" text-anchor="middle" font-size="9" fill="#475569">grows</text>
+<path d="M650 1037V870H650V719" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="615" y="863" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="650" y="873" text-anchor="middle" font-size="9" fill="#475569">harvested_as</text>
+<path d="M1365 818H1090V630H815" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="1055" y="709" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1090" y="719" text-anchor="middle" font-size="9" fill="#475569">harvests</text>
+<path d="M815 630H878V594H925" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="835" y="597" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="870" y="607" text-anchor="middle" font-size="9" fill="#475569">has</text>
+<path d="M815 630H1082V606H1365" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#optional)"/>
+    <rect x="1055" y="603" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1090" y="613" text-anchor="middle" font-size="9" fill="#475569">reviewed_as</text>
+<path d="M1365 818H870V878H375" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="835" y="833" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="870" y="843" text-anchor="middle" font-size="9" fill="#475569">receives</text>
+<path d="M925 1066H878V866H815" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="835" y="951" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="870" y="961" text-anchor="middle" font-size="9" fill="#475569">configures</text>
+<path d="M1365 818H1082V866H815" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="1055" y="827" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="1090" y="837" text-anchor="middle" font-size="9" fill="#475569">owns</text>
+<path d="M375 878H650V866H925" fill="none" stroke="#64748b" stroke-width="1.15" marker-start="url(#one)" marker-end="url(#many)"/>
+    <rect x="615" y="857" width="70" height="15" rx="3" fill="#f8fafc" fill-opacity="0.92"/>
+    <text x="650" y="867" text-anchor="middle" font-size="9" fill="#475569">delivered_as</text></g>
   <g aria-label="테이블"><g filter="url(#shadow)">
-    <rect x="45" y="45" width="300" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M49 45H341Q345 45 345 49V79H45V49Q45 45 49 45Z" fill="#f4b4a6"/>
-    <text x="55" y="67" font-size="13" font-weight="600" fill="#3f3f46">TASKS</text>
-    <rect x="46" y="79" width="298" height="24" fill="#ffffff"/>
+    <rect x="45" y="45" width="330" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M49 45H371Q375 45 375 49V79H45V49Q45 45 49 45Z" fill="#f4b4a6"/>
+    <text x="55" y="67" font-size="13" font-weight="600" fill="#3f3f46">TASKS · 재배 일정</text>
+    <rect x="46" y="79" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="95" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="95" font-size="12" fill="#111827">id</text>
-      <text x="335" y="95" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="46" y="103" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="95" font-size="12" fill="#111827">id · 번호</text>
+      <text x="365" y="95" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="46" y="103" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="119" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="119" font-size="12" fill="#111827">season_id</text>
-      <text x="335" y="119" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="46" y="127" width="298" height="24" fill="#ffffff"/>
+      <text x="127" y="119" font-size="12" fill="#111827">season_id · 시즌 번호</text>
+      <text x="365" y="119" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="46" y="127" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="143" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="143" font-size="12" fill="#111827">planting_id</text>
-      <text x="335" y="143" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="46" y="151" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="143" font-size="12" fill="#111827">planting_id · 배치 작물 번호</text>
+      <text x="365" y="143" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="46" y="151" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="167" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="167" font-size="12" fill="#111827">task_type_id</text>
-      <text x="335" y="167" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="46" y="175" width="298" height="24" fill="#ffffff"/>
+      <text x="127" y="167" font-size="12" fill="#111827">task_type_id · 작업 종류 번호</text>
+      <text x="365" y="167" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="46" y="175" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="191" font-size="12" fill="#64748b">date</text>
-      <text x="127" y="191" font-size="12" fill="#111827">due_date</text>
-      
-<rect x="46" y="199" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="191" font-size="12" fill="#111827">due_date · 예정일</text>
+
+<rect x="46" y="199" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="215" font-size="12" fill="#64748b">string</text>
-      <text x="127" y="215" font-size="12" fill="#111827">status</text>
-      
+      <text x="127" y="215" font-size="12" fill="#111827">status · 상태</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="455" y="45" width="300" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M459 45H751Q755 45 755 49V79H455V49Q455 45 459 45Z" fill="#f4b4a6"/>
-    <text x="465" y="67" font-size="13" font-weight="600" fill="#3f3f46">TASK_RECURRENCES</text>
-    <rect x="456" y="79" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="95" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="95" font-size="12" fill="#111827">id</text>
-      <text x="745" y="95" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="456" y="103" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="119" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="119" font-size="12" fill="#111827">task_id</text>
-      <text x="745" y="119" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK,UK</text>
-<rect x="456" y="127" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="143" font-size="12" fill="#64748b">string</text>
-      <text x="537" y="143" font-size="12" fill="#111827">frequency</text>
-      
-<rect x="456" y="151" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="167" font-size="12" fill="#64748b">int</text>
-      <text x="537" y="167" font-size="12" fill="#111827">interval_value</text>
-      
-<rect x="456" y="175" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="191" font-size="12" fill="#64748b">date</text>
-      <text x="537" y="191" font-size="12" fill="#111827">end_date</text>
-      
+    <rect x="485" y="45" width="330" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M489 45H811Q815 45 815 49V79H485V49Q485 45 489 45Z" fill="#f4b4a6"/>
+    <text x="495" y="67" font-size="13" font-weight="600" fill="#3f3f46">TASK_RECURRENCES · 반복 일정</text>
+    <rect x="486" y="79" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="95" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="95" font-size="12" fill="#111827">id · 번호</text>
+      <text x="805" y="95" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="486" y="103" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="119" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="119" font-size="12" fill="#111827">task_id · 일정 번호</text>
+      <text x="805" y="119" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK,UK</text>
+<rect x="486" y="127" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="143" font-size="12" fill="#64748b">string</text>
+      <text x="567" y="143" font-size="12" fill="#111827">frequency · 반복 방식</text>
+
+<rect x="486" y="151" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="167" font-size="12" fill="#64748b">int</text>
+      <text x="567" y="167" font-size="12" fill="#111827">interval_value · 반복 간격</text>
+
+<rect x="486" y="175" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="191" font-size="12" fill="#64748b">date</text>
+      <text x="567" y="191" font-size="12" fill="#111827">end_date · 종료일</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="865" y="45" width="300" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M869 45H1161Q1165 45 1165 49V79H865V49Q865 45 869 45Z" fill="#f4b4a6"/>
-    <text x="875" y="67" font-size="13" font-weight="600" fill="#3f3f46">TASK_COMPLETIONS</text>
-    <rect x="866" y="79" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="95" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="95" font-size="12" fill="#111827">id</text>
-      <text x="1155" y="95" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="866" y="103" width="298" height="24" fill="#f1f5f9"/>
-      <text x="875" y="119" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="119" font-size="12" fill="#111827">task_id</text>
-      <text x="1155" y="119" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="866" y="127" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="143" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="143" font-size="12" fill="#111827">user_id</text>
-      <text x="1155" y="143" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="866" y="151" width="298" height="24" fill="#f1f5f9"/>
-      <text x="875" y="167" font-size="12" fill="#64748b">datetime</text>
-      <text x="947" y="167" font-size="12" fill="#111827">completed_at</text>
-      
-<rect x="866" y="175" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="191" font-size="12" fill="#64748b">text</text>
-      <text x="947" y="191" font-size="12" fill="#111827">memo</text>
-      
+    <rect x="925" y="45" width="330" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M929 45H1251Q1255 45 1255 49V79H925V49Q925 45 929 45Z" fill="#f4b4a6"/>
+    <text x="935" y="67" font-size="13" font-weight="600" fill="#3f3f46">TASK_COMPLETIONS · 일정 완료 기록</text>
+    <rect x="926" y="79" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="95" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="95" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1245" y="95" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="926" y="103" width="328" height="24" fill="#f1f5f9"/>
+      <text x="935" y="119" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="119" font-size="12" fill="#111827">task_id · 일정 번호</text>
+      <text x="1245" y="119" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="926" y="127" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="143" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="143" font-size="12" fill="#111827">user_id · 사용자 번호</text>
+      <text x="1245" y="143" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="926" y="151" width="328" height="24" fill="#f1f5f9"/>
+      <text x="935" y="167" font-size="12" fill="#64748b">datetime</text>
+      <text x="1007" y="167" font-size="12" fill="#111827">completed_at · 완료 시각</text>
+
+<rect x="926" y="175" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="191" font-size="12" fill="#64748b">text</text>
+      <text x="1007" y="191" font-size="12" fill="#111827">memo · 메모</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="1275" y="45" width="300" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M1279 45H1571Q1575 45 1575 49V79H1275V49Q1275 45 1279 45Z" fill="#f4b4a6"/>
-    <text x="1285" y="67" font-size="13" font-weight="600" fill="#3f3f46">WATERING_SCHEDULES</text>
-    <rect x="1276" y="79" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="95" font-size="12" fill="#64748b">bigint</text>
-      <text x="1357" y="95" font-size="12" fill="#111827">id</text>
-      <text x="1565" y="95" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="1276" y="103" width="298" height="24" fill="#f1f5f9"/>
-      <text x="1285" y="119" font-size="12" fill="#64748b">bigint</text>
-      <text x="1357" y="119" font-size="12" fill="#111827">planting_id</text>
-      <text x="1565" y="119" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK,UK</text>
-<rect x="1276" y="127" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="143" font-size="12" fill="#64748b">int</text>
-      <text x="1357" y="143" font-size="12" fill="#111827">interval_days</text>
-      
-<rect x="1276" y="151" width="298" height="24" fill="#f1f5f9"/>
-      <text x="1285" y="167" font-size="12" fill="#64748b">datetime</text>
-      <text x="1357" y="167" font-size="12" fill="#111827">next_watering_at</text>
-      
-<rect x="1276" y="175" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="191" font-size="12" fill="#64748b">boolean</text>
-      <text x="1357" y="191" font-size="12" fill="#111827">enabled</text>
-      
+    <rect x="1365" y="45" width="330" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M1369 45H1691Q1695 45 1695 49V79H1365V49Q1365 45 1369 45Z" fill="#f4b4a6"/>
+    <text x="1375" y="67" font-size="13" font-weight="600" fill="#3f3f46">WATERING_SCHEDULES · 물주기 일정</text>
+    <rect x="1366" y="79" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="95" font-size="12" fill="#64748b">bigint</text>
+      <text x="1447" y="95" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1685" y="95" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="1366" y="103" width="328" height="24" fill="#f1f5f9"/>
+      <text x="1375" y="119" font-size="12" fill="#64748b">bigint</text>
+      <text x="1447" y="119" font-size="12" fill="#111827">planting_id · 배치 작물 번호</text>
+      <text x="1685" y="119" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK,UK</text>
+<rect x="1366" y="127" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="143" font-size="12" fill="#64748b">int</text>
+      <text x="1447" y="143" font-size="12" fill="#111827">interval_days · 반복 일수</text>
+
+<rect x="1366" y="151" width="328" height="24" fill="#f1f5f9"/>
+      <text x="1375" y="167" font-size="12" fill="#64748b">datetime</text>
+      <text x="1447" y="167" font-size="12" fill="#111827">next_watering_at · 다음 물주기</text>
+
+<rect x="1366" y="175" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="191" font-size="12" fill="#64748b">boolean</text>
+      <text x="1447" y="191" font-size="12" fill="#111827">enabled · 사용 여부</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="45" y="293" width="300" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M49 293H341Q345 293 345 297V327H45V297Q45 293 49 293Z" fill="#f4b4a6"/>
-    <text x="55" y="315" font-size="13" font-weight="600" fill="#3f3f46">WATERING_LOGS</text>
-    <rect x="46" y="327" width="298" height="24" fill="#ffffff"/>
+    <rect x="45" y="293" width="330" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M49 293H371Q375 293 375 297V327H45V297Q45 293 49 293Z" fill="#f4b4a6"/>
+    <text x="55" y="315" font-size="13" font-weight="600" fill="#3f3f46">WATERING_LOGS · 물주기 기록</text>
+    <rect x="46" y="327" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="343" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="343" font-size="12" fill="#111827">id</text>
-      <text x="335" y="343" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="46" y="351" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="343" font-size="12" fill="#111827">id · 번호</text>
+      <text x="365" y="343" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="46" y="351" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="367" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="367" font-size="12" fill="#111827">planting_id</text>
-      <text x="335" y="367" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="46" y="375" width="298" height="24" fill="#ffffff"/>
+      <text x="127" y="367" font-size="12" fill="#111827">planting_id · 배치 작물 번호</text>
+      <text x="365" y="367" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="46" y="375" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="391" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="391" font-size="12" fill="#111827">user_id</text>
-      <text x="335" y="391" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="46" y="399" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="391" font-size="12" fill="#111827">user_id · 사용자 번호</text>
+      <text x="365" y="391" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="46" y="399" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="415" font-size="12" fill="#64748b">datetime</text>
-      <text x="127" y="415" font-size="12" fill="#111827">watered_at</text>
-      
-<rect x="46" y="423" width="298" height="24" fill="#ffffff"/>
+      <text x="127" y="415" font-size="12" fill="#111827">watered_at · 물을 준 시각</text>
+
+<rect x="46" y="423" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="439" font-size="12" fill="#64748b">decimal</text>
-      <text x="127" y="439" font-size="12" fill="#111827">amount</text>
-      
-<rect x="46" y="447" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="439" font-size="12" fill="#111827">amount · 물의 양</text>
+
+<rect x="46" y="447" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="463" font-size="12" fill="#64748b">text</text>
-      <text x="127" y="463" font-size="12" fill="#111827">memo</text>
-      
+      <text x="127" y="463" font-size="12" fill="#111827">memo · 메모</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="455" y="293" width="300" height="130" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M459 293H751Q755 293 755 297V327H455V297Q455 293 459 293Z" fill="#f4b4a6"/>
-    <text x="465" y="315" font-size="13" font-weight="600" fill="#3f3f46">WATERING_SNOOZES</text>
-    <rect x="456" y="327" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="343" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="343" font-size="12" fill="#111827">id</text>
-      <text x="745" y="343" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="456" y="351" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="367" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="367" font-size="12" fill="#111827">watering_schedule_id</text>
-      <text x="745" y="367" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="456" y="375" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="391" font-size="12" fill="#64748b">datetime</text>
-      <text x="537" y="391" font-size="12" fill="#111827">original_date</text>
-      
-<rect x="456" y="399" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="415" font-size="12" fill="#64748b">datetime</text>
-      <text x="537" y="415" font-size="12" fill="#111827">snoozed_until</text>
-      
+    <rect x="485" y="293" width="330" height="130" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M489 293H811Q815 293 815 297V327H485V297Q485 293 489 293Z" fill="#f4b4a6"/>
+    <text x="495" y="315" font-size="13" font-weight="600" fill="#3f3f46">WATERING_SNOOZES · 물주기 미루기</text>
+    <rect x="486" y="327" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="343" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="343" font-size="12" fill="#111827">id · 번호</text>
+      <text x="805" y="343" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="486" y="351" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="367" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="367" font-size="12" fill="#111827">watering_schedule_id</text>
+      <text x="805" y="367" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="486" y="375" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="391" font-size="12" fill="#64748b">datetime</text>
+      <text x="567" y="391" font-size="12" fill="#111827">original_date · 원래 예정일</text>
+
+<rect x="486" y="399" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="415" font-size="12" fill="#64748b">datetime</text>
+      <text x="567" y="415" font-size="12" fill="#111827">snoozed_until · 미룬 시각</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="865" y="293" width="300" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M869 293H1161Q1165 293 1165 297V327H865V297Q865 293 869 293Z" fill="#f4b4a6"/>
-    <text x="875" y="315" font-size="13" font-weight="600" fill="#3f3f46">WORK_LOGS</text>
-    <rect x="866" y="327" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="343" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="343" font-size="12" fill="#111827">id</text>
-      <text x="1155" y="343" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="866" y="351" width="298" height="24" fill="#f1f5f9"/>
-      <text x="875" y="367" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="367" font-size="12" fill="#111827">season_id</text>
-      <text x="1155" y="367" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="866" y="375" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="391" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="391" font-size="12" fill="#111827">planting_id</text>
-      <text x="1155" y="391" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="866" y="399" width="298" height="24" fill="#f1f5f9"/>
-      <text x="875" y="415" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="415" font-size="12" fill="#111827">task_type_id</text>
-      <text x="1155" y="415" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="866" y="423" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="439" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="439" font-size="12" fill="#111827">user_id</text>
-      <text x="1155" y="439" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="866" y="447" width="298" height="24" fill="#f1f5f9"/>
-      <text x="875" y="463" font-size="12" fill="#64748b">datetime</text>
-      <text x="947" y="463" font-size="12" fill="#111827">worked_at</text>
-      
+    <rect x="925" y="293" width="330" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M929 293H1251Q1255 293 1255 297V327H925V297Q925 293 929 293Z" fill="#f4b4a6"/>
+    <text x="935" y="315" font-size="13" font-weight="600" fill="#3f3f46">WORK_LOGS · 작업 기록</text>
+    <rect x="926" y="327" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="343" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="343" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1245" y="343" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="926" y="351" width="328" height="24" fill="#f1f5f9"/>
+      <text x="935" y="367" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="367" font-size="12" fill="#111827">season_id · 시즌 번호</text>
+      <text x="1245" y="367" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="926" y="375" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="391" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="391" font-size="12" fill="#111827">planting_id · 배치 작물 번호</text>
+      <text x="1245" y="391" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="926" y="399" width="328" height="24" fill="#f1f5f9"/>
+      <text x="935" y="415" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="415" font-size="12" fill="#111827">task_type_id · 작업 종류 번호</text>
+      <text x="1245" y="415" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="926" y="423" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="439" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="439" font-size="12" fill="#111827">user_id · 사용자 번호</text>
+      <text x="1245" y="439" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="926" y="447" width="328" height="24" fill="#f1f5f9"/>
+      <text x="935" y="463" font-size="12" fill="#64748b">datetime</text>
+      <text x="1007" y="463" font-size="12" fill="#111827">worked_at · 작업 시각</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="1275" y="293" width="300" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M1279 293H1571Q1575 293 1575 297V327H1275V297Q1275 293 1279 293Z" fill="#f4b4a6"/>
-    <text x="1285" y="315" font-size="13" font-weight="600" fill="#3f3f46">GROWTH_RECORDS</text>
-    <rect x="1276" y="327" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="343" font-size="12" fill="#64748b">bigint</text>
-      <text x="1357" y="343" font-size="12" fill="#111827">id</text>
-      <text x="1565" y="343" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="1276" y="351" width="298" height="24" fill="#f1f5f9"/>
-      <text x="1285" y="367" font-size="12" fill="#64748b">bigint</text>
-      <text x="1357" y="367" font-size="12" fill="#111827">planting_id</text>
-      <text x="1565" y="367" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="1276" y="375" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="391" font-size="12" fill="#64748b">datetime</text>
-      <text x="1357" y="391" font-size="12" fill="#111827">recorded_at</text>
-      
-<rect x="1276" y="399" width="298" height="24" fill="#f1f5f9"/>
-      <text x="1285" y="415" font-size="12" fill="#64748b">decimal</text>
-      <text x="1357" y="415" font-size="12" fill="#111827">height</text>
-      
-<rect x="1276" y="423" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="439" font-size="12" fill="#64748b">string</text>
-      <text x="1357" y="439" font-size="12" fill="#111827">condition</text>
-      
-<rect x="1276" y="447" width="298" height="24" fill="#f1f5f9"/>
-      <text x="1285" y="463" font-size="12" fill="#64748b">text</text>
-      <text x="1357" y="463" font-size="12" fill="#111827">memo</text>
-      
+    <rect x="1365" y="293" width="330" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M1369 293H1691Q1695 293 1695 297V327H1365V297Q1365 293 1369 293Z" fill="#f4b4a6"/>
+    <text x="1375" y="315" font-size="13" font-weight="600" fill="#3f3f46">GROWTH_RECORDS · 성장 기록</text>
+    <rect x="1366" y="327" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="343" font-size="12" fill="#64748b">bigint</text>
+      <text x="1447" y="343" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1685" y="343" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="1366" y="351" width="328" height="24" fill="#f1f5f9"/>
+      <text x="1375" y="367" font-size="12" fill="#64748b">bigint</text>
+      <text x="1447" y="367" font-size="12" fill="#111827">planting_id · 배치 작물 번호</text>
+      <text x="1685" y="367" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="1366" y="375" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="391" font-size="12" fill="#64748b">datetime</text>
+      <text x="1447" y="391" font-size="12" fill="#111827">recorded_at · 기록 시각</text>
+
+<rect x="1366" y="399" width="328" height="24" fill="#f1f5f9"/>
+      <text x="1375" y="415" font-size="12" fill="#64748b">decimal</text>
+      <text x="1447" y="415" font-size="12" fill="#111827">height · 세로 크기</text>
+
+<rect x="1366" y="423" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="439" font-size="12" fill="#64748b">string</text>
+      <text x="1447" y="439" font-size="12" fill="#111827">condition · 상태</text>
+
+<rect x="1366" y="447" width="328" height="24" fill="#f1f5f9"/>
+      <text x="1375" y="463" font-size="12" fill="#64748b">text</text>
+      <text x="1447" y="463" font-size="12" fill="#111827">memo · 메모</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="45" y="541" width="300" height="130" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M49 541H341Q345 541 345 545V575H45V545Q45 541 49 541Z" fill="#f4b4a6"/>
-    <text x="55" y="563" font-size="13" font-weight="600" fill="#3f3f46">RECORD_IMAGES</text>
-    <rect x="46" y="575" width="298" height="24" fill="#ffffff"/>
+    <rect x="45" y="541" width="330" height="130" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M49 541H371Q375 541 375 545V575H45V545Q45 541 49 541Z" fill="#f4b4a6"/>
+    <text x="55" y="563" font-size="13" font-weight="600" fill="#3f3f46">RECORD_IMAGES · 기록 사진</text>
+    <rect x="46" y="575" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="591" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="591" font-size="12" fill="#111827">id</text>
-      <text x="335" y="591" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="46" y="599" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="591" font-size="12" fill="#111827">id · 번호</text>
+      <text x="365" y="591" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="46" y="599" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="615" font-size="12" fill="#64748b">string</text>
-      <text x="127" y="615" font-size="12" fill="#111827">record_type</text>
-      
-<rect x="46" y="623" width="298" height="24" fill="#ffffff"/>
+      <text x="127" y="615" font-size="12" fill="#111827">record_type · 기록 종류</text>
+
+<rect x="46" y="623" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="639" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="639" font-size="12" fill="#111827">record_id</text>
-      
-<rect x="46" y="647" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="639" font-size="12" fill="#111827">record_id · 기록 번호</text>
+
+<rect x="46" y="647" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="663" font-size="12" fill="#64748b">string</text>
-      <text x="127" y="663" font-size="12" fill="#111827">image_url</text>
-      
+      <text x="127" y="663" font-size="12" fill="#111827">image_url · 이미지 주소</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="455" y="541" width="300" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M459 541H751Q755 541 755 545V575H455V545Q455 541 459 541Z" fill="#f4b4a6"/>
-    <text x="465" y="563" font-size="13" font-weight="600" fill="#3f3f46">HARVEST_RECORDS</text>
-    <rect x="456" y="575" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="591" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="591" font-size="12" fill="#111827">id</text>
-      <text x="745" y="591" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="456" y="599" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="615" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="615" font-size="12" fill="#111827">planting_id</text>
-      <text x="745" y="615" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="456" y="623" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="639" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="639" font-size="12" fill="#111827">user_id</text>
-      <text x="745" y="639" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="456" y="647" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="663" font-size="12" fill="#64748b">datetime</text>
-      <text x="537" y="663" font-size="12" fill="#111827">harvested_at</text>
-      
-<rect x="456" y="671" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="687" font-size="12" fill="#64748b">decimal</text>
-      <text x="537" y="687" font-size="12" fill="#111827">quantity</text>
-      
-<rect x="456" y="695" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="711" font-size="12" fill="#64748b">string</text>
-      <text x="537" y="711" font-size="12" fill="#111827">unit</text>
-      
+    <rect x="485" y="541" width="330" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M489 541H811Q815 541 815 545V575H485V545Q485 541 489 541Z" fill="#f4b4a6"/>
+    <text x="495" y="563" font-size="13" font-weight="600" fill="#3f3f46">HARVEST_RECORDS · 수확 기록</text>
+    <rect x="486" y="575" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="591" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="591" font-size="12" fill="#111827">id · 번호</text>
+      <text x="805" y="591" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="486" y="599" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="615" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="615" font-size="12" fill="#111827">planting_id · 배치 작물 번호</text>
+      <text x="805" y="615" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="486" y="623" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="639" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="639" font-size="12" fill="#111827">user_id · 사용자 번호</text>
+      <text x="805" y="639" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="486" y="647" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="663" font-size="12" fill="#64748b">datetime</text>
+      <text x="567" y="663" font-size="12" fill="#111827">harvested_at · 수확 시각</text>
+
+<rect x="486" y="671" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="687" font-size="12" fill="#64748b">decimal</text>
+      <text x="567" y="687" font-size="12" fill="#111827">quantity · 포기 수</text>
+
+<rect x="486" y="695" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="711" font-size="12" fill="#64748b">string</text>
+      <text x="567" y="711" font-size="12" fill="#111827">unit · 단위</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="865" y="541" width="300" height="106" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M869 541H1161Q1165 541 1165 545V575H865V545Q865 541 869 541Z" fill="#f4b4a6"/>
-    <text x="875" y="563" font-size="13" font-weight="600" fill="#3f3f46">HARVEST_IMAGES</text>
-    <rect x="866" y="575" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="591" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="591" font-size="12" fill="#111827">id</text>
-      <text x="1155" y="591" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="866" y="599" width="298" height="24" fill="#f1f5f9"/>
-      <text x="875" y="615" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="615" font-size="12" fill="#111827">harvest_record_id</text>
-      <text x="1155" y="615" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="866" y="623" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="639" font-size="12" fill="#64748b">string</text>
-      <text x="947" y="639" font-size="12" fill="#111827">image_url</text>
-      
+    <rect x="925" y="541" width="330" height="106" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M929 541H1251Q1255 541 1255 545V575H925V545Q925 541 929 541Z" fill="#f4b4a6"/>
+    <text x="935" y="563" font-size="13" font-weight="600" fill="#3f3f46">HARVEST_IMAGES · 수확 사진</text>
+    <rect x="926" y="575" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="591" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="591" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1245" y="591" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="926" y="599" width="328" height="24" fill="#f1f5f9"/>
+      <text x="935" y="615" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="615" font-size="12" fill="#111827">harvest_record_id</text>
+      <text x="1245" y="615" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="926" y="623" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="639" font-size="12" fill="#64748b">string</text>
+      <text x="1007" y="639" font-size="12" fill="#111827">image_url · 이미지 주소</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="1275" y="541" width="300" height="130" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M1279 541H1571Q1575 541 1575 545V575H1275V545Q1275 541 1279 541Z" fill="#f4b4a6"/>
-    <text x="1285" y="563" font-size="13" font-weight="600" fill="#3f3f46">HARVEST_REVIEWS</text>
-    <rect x="1276" y="575" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="591" font-size="12" fill="#64748b">bigint</text>
-      <text x="1357" y="591" font-size="12" fill="#111827">id</text>
-      <text x="1565" y="591" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="1276" y="599" width="298" height="24" fill="#f1f5f9"/>
-      <text x="1285" y="615" font-size="12" fill="#64748b">bigint</text>
-      <text x="1357" y="615" font-size="12" fill="#111827">harvest_record_id</text>
-      <text x="1565" y="615" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK,UK</text>
-<rect x="1276" y="623" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="639" font-size="12" fill="#64748b">string</text>
-      <text x="1357" y="639" font-size="12" fill="#111827">quality</text>
-      
-<rect x="1276" y="647" width="298" height="24" fill="#f1f5f9"/>
-      <text x="1285" y="663" font-size="12" fill="#64748b">text</text>
-      <text x="1357" y="663" font-size="12" fill="#111827">memo</text>
-      
+    <rect x="1365" y="541" width="330" height="130" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M1369 541H1691Q1695 541 1695 545V575H1365V545Q1365 541 1369 541Z" fill="#f4b4a6"/>
+    <text x="1375" y="563" font-size="13" font-weight="600" fill="#3f3f46">HARVEST_REVIEWS · 수확 평가</text>
+    <rect x="1366" y="575" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="591" font-size="12" fill="#64748b">bigint</text>
+      <text x="1447" y="591" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1685" y="591" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="1366" y="599" width="328" height="24" fill="#f1f5f9"/>
+      <text x="1375" y="615" font-size="12" fill="#64748b">bigint</text>
+      <text x="1447" y="615" font-size="12" fill="#111827">harvest_record_id</text>
+      <text x="1685" y="615" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK,UK</text>
+<rect x="1366" y="623" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="639" font-size="12" fill="#64748b">string</text>
+      <text x="1447" y="639" font-size="12" fill="#111827">quality · 품질</text>
+
+<rect x="1366" y="647" width="328" height="24" fill="#f1f5f9"/>
+      <text x="1375" y="663" font-size="12" fill="#64748b">text</text>
+      <text x="1447" y="663" font-size="12" fill="#111827">memo · 메모</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="45" y="789" width="300" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M49 789H341Q345 789 345 793V823H45V793Q45 789 49 789Z" fill="#f4b4a6"/>
-    <text x="55" y="811" font-size="13" font-weight="600" fill="#3f3f46">NOTIFICATIONS</text>
-    <rect x="46" y="823" width="298" height="24" fill="#ffffff"/>
+    <rect x="45" y="789" width="330" height="178" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M49 789H371Q375 789 375 793V823H45V793Q45 789 49 789Z" fill="#f4b4a6"/>
+    <text x="55" y="811" font-size="13" font-weight="600" fill="#3f3f46">NOTIFICATIONS · 알림</text>
+    <rect x="46" y="823" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="839" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="839" font-size="12" fill="#111827">id</text>
-      <text x="335" y="839" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="46" y="847" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="839" font-size="12" fill="#111827">id · 번호</text>
+      <text x="365" y="839" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="46" y="847" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="863" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="863" font-size="12" fill="#111827">user_id</text>
-      <text x="335" y="863" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="46" y="871" width="298" height="24" fill="#ffffff"/>
+      <text x="127" y="863" font-size="12" fill="#111827">user_id · 사용자 번호</text>
+      <text x="365" y="863" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="46" y="871" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="887" font-size="12" fill="#64748b">string</text>
-      <text x="127" y="887" font-size="12" fill="#111827">type</text>
-      
-<rect x="46" y="895" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="887" font-size="12" fill="#111827">type · 유형</text>
+
+<rect x="46" y="895" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="911" font-size="12" fill="#64748b">string</text>
-      <text x="127" y="911" font-size="12" fill="#111827">title</text>
-      
-<rect x="46" y="919" width="298" height="24" fill="#ffffff"/>
+      <text x="127" y="911" font-size="12" fill="#111827">title · 제목</text>
+
+<rect x="46" y="919" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="935" font-size="12" fill="#64748b">text</text>
-      <text x="127" y="935" font-size="12" fill="#111827">message</text>
-      
-<rect x="46" y="943" width="298" height="24" fill="#f1f5f9"/>
+      <text x="127" y="935" font-size="12" fill="#111827">message · 메시지</text>
+
+<rect x="46" y="943" width="328" height="24" fill="#f1f5f9"/>
       <text x="55" y="959" font-size="12" fill="#64748b">datetime</text>
-      <text x="127" y="959" font-size="12" fill="#111827">read_at</text>
-      
+      <text x="127" y="959" font-size="12" fill="#111827">read_at · 읽은 시각</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="455" y="789" width="300" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M459 789H751Q755 789 755 793V823H455V793Q455 789 459 789Z" fill="#f4b4a6"/>
-    <text x="465" y="811" font-size="13" font-weight="600" fill="#3f3f46">NOTIFICATION_SETTINGS</text>
-    <rect x="456" y="823" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="839" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="839" font-size="12" fill="#111827">id</text>
-      <text x="745" y="839" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="456" y="847" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="863" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="863" font-size="12" fill="#111827">user_id</text>
-      <text x="745" y="863" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="456" y="871" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="887" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="887" font-size="12" fill="#111827">task_type_id</text>
-      <text x="745" y="887" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="456" y="895" width="298" height="24" fill="#f1f5f9"/>
-      <text x="465" y="911" font-size="12" fill="#64748b">boolean</text>
-      <text x="537" y="911" font-size="12" fill="#111827">enabled</text>
-      
-<rect x="456" y="919" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="935" font-size="12" fill="#64748b">boolean</text>
-      <text x="537" y="935" font-size="12" fill="#111827">email_enabled</text>
-      
+    <rect x="485" y="789" width="330" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M489 789H811Q815 789 815 793V823H485V793Q485 789 489 789Z" fill="#f4b4a6"/>
+    <text x="495" y="811" font-size="13" font-weight="600" fill="#3f3f46">NOTIFICATION_SETTINGS · 알림 설정</text>
+    <rect x="486" y="823" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="839" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="839" font-size="12" fill="#111827">id · 번호</text>
+      <text x="805" y="839" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="486" y="847" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="863" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="863" font-size="12" fill="#111827">user_id · 사용자 번호</text>
+      <text x="805" y="863" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="486" y="871" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="887" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="887" font-size="12" fill="#111827">task_type_id · 작업 종류 번호</text>
+      <text x="805" y="887" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="486" y="895" width="328" height="24" fill="#f1f5f9"/>
+      <text x="495" y="911" font-size="12" fill="#64748b">boolean</text>
+      <text x="567" y="911" font-size="12" fill="#111827">enabled · 사용 여부</text>
+
+<rect x="486" y="919" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="935" font-size="12" fill="#64748b">boolean</text>
+      <text x="567" y="935" font-size="12" fill="#111827">email_enabled · 이메일 알림 여부</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="865" y="789" width="300" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M869 789H1161Q1165 789 1165 793V823H865V793Q865 789 869 789Z" fill="#f4b4a6"/>
-    <text x="875" y="811" font-size="13" font-weight="600" fill="#3f3f46">NOTIFICATION_LOGS</text>
-    <rect x="866" y="823" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="839" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="839" font-size="12" fill="#111827">id</text>
-      <text x="1155" y="839" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
-<rect x="866" y="847" width="298" height="24" fill="#f1f5f9"/>
-      <text x="875" y="863" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="863" font-size="12" fill="#111827">notification_id</text>
-      <text x="1155" y="863" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
-<rect x="866" y="871" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="887" font-size="12" fill="#64748b">string</text>
-      <text x="947" y="887" font-size="12" fill="#111827">channel</text>
-      
-<rect x="866" y="895" width="298" height="24" fill="#f1f5f9"/>
-      <text x="875" y="911" font-size="12" fill="#64748b">string</text>
-      <text x="947" y="911" font-size="12" fill="#111827">status</text>
-      
-<rect x="866" y="919" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="935" font-size="12" fill="#64748b">datetime</text>
-      <text x="947" y="935" font-size="12" fill="#111827">sent_at</text>
-      
+    <rect x="925" y="789" width="330" height="154" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M929 789H1251Q1255 789 1255 793V823H925V793Q925 789 929 789Z" fill="#f4b4a6"/>
+    <text x="935" y="811" font-size="13" font-weight="600" fill="#3f3f46">NOTIFICATION_LOGS · 알림 발송 기록</text>
+    <rect x="926" y="823" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="839" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="839" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1245" y="839" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+<rect x="926" y="847" width="328" height="24" fill="#f1f5f9"/>
+      <text x="935" y="863" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="863" font-size="12" fill="#111827">notification_id</text>
+      <text x="1245" y="863" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">FK</text>
+<rect x="926" y="871" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="887" font-size="12" fill="#64748b">string</text>
+      <text x="1007" y="887" font-size="12" fill="#111827">channel · 발송 채널</text>
+
+<rect x="926" y="895" width="328" height="24" fill="#f1f5f9"/>
+      <text x="935" y="911" font-size="12" fill="#64748b">string</text>
+      <text x="1007" y="911" font-size="12" fill="#111827">status · 상태</text>
+
+<rect x="926" y="919" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="935" font-size="12" fill="#64748b">datetime</text>
+      <text x="1007" y="935" font-size="12" fill="#111827">sent_at · 발송 시각</text>
+
   </g>
 <g filter="url(#shadow)">
-    <rect x="1275" y="789" width="300" height="58" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M1279 789H1571Q1575 789 1575 793V823H1275V793Q1275 789 1279 789Z" fill="#f4b4a6"/>
-    <text x="1285" y="811" font-size="13" font-weight="600" fill="#3f3f46">USERS</text>
-    <rect x="1276" y="823" width="298" height="24" fill="#ffffff"/>
-      <text x="1285" y="839" font-size="12" fill="#64748b">bigint</text>
-      <text x="1357" y="839" font-size="12" fill="#111827">id</text>
-      <text x="1565" y="839" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+    <rect x="1365" y="789" width="330" height="58" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M1369 789H1691Q1695 789 1695 793V823H1365V793Q1365 789 1369 789Z" fill="#f4b4a6"/>
+    <text x="1375" y="811" font-size="13" font-weight="600" fill="#3f3f46">USERS · 사용자</text>
+    <rect x="1366" y="823" width="328" height="24" fill="#ffffff"/>
+      <text x="1375" y="839" font-size="12" fill="#64748b">bigint</text>
+      <text x="1447" y="839" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1685" y="839" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
   </g>
 <g filter="url(#shadow)">
-    <rect x="45" y="1037" width="300" height="58" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M49 1037H341Q345 1037 345 1041V1071H45V1041Q45 1037 49 1037Z" fill="#f4b4a6"/>
-    <text x="55" y="1059" font-size="13" font-weight="600" fill="#3f3f46">SEASONS</text>
-    <rect x="46" y="1071" width="298" height="24" fill="#ffffff"/>
+    <rect x="45" y="1037" width="330" height="58" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M49 1037H371Q375 1037 375 1041V1071H45V1041Q45 1037 49 1037Z" fill="#f4b4a6"/>
+    <text x="55" y="1059" font-size="13" font-weight="600" fill="#3f3f46">SEASONS · 재배 시즌</text>
+    <rect x="46" y="1071" width="328" height="24" fill="#ffffff"/>
       <text x="55" y="1087" font-size="12" fill="#64748b">bigint</text>
-      <text x="127" y="1087" font-size="12" fill="#111827">id</text>
-      <text x="335" y="1087" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+      <text x="127" y="1087" font-size="12" fill="#111827">id · 번호</text>
+      <text x="365" y="1087" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
   </g>
 <g filter="url(#shadow)">
-    <rect x="455" y="1037" width="300" height="58" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M459 1037H751Q755 1037 755 1041V1071H455V1041Q455 1037 459 1037Z" fill="#f4b4a6"/>
-    <text x="465" y="1059" font-size="13" font-weight="600" fill="#3f3f46">PLANTINGS</text>
-    <rect x="456" y="1071" width="298" height="24" fill="#ffffff"/>
-      <text x="465" y="1087" font-size="12" fill="#64748b">bigint</text>
-      <text x="537" y="1087" font-size="12" fill="#111827">id</text>
-      <text x="745" y="1087" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+    <rect x="485" y="1037" width="330" height="58" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M489 1037H811Q815 1037 815 1041V1071H485V1041Q485 1037 489 1037Z" fill="#f4b4a6"/>
+    <text x="495" y="1059" font-size="13" font-weight="600" fill="#3f3f46">PLANTINGS · 배치 작물</text>
+    <rect x="486" y="1071" width="328" height="24" fill="#ffffff"/>
+      <text x="495" y="1087" font-size="12" fill="#64748b">bigint</text>
+      <text x="567" y="1087" font-size="12" fill="#111827">id · 번호</text>
+      <text x="805" y="1087" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
   </g>
 <g filter="url(#shadow)">
-    <rect x="865" y="1037" width="300" height="58" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
-    <path d="M869 1037H1161Q1165 1037 1165 1041V1071H865V1041Q865 1037 869 1037Z" fill="#f4b4a6"/>
-    <text x="875" y="1059" font-size="13" font-weight="600" fill="#3f3f46">TASK_TYPES</text>
-    <rect x="866" y="1071" width="298" height="24" fill="#ffffff"/>
-      <text x="875" y="1087" font-size="12" fill="#64748b">bigint</text>
-      <text x="947" y="1087" font-size="12" fill="#111827">id</text>
-      <text x="1155" y="1087" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
+    <rect x="925" y="1037" width="330" height="58" rx="4" fill="#ffffff" stroke="#64748b" stroke-width="1.2"/>
+    <path d="M929 1037H1251Q1255 1037 1255 1041V1071H925V1041Q925 1037 929 1037Z" fill="#f4b4a6"/>
+    <text x="935" y="1059" font-size="13" font-weight="600" fill="#3f3f46">TASK_TYPES · 작업 종류</text>
+    <rect x="926" y="1071" width="328" height="24" fill="#ffffff"/>
+      <text x="935" y="1087" font-size="12" fill="#64748b">bigint</text>
+      <text x="1007" y="1087" font-size="12" fill="#111827">id · 번호</text>
+      <text x="1245" y="1087" text-anchor="end" font-size="10" font-weight="600" fill="#9a3412">PK</text>
   </g></g>
 </svg>
