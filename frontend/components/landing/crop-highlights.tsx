@@ -1,9 +1,21 @@
-const crops = [
-  { name: "상추", season: "봄 · 가을", difficulty: "쉬움", color: "bg-[#7da765]" },
-  { name: "방울토마토", season: "봄 · 여름", difficulty: "보통", color: "bg-[#d96855]" },
-  { name: "당근", season: "봄 · 가을", difficulty: "쉬움", color: "bg-[#e6a04d]" },
-  { name: "바질", season: "봄 · 여름", difficulty: "쉬움", color: "bg-[#568963]" },
-];
+import Link from "next/link";
+import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
+import type { CropDifficulty } from "@/features/crop-catalog/domain/crop-reference";
+
+const HIGHLIGHT_COLORS: Readonly<Record<string, string>> = {
+  lettuce: "bg-[#7da765]",
+  tomato: "bg-[#d96855]",
+  carrot: "bg-[#e6a04d]",
+  "young-radish": "bg-[#568963]",
+};
+
+const DIFFICULTY_LABELS: Record<CropDifficulty, string> = {
+  easy: "쉬움",
+  normal: "보통",
+  challenging: "관리가 필요해요",
+};
+
+const crops = CROP_REFERENCES.filter((crop) => crop.id in HIGHLIGHT_COLORS);
 
 export function CropHighlights() {
   return (
@@ -17,13 +29,13 @@ export function CropHighlights() {
               국내 재배 자료를 검수해 작물별 간격과 시기, 관리 기준을 차근차근 준비하고 있어요.
             </p>
           </div>
-          <p className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf">MVP 대표 작물 10종 예정</p>
+          <Link className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf" href="/crops">대표 작물 10종 보기 →</Link>
         </div>
 
         <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {crops.map((crop) => (
             <li className="group rounded-3xl border border-ink/8 bg-white p-5 transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(45,65,44,0.1)]" key={crop.name}>
-              <div className={`${crop.color} flex aspect-[4/3] items-center justify-center rounded-2xl`}>
+              <div className={`${HIGHLIGHT_COLORS[crop.id]} flex aspect-[4/3] items-center justify-center rounded-2xl`}>
                 <span className="grid size-20 place-items-center rounded-full border border-white/40 bg-white/20 text-4xl font-bold text-white" aria-hidden="true">
                   {crop.name.slice(0, 1)}
                 </span>
@@ -31,9 +43,9 @@ export function CropHighlights() {
               <div className="flex items-start justify-between gap-3 px-1 pb-1 pt-5">
                 <div>
                   <h3 className="text-lg font-bold">{crop.name}</h3>
-                  <p className="mt-1 text-sm text-muted">{crop.season}</p>
+                  <p className="mt-1 text-sm text-muted">{crop.plantingPeriod.label}</p>
                 </div>
-                <span className="rounded-full bg-cream px-2.5 py-1 text-xs font-bold text-leaf">{crop.difficulty}</span>
+                <span className="rounded-full bg-cream px-2.5 py-1 text-xs font-bold text-leaf">{DIFFICULTY_LABELS[crop.difficulty]}</span>
               </div>
             </li>
           ))}
@@ -58,4 +70,3 @@ export function CropHighlights() {
     </section>
   );
 }
-import Link from "next/link";
