@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { SessionAwareLink } from "@/components/session-aware-link";
+import { AuthHeaderMenu } from "@/features/auth/components/auth-header-menu";
 import { DiagnosisForm } from "@/features/start-diagnosis/components/diagnosis-form";
 
 export const metadata: Metadata = {
@@ -12,12 +14,21 @@ export default function StartPage() {
   return (
     <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
       <div className="mx-auto max-w-3xl">
-        <header className="flex items-center justify-between">
+        <header className="flex items-center justify-between gap-4">
           <Link className="flex items-center gap-3 font-bold" href="/">
             <BrandMark />
             <span>심어봄</span>
           </Link>
-          <Link className="text-sm font-bold text-muted hover:text-leaf" href="/">홈으로</Link>
+          <div className="flex items-center gap-2">
+            <AuthHeaderMenu />
+            <SessionAwareLink
+              anonymousHref="/"
+              anonymousLabel="홈으로"
+              authenticatedHref="/dashboard"
+              authenticatedLabel="내 텃밭"
+              className="text-sm font-bold text-muted hover:text-leaf"
+            />
+          </div>
         </header>
 
         <div className="mb-8 mt-12 sm:mb-10 sm:mt-16">

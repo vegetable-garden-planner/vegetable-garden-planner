@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AppHeader } from "@/components/app-header";
 import { AuthGate } from "@/features/auth/components/auth-gate";
 import { SeasonForm } from "@/features/growing-season/components/season-form";
 
@@ -19,7 +20,8 @@ export default async function NewSeasonPage(props: PageProps<"/seasons/new">) {
     <AuthGate loginHref={`/login?next=${encodeURIComponent(returnPath)}`}>
       <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
         <div className="mx-auto max-w-3xl">
-          <Link className="text-sm font-bold text-muted hover:text-leaf" href="/seasons">← 시즌 목록</Link>
+          <AppHeader />
+          <Link className="mt-8 inline-flex text-sm font-bold text-muted hover:text-leaf" href="/seasons">← 시즌 목록</Link>
           <div className="mb-8 mt-10">
             <p className="text-sm font-bold text-leaf">재배 시즌 등록</p>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">이번 재배 기간을 정해 주세요</h1>

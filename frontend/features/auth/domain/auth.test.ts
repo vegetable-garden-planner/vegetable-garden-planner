@@ -51,8 +51,8 @@ test("비밀번호 불일치와 필수 동의 누락을 거부한다", () => {
 
 test("내부 복귀 경로만 허용한다", () => {
   assert.equal(getSafeReturnPath("/spaces/new?type=balcony"), "/spaces/new?type=balcony");
-  assert.equal(getSafeReturnPath("https://example.com"), "/spaces");
-  assert.equal(getSafeReturnPath("//example.com"), "/spaces");
-  assert.equal(getSafeReturnPath("javascript:alert(1)"), "/spaces");
-  assert.equal(getSafeReturnPath("/\\example.com"), "/spaces");
+  assert.equal(getSafeReturnPath("https://example.com"), "/dashboard");
+  assert.equal(getSafeReturnPath("//example.com"), "/dashboard");
+  assert.equal(getSafeReturnPath("javascript:alert(1)"), "/dashboard");
+  assert.equal(getSafeReturnPath("/\\example.com"), "/dashboard");
 });

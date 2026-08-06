@@ -78,7 +78,7 @@ export function validateSignup(values: SignupFormValues): SignupValidation {
 
 export function getSafeReturnPath(
   requestedPath: string | string[] | undefined,
-  fallback = "/spaces",
+  fallback = "/dashboard",
 ): string {
   if (typeof requestedPath !== "string") {
     return fallback;

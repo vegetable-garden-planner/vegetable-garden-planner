@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BrandMark } from "@/components/brand-mark";
+import { AppHeader } from "@/components/app-header";
 import { AuthGate } from "@/features/auth/components/auth-gate";
 import { SeasonEditor } from "@/features/growing-season/components/season-editor";
 
@@ -21,10 +21,8 @@ export default async function EditSeasonPage({
     <AuthGate loginHref={loginHref}>
       <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
         <div className="mx-auto max-w-3xl">
-          <header className="flex items-center justify-between gap-4">
-            <Link className="flex items-center gap-3 font-bold" href="/"><BrandMark /><span>심어봄</span></Link>
-            <Link className="rounded-full border border-ink/15 px-4 py-2.5 text-sm font-bold" href="/seasons">시즌 목록</Link>
-          </header>
+          <AppHeader />
+          <Link className="mt-8 inline-flex text-sm font-bold text-muted hover:text-leaf" href="/seasons">← 시즌 목록</Link>
           <div className="mb-8 mt-12 sm:mt-16">
             <p className="text-sm font-bold text-leaf">재배 시즌 관리</p>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">시즌 정보를 수정해요</h1>

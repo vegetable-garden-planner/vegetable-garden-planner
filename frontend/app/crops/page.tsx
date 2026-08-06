@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
+import { SessionAwareLink } from "@/components/session-aware-link";
+import { AuthHeaderMenu } from "@/features/auth/components/auth-header-menu";
 import { CropCatalog } from "@/features/crop-catalog/components/crop-catalog";
 import {
   CROP_REFERENCES,
@@ -20,9 +22,15 @@ export default function CropsPage() {
       <div className="mx-auto max-w-5xl">
         <header className="flex items-center justify-between gap-4">
           <Link className="flex items-center gap-3 font-bold" href="/"><BrandMark /><span>심어봄</span></Link>
-          <div className="flex gap-2">
-            <Link className="rounded-full border border-ink/15 px-4 py-2.5 text-sm font-bold" href="/spaces">내 공간</Link>
-            <Link className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white" href="/start">시작 진단</Link>
+          <div className="flex items-center gap-2">
+            <AuthHeaderMenu />
+            <SessionAwareLink
+              anonymousHref="/start"
+              anonymousLabel="시작 진단"
+              authenticatedHref="/dashboard"
+              authenticatedLabel="내 텃밭"
+              className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white"
+            />
           </div>
         </header>
 
