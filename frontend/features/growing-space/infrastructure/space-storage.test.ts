@@ -4,8 +4,10 @@ import type { GrowingSpace } from "@/features/growing-space/domain/growing-space
 import type { KeyValueStorage } from "../../../shared/infrastructure/key-value-storage.ts";
 import {
   addGrowingSpace,
+  deleteGrowingSpace,
   InvalidGrowingSpaceDataError,
   loadGrowingSpaces,
+  updateGrowingSpace,
 } from "./space-storage.ts";
 
 function createMemoryStorage(initial?: string): KeyValueStorage {
@@ -51,4 +53,22 @@ test("형식이 잘못된 저장 데이터는 명시적 오류를 발생시킨�
     () => loadGrowingSpaces(createMemoryStorage(JSON.stringify([{ id: 1 }]))),
     InvalidGrowingSpaceDataError,
   );
+});
+
+test("기존 공간을 수정하고 삭제한다", () => {
+  const storage = createMemoryStorage();
+  addGrowingSpace(storage, space);
+  const updated = { ...space, name: "주방 창가" };
+
+  updateGrowingSpace(storage, updated);
+  assert.deepEqual(loadGrowingSpaces(storage), [updated]);
+
+  deleteGrowingSpace(storage, space.id);
+  assert.deepEqual(loadGrowingSpaces(storage), []);
+});
+
+test("존재하지 않는 공간의 수정과 삭제를 거부한다", () => {
+  const storage = createMemoryStorage();
+  assert.throws(() => updateGrowingSpace(storage, space));
+  assert.throws(() => deleteGrowingSpace(storage, space.id));
 });

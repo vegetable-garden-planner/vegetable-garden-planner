@@ -1,7 +1,7 @@
 import type { KeyValueStorage } from "../../../shared/infrastructure/key-value-storage.ts";
 import type { GrowingSeason } from "../domain/growing-season.ts";
 
-const SEASON_STORAGE_KEY = "simeobom:growing-seasons";
+export const GROWING_SEASONS_STORAGE_KEY = "simeobom:growing-seasons";
 
 export class InvalidGrowingSeasonDataError extends Error {
   constructor() {
@@ -11,7 +11,7 @@ export class InvalidGrowingSeasonDataError extends Error {
 }
 
 export function getGrowingSeasonsSnapshot(storage: KeyValueStorage): string {
-  return storage.getItem(SEASON_STORAGE_KEY) ?? "";
+  return storage.getItem(GROWING_SEASONS_STORAGE_KEY) ?? "";
 }
 
 export function parseGrowingSeasonsSnapshot(snapshot: string): GrowingSeason[] {
@@ -36,7 +36,38 @@ export function addGrowingSeason(
   season: GrowingSeason,
 ) {
   const current = loadGrowingSeasons(storage);
-  storage.setItem(SEASON_STORAGE_KEY, JSON.stringify([...current, season]));
+  saveGrowingSeasons(storage, [...current, season]);
+}
+
+export function updateGrowingSeason(
+  storage: KeyValueStorage,
+  season: GrowingSeason,
+) {
+  const current = loadGrowingSeasons(storage);
+  const index = current.findIndex((item) => item.id === season.id);
+  if (index < 0) {
+    throw new Error("수정할 시즌을 찾을 수 없습니다.");
+  }
+
+  const next = [...current];
+  next[index] = season;
+  saveGrowingSeasons(storage, next);
+}
+
+export function deleteGrowingSeason(storage: KeyValueStorage, seasonId: string) {
+  const current = loadGrowingSeasons(storage);
+  if (!current.some((season) => season.id === seasonId)) {
+    throw new Error("삭제할 시즌을 찾을 수 없습니다.");
+  }
+
+  saveGrowingSeasons(storage, current.filter((season) => season.id !== seasonId));
+}
+
+function saveGrowingSeasons(
+  storage: KeyValueStorage,
+  seasons: readonly GrowingSeason[],
+) {
+  storage.setItem(GROWING_SEASONS_STORAGE_KEY, JSON.stringify(seasons));
 }
 
 function isGrowingSeasonList(value: unknown): value is GrowingSeason[] {

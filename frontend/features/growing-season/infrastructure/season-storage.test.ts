@@ -4,8 +4,10 @@ import type { KeyValueStorage } from "../../../shared/infrastructure/key-value-s
 import type { GrowingSeason } from "../domain/growing-season.ts";
 import {
   addGrowingSeason,
+  deleteGrowingSeason,
   InvalidGrowingSeasonDataError,
   loadGrowingSeasons,
+  updateGrowingSeason,
 } from "./season-storage.ts";
 
 function createMemoryStorage(initial?: string): KeyValueStorage {
@@ -43,4 +45,22 @@ test("손상되거나 형식이 잘못된 시즌 데이터는 오류를 전달�
     () => loadGrowingSeasons(createMemoryStorage(JSON.stringify([{ id: 1 }]))),
     InvalidGrowingSeasonDataError,
   );
+});
+
+test("기존 시즌을 수정하고 삭제한다", () => {
+  const storage = createMemoryStorage();
+  addGrowingSeason(storage, season);
+  const updated = { ...season, name: "2026년 여름 시즌" };
+
+  updateGrowingSeason(storage, updated);
+  assert.deepEqual(loadGrowingSeasons(storage), [updated]);
+
+  deleteGrowingSeason(storage, season.id);
+  assert.deepEqual(loadGrowingSeasons(storage), []);
+});
+
+test("존재하지 않는 시즌의 수정과 삭제를 거부한다", () => {
+  const storage = createMemoryStorage();
+  assert.throws(() => updateGrowingSeason(storage, season));
+  assert.throws(() => deleteGrowingSeason(storage, season.id));
 });

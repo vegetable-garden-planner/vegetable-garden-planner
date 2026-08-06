@@ -3,9 +3,11 @@
 import { useMemo, useSyncExternalStore } from "react";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import {
+  GROWING_SPACES_STORAGE_KEY,
   getGrowingSpacesSnapshot,
   parseGrowingSpacesSnapshot,
 } from "@/features/growing-space/infrastructure/space-storage";
+import { subscribeToBrowserStorage } from "@/shared/infrastructure/browser-storage-events";
 
 export type GrowingSpacesState =
   | { status: "ready"; spaces: GrowingSpace[] }
@@ -31,8 +33,7 @@ export function useGrowingSpaces(): GrowingSpacesState {
 }
 
 function subscribeToStorage(onStoreChange: () => void) {
-  window.addEventListener("storage", onStoreChange);
-  return () => window.removeEventListener("storage", onStoreChange);
+  return subscribeToBrowserStorage(GROWING_SPACES_STORAGE_KEY, onStoreChange);
 }
 
 function getEmptySnapshot() {

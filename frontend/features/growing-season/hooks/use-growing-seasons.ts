@@ -3,9 +3,11 @@
 import { useMemo, useSyncExternalStore } from "react";
 import type { GrowingSeason } from "@/features/growing-season/domain/growing-season";
 import {
+  GROWING_SEASONS_STORAGE_KEY,
   getGrowingSeasonsSnapshot,
   parseGrowingSeasonsSnapshot,
 } from "@/features/growing-season/infrastructure/season-storage";
+import { subscribeToBrowserStorage } from "@/shared/infrastructure/browser-storage-events";
 
 export type GrowingSeasonsState =
   | { status: "ready"; seasons: GrowingSeason[] }
@@ -31,8 +33,7 @@ export function useGrowingSeasons(): GrowingSeasonsState {
 }
 
 function subscribeToStorage(onStoreChange: () => void) {
-  window.addEventListener("storage", onStoreChange);
-  return () => window.removeEventListener("storage", onStoreChange);
+  return subscribeToBrowserStorage(GROWING_SEASONS_STORAGE_KEY, onStoreChange);
 }
 
 function getEmptySnapshot() {

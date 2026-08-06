@@ -7,26 +7,31 @@ import { SeasonField } from "@/features/growing-season/components/season-field";
 import {
   createGrowingSeason,
   validateGrowingSeason,
+  type GrowingSeason,
   type GrowingSeasonErrors,
   type GrowingSeasonFormValues,
 } from "@/features/growing-season/domain/growing-season";
-import { addGrowingSeason } from "@/features/growing-season/infrastructure/season-storage";
+import {
+  addGrowingSeason,
+  GROWING_SEASONS_STORAGE_KEY,
+  updateGrowingSeason,
+} from "@/features/growing-season/infrastructure/season-storage";
+import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
 interface SeasonFormProps {
   initialSpaceId: string;
+  season?: GrowingSeason;
 }
 
-export function SeasonForm({ initialSpaceId }: SeasonFormProps) {
+export function SeasonForm({ initialSpaceId, season }: SeasonFormProps) {
   const router = useRouter();
   const spacesState = useGrowingSpaces();
-  const [values, setValues] = useState<GrowingSeasonFormValues>({
-    spaceId: initialSpaceId,
-    name: "",
-    startDate: "",
-    endDate: "",
-    notes: "",
-  });
+  const seasonsState = useGrowingSeasons();
+  const [values, setValues] = useState<GrowingSeasonFormValues>(() =>
+    season ? toFormValues(season) : createEmptyValues(initialSpaceId),
+  );
   const [errors, setErrors] = useState<GrowingSeasonErrors>({});
   const [formError, setFormError] = useState("");
 
@@ -41,25 +46,34 @@ export function SeasonForm({ initialSpaceId }: SeasonFormProps) {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError("");
-    if (spacesState.status !== "ready") return;
+    if (spacesState.status !== "ready" || seasonsState.status !== "ready") return;
 
     const result = validateGrowingSeason(
       values,
       spacesState.spaces.map((space) => space.id),
+      seasonsState.seasons,
+      season?.id,
     );
     if (!result.valid) {
       setErrors(result.errors);
       return;
     }
 
-    const season = createGrowingSeason(
-      result.value,
-      crypto.randomUUID(),
-      new Date().toISOString(),
-    );
+    const nextSeason = season
+      ? { ...result.value, id: season.id, createdAt: season.createdAt }
+      : createGrowingSeason(
+          result.value,
+          crypto.randomUUID(),
+          new Date().toISOString(),
+        );
 
     try {
-      addGrowingSeason(window.localStorage, season);
+      if (season) {
+        updateGrowingSeason(window.localStorage, nextSeason);
+      } else {
+        addGrowingSeason(window.localStorage, nextSeason);
+      }
+      notifyBrowserStorageChange(GROWING_SEASONS_STORAGE_KEY);
       router.push("/seasons");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "시즌을 저장하지 못했습니다.");
@@ -68,6 +82,10 @@ export function SeasonForm({ initialSpaceId }: SeasonFormProps) {
 
   if (spacesState.status === "error") {
     return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{spacesState.message}</p>;
+  }
+
+  if (seasonsState.status === "error") {
+    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{seasonsState.message}</p>;
   }
 
   if (spacesState.spaces.length === 0) {
@@ -103,7 +121,27 @@ export function SeasonForm({ initialSpaceId }: SeasonFormProps) {
         <textarea className="form-input min-h-28 resize-y" id="season-notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="이번 시즌의 목표나 키우고 싶은 작물을 기록해 보세요." value={values.notes} />
       </SeasonField>
       {formError && <p className="rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{formError}</p>}
-      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">시즌 등록하기</button>
+      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">{season ? "변경 내용 저장" : "시즌 등록하기"}</button>
     </form>
   );
+}
+
+function createEmptyValues(initialSpaceId: string): GrowingSeasonFormValues {
+  return {
+    spaceId: initialSpaceId,
+    name: "",
+    startDate: "",
+    endDate: "",
+    notes: "",
+  };
+}
+
+function toFormValues(season: GrowingSeason): GrowingSeasonFormValues {
+  return {
+    spaceId: season.spaceId,
+    name: season.name,
+    startDate: season.startDate,
+    endDate: season.endDate,
+    notes: season.notes,
+  };
 }

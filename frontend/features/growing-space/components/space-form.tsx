@@ -10,10 +10,16 @@ import {
 import {
   createGrowingSpace,
   validateGrowingSpace,
+  type GrowingSpace,
   type GrowingSpaceErrors,
   type GrowingSpaceFormValues,
 } from "@/features/growing-space/domain/growing-space";
-import { addGrowingSpace } from "@/features/growing-space/infrastructure/space-storage";
+import {
+  addGrowingSpace,
+  GROWING_SPACES_STORAGE_KEY,
+  updateGrowingSpace,
+} from "@/features/growing-space/infrastructure/space-storage";
+import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 import {
   isSunlightExposure,
   type GrowingSpaceType,
@@ -21,19 +27,14 @@ import {
 
 interface SpaceFormProps {
   initialType: GrowingSpaceType;
+  space?: GrowingSpace;
 }
 
-export function SpaceForm({ initialType }: SpaceFormProps) {
+export function SpaceForm({ initialType, space }: SpaceFormProps) {
   const router = useRouter();
-  const [values, setValues] = useState<GrowingSpaceFormValues>({
-    name: "",
-    type: initialType,
-    sunlight: "partial",
-    widthCm: "",
-    lengthCm: "",
-    region: "",
-    notes: "",
-  });
+  const [values, setValues] = useState<GrowingSpaceFormValues>(() =>
+    space ? toFormValues(space) : createEmptyValues(initialType),
+  );
   const [errors, setErrors] = useState<GrowingSpaceErrors>({});
   const [formError, setFormError] = useState("");
 
@@ -55,14 +56,21 @@ export function SpaceForm({ initialType }: SpaceFormProps) {
       return;
     }
 
-    const space = createGrowingSpace(
-      result.value,
-      crypto.randomUUID(),
-      new Date().toISOString(),
-    );
+    const nextSpace = space
+      ? { ...result.value, id: space.id, createdAt: space.createdAt }
+      : createGrowingSpace(
+          result.value,
+          crypto.randomUUID(),
+          new Date().toISOString(),
+        );
 
     try {
-      addGrowingSpace(window.localStorage, space);
+      if (space) {
+        updateGrowingSpace(window.localStorage, nextSpace);
+      } else {
+        addGrowingSpace(window.localStorage, nextSpace);
+      }
+      notifyBrowserStorageChange(GROWING_SPACES_STORAGE_KEY);
       router.push("/spaces");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "공간을 저장하지 못했습니다.");
@@ -123,9 +131,33 @@ export function SpaceForm({ initialType }: SpaceFormProps) {
 
       {formError && <p className="rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{formError}</p>}
 
-      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">공간 등록하기</button>
+      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">{space ? "변경 내용 저장" : "공간 등록하기"}</button>
     </form>
   );
+}
+
+function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValues {
+  return {
+    name: "",
+    type: initialType,
+    sunlight: "partial",
+    widthCm: "",
+    lengthCm: "",
+    region: "",
+    notes: "",
+  };
+}
+
+function toFormValues(space: GrowingSpace): GrowingSpaceFormValues {
+  return {
+    name: space.name,
+    type: space.type,
+    sunlight: space.sunlight,
+    widthCm: String(space.widthCm),
+    lengthCm: String(space.lengthCm),
+    region: space.region,
+    notes: space.notes,
+  };
 }
 
 interface FieldProps {

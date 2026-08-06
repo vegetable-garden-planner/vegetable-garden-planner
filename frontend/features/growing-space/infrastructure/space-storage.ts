@@ -5,7 +5,7 @@ import {
   isSunlightExposure,
 } from "../../../shared/domain/growing-environment.ts";
 
-const STORAGE_KEY = "simeobom:growing-spaces";
+export const GROWING_SPACES_STORAGE_KEY = "simeobom:growing-spaces";
 
 export class InvalidGrowingSpaceDataError extends Error {
   constructor() {
@@ -19,7 +19,7 @@ export function loadGrowingSpaces(storage: KeyValueStorage): GrowingSpace[] {
 }
 
 export function getGrowingSpacesSnapshot(storage: KeyValueStorage): string {
-  return storage.getItem(STORAGE_KEY) ?? "";
+  return storage.getItem(GROWING_SPACES_STORAGE_KEY) ?? "";
 }
 
 export function parseGrowingSpacesSnapshot(stored: string): GrowingSpace[] {
@@ -41,7 +41,38 @@ export function addGrowingSpace(
   space: GrowingSpace,
 ) {
   const current = loadGrowingSpaces(storage);
-  storage.setItem(STORAGE_KEY, JSON.stringify([...current, space]));
+  saveGrowingSpaces(storage, [...current, space]);
+}
+
+export function updateGrowingSpace(
+  storage: KeyValueStorage,
+  space: GrowingSpace,
+) {
+  const current = loadGrowingSpaces(storage);
+  const index = current.findIndex((item) => item.id === space.id);
+  if (index < 0) {
+    throw new Error("수정할 재배 공간을 찾을 수 없습니다.");
+  }
+
+  const next = [...current];
+  next[index] = space;
+  saveGrowingSpaces(storage, next);
+}
+
+export function deleteGrowingSpace(storage: KeyValueStorage, spaceId: string) {
+  const current = loadGrowingSpaces(storage);
+  if (!current.some((space) => space.id === spaceId)) {
+    throw new Error("삭제할 재배 공간을 찾을 수 없습니다.");
+  }
+
+  saveGrowingSpaces(storage, current.filter((space) => space.id !== spaceId));
+}
+
+function saveGrowingSpaces(
+  storage: KeyValueStorage,
+  spaces: readonly GrowingSpace[],
+) {
+  storage.setItem(GROWING_SPACES_STORAGE_KEY, JSON.stringify(spaces));
 }
 
 function isGrowingSpaceList(value: unknown): value is GrowingSpace[] {

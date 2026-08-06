@@ -20,12 +20,16 @@ export type GrowingSeasonValidation =
   | { valid: true; value: GrowingSeasonInput }
   | { valid: false; errors: GrowingSeasonErrors };
 
+export type GrowingSeasonStatus = "planned" | "active" | "completed";
+
 const MAX_SEASON_DURATION_DAYS = 730;
 const DAY_IN_MILLISECONDS = 86_400_000;
 
 export function validateGrowingSeason(
   values: GrowingSeasonFormValues,
   registeredSpaceIds: readonly string[],
+  existingSeasons: readonly GrowingSeason[] = [],
+  editingSeasonId?: string,
 ): GrowingSeasonValidation {
   const errors: GrowingSeasonErrors = {};
   const name = values.name.trim();
@@ -48,6 +52,18 @@ export function validateGrowingSeason(
 
   if (startTimestamp !== null && endTimestamp !== null) {
     validateDateRange(startTimestamp, endTimestamp, errors);
+    if (
+      !errors.endDate
+      && hasOverlappingSeason(
+        values.spaceId,
+        startTimestamp,
+        endTimestamp,
+        existingSeasons,
+        editingSeasonId,
+      )
+    ) {
+      errors.startDate = "같은 공간에 기간이 겹치는 시즌이 있습니다.";
+    }
   }
 
   if (Object.keys(errors).length > 0) {
@@ -64,6 +80,15 @@ export function validateGrowingSeason(
       notes,
     },
   };
+}
+
+export function getGrowingSeasonStatus(
+  season: Pick<GrowingSeason, "startDate" | "endDate">,
+  today: string,
+): GrowingSeasonStatus {
+  if (today < season.startDate) return "planned";
+  if (today > season.endDate) return "completed";
+  return "active";
 }
 
 export function createGrowingSeason(
@@ -103,4 +128,24 @@ function validateDateRange(
   if (durationDays > MAX_SEASON_DURATION_DAYS) {
     errors.endDate = "한 시즌은 730일 이내로 설정해 주세요.";
   }
+}
+
+function hasOverlappingSeason(
+  spaceId: string,
+  startTimestamp: number,
+  endTimestamp: number,
+  existingSeasons: readonly GrowingSeason[],
+  editingSeasonId?: string,
+) {
+  return existingSeasons.some((season) => {
+    if (season.id === editingSeasonId || season.spaceId !== spaceId) {
+      return false;
+    }
+
+    const existingStart = parseDateOnly(season.startDate);
+    const existingEnd = parseDateOnly(season.endDate);
+    if (existingStart === null || existingEnd === null) return false;
+
+    return startTimestamp <= existingEnd && endTimestamp >= existingStart;
+  });
 }

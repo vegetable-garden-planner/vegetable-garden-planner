@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createGrowingSeason,
+  getGrowingSeasonStatus,
   validateGrowingSeason,
   type GrowingSeasonFormValues,
 } from "./growing-season.ts";
@@ -71,4 +72,61 @@ test("검증된 입력으로 시즌 엔티티를 생성한다", () => {
   );
   assert.equal(season.id, "season-1");
   assert.equal(season.createdAt, "2026-08-05T00:00:00.000Z");
+});
+
+test("같은 공간에서 하루라도 기간이 겹치는 시즌은 거부한다", () => {
+  const existing = createGrowingSeason(
+    validValues,
+    "season-1",
+    "2026-01-01T00:00:00.000Z",
+  );
+  const result = validateGrowingSeason(
+    { ...validValues, name: "여름 시즌", startDate: "2026-06-30", endDate: "2026-09-30" },
+    ["space-1"],
+    [existing],
+  );
+
+  assert.equal(result.valid, false);
+  if (!result.valid) assert.ok(result.errors.startDate);
+});
+
+test("다른 공간, 겹치지 않는 기간과 현재 수정 중인 시즌은 허용한다", () => {
+  const existing = createGrowingSeason(
+    validValues,
+    "season-1",
+    "2026-01-01T00:00:00.000Z",
+  );
+  const nextSeason = validateGrowingSeason(
+    { ...validValues, name: "가을 시즌", startDate: "2026-07-01", endDate: "2026-09-30" },
+    ["space-1"],
+    [existing],
+  );
+  const otherSpace = validateGrowingSeason(
+    { ...validValues, spaceId: "space-2" },
+    ["space-1", "space-2"],
+    [existing],
+  );
+  const editingCurrent = validateGrowingSeason(
+    validValues,
+    ["space-1"],
+    [existing],
+    "season-1",
+  );
+
+  assert.equal(nextSeason.valid, true);
+  assert.equal(otherSpace.valid, true);
+  assert.equal(editingCurrent.valid, true);
+});
+
+test("오늘 날짜가 시즌 기간 전, 중, 후인지 상태를 계산한다", () => {
+  const season = createGrowingSeason(
+    validValues,
+    "season-1",
+    "2026-01-01T00:00:00.000Z",
+  );
+
+  assert.equal(getGrowingSeasonStatus(season, "2026-02-28"), "planned");
+  assert.equal(getGrowingSeasonStatus(season, "2026-03-01"), "active");
+  assert.equal(getGrowingSeasonStatus(season, "2026-06-30"), "active");
+  assert.equal(getGrowingSeasonStatus(season, "2026-07-01"), "completed");
 });
