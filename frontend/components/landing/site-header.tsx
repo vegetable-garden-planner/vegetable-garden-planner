@@ -1,5 +1,5 @@
 import { BrandMark } from "@/components/brand-mark";
-import Link from "next/link";
+import { SessionAwareLink } from "@/components/session-aware-link";
 import { AuthHeaderMenu } from "@/features/auth/components/auth-header-menu";
 
 const navigation = [
@@ -27,9 +27,13 @@ export function SiteHeader() {
 
         <div className="flex items-center gap-2">
           <AuthHeaderMenu />
-          <Link className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white transition hover:bg-leaf-dark" href="/start">
-            시작하기
-          </Link>
+          <SessionAwareLink
+            anonymousHref="/start"
+            anonymousLabel="시작하기"
+            authenticatedHref="/dashboard"
+            authenticatedLabel="내 텃밭"
+            className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white transition hover:bg-leaf-dark"
+          />
         </div>
       </div>
     </header>
