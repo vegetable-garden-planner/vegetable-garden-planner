@@ -7,6 +7,20 @@
 - UK: 고유값
 - 실제 Laravel 마이그레이션을 작성할 때 자료형, nullable 여부, 인덱스와 삭제 정책을 최종 확정합니다.
 
+## 바로 보는 ERD
+
+### MVP 핵심
+
+![심어봄 MVP 핵심 ERD](./erd-core.png)
+
+### 일정·물주기·기록
+
+![심어봄 일정·물주기·기록 ERD](./erd-records.png)
+
+### 공동 관리·결제·관리자 확장
+
+![심어봄 향후 확장 ERD](./erd-extensions.png)
+
 ## 1. MVP 핵심 ERD
 
 ```mermaid
@@ -493,4 +507,3 @@ erDiagram
 - `notification_settings`: `(user_id, task_type_id)` 고유 제약
 - 좌표와 크기는 0보다 작을 수 없고, 배치 영역은 텃밭 격자를 벗어날 수 없음
 - 외래키 삭제 정책은 사용자 기록 보존 여부를 정한 뒤 `cascade`, `restrict`, `set null` 중 선택
-
