@@ -5,7 +5,7 @@ import { AuthHeaderMenu } from "@/features/auth/components/auth-header-menu";
 const navigation = [
   { label: "서비스 소개", href: "#how-it-works" },
   { label: "주요 기능", href: "#features" },
-  { label: "작물 정보", href: "#crops" },
+  { label: "작물 정보", href: "/crops" },
 ];
 
 export function SiteHeader() {
