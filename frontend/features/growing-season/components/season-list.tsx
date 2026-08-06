@@ -2,16 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { deleteGrowingSeasonWithRelations } from "@/features/growing-season/application/delete-growing-season";
 import {
   getGrowingSeasonStatus,
   type GrowingSeason,
   type GrowingSeasonStatus,
 } from "@/features/growing-season/domain/growing-season";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
-import {
-  deleteGrowingSeason,
-  GROWING_SEASONS_STORAGE_KEY,
-} from "@/features/growing-season/infrastructure/season-storage";
+import { GROWING_SEASONS_STORAGE_KEY } from "@/features/growing-season/infrastructure/season-storage";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
@@ -36,7 +34,7 @@ export function SeasonList() {
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (seasonsState.seasons.length === 0) return <EmptySeasonList />;
 
-  const spaceNames = new Map(spacesState.spaces.map((space) => [space.id, space.name]));
+  const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
   const today = new Date().toISOString().slice(0, 10);
 
   function removeSeason(season: GrowingSeason) {
@@ -44,7 +42,7 @@ export function SeasonList() {
     if (!window.confirm(`'${season.name}' 시즌을 삭제할까요?`)) return;
 
     try {
-      deleteGrowingSeason(window.localStorage, season.id);
+      deleteGrowingSeasonWithRelations(window.localStorage, season.id);
       notifyBrowserStorageChange(GROWING_SEASONS_STORAGE_KEY);
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "시즌을 삭제하지 못했습니다.");
@@ -57,10 +55,11 @@ export function SeasonList() {
       <ul className={`grid gap-4 sm:grid-cols-2 ${actionError ? "mt-4" : ""}`}>
         {seasonsState.seasons.map((season) => {
           const status = getGrowingSeasonStatus(season, today);
+          const linkedSpace = spacesById.get(season.spaceId);
           return (
             <li className="rounded-3xl border border-ink/10 bg-white p-6" key={season.id}>
               <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-bold text-leaf">{spaceNames.get(season.spaceId) ?? "연결된 공간을 찾을 수 없음"}</p>
+                <p className="text-sm font-bold text-leaf">{linkedSpace?.name ?? "연결된 공간을 찾을 수 없음"}</p>
                 <span className={`rounded-full px-3 py-1 text-xs font-bold ${STATUS_STYLES[status]}`}>{STATUS_LABELS[status]}</span>
               </div>
               <h2 className="mt-2 text-xl font-bold">{season.name}</h2>
@@ -72,6 +71,7 @@ export function SeasonList() {
               <div className="mt-6 flex gap-2 border-t border-ink/10 pt-4">
                 <Link className="rounded-full border border-ink/15 px-4 py-2 text-sm font-bold" href={`/seasons/${season.id}/edit`}>수정</Link>
                 <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => removeSeason(season)} type="button">삭제</button>
+                {linkedSpace?.type === "garden" && <Link className="ml-auto rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/layout`}>작물 배치</Link>}
               </div>
             </li>
           );
