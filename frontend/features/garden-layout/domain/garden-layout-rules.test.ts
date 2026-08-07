@@ -3,7 +3,10 @@ import test from "node:test";
 import type { CropReference } from "../../crop-catalog/domain/crop-reference.ts";
 import type { GrowingSeason } from "../../growing-season/domain/growing-season.ts";
 import type { GardenLayout } from "./garden-layout.ts";
-import { getGardenLayoutRuleWarnings } from "./garden-layout-rules.ts";
+import {
+  getGardenLayoutRuleWarnings,
+  InvalidGardenLayoutRuleDataError,
+} from "./garden-layout-rules.ts";
 
 const crops = [
   createCrop("tomato", "토마토", "가지과", 45, 5, 5),
@@ -153,6 +156,35 @@ test("연작 검사는 같은 공간에서 가장 최근에 배치가 저장된 
   );
 
   assert.equal(warnings.some((warning) => warning.type === "crop-rotation"), false);
+});
+
+test("등록되지 않은 작물이 배치된 손상 데이터는 경고 없이 넘기지 않는다", () => {
+  const season = createSeason("current", "2026-03-01", "2026-06-30");
+  const layout = createLayout("current", 25, 2, [
+    { cellIndex: 0, cropId: "missing" },
+  ]);
+
+  assert.throws(
+    () => getGardenLayoutRuleWarnings(layout, season, crops, [layout], [season]),
+    InvalidGardenLayoutRuleDataError,
+  );
+});
+
+test("잘못되거나 역전된 시즌 기간은 시기 검사를 진행하지 않는다", () => {
+  const layout = createLayout("current", 25, 2, [
+    { cellIndex: 0, cropId: "lettuce" },
+  ]);
+  const invalidSeasons = [
+    createSeason("current", "2026-02-30", "2026-06-30"),
+    createSeason("current", "2026-07-01", "2026-06-30"),
+  ];
+
+  for (const season of invalidSeasons) {
+    assert.throws(
+      () => getGardenLayoutRuleWarnings(layout, season, crops, [layout], [season]),
+      InvalidGardenLayoutRuleDataError,
+    );
+  }
 });
 
 function createCrop(

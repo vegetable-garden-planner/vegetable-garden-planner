@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { KeyValueStorage } from "../../../shared/infrastructure/key-value-storage.ts";
+import type { CultivationTask } from "../../cultivation-schedule/domain/cultivation-task.ts";
+import { saveSeasonCultivationTasks } from "../../cultivation-schedule/infrastructure/cultivation-task-storage.ts";
 import { createGardenLayout } from "../../garden-layout/domain/garden-layout.ts";
 import { saveGardenLayout } from "../../garden-layout/infrastructure/garden-layout-storage.ts";
 import { addSeasonRecord } from "../../season-record/infrastructure/season-record-storage.ts";
@@ -9,6 +11,7 @@ import {
   deleteGrowingSeasonWithRelations,
   GrowingSeasonHasLayoutError,
   GrowingSeasonHasRecordsError,
+  GrowingSeasonHasTasksError,
 } from "./delete-growing-season.ts";
 
 function createMemoryStorage(): KeyValueStorage {
@@ -59,6 +62,34 @@ test("격자가 연결된 시즌 삭제를 거부하고 시즌을 유지한다",
   );
   assert.deepEqual(loadGrowingSeasons(storage), [season]);
 });
+
+test("재배 일정이 연결된 시즌 삭제를 거부하고 시즌을 유지한다", () => {
+  const storage = createMemoryStorage();
+  addGrowingSeason(storage, season);
+  saveSeasonCultivationTasks(storage, season.id, [createTask()]);
+
+  assert.throws(
+    () => deleteGrowingSeasonWithRelations(storage, season.id),
+    GrowingSeasonHasTasksError,
+  );
+  assert.deepEqual(loadGrowingSeasons(storage), [season]);
+});
+
+function createTask(): CultivationTask {
+  return {
+    id: "task-1",
+    seasonId: season.id,
+    cropId: "lettuce",
+    type: "transplanting",
+    title: "상추 모종 심기",
+    dueDate: "2026-04-01",
+    notes: "",
+    status: "pending",
+    completedAt: null,
+    createdAt: "2026-03-01T00:00:00.000Z",
+    updatedAt: "2026-03-01T00:00:00.000Z",
+  };
+}
 
 test("기록이 연결된 시즌 삭제를 거부하고 시즌을 유지한다", () => {
   const storage = createMemoryStorage();

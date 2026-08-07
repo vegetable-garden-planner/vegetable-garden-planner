@@ -19,6 +19,13 @@ export interface GardenLayoutRuleWarning {
   targets: readonly GardenLayoutRuleTarget[];
 }
 
+export class InvalidGardenLayoutRuleDataError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "InvalidGardenLayoutRuleDataError";
+  }
+}
+
 interface ResolvedPlacement {
   placement: CropPlacement;
   crop: CropReference;
@@ -167,9 +174,14 @@ function resolvePlacements(
   layout: GardenLayout,
   cropsById: ReadonlyMap<string, CropReference>,
 ): ResolvedPlacement[] {
-  return layout.placements.flatMap((placement) => {
+  return layout.placements.map((placement) => {
     const crop = cropsById.get(placement.cropId);
-    return crop ? [{ placement, crop }] : [];
+    if (!crop) {
+      throw new InvalidGardenLayoutRuleDataError(
+        `배치된 작물 기준 정보를 찾을 수 없습니다: ${placement.cropId}`,
+      );
+    }
+    return { placement, crop };
   });
 }
 
@@ -177,8 +189,14 @@ function seasonOverlapsCropPeriod(
   season: Pick<GrowingSeason, "startDate" | "endDate">,
   crop: CropReference,
 ) {
-  if (!isDateOnly(season.startDate) || !isDateOnly(season.endDate)) {
-    return true;
+  if (
+    !isDateOnly(season.startDate)
+    || !isDateOnly(season.endDate)
+    || season.startDate > season.endDate
+  ) {
+    throw new InvalidGardenLayoutRuleDataError(
+      "재배 시기를 검사할 시즌 기간이 올바르지 않습니다.",
+    );
   }
 
   const startYear = Number(season.startDate.slice(0, 4));

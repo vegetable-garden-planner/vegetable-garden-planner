@@ -68,10 +68,15 @@ export function SeasonList() {
                 <dd className="mt-1 font-bold">{season.startDate} ~ {season.endDate}</dd>
               </dl>
               {season.notes && <p className="mt-4 border-t border-ink/10 pt-4 text-sm leading-6 text-muted">{season.notes}</p>}
-              <div className="mt-6 flex gap-2 border-t border-ink/10 pt-4">
+              <div className="mt-6 flex flex-wrap gap-2 border-t border-ink/10 pt-4">
                 <Link className="rounded-full border border-ink/15 px-4 py-2 text-sm font-bold" href={`/seasons/${season.id}/edit`}>수정</Link>
                 <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => removeSeason(season)} type="button">삭제</button>
-                {linkedSpace?.type === "garden" && <Link className="ml-auto rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/layout`}>작물 배치</Link>}
+                {linkedSpace?.type === "garden" && (
+                  <div className="ml-auto flex gap-2">
+                    <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/tasks`}>재배 일정</Link>
+                    <Link className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/layout`}>작물 배치</Link>
+                  </div>
+                )}
               </div>
             </li>
           );
