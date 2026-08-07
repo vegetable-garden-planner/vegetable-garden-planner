@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
 import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
+import { DashboardAlertList } from "@/features/dashboard/components/dashboard-alert-list";
+import {
+  createDashboardAlerts,
+  formatLocalDateOnly,
+} from "@/features/dashboard/domain/dashboard-alert";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
@@ -35,7 +40,7 @@ export function DashboardOverview() {
   if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
   if (auth.status !== "authenticated") return null;
 
-  const today = new Date().toISOString().slice(0, 10);
+  const today = formatLocalDateOnly(new Date());
   const summary = createDashboardSummary(
     spacesState.spaces,
     seasonsState.seasons,
@@ -43,6 +48,7 @@ export function DashboardOverview() {
     tasksState.tasks,
     today,
   );
+  const alerts = createDashboardAlerts(tasksState.tasks, today);
 
   return (
     <div>
@@ -75,6 +81,8 @@ export function DashboardOverview() {
         <SummaryCard label="진행 중" value={`${summary.activeSeasonCount}개`} />
         <SummaryCard label="작물 배치" value={`${summary.layoutCount}개`} />
       </section>
+
+      <DashboardAlertList summary={alerts} />
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
         <section className="rounded-3xl border border-ink/10 bg-white p-6">
