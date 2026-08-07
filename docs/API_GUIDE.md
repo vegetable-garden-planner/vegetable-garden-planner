@@ -23,8 +23,9 @@ API(Application Programming Interface)는 서로 다른 프로그램이 정해�
 
 ```http
 POST /api/v1/spaces
-Authorization: Bearer {token}
 Content-Type: application/json
+Cookie: laravel_session={브라우저가 자동 전송하는 세션 쿠키}
+X-XSRF-TOKEN: {CSRF 쿠키 값}
 ```
 
 ```json
@@ -61,8 +62,9 @@ Content-Type: application/json
 | 필드 이름 | `camelCase` | 현재 TypeScript 도메인 타입과 일치 |
 | 날짜 | `YYYY-MM-DD` | 시즌처럼 시간대가 필요 없는 날짜 |
 | 날짜·시간 | ISO 8601 UTC | `2026-08-07T08:00:00Z` 형식 |
-| 인증 | Bearer token | Laravel Sanctum 토큰 연동을 가정한 초안 |
-| ID | 사용자 데이터는 UUID, 작물은 slug | 추측하기 어려운 사용자 ID와 읽기 쉬운 기준 데이터 ID |
+| 인증 | Sanctum SPA 세션 쿠키 | 자사 브라우저 앱에서 토큰을 JavaScript 저장소에 노출하지 않음 |
+| ID | 사용자 데이터는 UUIDv7, 작물은 slug | 정렬 가능한 고유 ID와 읽기 쉬운 기준 데이터 ID |
+| 동시 수정 | `version`과 `If-Match` | 오래된 화면이 최신 변경을 덮어쓰는 문제 방지 |
 | 목록 | `data`와 `meta` 사용 | 페이지 정보와 실제 목록 분리 |
 | 오류 | `error.code`, `error.message`, `error.fields` | 화면이 오류 종류와 필드 오류를 구분 가능 |
 
@@ -116,6 +118,8 @@ Content-Type: application/json
 | `403` | 로그인했지만 권한 없음 | 다른 사용자의 공간 접근 |
 | `404` | 자원을 찾을 수 없음 | 없는 시즌 ID |
 | `409` | 현재 데이터 관계와 충돌 | 시즌이 연결된 공간 삭제, 시즌 기간 중복 |
+| `412` | 다른 곳에서 먼저 수정됨 | 전송한 `If-Match` 버전이 현재 버전과 다름 |
+| `419` | CSRF 검증 실패 | CSRF 쿠키 또는 헤더 누락 |
 | `422` | 입력값 검증 실패 | 이름 누락, 크기 범위 초과 |
 | `500` | 예상하지 못한 서버 오류 | 내부 예외 |
 
@@ -125,11 +129,23 @@ Content-Type: application/json
 
 ### 인증
 
+심어봄은 Next.js 웹앱과 Laravel API가 같은 최상위 도메인에서 동작하는 자사 SPA를 전제로 한다. 따라서 Laravel Sanctum의 세션 쿠키 인증을 사용한다.
+
+```text
+GET /sanctum/csrf-cookie
+  → POST /api/v1/auth/login
+  → 브라우저가 HttpOnly 세션 쿠키 보관
+  → 이후 요청마다 쿠키 자동 전송
+```
+
+세션 쿠키는 JavaScript가 직접 읽지 못하도록 `HttpOnly`, HTTPS에서만 보내도록 `Secure`, 사이트 간 전송을 제한하도록 적절한 `SameSite` 속성을 설정한다. 상태를 바꾸는 요청은 CSRF 토큰도 검사한다. Bearer 토큰은 향후 모바일 앱이나 제3자 API를 제공할 때 별도로 추가한다.
+
 | 메서드 | 경로 | 설명 | 인증 |
 |---|---|---|---|
-| `POST` | `/auth/register` | 회원가입과 토큰 발급 | 불필요 |
-| `POST` | `/auth/login` | 로그인과 토큰 발급 | 불필요 |
-| `POST` | `/auth/logout` | 현재 토큰 폐기 | 필요 |
+| `GET` | `/sanctum/csrf-cookie` | 로그인 전 CSRF 쿠키 발급 | 불필요 |
+| `POST` | `/auth/register` | 회원가입과 세션 시작 | 불필요 |
+| `POST` | `/auth/login` | 로그인과 세션 시작 | 불필요 |
+| `POST` | `/auth/logout` | 현재 세션 종료 | 필요 |
 | `GET` | `/me` | 로그인 사용자 조회 | 필요 |
 
 ### 작물 기준 데이터
@@ -152,6 +168,8 @@ Content-Type: application/json
 | `DELETE` | `/spaces/{spaceId}` | 공간 삭제 | 필요 |
 
 연결된 시즌이 있는 공간 삭제는 `409 SPACE_HAS_SEASONS`로 거부한다. 사용자가 다른 사용자의 공간 ID를 알아도 조회·수정·삭제할 수 없도록 소유권을 검사한다.
+
+사용자·공간·시즌·일정·기록의 ID는 UUIDv7을 사용한다. Laravel 12 이상에서 모델에 `HasUuids`를 적용하면 기본 UUIDv7을 사용할 수 있다. 작물 ID는 `lettuce`, `young-radish`처럼 코드와 문서에서 읽기 쉬운 slug를 유지한다.
 
 ### 재배 시즌
 
@@ -184,10 +202,49 @@ Content-Type: application/json
 - 공간 크기가 바뀐 뒤 기존 크기로 저장하려 하면 `409 SPACE_DIMENSIONS_CHANGED`를 반환한다.
 - 격자가 연결된 시즌 삭제는 `409 SEASON_HAS_LAYOUT`으로 거부한다.
 
-## 5. 대표 요청 흐름
+## 5. 일정과 기록 API 단위
+
+일정과 기록은 역할이 다르므로 별도 자원으로 나눈다.
+
+- 일정(`Task`): 앞으로 해야 할 일. 예정일, 완료 여부와 완료 시각을 가진다.
+- 기록(`Record`): 실제로 한 일이나 관찰한 내용. 발생 시각과 메모를 가진다.
 
 ```text
-POST /auth/login
+GET    /seasons/{seasonId}/tasks
+POST   /seasons/{seasonId}/tasks/generate
+PATCH  /tasks/{taskId}
+DELETE /tasks/{taskId}
+
+GET    /seasons/{seasonId}/records
+POST   /seasons/{seasonId}/records
+PATCH  /records/{recordId}
+DELETE /records/{recordId}
+```
+
+MVP 기록은 `watering`, `work`, `growth`, `harvest`를 `type` 필드로 구분하고 하나의 API를 사용한다. 종류마다 별도 엔드포인트를 만들지 않아 공통 날짜·메모·수정·삭제 규칙을 중복하지 않는다. 이미지 첨부는 파일 저장소가 결정된 뒤 별도 첨부 자원으로 확장한다.
+
+## 6. 동시 수정 충돌 처리
+
+공간·시즌·격자·일정·기록 응답에는 1부터 증가하는 `version`을 포함한다. 서버는 같은 값을 `ETag` 응답 헤더에도 보낸다.
+
+```http
+ETag: "3"
+```
+
+사용자가 수정하거나 삭제할 때 마지막으로 본 버전을 `If-Match`로 보낸다.
+
+```http
+PATCH /api/v1/spaces/{spaceId}
+If-Match: "3"
+```
+
+서버의 현재 버전도 3이면 트랜잭션 안에서 저장하고 4로 증가시킨다. 이미 다른 기기에서 수정해 서버 버전이 4라면 저장하지 않고 `412 PRECONDITION_FAILED`를 반환한다. 화면은 최신 데이터를 다시 불러오고 사용자가 재시도하게 한다. `updatedAt` 문자열만 비교하는 것보다 시간 정밀도와 시간대 문제를 피할 수 있다.
+
+## 7. 대표 요청 흐름
+
+```text
+GET /sanctum/csrf-cookie
+  → POST /auth/login
   → GET /spaces
   → POST /spaces
   → POST /seasons
@@ -197,21 +254,26 @@ POST /auth/login
 
 대시보드 전용 API는 지금 만들지 않는다. 초기에는 공간·시즌·격자 응답으로 화면 요약을 계산한다. 요청 수나 성능 문제가 실제로 확인되면 `/dashboard` 집계 API를 별도로 검토한다.
 
-## 6. 아직 확정하지 않은 항목
+## 8. 확정한 설계와 나중에 확장할 항목
 
-다음 항목은 Laravel 학습과 교수 피드백 후 결정할 설계 선택이다.
+이번 단계에서 다음과 같이 확정한다.
 
-- 브라우저 기반 프로젝트에 Sanctum SPA 쿠키 인증을 쓸지 Bearer token을 쓸지
-- UUID 버전과 데이터베이스 컬럼 타입
+- 자사 웹앱 인증은 Sanctum SPA 세션 쿠키를 사용한다.
+- 사용자 데이터 기본 키는 UUIDv7과 데이터베이스의 UUID 호환 컬럼을 사용한다.
+- 일정과 실제 기록은 별도 자원으로 관리한다.
+- 수정 가능한 자원은 정수 `version`과 `If-Match`로 충돌을 검사한다.
+
+다음은 기능 구현 시점에 구체화하되 위 결정을 뒤집지는 않는 항목이다.
+
 - 목록 페이지 크기와 정렬 쿼리 규칙
 - 회원 이메일 인증·비밀번호 재설정 API 범위
 - 작물 관리자 API와 권한 모델
-- 일정·물주기·성장·수확 기록 API 구조
-- 동시에 같은 격자를 수정할 때 버전 충돌 처리 방식
+- 일정 자동 생성 규칙과 반복 일정 표현
+- 기록 이미지 첨부와 파일 저장소
 
-이 항목을 모른다고 문서가 실패한 것은 아니다. 미결정을 숨기지 않고 표시하는 것도 API 설계의 일부다.
+설계는 모든 미래 요구사항을 미리 맞히는 작업이 아니다. 현재 제품 범위에 필요한 기본안을 정하고, 확장 지점을 기록하는 작업이다.
 
-## 7. 구현할 때 확인할 기준
+## 9. 구현할 때 확인할 기준
 
 - OpenAPI 명세와 Laravel 요청 검증 규칙이 같은가?
 - 프론트 타입과 응답 스키마가 같은가?
@@ -221,3 +283,9 @@ POST /auth/login
 - API 변경 시 `openapi.yaml`과 이 문서를 함께 수정했는가?
 
 교수님께 설명할 때는 “화면이 데이터베이스에 직접 접근하지 않도록, Laravel과 주고받을 주소·입력·출력·오류를 미리 OpenAPI로 정의했다”고 요약할 수 있다.
+
+## 참고한 공식 문서
+
+- [Laravel Sanctum SPA 인증](https://laravel.com/docs/13.x/sanctum#spa-authentication)
+- [Laravel Eloquent UUID와 ULID](https://laravel.com/docs/12.x/eloquent#uuid-and-ulid-keys)
+- [HTTP 조건부 요청과 If-Match](https://www.rfc-editor.org/rfc/rfc9110.html#name-if-match)
