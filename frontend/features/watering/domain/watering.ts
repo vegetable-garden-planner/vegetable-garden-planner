@@ -68,6 +68,7 @@ export class InvalidWateringDataError extends Error {
 }
 
 const DEFAULT_GROWTH_STAGE = "default";
+const DEFAULT_WATERING_TIME_ZONE = "Asia/Seoul";
 const MAX_INTERVAL_DAYS = 365;
 const MAX_MEMO_LENGTH = 500;
 
@@ -77,6 +78,20 @@ export function selectWateringRule(
   growthStage: string,
 ): WateringRule {
   const matchingRules = rules.filter((rule) => rule.cropId === cropId);
+  if (!matchingRules.every(isWateringRule)) {
+    throw new InvalidWateringDataError("물주기 규칙이 올바르지 않습니다.");
+  }
+
+  const growthStages = new Set<string>();
+  for (const matchingRule of matchingRules) {
+    if (growthStages.has(matchingRule.growthStage)) {
+      throw new InvalidWateringDataError(
+        "같은 작물과 생육 단계의 물주기 규칙이 중복되었습니다.",
+      );
+    }
+    growthStages.add(matchingRule.growthStage);
+  }
+
   const rule = matchingRules.find((candidate) =>
     candidate.growthStage === growthStage)
     ?? matchingRules.find((candidate) =>
@@ -111,6 +126,7 @@ export function createWateringSchedule(
 export function getWateringScheduleStatus(
   schedule: WateringSchedule,
   now: string,
+  timeZone = DEFAULT_WATERING_TIME_ZONE,
 ): WateringScheduleStatus {
   if (!isWateringSchedule(schedule)) {
     throw new InvalidWateringDataError("물주기 일정이 올바르지 않습니다.");
@@ -118,8 +134,8 @@ export function getWateringScheduleStatus(
   assertIsoDateTime(now, "기준 시각");
   if (!schedule.enabled) return "disabled";
 
-  const dueDate = schedule.nextWateringAt.slice(0, 10);
-  const currentDate = now.slice(0, 10);
+  const dueDate = getDateOnlyInTimeZone(schedule.nextWateringAt, timeZone);
+  const currentDate = getDateOnlyInTimeZone(now, timeZone);
   if (currentDate < dueDate) return "upcoming";
   if (currentDate === dueDate) return "due";
   return "overdue";
@@ -292,6 +308,33 @@ function addUtcDays(value: string, days: number) {
   const date = new Date(value);
   date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString();
+}
+
+function getDateOnlyInTimeZone(value: string, timeZone: string) {
+  let formatter: Intl.DateTimeFormat;
+  try {
+    formatter = new Intl.DateTimeFormat("en-US", {
+      timeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+  } catch {
+    throw new InvalidWateringDataError("물주기 기준 시간대가 올바르지 않습니다.");
+  }
+
+  const parts = new Map(
+    formatter
+      .formatToParts(new Date(value))
+      .map((part) => [part.type, part.value]),
+  );
+  const year = parts.get("year");
+  const month = parts.get("month");
+  const day = parts.get("day");
+  if (!year || !month || !day) {
+    throw new InvalidWateringDataError("물주기 날짜를 계산할 수 없습니다.");
+  }
+  return `${year}-${month}-${day}`;
 }
 
 function isValidInterval(value: unknown) {

@@ -104,7 +104,8 @@ function isValidPeriod(period: CropPeriod) {
   return Number.isInteger(period.startMonth)
     && Number.isInteger(period.endMonth)
     && period.startMonth >= 1
+    && period.startMonth <= 12
+    && period.endMonth >= 1
     && period.endMonth <= 12
-    && period.startMonth <= period.endMonth
     && period.label.trim().length > 0;
 }
