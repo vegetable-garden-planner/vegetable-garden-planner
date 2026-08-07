@@ -508,10 +508,16 @@ CREATE TABLE IF NOT EXISTS `notification_logs` (
 
 CREATE TABLE IF NOT EXISTS `plans` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `code` VARCHAR(100) NOT NULL,
   `name` VARCHAR(255) NOT NULL,
   `price` DECIMAL(10,2) NOT NULL,
+  `currency` CHAR(3) NOT NULL DEFAULT 'KRW',
   `billing_cycle` VARCHAR(255) NOT NULL,
+  `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_plans_code` (`code`),
   UNIQUE KEY `uk_plans_name` (`name`)
 ) ENGINE=InnoDB;
 
@@ -519,8 +525,12 @@ CREATE TABLE IF NOT EXISTS `plan_features` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `plan_id` BIGINT UNSIGNED NOT NULL,
   `feature_key` VARCHAR(255) NOT NULL,
-  `limit_value` INT NOT NULL,
+  `limit_value` INT NULL,
+  `enabled` BOOLEAN NOT NULL DEFAULT TRUE,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_plan_features_plan_key` (`plan_id`, `feature_key`),
   CONSTRAINT `fk_plan_features_plan`
     FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`)
 ) ENGINE=InnoDB;
@@ -532,7 +542,17 @@ CREATE TABLE IF NOT EXISTS `subscriptions` (
   `status` VARCHAR(255) NOT NULL,
   `started_at` DATETIME NOT NULL,
   `expires_at` DATETIME NULL,
+  `provider` VARCHAR(100) NULL,
+  `provider_subscription_id` VARCHAR(255) NULL,
+  `current_period_start` DATETIME NULL,
+  `current_period_end` DATETIME NULL,
+  `cancel_at_period_end` BOOLEAN NOT NULL DEFAULT FALSE,
+  `canceled_at` DATETIME NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_subscriptions_provider_id` (`provider_subscription_id`),
+  KEY `idx_subscriptions_user_status` (`user_id`, `status`),
   CONSTRAINT `fk_subscriptions_user`
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `fk_subscriptions_plan`
@@ -542,25 +562,64 @@ CREATE TABLE IF NOT EXISTS `subscriptions` (
 CREATE TABLE IF NOT EXISTS `payments` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `user_id` BIGINT UNSIGNED NOT NULL,
-  `payment_key` VARCHAR(255) NOT NULL,
+  `subscription_id` BIGINT UNSIGNED NULL,
+  `order_id` VARCHAR(255) NOT NULL,
+  `payment_key` VARCHAR(255) NULL,
+  `provider` VARCHAR(100) NOT NULL,
   `amount` DECIMAL(10,2) NOT NULL,
+  `currency` CHAR(3) NOT NULL DEFAULT 'KRW',
+  `method` VARCHAR(100) NULL,
   `status` VARCHAR(255) NOT NULL,
+  `requested_at` DATETIME NOT NULL,
   `paid_at` DATETIME NULL,
+  `failed_at` DATETIME NULL,
+  `failure_code` VARCHAR(255) NULL,
+  `failure_message` TEXT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payments_order_id` (`order_id`),
   UNIQUE KEY `uk_payments_payment_key` (`payment_key`),
+  KEY `idx_payments_user_status` (`user_id`, `status`),
   CONSTRAINT `fk_payments_user`
-    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `fk_payments_subscription`
+    FOREIGN KEY (`subscription_id`) REFERENCES `subscriptions` (`id`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `payment_refunds` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `payment_id` BIGINT UNSIGNED NOT NULL,
+  `refund_key` VARCHAR(255) NULL,
   `amount` DECIMAL(10,2) NOT NULL,
   `reason` TEXT NULL,
-  `refunded_at` DATETIME NOT NULL,
+  `status` VARCHAR(100) NOT NULL,
+  `requested_at` DATETIME NOT NULL,
+  `refunded_at` DATETIME NULL,
+  `failure_message` TEXT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_payment_refunds_refund_key` (`refund_key`),
+  KEY `idx_payment_refunds_payment_status` (`payment_id`, `status`),
   CONSTRAINT `fk_payment_refunds_payment`
     FOREIGN KEY (`payment_id`) REFERENCES `payments` (`id`)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `webhook_events` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `provider` VARCHAR(100) NOT NULL,
+  `event_id` VARCHAR(255) NOT NULL,
+  `event_type` VARCHAR(255) NOT NULL,
+  `payload` JSON NOT NULL,
+  `status` VARCHAR(100) NOT NULL,
+  `processed_at` DATETIME NULL,
+  `error_message` TEXT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_webhook_events_event_id` (`event_id`),
+  KEY `idx_webhook_events_provider_status` (`provider`, `status`)
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `admin_change_logs` (
