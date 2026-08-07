@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
 import type { CropCategory } from "@/features/crop-catalog/domain/crop-reference";
+import { calculatePlantCount } from "@/features/garden-layout/application/calculate-plant-count";
+import { PlantCountSummary } from "@/features/garden-layout/components/plant-count-summary";
 import {
   createGardenLayout,
   GRID_CELL_SIZE_OPTIONS,
@@ -135,6 +137,7 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
     layout.placements.map((placement) => [placement.cellIndex, placement]),
   );
   const outdated = isGardenLayoutOutdated(layout, space);
+  const plantCount = calculatePlantCount(layout.placements, GARDEN_CROPS);
 
   function updateCell(cellIndex: number) {
     setError("");
@@ -166,9 +169,9 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
   return (
     <div>
       {outdated && <p className="mb-5 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800" role="alert">공간 크기가 격자를 만든 이후 변경되었습니다. 정확한 배치를 위해 격자를 다시 만들어 주세요.</p>}
-      <fieldset className="rounded-3xl border border-ink/10 bg-white p-5">
-        <legend className="px-2 text-lg font-bold">배치할 작물</legend>
-        <div className="flex gap-2 overflow-x-auto pb-1">
+      <section className="rounded-3xl border border-ink/10 bg-white p-5" aria-labelledby="crop-selector-title">
+        <h2 className="text-lg font-bold" id="crop-selector-title">배치할 작물</h2>
+        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-labelledby="crop-selector-title">
           {GARDEN_CROPS.map((crop) => (
             <label className={`shrink-0 cursor-pointer rounded-full border px-4 py-2 text-sm font-bold ${selectedCropId === crop.id ? "border-leaf bg-leaf-soft text-leaf-dark" : "border-ink/10"}`} key={crop.id}>
               <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
@@ -176,7 +179,7 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
             </label>
           ))}
         </div>
-      </fieldset>
+      </section>
 
       <div className="mt-5 overflow-x-auto rounded-3xl border-4 border-[#8a684a] bg-[#d6c39c] p-3">
         <div
@@ -209,6 +212,7 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
         <p className="font-bold text-muted">{layout.columns}열 × {layout.rows}행 · 한 칸 {layout.cellSizeCm}cm</p>
         <button className="rounded-full border border-red-200 px-4 py-2 font-bold text-red-700" onClick={recreateGrid} type="button">격자 다시 만들기</button>
       </div>
+      <PlantCountSummary summary={plantCount} />
       <p className="mt-3 text-sm text-muted">선택한 작물을 빈 칸에 배치하세요. 같은 작물이 있는 칸을 다시 누르면 제거됩니다.</p>
       {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{error}</p>}
     </div>
