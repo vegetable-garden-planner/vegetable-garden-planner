@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
 import type { CropCategory } from "@/features/crop-catalog/domain/crop-reference";
+import { calculatePlantCount } from "@/features/garden-layout/application/calculate-plant-count";
+import { PlantCountSummary } from "@/features/garden-layout/components/plant-count-summary";
 import {
   createGardenLayout,
   GRID_CELL_SIZE_OPTIONS,
@@ -135,6 +137,7 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
     layout.placements.map((placement) => [placement.cellIndex, placement]),
   );
   const outdated = isGardenLayoutOutdated(layout, space);
+  const plantCount = calculatePlantCount(layout.placements, GARDEN_CROPS);
 
   function updateCell(cellIndex: number) {
     setError("");
@@ -209,6 +212,7 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
         <p className="font-bold text-muted">{layout.columns}열 × {layout.rows}행 · 한 칸 {layout.cellSizeCm}cm</p>
         <button className="rounded-full border border-red-200 px-4 py-2 font-bold text-red-700" onClick={recreateGrid} type="button">격자 다시 만들기</button>
       </div>
+      <PlantCountSummary summary={plantCount} />
       <p className="mt-3 text-sm text-muted">선택한 작물을 빈 칸에 배치하세요. 같은 작물이 있는 칸을 다시 누르면 제거됩니다.</p>
       {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{error}</p>}
     </div>
