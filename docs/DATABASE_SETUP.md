@@ -14,6 +14,7 @@ Next.js 화면 → Laravel API → MariaDB (XAMPP)
 - 전체 새 설치 파일: `database/schema.sql`
 - 예전 51개 테이블 DB의 결제 구조 업데이트 파일: `database/migrations/20260807_01_expand_billing.sql`
 - 기존 DB의 물주기 완료 취소 지원 파일: `database/migrations/20260807_02_add_watering_log_schedule.sql`
+- 기존 DB의 물주기 규칙·일정 무결성 보완 파일: `database/migrations/20260807_03_harden_watering_rules_and_schedule.sql`
 - 공통 요금제 초기 데이터: `database/seeds/20260807_billing_plans.sql`
 - 현재 프런트엔드의 일부 기능은 아직 `localStorage`를 사용하므로, 실제 DB 사용에는 Laravel API 연결 작업이 별도로 필요합니다.
 
@@ -79,6 +80,22 @@ database/migrations/20260807_02_add_watering_log_schedule.sql
 
 이 파일도 같은 DB에 두 번 실행하지 않습니다. 새로 `schema.sql`로 설치한 DB에는 이미 해당 컬럼이 들어 있습니다.
 
+물주기 규칙 중복 방지와 일정 수정 시각 저장을 추가하려면 다음 파일을 이어서 **한 번만** 가져옵니다.
+
+```text
+database/migrations/20260807_03_harden_watering_rules_and_schedule.sql
+```
+
+```powershell
+& 'C:\xampp\mysql\bin\mysql.exe' `
+  --default-character-set=utf8mb4 `
+  --protocol=TCP --host=127.0.0.1 --port=3306 --user=root `
+  --database=vegetable_garden_planner `
+  --execute="SOURCE database/migrations/20260807_03_harden_watering_rules_and_schedule.sql;"
+```
+
+`watering_rules`에 같은 `crop_id`와 `growth_stage` 조합이 여러 건 있으면 유니크 키 추가가 중단됩니다. 중복 규칙을 하나로 정리한 뒤 다시 실행합니다. 새로 `schema.sql`로 설치한 DB에는 이 변경도 이미 포함되어 있습니다.
+
 ## 4. Free/Pro 초기 데이터 넣기
 
 처음 설치한 조원과 기존 DB를 업데이트한 조원 모두 `database/seeds/20260807_billing_plans.sql`을 가져옵니다. 이 시드 파일은 여러 번 실행해도 중복되지 않습니다.
@@ -124,6 +141,9 @@ WHERE table_schema = 'vegetable_garden_planner';
 SHOW COLUMNS FROM payments;
 SHOW COLUMNS FROM subscriptions;
 SHOW COLUMNS FROM webhook_events;
+SHOW COLUMNS FROM watering_rules;
+SHOW INDEX FROM watering_rules;
+SHOW COLUMNS FROM watering_schedules;
 SHOW COLUMNS FROM watering_logs;
 
 SELECT p.code, p.name, p.price, pf.feature_key, pf.limit_value, pf.enabled
@@ -132,7 +152,7 @@ JOIN plan_features pf ON pf.plan_id = p.id
 ORDER BY p.code, pf.feature_key;
 ```
 
-현재 기준 테이블 수는 **52개**입니다. `payments`에 `order_id`, `provider`, `requested_at`이 있고, `webhook_events`가 있으면 결제용 확장까지 적용된 상태입니다. `watering_logs`에 `scheduled_for`가 있으면 물주기 완료 취소 준비도 적용된 상태입니다. 마지막 조회에서 Free와 Pro가 각각 기능 4개씩 나오면 초기 데이터도 정상입니다.
+현재 기준 테이블 수는 **52개**입니다. `payments`에 `order_id`, `provider`, `requested_at`이 있고, `webhook_events`가 있으면 결제용 확장까지 적용된 상태입니다. 물주기 준비가 완료된 DB는 `watering_logs.scheduled_for`와 `watering_schedules.updated_at`이 모두 `NOT NULL`이고, `watering_rules`에 `uk_watering_rules_crop_stage` 유니크 키가 있습니다. 마지막 조회에서 Free와 Pro가 각각 기능 4개씩 나오면 초기 데이터도 정상입니다.
 
 ## 7. 결제 관련 테이블 역할
 

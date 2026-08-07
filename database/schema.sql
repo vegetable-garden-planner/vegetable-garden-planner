@@ -227,8 +227,9 @@ CREATE TABLE IF NOT EXISTS `watering_rules` (
   `crop_id` BIGINT UNSIGNED NOT NULL,
   `growth_stage` VARCHAR(255) NOT NULL,
   `interval_days` INT NOT NULL,
-  `guide_text` TEXT NULL,
+  `guide_text` TEXT NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_watering_rules_crop_stage` (`crop_id`, `growth_stage`),
   CONSTRAINT `fk_watering_rules_crop`
     FOREIGN KEY (`crop_id`) REFERENCES `crops` (`id`)
 ) ENGINE=InnoDB;
@@ -366,6 +367,7 @@ CREATE TABLE IF NOT EXISTS `watering_schedules` (
   `interval_days` INT NOT NULL,
   `next_watering_at` DATETIME NOT NULL,
   `enabled` BOOLEAN NOT NULL,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_watering_schedules_planting` (`planting_id`),
   CONSTRAINT `fk_watering_schedules_planting`

@@ -34,6 +34,10 @@ test("생육 단계 규칙을 우선하고 없으면 기본 규칙을 사용한�
     () => selectWateringRule(rules, "lettuce", "default"),
     InvalidWateringDataError,
   );
+  assert.throws(
+    () => selectWateringRule([...rules, { ...rules[0]! }], "tomato", "seedling"),
+    /중복/,
+  );
 });
 
 test("선택된 규칙으로 첫 물주기 일정을 만든다", () => {
@@ -53,15 +57,15 @@ test("예정일 전·당일·이후와 비활성 상태를 구분한다", () => 
   const schedule = createSchedule();
 
   assert.equal(
-    getWateringScheduleStatus(schedule, "2026-08-09T23:59:59.000Z"),
+    getWateringScheduleStatus(schedule, "2026-08-09T14:59:59.000Z"),
     "upcoming",
   );
   assert.equal(
-    getWateringScheduleStatus(schedule, "2026-08-10T23:59:59.000Z"),
+    getWateringScheduleStatus(schedule, "2026-08-10T14:59:59.000Z"),
     "due",
   );
   assert.equal(
-    getWateringScheduleStatus(schedule, "2026-08-11T00:00:00.000Z"),
+    getWateringScheduleStatus(schedule, "2026-08-10T15:00:00.000Z"),
     "overdue",
   );
   assert.equal(
@@ -74,6 +78,30 @@ test("예정일 전·당일·이후와 비활성 상태를 구분한다", () => 
       "2026-08-11T00:00:00.000Z",
     ),
     "disabled",
+  );
+});
+
+test("한국 날짜를 기준으로 물주기 당일 상태를 계산한다", () => {
+  const schedule = {
+    ...createSchedule(),
+    nextWateringAt: "2026-08-07T14:00:00.000Z",
+  };
+
+  assert.equal(
+    getWateringScheduleStatus(schedule, "2026-08-06T16:00:00.000Z"),
+    "due",
+  );
+  assert.equal(
+    getWateringScheduleStatus(schedule, "2026-08-06T16:00:00.000Z", "UTC"),
+    "upcoming",
+  );
+  assert.throws(
+    () => getWateringScheduleStatus(
+      schedule,
+      "2026-08-06T16:00:00.000Z",
+      "Invalid/TimeZone",
+    ),
+    /시간대/,
   );
 });
 

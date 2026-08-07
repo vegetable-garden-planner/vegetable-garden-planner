@@ -41,6 +41,21 @@ test("카테고리와 공간 조건을 함께 적용한다", () => {
   assert.deepEqual(result.map((crop) => crop.name), ["상추", "시금치", "대파"]);
 });
 
+test("연도를 넘는 심는 시기와 수확 시기를 허용한다", () => {
+  const winterCrop: CropReference = {
+    ...CROP_REFERENCES[0],
+    id: "winter-crop",
+    name: "겨울 작물",
+    plantingPeriod: { startMonth: 11, endMonth: 2, label: "11월~2월" },
+    harvestPeriod: { startMonth: 12, endMonth: 3, label: "12월~3월" },
+  };
+
+  assert.deepEqual(
+    validateCropReferenceData([winterCrop], CROP_SOURCES),
+    [],
+  );
+});
+
 test("빈 데이터와 중복·경계값·출처 누락을 거부한다", () => {
   assert.deepEqual(validateCropReferenceData([], CROP_SOURCES), [
     "작물 데이터가 비어 있습니다.",
@@ -64,4 +79,16 @@ test("빈 데이터와 중복·경계값·출처 누락을 거부한다", () => 
   assert.ok(errors.some((error) => error.includes("심는 시기")));
   assert.ok(errors.some((error) => error.includes("포기 간격")));
   assert.ok(errors.some((error) => error.includes("지원 공간")));
+
+  for (const plantingPeriod of [
+    { startMonth: 13, endMonth: 1, label: "잘못된 시작 월" },
+    { startMonth: 1, endMonth: 0, label: "잘못된 종료 월" },
+  ]) {
+    assert.ok(
+      validateCropReferenceData(
+        [{ ...CROP_REFERENCES[0], plantingPeriod }],
+        CROP_SOURCES,
+      ).some((error) => error.includes("심는 시기")),
+    );
+  }
 });
