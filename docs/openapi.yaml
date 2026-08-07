@@ -1320,6 +1320,9 @@ components:
         seasonId:
           type: string
           format: uuid
+        cropId:
+          type: [string, 'null']
+          description: 자동 생성 일정과 연결된 작물 slug. 공통 일정은 null
         type:
           $ref: '#/components/schemas/TaskType'
         title:
