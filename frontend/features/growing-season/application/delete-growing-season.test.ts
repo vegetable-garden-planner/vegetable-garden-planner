@@ -5,10 +5,12 @@ import type { CultivationTask } from "../../cultivation-schedule/domain/cultivat
 import { saveSeasonCultivationTasks } from "../../cultivation-schedule/infrastructure/cultivation-task-storage.ts";
 import { createGardenLayout } from "../../garden-layout/domain/garden-layout.ts";
 import { saveGardenLayout } from "../../garden-layout/infrastructure/garden-layout-storage.ts";
+import { addSeasonRecord } from "../../season-record/infrastructure/season-record-storage.ts";
 import { addGrowingSeason, loadGrowingSeasons } from "../infrastructure/season-storage.ts";
 import {
   deleteGrowingSeasonWithRelations,
   GrowingSeasonHasLayoutError,
+  GrowingSeasonHasRecordsError,
   GrowingSeasonHasTasksError,
 } from "./delete-growing-season.ts";
 
@@ -88,3 +90,22 @@ function createTask(): CultivationTask {
     updatedAt: "2026-03-01T00:00:00.000Z",
   };
 }
+
+test("기록이 연결된 시즌 삭제를 거부하고 시즌을 유지한다", () => {
+  const storage = createMemoryStorage();
+  addGrowingSeason(storage, season);
+  addSeasonRecord(storage, {
+    id: "record-1",
+    seasonId: season.id,
+    type: "watering",
+    recordedOn: "2026-04-10",
+    notes: "오전 물주기",
+    createdAt: "2026-04-10T09:00:00.000Z",
+  });
+
+  assert.throws(
+    () => deleteGrowingSeasonWithRelations(storage, season.id),
+    GrowingSeasonHasRecordsError,
+  );
+  assert.deepEqual(loadGrowingSeasons(storage), [season]);
+});
