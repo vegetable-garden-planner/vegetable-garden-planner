@@ -3,6 +3,7 @@ import {
   isSeasonRecordType,
   isValidDateOnly,
   type SeasonRecord,
+  type SeasonRecordInput,
 } from "../domain/season-record.ts";
 
 export const SEASON_RECORDS_STORAGE_KEY = "simeobom:season-records";
@@ -73,6 +74,29 @@ export function deleteSeasonRecord(
     storage,
     current.filter((record) => record.id !== recordId),
   );
+}
+
+export function updateSeasonRecord(
+  storage: KeyValueStorage,
+  recordId: string,
+  input: SeasonRecordInput,
+): SeasonRecord {
+  const current = loadSeasonRecords(storage);
+  const existing = current.find((record) => record.id === recordId);
+  if (!existing) {
+    throw new Error("수정할 시즌 기록을 찾을 수 없습니다.");
+  }
+
+  const updated = { ...existing, ...input };
+  if (!isSeasonRecord(updated)) {
+    throw new InvalidSeasonRecordDataError();
+  }
+
+  saveSeasonRecords(
+    storage,
+    current.map((record) => record.id === recordId ? updated : record),
+  );
+  return updated;
 }
 
 function saveSeasonRecords(

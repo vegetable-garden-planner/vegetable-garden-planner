@@ -183,12 +183,19 @@ function seasonOverlapsCropPeriod(
 
   const startYear = Number(season.startDate.slice(0, 4));
   const endYear = Number(season.endDate.slice(0, 4));
-  for (let year = startYear; year <= endYear; year += 1) {
+  const spansYearBoundary = crop.plantingPeriod.endMonth
+    < crop.plantingPeriod.startMonth;
+  const firstPeriodYear = spansYearBoundary ? startYear - 1 : startYear;
+
+  for (let year = firstPeriodYear; year <= endYear; year += 1) {
     const periodStart = toDateOnly(year, crop.plantingPeriod.startMonth, 1);
     const periodEnd = toDateOnly(
-      year,
+      spansYearBoundary ? year + 1 : year,
       crop.plantingPeriod.endMonth,
-      getLastDayOfMonth(year, crop.plantingPeriod.endMonth),
+      getLastDayOfMonth(
+        spansYearBoundary ? year + 1 : year,
+        crop.plantingPeriod.endMonth,
+      ),
     );
     if (season.startDate <= periodEnd && season.endDate >= periodStart) {
       return true;

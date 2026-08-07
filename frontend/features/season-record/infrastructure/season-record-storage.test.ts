@@ -7,6 +7,7 @@ import {
   deleteSeasonRecord,
   InvalidSeasonRecordDataError,
   loadSeasonRecords,
+  updateSeasonRecord,
 } from "./season-record-storage.ts";
 
 const record: SeasonRecord = {
@@ -36,6 +37,51 @@ test("중복 ID 저장과 없는 기록 삭제를 거부한다", () => {
 
   assert.throws(() => addSeasonRecord(storage, record), /이미 저장된/);
   assert.throws(() => deleteSeasonRecord(storage, "missing"), /찾을 수 없습니다/);
+});
+
+test("시즌 기록 내용을 수정하면서 ID와 생성 시각은 유지한다", () => {
+  const storage = createMemoryStorage();
+  addSeasonRecord(storage, record);
+
+  const updated = updateSeasonRecord(storage, record.id, {
+    seasonId: record.seasonId,
+    type: "growth",
+    recordedOn: "2026-04-11",
+    notes: "새잎 두 장 확인",
+  });
+
+  assert.deepEqual(updated, {
+    ...record,
+    type: "growth",
+    recordedOn: "2026-04-11",
+    notes: "새잎 두 장 확인",
+  });
+  assert.deepEqual(loadSeasonRecords(storage), [updated]);
+});
+
+test("없는 기록이나 잘못된 값으로 수정하면 기존 데이터를 유지한다", () => {
+  const storage = createMemoryStorage();
+  addSeasonRecord(storage, record);
+
+  assert.throws(
+    () => updateSeasonRecord(storage, "missing", {
+      seasonId: record.seasonId,
+      type: "work",
+      recordedOn: record.recordedOn,
+      notes: "없는 기록",
+    }),
+    /찾을 수 없습니다/,
+  );
+  assert.throws(
+    () => updateSeasonRecord(storage, record.id, {
+      seasonId: record.seasonId,
+      type: "work",
+      recordedOn: "2026-02-30",
+      notes: "잘못된 날짜",
+    }),
+    InvalidSeasonRecordDataError,
+  );
+  assert.deepEqual(loadSeasonRecords(storage), [record]);
 });
 
 test("형식이 잘못된 기록은 저장하지 않는다", () => {

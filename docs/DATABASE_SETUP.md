@@ -13,6 +13,7 @@ Next.js 화면 → Laravel API → MariaDB (XAMPP)
 - 데이터베이스 이름: `vegetable_garden_planner`
 - 전체 새 설치 파일: `database/schema.sql`
 - 예전 51개 테이블 DB의 결제 구조 업데이트 파일: `database/migrations/20260807_01_expand_billing.sql`
+- 공통 요금제 초기 데이터: `database/seeds/20260807_billing_plans.sql`
 - 현재 프런트엔드의 일부 기능은 아직 `localStorage`를 사용하므로, 실제 DB 사용에는 Laravel API 연결 작업이 별도로 필요합니다.
 
 ## 2. 처음 설치하는 조원
@@ -34,6 +35,7 @@ Next.js 화면 → Laravel API → MariaDB (XAMPP)
 
 ```powershell
 & 'C:\xampp\mysql\bin\mysql.exe' `
+  --default-character-set=utf8mb4 `
   --protocol=TCP --host=127.0.0.1 --port=3306 --user=root `
   --execute="SOURCE database/schema.sql;"
 ```
@@ -52,6 +54,7 @@ phpMyAdmin의 **가져오기(Import)**에서 위 파일을 선택하거나 다�
 
 ```powershell
 & 'C:\xampp\mysql\bin\mysql.exe' `
+  --default-character-set=utf8mb4 `
   --protocol=TCP --host=127.0.0.1 --port=3306 --user=root `
   --database=vegetable_garden_planner `
   --execute="SOURCE database/migrations/20260807_01_expand_billing.sql;"
@@ -59,7 +62,19 @@ phpMyAdmin의 **가져오기(Import)**에서 위 파일을 선택하거나 다�
 
 같은 마이그레이션을 두 번 실행하면 `Duplicate column` 오류가 납니다. 이미 `webhook_events`가 보이면 다시 실행하지 않습니다.
 
-## 4. Laravel 연결 설정
+## 4. Free/Pro 초기 데이터 넣기
+
+처음 설치한 조원과 기존 DB를 업데이트한 조원 모두 `database/seeds/20260807_billing_plans.sql`을 가져옵니다. 이 시드 파일은 여러 번 실행해도 중복되지 않습니다.
+
+```powershell
+& 'C:\xampp\mysql\bin\mysql.exe' `
+  --default-character-set=utf8mb4 `
+  --protocol=TCP --host=127.0.0.1 --port=3306 --user=root `
+  --database=vegetable_garden_planner `
+  --execute="SOURCE database/seeds/20260807_billing_plans.sql;"
+```
+
+## 5. Laravel 연결 설정
 
 Laravel 프로젝트의 `.env`에 아래 내용을 넣습니다. XAMPP 설정이 다르면 포트, 계정, 비밀번호만 맞게 바꿉니다.
 
@@ -80,7 +95,7 @@ php artisan config:clear
 
 DB 계정과 비밀번호를 Next.js의 `NEXT_PUBLIC_...` 환경 변수에 넣으면 브라우저에 노출될 수 있으므로 절대 넣지 않습니다.
 
-## 5. 제대로 설치됐는지 확인하기
+## 6. 제대로 설치됐는지 확인하기
 
 phpMyAdmin에서 `vegetable_garden_planner`를 선택하고 다음 SQL을 실행합니다.
 
@@ -92,11 +107,16 @@ WHERE table_schema = 'vegetable_garden_planner';
 SHOW COLUMNS FROM payments;
 SHOW COLUMNS FROM subscriptions;
 SHOW COLUMNS FROM webhook_events;
+
+SELECT p.code, p.name, p.price, pf.feature_key, pf.limit_value, pf.enabled
+FROM plans p
+JOIN plan_features pf ON pf.plan_id = p.id
+ORDER BY p.code, pf.feature_key;
 ```
 
-현재 기준 테이블 수는 **52개**입니다. `payments`에 `order_id`, `provider`, `requested_at`이 있고, `webhook_events`가 있으면 결제용 확장까지 적용된 상태입니다.
+현재 기준 테이블 수는 **52개**입니다. `payments`에 `order_id`, `provider`, `requested_at`이 있고, `webhook_events`가 있으면 결제용 확장까지 적용된 상태입니다. 마지막 조회에서 Free와 Pro가 각각 기능 4개씩 나오면 초기 데이터도 정상입니다.
 
-## 6. 결제 관련 테이블 역할
+## 7. 결제 관련 테이블 역할
 
 | 테이블 | 역할 |
 | --- | --- |
@@ -114,11 +134,21 @@ SHOW COLUMNS FROM webhook_events;
 - `payment_refunds.status`: `pending`, `succeeded`, `failed`
 - `webhook_events.status`: `pending`, `processed`, `failed`
 
-`plan_features.feature_key` 예시는 `max_gardens`, `max_seasons`, `max_members`, `pdf_export`입니다. `limit_value`가 `NULL`이면 무제한으로 해석하고, 기능 자체를 끌 때는 `enabled = FALSE`를 사용합니다.
+현재 사용하는 `plan_features.feature_key`는 `max_gardens`, `max_seasons`, `max_members`, `pdf_export`입니다. `limit_value`가 `NULL`이면 무제한으로 해석하고, 기능 자체를 끌 때는 `enabled = FALSE`를 사용합니다.
 
-요금제 가격과 한도는 아직 임의로 넣지 않았습니다. 조원들과 Free/Pro 정책을 정한 뒤 공통 SQL 또는 Laravel seeder로 추가해야 모두 같은 값을 사용합니다.
+현재 공통 요금제 정책은 다음과 같습니다.
 
-## 7. 팀에서 컬럼을 추가할 때 규칙
+| 기능 | Free | Pro |
+| --- | --- | --- |
+| 가격 | 0원 | 월 4,900원 |
+| 텃밭 수 | 1개 | 무제한 |
+| 시즌 수 | 2개 | 무제한 |
+| 공동 멤버 수 | 1명 | 5명 |
+| PDF 내보내기 | 사용 불가 | 사용 가능 |
+
+스키마 설치 후 `database/seeds/20260807_billing_plans.sql`을 가져오면 위 정책이 저장됩니다. 이 파일은 같은 내용을 갱신하는 방식이라 여러 번 실행해도 요금제나 기능 행이 중복되지 않습니다.
+
+## 8. 팀에서 컬럼을 추가할 때 규칙
 
 1. phpMyAdmin에서 자기 DB만 수동 수정하고 끝내지 않습니다.
 2. `database/migrations`에 다음 번호의 SQL 파일을 추가합니다.
@@ -128,7 +158,7 @@ SHOW COLUMNS FROM webhook_events;
 
 이 규칙을 지키면 조원마다 테이블명이나 컬럼명이 달라지는 문제를 피할 수 있습니다.
 
-## 8. 자주 생기는 오류
+## 9. 자주 생기는 오류
 
 - `Can't connect`: XAMPP에서 MySQL이 실행 중인지 확인합니다.
 - `Access denied`: 본인의 `root` 비밀번호를 확인하고 `--password`를 사용합니다.

@@ -9,6 +9,7 @@ const crops = [
   createCrop("tomato", "토마토", "가지과", 45, 5, 5),
   createCrop("potato", "감자", "가지과", 25, 3, 4),
   createCrop("lettuce", "상추", "국화과", 25, 4, 4),
+  createCrop("garlic", "마늘", "수선화과", 15, 10, 2),
 ];
 
 test("작물 사이 거리가 필요한 포기 간격보다 좁으면 경고한다", () => {
@@ -56,6 +57,29 @@ test("시즌 기간 안에 권장 심는 달이 있으면 시기 경고를 만�
   assert.equal(warnings.some((warning) => warning.type === "planting-period"), false);
 });
 
+test("연도를 넘는 권장 심는 시기는 다음 해 초 시즌과도 겹친다", () => {
+  const season = createSeason("winter", "2026-01-05", "2026-02-15", "겨울 시즌");
+  const layout = createLayout("winter", 25, 2, [
+    { cellIndex: 0, cropId: "garlic" },
+  ]);
+
+  const warnings = getGardenLayoutRuleWarnings(layout, season, crops, [layout], [season]);
+
+  assert.equal(warnings.some((warning) => warning.type === "planting-period"), false);
+});
+
+test("작물 사이 거리가 요구 간격과 정확히 같으면 경고하지 않는다", () => {
+  const season = createSeason("current", "2026-03-01", "2026-06-30");
+  const layout = createLayout("current", 25, 2, [
+    { cellIndex: 0, cropId: "lettuce" },
+    { cellIndex: 1, cropId: "lettuce" },
+  ]);
+
+  const warnings = getGardenLayoutRuleWarnings(layout, season, crops, [layout], [season]);
+
+  assert.equal(warnings.some((warning) => warning.type === "spacing"), false);
+});
+
 test("가장 최근 이전 재배 시즌의 같은 구역에 같은 과 작물을 배치하면 경고한다", () => {
   const previousSeason = createSeason("previous", "2025-03-01", "2025-06-30", "지난 봄");
   const currentSeason = createSeason("current", "2026-03-01", "2026-06-30", "올봄");
@@ -101,6 +125,31 @@ test("이전 시즌과 구역이 겹치지 않거나 과가 다르면 연작 경
     crops,
     [previousLayout, currentLayout],
     [previousSeason, currentSeason],
+  );
+
+  assert.equal(warnings.some((warning) => warning.type === "crop-rotation"), false);
+});
+
+test("연작 검사는 같은 공간에서 가장 최근에 배치가 저장된 시즌을 기준으로 한다", () => {
+  const oldSeason = createSeason("old", "2024-03-01", "2024-06-30", "오래된 시즌");
+  const previousSeason = createSeason("previous", "2025-03-01", "2025-06-30", "직전 시즌");
+  const currentSeason = createSeason("current", "2026-03-01", "2026-06-30", "현재 시즌");
+  const oldLayout = createLayout("old", 25, 2, [
+    { cellIndex: 0, cropId: "potato" },
+  ]);
+  const previousLayout = createLayout("previous", 25, 2, [
+    { cellIndex: 0, cropId: "lettuce" },
+  ]);
+  const currentLayout = createLayout("current", 25, 2, [
+    { cellIndex: 0, cropId: "tomato" },
+  ]);
+
+  const warnings = getGardenLayoutRuleWarnings(
+    currentLayout,
+    currentSeason,
+    crops,
+    [oldLayout, previousLayout, currentLayout],
+    [oldSeason, previousSeason, currentSeason],
   );
 
   assert.equal(warnings.some((warning) => warning.type === "crop-rotation"), false);

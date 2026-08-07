@@ -74,6 +74,33 @@ test("500자를 넘는 기록 내용을 거부한다", () => {
   }
 });
 
+test("시즌의 시작일과 종료일 기록 및 500자 내용은 허용한다", () => {
+  for (const recordedOn of [season.startDate, season.endDate]) {
+    const result = validateSeasonRecord({
+      seasonId: season.id,
+      type: "work",
+      recordedOn,
+      notes: "가".repeat(500),
+    }, season);
+
+    assert.equal(result.valid, true);
+  }
+});
+
+test("지원하지 않는 기록 종류는 거부한다", () => {
+  const result = validateSeasonRecord({
+    seasonId: season.id,
+    type: "unknown" as never,
+    recordedOn: "2026-04-10",
+    notes: "잘못된 종류",
+  }, season);
+
+  assert.equal(result.valid, false);
+  if (!result.valid) {
+    assert.match(result.errors.type ?? "", /기록 종류/);
+  }
+});
+
 test("시즌 기록만 최신 날짜와 생성 순서로 조회한다", () => {
   const records: SeasonRecord[] = [
     createSeasonRecord(
@@ -97,4 +124,5 @@ test("시즌 기록만 최신 날짜와 생성 순서로 조회한다", () => {
     getSeasonRecords(records, season.id).map((record) => record.id),
     ["record-2", "record-1"],
   );
+  assert.deepEqual(records.map((record) => record.id), ["record-3", "record-1", "record-2"]);
 });
