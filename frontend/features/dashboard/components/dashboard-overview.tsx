@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
+import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
@@ -25,11 +26,13 @@ export function DashboardOverview() {
   const spacesState = useGrowingSpaces();
   const seasonsState = useGrowingSeasons();
   const layoutsState = useGardenLayouts();
+  const tasksState = useCultivationTasks();
 
   if (auth.status === "error") return <ErrorMessage message={auth.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
+  if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
   if (auth.status !== "authenticated") return null;
 
   const today = new Date().toISOString().slice(0, 10);
@@ -37,6 +40,7 @@ export function DashboardOverview() {
     spacesState.spaces,
     seasonsState.seasons,
     layoutsState.layouts,
+    tasksState.tasks,
     today,
   );
 
@@ -95,8 +99,8 @@ export function DashboardOverview() {
                     </div>
                     <p className="mt-1 text-sm text-muted">{season.spaceName} · {season.startDate} ~ {season.endDate}</p>
                   </div>
-                  <Link className="text-sm font-bold text-leaf" href={season.layoutHref ?? "/seasons"}>
-                    {season.layoutHref ? "작물 배치" : "관리하기"}
+                  <Link className="text-sm font-bold text-leaf" href={season.layoutHref ?? season.scheduleHref ?? "/seasons"}>
+                    {season.layoutHref ? "작물 배치" : season.scheduleHref ? "재배 일정" : "관리하기"}
                   </Link>
                 </li>
               ))}

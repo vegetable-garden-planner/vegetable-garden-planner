@@ -1,3 +1,4 @@
+import type { CultivationTask } from "../../cultivation-schedule/domain/cultivation-task.ts";
 import type { GardenLayout } from "../../garden-layout/domain/garden-layout.ts";
 import {
   getGrowingSeasonStatus,
@@ -14,6 +15,7 @@ export interface DashboardSeason {
   startDate: string;
   endDate: string;
   layoutHref?: string;
+  scheduleHref?: string;
 }
 
 export interface DashboardNextAction {
@@ -36,12 +38,14 @@ export function createDashboardSummary(
   spaces: readonly GrowingSpace[],
   seasons: readonly GrowingSeason[],
   layouts: readonly GardenLayout[],
+  tasks: readonly CultivationTask[],
   today: string,
 ): DashboardSummary {
   const spacesById = new Map(spaces.map((space) => [space.id, space]));
   const layoutsBySeasonId = new Map(
     layouts.map((layout) => [layout.seasonId, layout]),
   );
+  const taskSeasonIds = new Set(tasks.map((task) => task.seasonId));
   const dashboardSeasons = seasons
     .map((season) => toDashboardSeason(season, spacesById, layoutsBySeasonId, today))
     .sort(compareDashboardSeasons);
@@ -54,7 +58,7 @@ export function createDashboardSummary(
     seasonCount: seasons.length,
     activeSeasonCount,
     layoutCount: layouts.length,
-    nextAction: getNextAction(spaces, seasons, layoutsBySeasonId),
+    nextAction: getNextAction(spaces, seasons, layoutsBySeasonId, taskSeasonIds),
     recentSeasons: dashboardSeasons.slice(0, 3),
   };
 }
@@ -68,6 +72,8 @@ function toDashboardSeason(
   const space = spacesById.get(season.spaceId);
   const canCreateLayout = space?.type === "garden"
     && !layoutsBySeasonId.has(season.id);
+  const canManageSchedule = space?.type === "garden"
+    && layoutsBySeasonId.has(season.id);
 
   return {
     id: season.id,
@@ -77,6 +83,7 @@ function toDashboardSeason(
     startDate: season.startDate,
     endDate: season.endDate,
     layoutHref: canCreateLayout ? `/seasons/${season.id}/layout` : undefined,
+    scheduleHref: canManageSchedule ? `/seasons/${season.id}/tasks` : undefined,
   };
 }
 
@@ -84,6 +91,7 @@ function getNextAction(
   spaces: readonly GrowingSpace[],
   seasons: readonly GrowingSeason[],
   layoutsBySeasonId: ReadonlyMap<string, GardenLayout>,
+  taskSeasonIds: ReadonlySet<string>,
 ): DashboardNextAction {
   if (spaces.length === 0) {
     return {
@@ -115,6 +123,18 @@ function getNextAction(
       description: "텃밭 격자를 만들고 심을 작물을 칸마다 배치할 수 있어요.",
       href: `/seasons/${seasonWithoutLayout.id}/layout`,
       label: "작물 배치하기",
+    };
+  }
+
+  const seasonWithoutTasks = seasons.find(
+    (season) => layoutsBySeasonId.has(season.id) && !taskSeasonIds.has(season.id),
+  );
+  if (seasonWithoutTasks) {
+    return {
+      title: `‘${seasonWithoutTasks.name}’ 재배 일정을 만들어 보세요`,
+      description: "배치한 작물과 시즌 기간을 기준으로 심기와 수확 일정을 준비할 수 있어요.",
+      href: `/seasons/${seasonWithoutTasks.id}/tasks`,
+      label: "일정 만들기",
     };
   }
 
