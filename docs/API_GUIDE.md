@@ -1,6 +1,6 @@
 # 심어봄 API 설계 문서
 
-> 상태: 설계 초안 · 아직 Laravel API는 구현되지 않음  
+> 상태: 설계 초안 · 아직 Laravel API는 구현되지 않음
 > 기계 판독 명세: [`openapi.yaml`](./openapi.yaml)
 
 ## 1. API가 무엇인가
