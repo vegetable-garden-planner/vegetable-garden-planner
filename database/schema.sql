@@ -376,6 +376,7 @@ CREATE TABLE IF NOT EXISTS `watering_logs` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   `planting_id` BIGINT UNSIGNED NOT NULL,
   `user_id` BIGINT UNSIGNED NOT NULL,
+  `scheduled_for` DATETIME NOT NULL,
   `watered_at` DATETIME NOT NULL,
   `amount` DECIMAL(10,2) NULL,
   `memo` TEXT NULL,

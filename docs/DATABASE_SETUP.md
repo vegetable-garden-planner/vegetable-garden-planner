@@ -13,6 +13,7 @@ Next.js 화면 → Laravel API → MariaDB (XAMPP)
 - 데이터베이스 이름: `vegetable_garden_planner`
 - 전체 새 설치 파일: `database/schema.sql`
 - 예전 51개 테이블 DB의 결제 구조 업데이트 파일: `database/migrations/20260807_01_expand_billing.sql`
+- 기존 DB의 물주기 완료 취소 지원 파일: `database/migrations/20260807_02_add_watering_log_schedule.sql`
 - 공통 요금제 초기 데이터: `database/seeds/20260807_billing_plans.sql`
 - 현재 프런트엔드의 일부 기능은 아직 `localStorage`를 사용하므로, 실제 DB 사용에는 Laravel API 연결 작업이 별도로 필요합니다.
 
@@ -62,6 +63,22 @@ phpMyAdmin의 **가져오기(Import)**에서 위 파일을 선택하거나 다�
 
 같은 마이그레이션을 두 번 실행하면 `Duplicate column` 오류가 납니다. 이미 `webhook_events`가 보이면 다시 실행하지 않습니다.
 
+물주기 완료 취소 기능을 추가하려면 `watering_logs`에 `scheduled_for`가 있는지 확인합니다. 없다면 다음 파일을 **한 번만** 가져옵니다.
+
+```text
+database/migrations/20260807_02_add_watering_log_schedule.sql
+```
+
+```powershell
+& 'C:\xampp\mysql\bin\mysql.exe' `
+  --default-character-set=utf8mb4 `
+  --protocol=TCP --host=127.0.0.1 --port=3306 --user=root `
+  --database=vegetable_garden_planner `
+  --execute="SOURCE database/migrations/20260807_02_add_watering_log_schedule.sql;"
+```
+
+이 파일도 같은 DB에 두 번 실행하지 않습니다. 새로 `schema.sql`로 설치한 DB에는 이미 해당 컬럼이 들어 있습니다.
+
 ## 4. Free/Pro 초기 데이터 넣기
 
 처음 설치한 조원과 기존 DB를 업데이트한 조원 모두 `database/seeds/20260807_billing_plans.sql`을 가져옵니다. 이 시드 파일은 여러 번 실행해도 중복되지 않습니다.
@@ -107,6 +124,7 @@ WHERE table_schema = 'vegetable_garden_planner';
 SHOW COLUMNS FROM payments;
 SHOW COLUMNS FROM subscriptions;
 SHOW COLUMNS FROM webhook_events;
+SHOW COLUMNS FROM watering_logs;
 
 SELECT p.code, p.name, p.price, pf.feature_key, pf.limit_value, pf.enabled
 FROM plans p
@@ -114,7 +132,7 @@ JOIN plan_features pf ON pf.plan_id = p.id
 ORDER BY p.code, pf.feature_key;
 ```
 
-현재 기준 테이블 수는 **52개**입니다. `payments`에 `order_id`, `provider`, `requested_at`이 있고, `webhook_events`가 있으면 결제용 확장까지 적용된 상태입니다. 마지막 조회에서 Free와 Pro가 각각 기능 4개씩 나오면 초기 데이터도 정상입니다.
+현재 기준 테이블 수는 **52개**입니다. `payments`에 `order_id`, `provider`, `requested_at`이 있고, `webhook_events`가 있으면 결제용 확장까지 적용된 상태입니다. `watering_logs`에 `scheduled_for`가 있으면 물주기 완료 취소 준비도 적용된 상태입니다. 마지막 조회에서 Free와 Pro가 각각 기능 4개씩 나오면 초기 데이터도 정상입니다.
 
 ## 7. 결제 관련 테이블 역할
 
