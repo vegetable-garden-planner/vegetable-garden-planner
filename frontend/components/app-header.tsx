@@ -12,6 +12,7 @@ const navigation = [
   { label: "공간", href: "/spaces" },
   { label: "시즌", href: "/seasons" },
   { label: "작물 정보", href: "/crops" },
+  { label: "무료·프로", href: "/plans" },
 ];
 
 export function AppHeader({ action }: AppHeaderProps) {

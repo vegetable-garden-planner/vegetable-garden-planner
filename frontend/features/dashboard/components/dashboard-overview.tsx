@@ -13,6 +13,9 @@ import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-s
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 import { createDashboardSummary } from "@/features/dashboard/domain/dashboard-summary";
+import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
+import { RegisteredPlantList } from "@/features/dashboard/components/registered-plant-list";
+import { createRegisteredPlantSummaries } from "@/features/dashboard/domain/registered-plant-summary";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   planned: "예정",
@@ -49,6 +52,11 @@ export function DashboardOverview() {
     today,
   );
   const alerts = createDashboardAlerts(tasksState.tasks, today);
+  const registeredPlants = createRegisteredPlantSummaries(
+    seasonsState.seasons,
+    CROP_REFERENCES,
+    today,
+  );
 
   return (
     <div>
@@ -83,6 +91,8 @@ export function DashboardOverview() {
       </section>
 
       <DashboardAlertList summary={alerts} />
+
+      <RegisteredPlantList plants={registeredPlants} />
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
         <section className="rounded-3xl border border-ink/10 bg-white p-6">
