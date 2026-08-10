@@ -3,6 +3,8 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { GROWING_SPACE_LABELS } from "@/features/crop-catalog/data/crop-labels";
+import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
 import { SeasonField } from "@/features/growing-season/components/season-field";
 import {
   createGrowingSeason,
@@ -22,15 +24,16 @@ import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-stor
 
 interface SeasonFormProps {
   initialSpaceId: string;
+  initialCrop?: CropReference;
   season?: GrowingSeason;
 }
 
-export function SeasonForm({ initialSpaceId, season }: SeasonFormProps) {
+export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormProps) {
   const router = useRouter();
   const spacesState = useGrowingSpaces();
   const seasonsState = useGrowingSeasons();
   const [values, setValues] = useState<GrowingSeasonFormValues>(() =>
-    season ? toFormValues(season) : createEmptyValues(initialSpaceId),
+    season ? toFormValues(season) : createEmptyValues(initialSpaceId, initialCrop),
   );
   const [errors, setErrors] = useState<GrowingSeasonErrors>({});
   const [formError, setFormError] = useState("");
@@ -50,7 +53,7 @@ export function SeasonForm({ initialSpaceId, season }: SeasonFormProps) {
 
     const result = validateGrowingSeason(
       values,
-      spacesState.spaces.map((space) => space.id),
+      compatibleSpaces.map((space) => space.id),
       seasonsState.seasons,
       season?.id,
     );
@@ -60,9 +63,14 @@ export function SeasonForm({ initialSpaceId, season }: SeasonFormProps) {
     }
 
     const nextSeason = season
-      ? { ...result.value, id: season.id, createdAt: season.createdAt }
+      ? {
+          ...result.value,
+          id: season.id,
+          createdAt: season.createdAt,
+          featuredCropId: season.featuredCropId,
+        }
       : createGrowingSeason(
-          result.value,
+          { ...result.value, featuredCropId: initialCrop?.id },
           crypto.randomUUID(),
           new Date().toISOString(),
         );
@@ -74,7 +82,7 @@ export function SeasonForm({ initialSpaceId, season }: SeasonFormProps) {
         addGrowingSeason(window.localStorage, nextSeason);
       }
       notifyBrowserStorageChange(GROWING_SEASONS_STORAGE_KEY);
-      router.push("/seasons");
+      router.push(`/seasons?spaceId=${encodeURIComponent(nextSeason.spaceId)}`);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "시즌을 저장하지 못했습니다.");
     }
@@ -98,12 +106,34 @@ export function SeasonForm({ initialSpaceId, season }: SeasonFormProps) {
     );
   }
 
+  const compatibleSpaces = initialCrop
+    ? spacesState.spaces.filter((space) => initialCrop.supportedSpaces.includes(space.type))
+    : spacesState.spaces;
+
+  if (initialCrop && compatibleSpaces.length === 0) {
+    const recommendedType = initialCrop.supportedSpaces[0] ?? "indoor";
+    return (
+      <div className="rounded-2xl border border-dashed border-leaf/30 p-7 text-center">
+        <h2 className="text-xl font-bold">{initialCrop.name}에 맞는 공간이 없어요</h2>
+        <p className="mt-3 leading-7 text-muted">{GROWING_SPACE_LABELS[recommendedType]} 공간을 먼저 등록한 뒤 재배를 시작해 주세요.</p>
+        <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href={`/spaces/new?type=${recommendedType}`}>알맞은 공간 등록하기</Link>
+      </div>
+    );
+  }
+
   return (
     <form className="space-y-6" noValidate onSubmit={submit}>
+      {initialCrop && (
+        <div className="rounded-2xl bg-leaf-soft/60 p-5">
+          <p className="text-sm font-bold text-leaf">선택한 식물</p>
+          <p className="mt-1 text-xl font-bold">{initialCrop.name}</p>
+          <p className="mt-2 text-sm leading-6 text-muted">이 시즌에 선택한 식물을 연결해 저장합니다.</p>
+        </div>
+      )}
       <SeasonField error={errors.spaceId} id="season-space" label="재배 공간">
         <select aria-describedby={errors.spaceId ? "season-space-error" : undefined} aria-invalid={Boolean(errors.spaceId)} className="form-input" id="season-space" onChange={(event) => update("spaceId", event.target.value)} value={values.spaceId}>
           <option value="">공간 선택</option>
-          {spacesState.spaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}
+          {compatibleSpaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}
         </select>
       </SeasonField>
       <SeasonField error={errors.name} id="season-name" label="시즌 이름">
@@ -126,13 +156,16 @@ export function SeasonForm({ initialSpaceId, season }: SeasonFormProps) {
   );
 }
 
-function createEmptyValues(initialSpaceId: string): GrowingSeasonFormValues {
+function createEmptyValues(
+  initialSpaceId: string,
+  initialCrop?: CropReference,
+): GrowingSeasonFormValues {
   return {
     spaceId: initialSpaceId,
-    name: "",
+    name: initialCrop ? `${initialCrop.name} 관리` : "",
     startDate: "",
     endDate: "",
-    notes: "",
+    notes: initialCrop ? `선택 식물: ${initialCrop.name}` : "",
   };
 }
 

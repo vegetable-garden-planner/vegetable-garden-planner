@@ -1,8 +1,13 @@
 import type { GrowingSpaceType } from "@/shared/domain/growing-environment";
 
-export type CropCategory = "leaf" | "fruit" | "root" | "legume" | "tuber";
+export type CropCategory = "leaf" | "fruit" | "root" | "legume" | "tuber" | "flower";
 export type CropDifficulty = "easy" | "normal" | "challenging";
-export type PlantingMaterial = "seed" | "seedling" | "seed-potato";
+export type PlantingMaterial =
+  | "seed"
+  | "seedling"
+  | "seed-potato"
+  | "potted-plant"
+  | "cut-flower";
 
 export interface CropPeriod {
   startMonth: number;
@@ -23,6 +28,15 @@ export interface CropReference {
   plantSpacingCm: number;
   summary: string;
   sourceId: string;
+  careGuide?: PlantCareGuide;
+}
+
+export interface PlantCareGuide {
+  lifespan: string;
+  light: string;
+  watering: string;
+  temperature: string;
+  actions: readonly string[];
 }
 
 export interface CropSource {
@@ -57,7 +71,14 @@ export function filterCropReferences(
     }
     if (!query) return true;
 
-    return [crop.name, crop.familyName, crop.summary].some((value) =>
+    const searchableValues = [
+      crop.name,
+      crop.familyName,
+      crop.summary,
+      crop.careGuide?.lifespan ?? "",
+      ...(crop.careGuide?.actions ?? []),
+    ];
+    return searchableValues.some((value) =>
       value.toLocaleLowerCase("ko-KR").includes(query),
     );
   });
@@ -92,6 +113,9 @@ export function validateCropReferenceData(
     if (crop.supportedSpaces.length === 0) {
       errors.push(`${crop.name}: 지원 공간이 필요합니다.`);
     }
+    if (crop.category === "flower" && !isValidCareGuide(crop.careGuide)) {
+      errors.push(`${crop.name}: 꽃 관리 안내가 필요합니다.`);
+    }
 
     cropIds.add(crop.id);
     cropNames.add(crop.name);
@@ -100,11 +124,24 @@ export function validateCropReferenceData(
   return errors;
 }
 
+function isValidCareGuide(guide: PlantCareGuide | undefined) {
+  return Boolean(
+    guide
+    && guide.lifespan.trim()
+    && guide.light.trim()
+    && guide.watering.trim()
+    && guide.temperature.trim()
+    && guide.actions.length > 0
+    && guide.actions.every((action) => action.trim().length > 0),
+  );
+}
+
 function isValidPeriod(period: CropPeriod) {
   return Number.isInteger(period.startMonth)
     && Number.isInteger(period.endMonth)
     && period.startMonth >= 1
+    && period.startMonth <= 12
+    && period.endMonth >= 1
     && period.endMonth <= 12
-    && period.startMonth <= period.endMonth
     && period.label.trim().length > 0;
 }

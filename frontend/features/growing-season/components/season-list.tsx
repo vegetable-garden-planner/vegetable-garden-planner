@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
 import { deleteGrowingSeasonWithRelations } from "@/features/growing-season/application/delete-growing-season";
 import {
   getGrowingSeasonStatus,
@@ -25,16 +26,27 @@ const STATUS_STYLES: Record<GrowingSeasonStatus, string> = {
   completed: "bg-stone-100 text-stone-600",
 };
 
-export function SeasonList() {
+export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string }) {
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
   const [actionError, setActionError] = useState("");
 
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
-  if (seasonsState.seasons.length === 0) return <EmptySeasonList />;
-
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
+  const cropsById = new Map(CROP_REFERENCES.map((crop) => [crop.id, crop]));
+  const selectedSpace = selectedSpaceId ? spacesById.get(selectedSpaceId) : undefined;
+  if (selectedSpaceId && !selectedSpace) {
+    return <InvalidSpaceFilter />;
+  }
+
+  const visibleSeasons = selectedSpaceId
+    ? seasonsState.seasons.filter((season) => season.spaceId === selectedSpaceId)
+    : seasonsState.seasons;
+  if (visibleSeasons.length === 0) {
+    return <EmptySeasonList selectedSpaceId={selectedSpaceId} spaceName={selectedSpace?.name} />;
+  }
+
   const today = new Date().toISOString().slice(0, 10);
 
   function removeSeason(season: GrowingSeason) {
@@ -51,11 +63,20 @@ export function SeasonList() {
 
   return (
     <div>
+      {selectedSpace && (
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-leaf-soft/60 p-4">
+          <p className="font-bold">‘{selectedSpace.name}’에서 키우는 시즌 {visibleSeasons.length}개</p>
+          <Link className="text-sm font-bold text-leaf underline" href="/seasons">전체 시즌 보기</Link>
+        </div>
+      )}
       {actionError && <ErrorMessage message={actionError} />}
       <ul className={`grid gap-4 sm:grid-cols-2 ${actionError ? "mt-4" : ""}`}>
-        {seasonsState.seasons.map((season) => {
+        {visibleSeasons.map((season) => {
           const status = getGrowingSeasonStatus(season, today);
           const linkedSpace = spacesById.get(season.spaceId);
+          const featuredCrop = season.featuredCropId
+            ? cropsById.get(season.featuredCropId)
+            : undefined;
           return (
             <li className="rounded-3xl border border-ink/10 bg-white p-6" key={season.id}>
               <div className="flex items-center justify-between gap-3">
@@ -63,6 +84,7 @@ export function SeasonList() {
                 <span className={`rounded-full px-3 py-1 text-xs font-bold ${STATUS_STYLES[status]}`}>{STATUS_LABELS[status]}</span>
               </div>
               <h2 className="mt-2 text-xl font-bold">{season.name}</h2>
+              {featuredCrop && <Link className="mt-2 inline-flex text-sm font-bold text-leaf underline" href={`/crops/${featuredCrop.id}`}>선택 식물 · {featuredCrop.name}</Link>}
               <dl className="mt-5 text-sm">
                 <dt className="text-muted">재배 기간</dt>
                 <dd className="mt-1 font-bold">{season.startDate} ~ {season.endDate}</dd>
@@ -86,12 +108,32 @@ export function SeasonList() {
   );
 }
 
-function EmptySeasonList() {
+function EmptySeasonList({
+  selectedSpaceId = "",
+  spaceName,
+}: {
+  selectedSpaceId?: string;
+  spaceName?: string;
+}) {
+  const newSeasonHref = selectedSpaceId
+    ? `/seasons/new?spaceId=${encodeURIComponent(selectedSpaceId)}`
+    : "/seasons/new";
   return (
     <div className="rounded-3xl border border-dashed border-leaf/30 bg-white p-8 text-center">
-      <h2 className="text-xl font-bold">아직 등록한 시즌이 없어요</h2>
-      <p className="mt-3 text-muted">재배 기간을 등록하면 작물 배치와 일정 관리의 기준이 됩니다.</p>
-      <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href="/seasons/new">첫 시즌 등록하기</Link>
+      <h2 className="text-xl font-bold">{spaceName ? `‘${spaceName}’에 등록한 시즌이 없어요` : "아직 등록한 시즌이 없어요"}</h2>
+      <p className="mt-3 text-muted">재배 기간을 등록하면 식물 배치와 일정 관리의 기준이 됩니다.</p>
+      <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href={newSeasonHref}>첫 시즌 등록하기</Link>
+      {selectedSpaceId && <Link className="ml-3 mt-6 inline-flex px-3 py-3 text-sm font-bold text-muted underline" href="/seasons">전체 시즌 보기</Link>}
+    </div>
+  );
+}
+
+function InvalidSpaceFilter() {
+  return (
+    <div className="rounded-3xl border border-dashed border-red-200 bg-white p-8 text-center">
+      <h2 className="text-xl font-bold">선택한 공간을 찾을 수 없어요</h2>
+      <p className="mt-3 text-muted">공간이 삭제되었거나 주소가 올바르지 않습니다.</p>
+      <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href="/spaces">내 공간으로 돌아가기</Link>
     </div>
   );
 }

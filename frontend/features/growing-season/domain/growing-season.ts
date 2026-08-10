@@ -6,7 +6,9 @@ export interface GrowingSeasonFormValues {
   notes: string;
 }
 
-export type GrowingSeasonInput = GrowingSeasonFormValues;
+export interface GrowingSeasonInput extends GrowingSeasonFormValues {
+  featuredCropId?: string;
+}
 
 export interface GrowingSeason extends GrowingSeasonInput {
   id: string;

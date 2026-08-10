@@ -85,6 +85,7 @@ function isGrowingSeason(value: unknown): value is GrowingSeason {
     && typeof value.startDate === "string"
     && typeof value.endDate === "string"
     && typeof value.notes === "string"
+    && (value.featuredCropId === undefined || typeof value.featuredCropId === "string")
     && typeof value.createdAt === "string";
 }
 

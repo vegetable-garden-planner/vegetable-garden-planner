@@ -1,12 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
+import {
+  CROP_CATEGORY_LABELS,
+  CROP_DIFFICULTY_LABELS,
+  GROWING_SPACE_LABELS,
+  PLANTING_MATERIAL_LABELS,
+} from "@/features/crop-catalog/data/crop-labels";
 import {
   filterCropReferences,
   type CropCategory,
-  type CropDifficulty,
   type CropReference,
-  type PlantingMaterial,
 } from "@/features/crop-catalog/domain/crop-reference";
 import type { GrowingSpaceType } from "@/shared/domain/growing-environment";
 
@@ -17,6 +22,7 @@ const CATEGORY_OPTIONS: readonly { value: CropCategory | "all"; label: string }[
   { value: "root", label: "뿌리채소" },
   { value: "legume", label: "콩류" },
   { value: "tuber", label: "덩이줄기" },
+  { value: "flower", label: "꽃" },
 ];
 
 const SPACE_OPTIONS: readonly { value: GrowingSpaceType | "all"; label: string }[] = [
@@ -25,32 +31,6 @@ const SPACE_OPTIONS: readonly { value: GrowingSpaceType | "all"; label: string }
   { value: "balcony", label: "베란다" },
   { value: "garden", label: "마당·텃밭" },
 ];
-
-const CATEGORY_LABELS: Record<CropCategory, string> = {
-  leaf: "잎채소",
-  fruit: "열매채소",
-  root: "뿌리채소",
-  legume: "콩류",
-  tuber: "덩이줄기",
-};
-
-const DIFFICULTY_LABELS: Record<CropDifficulty, string> = {
-  easy: "쉬움",
-  normal: "보통",
-  challenging: "관리가 필요해요",
-};
-
-const MATERIAL_LABELS: Record<PlantingMaterial, string> = {
-  seed: "씨앗",
-  seedling: "모종",
-  "seed-potato": "씨감자",
-};
-
-const SPACE_LABELS: Record<GrowingSpaceType, string> = {
-  indoor: "실내 화분",
-  balcony: "베란다",
-  garden: "마당·텃밭",
-};
 
 export function CropCatalog({ crops }: { crops: readonly CropReference[] }) {
   const [query, setQuery] = useState("");
@@ -65,11 +45,11 @@ export function CropCatalog({ crops }: { crops: readonly CropReference[] }) {
     <div>
       <div className="grid gap-3 rounded-3xl border border-ink/10 bg-white p-5 sm:grid-cols-3">
         <label className="sm:col-span-1">
-          <span className="mb-2 block text-sm font-bold">작물 검색</span>
+          <span className="mb-2 block text-sm font-bold">식물 검색</span>
           <input className="form-input" onChange={(event) => setQuery(event.target.value)} placeholder="이름, 과명, 특징" type="search" value={query} />
         </label>
         <label>
-          <span className="mb-2 block text-sm font-bold">작물 종류</span>
+          <span className="mb-2 block text-sm font-bold">식물 종류</span>
           <select className="form-input" onChange={(event) => setCategory(event.target.value as CropCategory | "all")} value={category}>
             {CATEGORY_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
@@ -82,7 +62,7 @@ export function CropCatalog({ crops }: { crops: readonly CropReference[] }) {
         </label>
       </div>
 
-      <p className="mb-5 mt-8 text-sm font-bold text-muted">조건에 맞는 작물 {filteredCrops.length}종</p>
+      <p className="mb-5 mt-8 text-sm font-bold text-muted">조건에 맞는 식물 {filteredCrops.length}종</p>
       {filteredCrops.length === 0
         ? <EmptyResult />
         : <CropCards crops={filteredCrops} />}
@@ -94,25 +74,27 @@ function CropCards({ crops }: { crops: readonly CropReference[] }) {
   return (
     <ul className="grid gap-4 md:grid-cols-2">
       {crops.map((crop) => (
-        <li className="rounded-3xl border border-ink/10 bg-white p-6" key={crop.id}>
+        <li className="relative rounded-3xl border border-ink/10 bg-white p-6 transition hover:-translate-y-0.5 hover:border-leaf/30 hover:shadow-sm" key={crop.id}>
+          <Link aria-label={`${crop.name} 상세 정보 보기`} className="absolute inset-0 rounded-3xl focus:outline-2 focus:outline-offset-2 focus:outline-leaf" href={`/crops/${crop.id}`} />
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-leaf">{CATEGORY_LABELS[crop.category]} · {crop.familyName}</p>
+              <p className="text-sm font-bold text-leaf">{CROP_CATEGORY_LABELS[crop.category]} · {crop.familyName}</p>
               <h2 className="mt-2 text-2xl font-bold">{crop.name}</h2>
             </div>
-            <span className="rounded-full bg-leaf-soft px-3 py-1.5 text-xs font-bold text-leaf-dark">{DIFFICULTY_LABELS[crop.difficulty]}</span>
+            <span className="rounded-full bg-leaf-soft px-3 py-1.5 text-xs font-bold text-leaf-dark">{CROP_DIFFICULTY_LABELS[crop.difficulty]}</span>
           </div>
           <p className="mt-4 text-sm leading-6 text-muted">{crop.summary}</p>
           <dl className="mt-5 grid grid-cols-2 gap-4 border-t border-ink/10 pt-5 text-sm">
             <CropFact label="심는 시기" value={crop.plantingPeriod.label} />
             <CropFact label="수확 시기" value={crop.harvestPeriod.label} />
-            <CropFact label="시작 재료" value={MATERIAL_LABELS[crop.plantingMaterial]} />
+            <CropFact label="시작 형태" value={PLANTING_MATERIAL_LABELS[crop.plantingMaterial]} />
             <CropFact label="포기 간격" value={`${crop.plantSpacingCm}cm`} />
           </dl>
           <div className="mt-5 flex flex-wrap gap-2">
             {crop.supportedSpaces.map((supportedSpace) => (
-              <span className="rounded-full bg-cream px-3 py-1.5 text-xs font-bold text-muted" key={supportedSpace}>{SPACE_LABELS[supportedSpace]}</span>
+              <span className="rounded-full bg-cream px-3 py-1.5 text-xs font-bold text-muted" key={supportedSpace}>{GROWING_SPACE_LABELS[supportedSpace]}</span>
             ))}
+            <span className="ml-auto text-sm font-bold text-leaf">자세히 보기 →</span>
           </div>
         </li>
       ))}
@@ -127,7 +109,7 @@ function CropFact({ label, value }: { label: string; value: string }) {
 function EmptyResult() {
   return (
     <div className="rounded-3xl border border-dashed border-leaf/30 bg-white p-8 text-center">
-      <h2 className="text-xl font-bold">조건에 맞는 작물이 없어요</h2>
+      <h2 className="text-xl font-bold">조건에 맞는 식물이 없어요</h2>
       <p className="mt-3 text-muted">검색어나 필터를 바꿔 다시 확인해 보세요.</p>
     </div>
   );
