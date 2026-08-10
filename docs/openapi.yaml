@@ -4,7 +4,7 @@ info:
   version: 0.3.0
   description: |
     심어봄 Next.js 프론트엔드와 향후 Laravel 백엔드 사이의 MVP 계약 초안입니다.
-    현재 백엔드 기반과 상태 확인·세션 인증 API가 구현되었으며 나머지 operation은 계획 상태입니다.
+    현재 백엔드 기반과 상태 확인·세션 인증·재배 공간 API가 구현되었으며 나머지 operation은 계획 상태입니다.
 servers:
   - url: http://localhost:8000/api/v1
     description: Laravel 로컬 개발 서버
