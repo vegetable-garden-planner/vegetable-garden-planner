@@ -141,7 +141,7 @@ function createCropTaskDrafts(
 function createPlantingTask(crop: CropReference, dueDate: string): TaskDraft {
   return {
     cropId: crop.id,
-    type: crop.plantingMaterial === "seedling" ? "transplanting" : "sowing",
+    type: getPlantingTaskType(crop.plantingMaterial),
     title: getPlantingTitle(crop.name, crop.plantingMaterial),
     dueDate,
     notes: `기준 심는 시기: ${crop.plantingPeriod.label}. 지역과 날씨에 따라 조정하세요.`,
@@ -151,7 +151,15 @@ function createPlantingTask(crop: CropReference, dueDate: string): TaskDraft {
 function getPlantingTitle(name: string, material: PlantingMaterial) {
   if (material === "seedling") return `${name} 모종 심기`;
   if (material === "seed-potato") return `${name} 씨감자 심기`;
+  if (material === "potted-plant") return `${name} 화분 자리 잡기`;
+  if (material === "cut-flower") return `${name} 꽃병에 꽂고 손질하기`;
   return `${name} 파종하기`;
+}
+
+function getPlantingTaskType(material: PlantingMaterial) {
+  return material === "seed" || material === "seed-potato"
+    ? "sowing" as const
+    : "transplanting" as const;
 }
 
 function findFirstMatchingDate(

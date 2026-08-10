@@ -66,12 +66,13 @@ test("검증된 입력으로 시즌 엔티티를 생성한다", () => {
   if (!result.valid) return;
 
   const season = createGrowingSeason(
-    result.value,
+    { ...result.value, featuredCropId: "lettuce" },
     "season-1",
     "2026-08-05T00:00:00.000Z",
   );
   assert.equal(season.id, "season-1");
   assert.equal(season.createdAt, "2026-08-05T00:00:00.000Z");
+  assert.equal(season.featuredCropId, "lettuce");
 });
 
 test("같은 공간에서 하루라도 기간이 겹치는 시즌은 거부한다", () => {

@@ -9,9 +9,15 @@ export const metadata: Metadata = {
   description: "등록한 텃밭과 공간의 재배 시즌을 관리하세요.",
 };
 
-export default function SeasonsPage() {
+export default async function SeasonsPage(props: PageProps<"/seasons">) {
+  const query = await props.searchParams;
+  const selectedSpaceId = typeof query.spaceId === "string" ? query.spaceId : "";
+  const returnPath = selectedSpaceId
+    ? `/seasons?spaceId=${encodeURIComponent(selectedSpaceId)}`
+    : "/seasons";
+
   return (
-    <AuthGate loginHref="/login?next=%2Fseasons">
+    <AuthGate loginHref={`/login?next=${encodeURIComponent(returnPath)}`}>
       <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
         <div className="mx-auto max-w-4xl">
           <AppHeader action={<Link className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white" href="/seasons/new">시즌 추가</Link>} />
@@ -19,7 +25,7 @@ export default function SeasonsPage() {
             <p className="text-sm font-bold text-leaf">나의 재배 시즌</p>
             <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">언제 무엇을 키울지 준비해요</h1>
           </div>
-          <SeasonList />
+          <SeasonList selectedSpaceId={selectedSpaceId} />
         </div>
       </main>
     </AuthGate>
