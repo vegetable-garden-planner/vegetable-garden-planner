@@ -53,7 +53,8 @@ export function SpaceList() {
             (season) => season.spaceId === space.id,
           ).length;
           return (
-            <li className="rounded-3xl border border-ink/10 bg-white p-6" key={space.id}>
+            <li className="relative rounded-3xl border border-ink/10 bg-white p-6 transition hover:-translate-y-0.5 hover:border-leaf/30 hover:shadow-sm" key={space.id}>
+              <Link aria-label={`${space.name}에서 키우는 시즌 보기`} className="absolute inset-0 rounded-3xl focus:outline-2 focus:outline-offset-2 focus:outline-leaf" href={`/seasons?spaceId=${encodeURIComponent(space.id)}`} />
               <p className="text-sm font-bold text-leaf">{TYPE_LABELS[space.type]}</p>
               <h2 className="mt-2 text-xl font-bold">{space.name}</h2>
               <dl className="mt-5 grid grid-cols-2 gap-4 text-sm">
@@ -62,11 +63,12 @@ export function SpaceList() {
                 <div><dt className="text-muted">지역</dt><dd className="mt-1 font-bold">{space.region}</dd></div>
                 <div><dt className="text-muted">연결 시즌</dt><dd className="mt-1 font-bold">{seasonCount}개</dd></div>
               </dl>
-              <div className="mt-6 flex gap-2 border-t border-ink/10 pt-4">
+              <div className="relative z-10 mt-6 flex gap-2 border-t border-ink/10 pt-4">
                 <Link className="rounded-full border border-ink/15 px-4 py-2 text-sm font-bold" href={`/spaces/${space.id}/edit`}>수정</Link>
                 <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => removeSpace(space)} type="button">삭제</button>
                 <Link className="ml-auto rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/new?spaceId=${space.id}`}>시즌 추가</Link>
               </div>
+              <p className="mt-4 text-sm font-bold text-leaf">이 공간의 시즌 보기 →</p>
             </li>
           );
         })}

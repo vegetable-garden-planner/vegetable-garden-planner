@@ -1,18 +1,18 @@
 const steps = [
   {
     number: "01",
-    title: "밭 정보를 입력해요",
-    description: "가로·세로 크기와 지역, 재배 시작일을 간단하게 설정해요.",
+    title: "지금 필요한 도움을 찾아요",
+    description: "선물 받은 꽃을 살리거나 내 공간에 맞는 식물을 고르는 것부터 시작해요.",
   },
   {
     number: "02",
-    title: "작물을 직접 배치해요",
-    description: "격자 위에 원하는 작물을 놓고 내 텃밭만의 배치도를 만들어요.",
+    title: "내 식물과 공간을 등록해요",
+    description: "실내 화분, 베란다와 텃밭을 등록하고 키울 식물과 관리 기간을 연결해요.",
   },
   {
     number: "03",
-    title: "계획을 확인해요",
-    description: "예상 수량과 간격·시기 경고, 앞으로의 관리 일정을 확인해요.",
+    title: "오늘 할 일을 이어가요",
+    description: "재배 일정과 가까운 알림을 확인하고 관리 기록을 차곡차곡 남겨요.",
   },
 ];
 
@@ -22,8 +22,8 @@ export function FeatureFlow() {
       <div className="mx-auto max-w-7xl">
         <div className="max-w-2xl">
           <p className="text-sm font-bold tracking-[0.18em] text-[#bcd3ad]">HOW IT WORKS</p>
-          <h2 className="mt-4 text-3xl font-bold tracking-[-0.035em] sm:text-5xl">복잡한 텃밭 계획을 세 단계로</h2>
-          <p className="mt-5 text-lg leading-8 text-white/70">검색하고 계산하는 시간은 줄이고, 직접 기르는 즐거움에 집중하세요.</p>
+          <h2 className="mt-4 text-3xl font-bold tracking-[-0.035em] sm:text-5xl">처음 살리는 순간부터 꾸준한 관리까지</h2>
+          <p className="mt-5 text-lg leading-8 text-white/70">한 번 보고 끝나는 정보가 아니라 내 식물의 다음 행동으로 이어집니다.</p>
         </div>
 
         <ol id="features" className="mt-12 grid gap-4 md:grid-cols-3">

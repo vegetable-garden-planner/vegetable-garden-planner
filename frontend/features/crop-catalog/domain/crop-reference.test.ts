@@ -7,8 +7,8 @@ import {
   type CropReference,
 } from "./crop-reference.ts";
 
-test("대표 작물 10종 기준 데이터가 유효하다", () => {
-  assert.equal(CROP_REFERENCES.length, 10);
+test("대표 채소와 꽃 13종 기준 데이터가 유효하다", () => {
+  assert.equal(CROP_REFERENCES.length, 13);
   assert.deepEqual(validateCropReferenceData(CROP_REFERENCES, CROP_SOURCES), []);
 });
 
@@ -39,6 +39,26 @@ test("카테고리와 공간 조건을 함께 적용한다", () => {
   });
 
   assert.deepEqual(result.map((crop) => crop.name), ["상추", "시금치", "대파"]);
+});
+
+test("꽃과 꽃다발 관리 내용도 검색하고 꽃 관리 안내 누락을 거부한다", () => {
+  assert.deepEqual(
+    filterCropReferences(CROP_REFERENCES, {
+      query: "꽃병",
+      category: "flower",
+      space: "indoor",
+    }).map((crop) => crop.name),
+    ["꽃다발"],
+  );
+
+  const flower = CROP_REFERENCES.find((crop) => crop.id === "moth-orchid");
+  assert.ok(flower);
+  assert.ok(
+    validateCropReferenceData(
+      [{ ...flower, careGuide: undefined }],
+      CROP_SOURCES,
+    ).some((error) => error.includes("꽃 관리 안내")),
+  );
 });
 
 test("연도를 넘는 심는 시기와 수확 시기를 허용한다", () => {

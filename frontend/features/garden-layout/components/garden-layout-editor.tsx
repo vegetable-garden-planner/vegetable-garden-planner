@@ -35,6 +35,7 @@ const CROP_TONES: Record<CropCategory, string> = {
   root: "bg-[#e59b47] text-white",
   legume: "bg-[#8b7bb8] text-white",
   tuber: "bg-[#a87a55] text-white",
+  flower: "bg-[#c56b91] text-white",
 };
 
 export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
