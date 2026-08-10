@@ -1,41 +1,32 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
-import type { GrowingSeason } from "@/features/growing-season/domain/growing-season";
-import {
-  GROWING_SEASONS_STORAGE_KEY,
-  getGrowingSeasonsSnapshot,
-  parseGrowingSeasonsSnapshot,
-} from "@/features/growing-season/infrastructure/season-storage";
-import { subscribeToBrowserStorage } from "@/shared/infrastructure/browser-storage-events";
+import { useCallback, useEffect, useState } from "react";
+import type { PersistedGrowingSeason } from "@/features/growing-season/domain/growing-season";
+import { fetchGrowingSeasons } from "@/features/growing-season/infrastructure/season-api";
 
 export type GrowingSeasonsState =
-  | { status: "ready"; seasons: GrowingSeason[] }
+  | { status: "ready"; seasons: PersistedGrowingSeason[] }
   | { status: "error"; message: string };
 
-export function useGrowingSeasons(): GrowingSeasonsState {
-  const snapshot = useSyncExternalStore(
-    subscribeToStorage,
-    () => getGrowingSeasonsSnapshot(window.localStorage),
-    getEmptySnapshot,
-  );
+export function useGrowingSeasons(): GrowingSeasonsState & { reload: () => Promise<void> } {
+  const [state, setState] = useState<GrowingSeasonsState>({ status: "ready", seasons: [] });
 
-  return useMemo(() => {
+  const reload = useCallback(async () => {
     try {
-      return { status: "ready", seasons: parseGrowingSeasonsSnapshot(snapshot) };
+      setState({ status: "ready", seasons: await fetchGrowingSeasons() });
     } catch (error) {
-      return {
-        status: "error",
-        message: error instanceof Error ? error.message : "시즌 목록을 불러오지 못했습니다.",
-      };
+      setState({ status: "error", message: toMessage(error) });
     }
-  }, [snapshot]);
+  }, []);
+
+  useEffect(() => { void fetchGrowingSeasons().then(
+    (seasons) => setState({ status: "ready", seasons }),
+    (error: unknown) => setState({ status: "error", message: toMessage(error) }),
+  ); }, []);
+
+  return { ...state, reload };
 }
 
-function subscribeToStorage(onStoreChange: () => void) {
-  return subscribeToBrowserStorage(GROWING_SEASONS_STORAGE_KEY, onStoreChange);
-}
-
-function getEmptySnapshot() {
-  return "";
+function toMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "시즌 목록을 불러오지 못했습니다.";
 }

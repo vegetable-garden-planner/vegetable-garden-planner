@@ -7,25 +7,22 @@ import { GROWING_SPACE_LABELS } from "@/features/crop-catalog/data/crop-labels";
 import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
 import { SeasonField } from "@/features/growing-season/components/season-field";
 import {
-  createGrowingSeason,
   validateGrowingSeason,
-  type GrowingSeason,
+  type PersistedGrowingSeason,
   type GrowingSeasonErrors,
   type GrowingSeasonFormValues,
 } from "@/features/growing-season/domain/growing-season";
 import {
-  addGrowingSeason,
-  GROWING_SEASONS_STORAGE_KEY,
+  createGrowingSeason,
   updateGrowingSeason,
-} from "@/features/growing-season/infrastructure/season-storage";
+} from "@/features/growing-season/infrastructure/season-api";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
 interface SeasonFormProps {
   initialSpaceId: string;
   initialCrop?: CropReference;
-  season?: GrowingSeason;
+  season?: PersistedGrowingSeason;
 }
 
 export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormProps) {
@@ -46,7 +43,7 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
     setErrors((current) => ({ ...current, [key]: undefined }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError("");
     if (spacesState.status !== "ready" || seasonsState.status !== "ready") return;
@@ -62,27 +59,15 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
       return;
     }
 
-    const nextSeason = season
-      ? {
-          ...result.value,
-          id: season.id,
-          createdAt: season.createdAt,
-          featuredCropId: season.featuredCropId,
-        }
-      : createGrowingSeason(
-          { ...result.value, featuredCropId: initialCrop?.id },
-          crypto.randomUUID(),
-          new Date().toISOString(),
-        );
+    const input = {
+      ...result.value,
+      featuredCropId: season?.featuredCropId ?? initialCrop?.id,
+    };
 
     try {
-      if (season) {
-        updateGrowingSeason(window.localStorage, nextSeason);
-      } else {
-        addGrowingSeason(window.localStorage, nextSeason);
-      }
-      notifyBrowserStorageChange(GROWING_SEASONS_STORAGE_KEY);
-      router.push(`/seasons?spaceId=${encodeURIComponent(nextSeason.spaceId)}`);
+      if (season) await updateGrowingSeason(season, input);
+      else await createGrowingSeason(input);
+      router.push(`/seasons?spaceId=${encodeURIComponent(input.spaceId)}`);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "시즌을 저장하지 못했습니다.");
     }
@@ -169,7 +154,7 @@ function createEmptyValues(
   };
 }
 
-function toFormValues(season: GrowingSeason): GrowingSeasonFormValues {
+function toFormValues(season: PersistedGrowingSeason): GrowingSeasonFormValues {
   return {
     spaceId: season.spaceId,
     name: season.name,

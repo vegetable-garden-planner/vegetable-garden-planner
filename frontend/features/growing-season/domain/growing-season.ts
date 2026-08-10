@@ -15,6 +15,12 @@ export interface GrowingSeason extends GrowingSeasonInput {
   createdAt: string;
 }
 
+export interface PersistedGrowingSeason extends GrowingSeason {
+  status: GrowingSeasonStatus;
+  version: number;
+  updatedAt: string;
+}
+
 export type GrowingSeasonField = keyof GrowingSeasonFormValues;
 export type GrowingSeasonErrors = Partial<Record<GrowingSeasonField, string>>;
 
