@@ -1,16 +1,29 @@
-import type {
-  AuthUser,
-  LoginFormValues,
-  SignupFormValues,
-} from "@/features/auth/domain/auth";
-import { apiGetData, apiRequest } from "@/shared/infrastructure/api-client";
+import type { AuthUser, LoginFormValues, SignupFormValues } from "@/features/auth/domain/auth";
+import { ApiError, apiRequest, prepareCsrfCookie } from "@/shared/infrastructure/api-client";
 
-interface SessionResponse {
-  data: { user: AuthUser };
+interface AuthResponse { data: { user: AuthUser } }
+interface UserResponse { data: AuthUser }
+
+export async function fetchCurrentUser(): Promise<AuthUser | null> {
+  try {
+    return (await apiRequest<UserResponse>("/me")).data;
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 401) return null;
+    throw error;
+  }
 }
 
-export async function registerUser(values: SignupFormValues) {
-  const response = await apiRequest<SessionResponse>("/auth/register", {
+export async function login(values: LoginFormValues): Promise<AuthUser> {
+  await prepareCsrfCookie();
+  return (await apiRequest<AuthResponse>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify(values),
+  })).data.user;
+}
+
+export async function register(values: SignupFormValues): Promise<AuthUser> {
+  await prepareCsrfCookie();
+  return (await apiRequest<AuthResponse>("/auth/register", {
     method: "POST",
     body: JSON.stringify({
       email: values.email,
@@ -18,22 +31,9 @@ export async function registerUser(values: SignupFormValues) {
       password: values.password,
       passwordConfirmation: values.passwordConfirmation,
     }),
-  });
-  return response.data.user;
+  })).data.user;
 }
 
-export async function loginUser(values: LoginFormValues) {
-  const response = await apiRequest<SessionResponse>("/auth/login", {
-    method: "POST",
-    body: JSON.stringify(values),
-  });
-  return response.data.user;
-}
-
-export function logoutUser() {
-  return apiRequest<void>("/auth/logout", { method: "POST" });
-}
-
-export function getCurrentUser() {
-  return apiGetData<AuthUser>("/me");
+export async function logout(): Promise<void> {
+  await apiRequest<void>("/auth/logout", { method: "POST" });
 }

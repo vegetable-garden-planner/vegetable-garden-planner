@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
+import { assertGrowingSeasonCanBeDeleted } from "@/features/growing-season/application/delete-growing-season";
 import {
-  getGrowingSeasonStatus,
-  type GrowingSeason,
+  type PersistedGrowingSeason,
   type GrowingSeasonStatus,
 } from "@/features/growing-season/domain/growing-season";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
-import { deleteGrowingSeasonOnServer } from "@/features/growing-season/infrastructure/season-api";
+import { deleteGrowingSeason } from "@/features/growing-season/infrastructure/season-api";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
@@ -27,15 +27,14 @@ const STATUS_STYLES: Record<GrowingSeasonStatus, string> = {
 export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string }) {
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
+  const cropCatalog = useCropCatalog();
   const [actionError, setActionError] = useState("");
 
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
-  if (seasonsState.status === "loading" || spacesState.status === "loading") {
-    return <p className="rounded-2xl bg-white p-5 text-muted">재배 시즌을 불러오고 있습니다.</p>;
-  }
+  if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
-  const cropsById = new Map(CROP_REFERENCES.map((crop) => [crop.id, crop]));
+  const cropsById = new Map(cropCatalog.crops.map((crop) => [crop.id, crop]));
   const selectedSpace = selectedSpaceId ? spacesById.get(selectedSpaceId) : undefined;
   if (selectedSpaceId && !selectedSpace) {
     return <InvalidSpaceFilter />;
@@ -48,14 +47,14 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
     return <EmptySeasonList selectedSpaceId={selectedSpaceId} spaceName={selectedSpace?.name} />;
   }
 
-  const today = new Date().toISOString().slice(0, 10);
-
-  async function removeSeason(season: GrowingSeason) {
+  async function removeSeason(season: PersistedGrowingSeason) {
     setActionError("");
     if (!window.confirm(`'${season.name}' 시즌을 삭제할까요?`)) return;
 
     try {
-      await deleteGrowingSeasonOnServer(season);
+      assertGrowingSeasonCanBeDeleted(window.localStorage, season.id);
+      await deleteGrowingSeason(season);
+      await seasonsState.reload();
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "시즌을 삭제하지 못했습니다.");
     }
@@ -72,7 +71,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
       {actionError && <ErrorMessage message={actionError} />}
       <ul className={`grid gap-4 sm:grid-cols-2 ${actionError ? "mt-4" : ""}`}>
         {visibleSeasons.map((season) => {
-          const status = getGrowingSeasonStatus(season, today);
+          const status = season.status;
           const linkedSpace = spacesById.get(season.spaceId);
           const featuredCrop = season.featuredCropId
             ? cropsById.get(season.featuredCropId)
@@ -92,7 +91,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
               {season.notes && <p className="mt-4 border-t border-ink/10 pt-4 text-sm leading-6 text-muted">{season.notes}</p>}
               <div className="mt-6 flex flex-wrap gap-2 border-t border-ink/10 pt-4">
                 <Link className="rounded-full border border-ink/15 px-4 py-2 text-sm font-bold" href={`/seasons/${season.id}/edit`}>수정</Link>
-                <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => removeSeason(season)} type="button">삭제</button>
+                <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => void removeSeason(season)} type="button">삭제</button>
                 {linkedSpace?.type === "garden" && (
                   <div className="ml-auto flex gap-2">
                     <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/tasks`}>재배 일정</Link>

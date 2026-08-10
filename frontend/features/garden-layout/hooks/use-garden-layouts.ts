@@ -1,20 +1,43 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import type { GardenLayout } from "@/features/garden-layout/domain/garden-layout";
-import { listGardenLayouts } from "@/features/garden-layout/infrastructure/garden-layout-api";
-import { createApiResourceStore } from "@/shared/infrastructure/api-resource-store";
+import {
+  GARDEN_LAYOUTS_STORAGE_KEY,
+  getGardenLayoutsSnapshot,
+  parseGardenLayoutsSnapshot,
+} from "@/features/garden-layout/infrastructure/garden-layout-storage";
+import { subscribeToBrowserStorage } from "@/shared/infrastructure/browser-storage-events";
 
 export type GardenLayoutsState =
-  | { status: "loading" }
   | { status: "ready"; layouts: GardenLayout[] }
   | { status: "error"; message: string };
 
-const store = createApiResourceStore(listGardenLayouts);
-
 export function useGardenLayouts(): GardenLayoutsState {
-  const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
-  return state.status === "ready"
-    ? { status: "ready", layouts: state.data }
-    : state;
+  const snapshot = useSyncExternalStore(
+    subscribeToStorage,
+    () => getGardenLayoutsSnapshot(window.localStorage),
+    getEmptySnapshot,
+  );
+
+  return useMemo(() => {
+    try {
+      return { status: "ready", layouts: parseGardenLayoutsSnapshot(snapshot) };
+    } catch (error) {
+      return {
+        status: "error",
+        message: error instanceof Error
+          ? error.message
+          : "텃밭 격자를 불러오지 못했습니다.",
+      };
+    }
+  }, [snapshot]);
+}
+
+function subscribeToStorage(onStoreChange: () => void) {
+  return subscribeToBrowserStorage(GARDEN_LAYOUTS_STORAGE_KEY, onStoreChange);
+}
+
+function getEmptySnapshot() {
+  return "";
 }

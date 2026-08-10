@@ -14,6 +14,8 @@ pnpm dev
 bun dev
 ```
 
+Copy `.env.example` to `.env.local` before starting. The frontend uses Laravel session authentication and the `/api/v1` endpoints configured by `NEXT_PUBLIC_API_URL`.
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.

@@ -18,7 +18,6 @@ export interface GardenLayout {
   rows: number;
   placements: readonly CropPlacement[];
   updatedAt: string;
-  version?: number;
 }
 
 export type GardenLayoutCreation =

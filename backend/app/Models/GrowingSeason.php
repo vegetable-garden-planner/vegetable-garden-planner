@@ -4,46 +4,46 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\GrowingSeasonFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GrowingSeason extends Model
 {
-    use HasUuids;
+    /** @use HasFactory<GrowingSeasonFactory> */
+    use HasFactory, HasUuids;
 
+    /**
+     * @var list<string>
+     */
     protected $fillable = [
+        'growing_space_id',
         'name',
         'start_date',
         'end_date',
         'notes',
         'featured_crop_id',
-        'version',
     ];
 
+    /**
+     * @return BelongsTo<GrowingSpace, $this>
+     */
+    public function growingSpace(): BelongsTo
+    {
+        return $this->belongsTo(GrowingSpace::class);
+    }
+
+    /**
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
-            'start_date' => 'date:Y-m-d',
-            'end_date' => 'date:Y-m-d',
+            'start_date' => 'immutable_date',
+            'end_date' => 'immutable_date',
             'version' => 'integer',
         ];
-    }
-
-    public function space(): BelongsTo
-    {
-        return $this->belongsTo(GrowingSpace::class, 'growing_space_id');
-    }
-
-    public function layout(): HasOne
-    {
-        return $this->hasOne(GardenLayout::class, 'season_id');
-    }
-
-    public function tasks(): HasMany
-    {
-        return $this->hasMany(CultivationTask::class, 'season_id');
     }
 }

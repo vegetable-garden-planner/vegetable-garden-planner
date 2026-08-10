@@ -1,6 +1,7 @@
-import type { Metadata } from "next";
+"use client";
+
+import { use } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { AppHeader } from "@/components/app-header";
 import { SessionAwareLink } from "@/components/session-aware-link";
 import {
@@ -9,33 +10,20 @@ import {
   GROWING_SPACE_LABELS,
   PLANTING_MATERIAL_LABELS,
 } from "@/features/crop-catalog/data/crop-labels";
-import {
-  CROP_REFERENCES,
-  CROP_SOURCES,
-} from "@/features/crop-catalog/data/crop-references";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 
-export function generateStaticParams() {
-  return CROP_REFERENCES.map((crop) => ({ cropId: crop.id }));
-}
-
-export async function generateMetadata(
-  props: PageProps<"/crops/[cropId]">,
-): Promise<Metadata> {
-  const { cropId } = await props.params;
-  const crop = CROP_REFERENCES.find((candidate) => candidate.id === cropId);
-  return crop
-    ? { title: `${crop.name} 관리 방법 | 심어봄`, description: crop.summary }
-    : { title: "식물 정보를 찾을 수 없음 | 심어봄" };
-}
-
-export default async function CropDetailPage(
+export default function CropDetailPage(
   props: PageProps<"/crops/[cropId]">,
 ) {
-  const { cropId } = await props.params;
-  const crop = CROP_REFERENCES.find((candidate) => candidate.id === cropId);
-  if (!crop) notFound();
+  const { cropId } = use(props.params);
+  const catalog = useCropCatalog();
+  if (catalog.status === "loading") return <PageMessage message="작물 정보를 불러오고 있습니다." />;
+  if (catalog.status === "error") return <PageMessage message={catalog.message} error />;
 
-  const source = CROP_SOURCES.find((candidate) => candidate.id === crop.sourceId);
+  const crop = catalog.crops.find((candidate) => candidate.id === cropId);
+  if (!crop) return <PageMessage message="작물 정보를 찾을 수 없습니다." error />;
+
+  const source = catalog.sources.find((candidate) => candidate.id === crop.sourceId);
   const startPath = `/seasons/new?cropId=${encodeURIComponent(crop.id)}`;
   const startLabel = crop.plantingMaterial === "cut-flower"
     ? "꽃 관리 시작하기"
@@ -112,6 +100,15 @@ export default async function CropDetailPage(
           </aside>
         )}
       </div>
+    </main>
+  );
+}
+
+function PageMessage({ error = false, message }: { error?: boolean; message: string }) {
+  return (
+    <main className="min-h-screen bg-cream px-5 py-16 text-center text-ink">
+      <p className={error ? "font-semibold text-red-700" : "text-muted"} role={error ? "alert" : undefined}>{message}</p>
+      <Link className="mt-5 inline-flex font-bold text-leaf underline" href="/crops">작물 목록으로 돌아가기</Link>
     </main>
   );
 }

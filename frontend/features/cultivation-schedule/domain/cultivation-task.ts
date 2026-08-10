@@ -31,7 +31,6 @@ export interface CultivationTask {
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
-  version?: number;
 }
 
 export type ScheduleGeneration =

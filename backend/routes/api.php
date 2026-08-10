@@ -2,36 +2,51 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\CultivationTaskController;
-use App\Http\Controllers\Api\V1\GardenLayoutController;
-use App\Http\Controllers\Api\V1\GrowingSeasonController;
-use App\Http\Controllers\Api\V1\GrowingSpaceController;
+use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
+use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\Auth\LogoutController;
+use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\Crops\IndexCropController;
+use App\Http\Controllers\Api\V1\Crops\IndexCropSourceController;
+use App\Http\Controllers\Api\V1\Crops\ShowCropController;
 use App\Http\Controllers\Api\V1\HealthCheckController;
+use App\Http\Controllers\Api\V1\Seasons\DestroySeasonController;
+use App\Http\Controllers\Api\V1\Seasons\IndexSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\ShowSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\StoreSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\UpdateSeasonController;
+use App\Http\Controllers\Api\V1\Spaces\DestroySpaceController;
+use App\Http\Controllers\Api\V1\Spaces\IndexSpaceController;
+use App\Http\Controllers\Api\V1\Spaces\ShowSpaceController;
+use App\Http\Controllers\Api\V1\Spaces\StoreSpaceController;
+use App\Http\Controllers\Api\V1\Spaces\UpdateSpaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
     Route::get('/health', HealthCheckController::class);
+    Route::get('/crops', IndexCropController::class);
+    Route::get('/crops/{crop}', ShowCropController::class);
+    Route::get('/crop-sources', IndexCropSourceController::class);
 
-    Route::post('/auth/register', [AuthController::class, 'register']);
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::prefix('auth')->group(function (): void {
+        Route::post('/register', RegisterController::class);
+        Route::post('/login', LoginController::class);
+        Route::post('/logout', LogoutController::class)->middleware('auth:sanctum');
+    });
+
+    Route::get('/me', CurrentUserController::class)->middleware('auth:sanctum');
 
     Route::middleware('auth:sanctum')->group(function (): void {
-        Route::post('/auth/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/spaces', IndexSpaceController::class);
+        Route::post('/spaces', StoreSpaceController::class);
+        Route::get('/spaces/{growingSpace}', ShowSpaceController::class);
+        Route::patch('/spaces/{growingSpace}', UpdateSpaceController::class);
+        Route::delete('/spaces/{growingSpace}', DestroySpaceController::class);
 
-        Route::apiResource('spaces', GrowingSpaceController::class);
-        Route::apiResource('seasons', GrowingSeasonController::class);
-
-        Route::get('/layouts', [GardenLayoutController::class, 'index']);
-        Route::get('/seasons/{season}/layout', [GardenLayoutController::class, 'show']);
-        Route::put('/seasons/{season}/layout', [GardenLayoutController::class, 'upsert']);
-        Route::delete('/seasons/{season}/layout', [GardenLayoutController::class, 'destroy']);
-
-        Route::get('/tasks', [CultivationTaskController::class, 'index']);
-        Route::get('/seasons/{season}/tasks', [CultivationTaskController::class, 'forSeason']);
-        Route::put('/seasons/{season}/tasks', [CultivationTaskController::class, 'replace']);
-        Route::patch('/tasks/{task}', [CultivationTaskController::class, 'update']);
-        Route::delete('/tasks/{task}', [CultivationTaskController::class, 'destroy']);
+        Route::get('/seasons', IndexSeasonController::class);
+        Route::post('/seasons', StoreSeasonController::class);
+        Route::get('/seasons/{growingSeason}', ShowSeasonController::class);
+        Route::patch('/seasons/{growingSeason}', UpdateSeasonController::class);
+        Route::delete('/seasons/{growingSeason}', DestroySeasonController::class);
     });
 });

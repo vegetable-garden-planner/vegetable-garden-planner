@@ -1,20 +1,32 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import type { GrowingSeason } from "@/features/growing-season/domain/growing-season";
-import { listGrowingSeasons } from "@/features/growing-season/infrastructure/season-api";
-import { createApiResourceStore } from "@/shared/infrastructure/api-resource-store";
+import { useCallback, useEffect, useState } from "react";
+import type { PersistedGrowingSeason } from "@/features/growing-season/domain/growing-season";
+import { fetchGrowingSeasons } from "@/features/growing-season/infrastructure/season-api";
 
 export type GrowingSeasonsState =
-  | { status: "loading" }
-  | { status: "ready"; seasons: GrowingSeason[] }
+  | { status: "ready"; seasons: PersistedGrowingSeason[] }
   | { status: "error"; message: string };
 
-const store = createApiResourceStore(listGrowingSeasons);
+export function useGrowingSeasons(): GrowingSeasonsState & { reload: () => Promise<void> } {
+  const [state, setState] = useState<GrowingSeasonsState>({ status: "ready", seasons: [] });
 
-export function useGrowingSeasons(): GrowingSeasonsState {
-  const state = useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
-  return state.status === "ready"
-    ? { status: "ready", seasons: state.data }
-    : state;
+  const reload = useCallback(async () => {
+    try {
+      setState({ status: "ready", seasons: await fetchGrowingSeasons() });
+    } catch (error) {
+      setState({ status: "error", message: toMessage(error) });
+    }
+  }, []);
+
+  useEffect(() => { void fetchGrowingSeasons().then(
+    (seasons) => setState({ status: "ready", seasons }),
+    (error: unknown) => setState({ status: "error", message: toMessage(error) }),
+  ); }, []);
+
+  return { ...state, reload };
+}
+
+function toMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "시즌 목록을 불러오지 못했습니다.";
 }

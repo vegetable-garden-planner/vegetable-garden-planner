@@ -4,10 +4,6 @@ import { BrandMark } from "@/components/brand-mark";
 import { SessionAwareLink } from "@/components/session-aware-link";
 import { AuthHeaderMenu } from "@/features/auth/components/auth-header-menu";
 import { CropCatalog } from "@/features/crop-catalog/components/crop-catalog";
-import {
-  CROP_REFERENCES,
-  CROP_SOURCES,
-} from "@/features/crop-catalog/data/crop-references";
 
 export const metadata: Metadata = {
   title: "식물 정보 | 심어봄",
@@ -38,17 +34,7 @@ export default function CropsPage() {
           <p className="mt-5 max-w-3xl leading-7 text-muted">텃밭 작물뿐 아니라 선물 받은 꽃과 실내 화분 꽃의 관리 방법도 확인할 수 있습니다. 시기와 관리 기준은 품종·지역·환경에 따라 달라질 수 있으므로 시작 기준으로 활용해 주세요.</p>
         </div>
 
-        <CropCatalog crops={CROP_REFERENCES} />
-
-        <aside className="mt-10 rounded-2xl bg-paper p-5 text-sm leading-6 text-muted">
-          <p className="font-bold text-ink">자료 출처</p>
-          <p className="mt-1">각 상세 화면에서 해당 식물의 출처와 검토일을 확인할 수 있습니다.</p>
-          <ul className="mt-3 space-y-1">
-            {CROP_SOURCES.map((source) => (
-              <li key={source.id}><a className="font-bold text-leaf underline" href={source.url} rel="noreferrer" target="_blank">{source.organization} · {source.title}</a></li>
-            ))}
-          </ul>
-        </aside>
+        <CropCatalog />
       </div>
     </main>
   );
