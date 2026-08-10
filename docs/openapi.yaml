@@ -4,11 +4,13 @@ info:
   version: 0.3.0
   description: |
     심어봄 Next.js 프론트엔드와 향후 Laravel 백엔드 사이의 MVP 계약 초안입니다.
-    현재 백엔드는 구현되지 않았으며 모든 operation은 계획 상태입니다.
+    현재 백엔드 기반과 상태 확인 API가 구현되었으며 나머지 operation은 계획 상태입니다.
 servers:
   - url: http://localhost:8000/api/v1
     description: Laravel 로컬 개발 서버
 tags:
+  - name: System
+    description: API 상태와 운영 점검
   - name: Auth
     description: 회원 인증
   - name: Crops
@@ -27,6 +29,31 @@ tags:
     description: 실제 수행·관찰 기록
 
 paths:
+  /health:
+    get:
+      tags: [System]
+      summary: API 상태 확인
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: API가 요청을 처리할 수 있음
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [status, apiVersion]
+                    properties:
+                      status:
+                        type: string
+                        const: ok
+                      apiVersion:
+                        type: string
+                        const: v1
   /sanctum/csrf-cookie:
     get:
       tags: [Auth]

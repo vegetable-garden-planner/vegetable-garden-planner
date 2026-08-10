@@ -1,5 +1,7 @@
 # 텃밭 플래너 데이터베이스 설정 가이드
 
+> **2026-08-10 이후 새 설치 기준:** `backend`에 Laravel 12가 도입되었습니다. 새 개발 환경은 `backend`에서 `php artisan migrate`를 실행하고, 이후 스키마 변경도 Laravel 마이그레이션으로만 추가합니다. 아래 `database/schema.sql`과 번호형 SQL 마이그레이션 절차는 Laravel 도입 전 설계 DB를 복원하거나 비교할 때만 사용합니다. 새 Laravel DB에 `schema.sql`을 함께 가져오면 `users`, `sessions` 등의 테이블이 충돌할 수 있으므로 실행하지 않습니다.
+
 이 문서는 조원 누구나 같은 이름과 같은 컬럼으로 로컬 데이터베이스를 만드는 방법을 설명합니다.
 
 > **Laravel 작업 전 확인:** 현재 `database/schema.sql`은 초기 설계용 SQL이라 주요 테이블 ID가 `BIGINT AUTO_INCREMENT`로 작성되어 있습니다. 최종 기준은 API 문서에서 확정한 **UUIDv7**입니다. Laravel 모델과 마이그레이션을 만들 때 사용자·공간·시즌·배치·일정·기록처럼 외부에 노출되는 자원의 기본 키와 외래 키를 UUIDv7 호환 타입으로 함께 바꿔야 합니다. 현재 숫자형 ID를 최종 설계로 복사하지 않습니다.
@@ -22,7 +24,18 @@ Next.js 화면 → Laravel API → MariaDB (XAMPP)
 - 공통 요금제 초기 데이터: `database/seeds/20260807_billing_plans.sql`
 - 현재 프런트엔드의 일부 기능은 아직 `localStorage`를 사용하므로, 실제 DB 사용에는 Laravel API 연결 작업이 별도로 필요합니다.
 
-## 2. 처음 설치하는 조원
+## 2. Laravel 백엔드를 사용하는 새 조원
+
+Laragon 또는 XAMPP의 MySQL에서 빈 `vegetable_garden_planner` 데이터베이스를 만든 뒤 다음 명령을 실행합니다.
+
+```powershell
+cd backend
+php artisan migrate
+```
+
+현재 Laravel 마이그레이션에는 인증과 프레임워크 기반 테이블만 들어 있습니다. 기존 설계의 도메인 테이블 52개는 기능 단위로 검토하면서 Laravel 마이그레이션으로 옮길 예정입니다.
+
+## 3. Laravel 도입 전 SQL 설계 DB를 복원하는 경우
 
 ### 가장 쉬운 방법: phpMyAdmin
 
@@ -48,7 +61,7 @@ Next.js 화면 → Laravel API → MariaDB (XAMPP)
 
 XAMPP의 `root` 계정에 비밀번호를 설정했다면 명령 끝에 `--password`를 붙이고, 표시되는 입력창에 비밀번호를 입력합니다.
 
-## 3. 예전에 만든 51개 테이블 DB가 있는 조원
+## 4. 예전에 만든 51개 테이블 DB가 있는 조원
 
 이미 `vegetable_garden_planner`가 있고 `webhook_events` 테이블이 없다면 아래 파일을 **한 번만** 가져옵니다.
 
@@ -100,7 +113,7 @@ database/migrations/20260807_03_harden_watering_rules_and_schedule.sql
 
 `watering_rules`에 같은 `crop_id`와 `growth_stage` 조합이 여러 건 있으면 유니크 키 추가가 중단됩니다. 중복 규칙을 하나로 정리한 뒤 다시 실행합니다. 새로 `schema.sql`로 설치한 DB에는 이 변경도 이미 포함되어 있습니다.
 
-## 4. Free/Pro 초기 데이터 넣기
+## 5. Free/Pro 초기 데이터 넣기
 
 처음 설치한 조원과 기존 DB를 업데이트한 조원 모두 `database/seeds/20260807_billing_plans.sql`을 가져옵니다. 이 시드 파일은 여러 번 실행해도 중복되지 않습니다.
 
@@ -112,7 +125,7 @@ database/migrations/20260807_03_harden_watering_rules_and_schedule.sql
   --execute="SOURCE database/seeds/20260807_billing_plans.sql;"
 ```
 
-## 5. Laravel 연결 설정
+## 6. Laravel 연결 설정
 
 Laravel 프로젝트의 `.env`에 아래 내용을 넣습니다. XAMPP 설정이 다르면 포트, 계정, 비밀번호만 맞게 바꿉니다.
 
@@ -133,7 +146,7 @@ php artisan config:clear
 
 DB 계정과 비밀번호를 Next.js의 `NEXT_PUBLIC_...` 환경 변수에 넣으면 브라우저에 노출될 수 있으므로 절대 넣지 않습니다.
 
-## 6. 제대로 설치됐는지 확인하기
+## 7. 레거시 SQL 설계 DB가 제대로 설치됐는지 확인하기
 
 phpMyAdmin에서 `vegetable_garden_planner`를 선택하고 다음 SQL을 실행합니다.
 
@@ -158,7 +171,7 @@ ORDER BY p.code, pf.feature_key;
 
 현재 기준 테이블 수는 **52개**입니다. `payments`에 `order_id`, `provider`, `requested_at`이 있고, `webhook_events`가 있으면 결제용 확장까지 적용된 상태입니다. 물주기 준비가 완료된 DB는 `watering_logs.scheduled_for`와 `watering_schedules.updated_at`이 모두 `NOT NULL`이고, `watering_rules`에 `uk_watering_rules_crop_stage` 유니크 키가 있습니다. 마지막 조회에서 Free와 Pro가 각각 기능 4개씩 나오면 초기 데이터도 정상입니다.
 
-## 7. 결제 관련 테이블 역할
+## 8. 결제 관련 테이블 역할
 
 | 테이블 | 역할 |
 | --- | --- |
@@ -190,17 +203,16 @@ ORDER BY p.code, pf.feature_key;
 
 스키마 설치 후 `database/seeds/20260807_billing_plans.sql`을 가져오면 위 정책이 저장됩니다. 이 파일은 같은 내용을 갱신하는 방식이라 여러 번 실행해도 요금제나 기능 행이 중복되지 않습니다.
 
-## 8. 팀에서 컬럼을 추가할 때 규칙
+## 9. 팀에서 컬럼을 추가할 때 규칙
 
 1. phpMyAdmin에서 자기 DB만 수동 수정하고 끝내지 않습니다.
-2. `database/migrations`에 다음 번호의 SQL 파일을 추가합니다.
-3. 새로 설치하는 사람도 같은 구조가 되도록 `database/schema.sql`도 함께 수정합니다.
-4. 바뀐 테이블, 컬럼, 실행 순서를 조원에게 알립니다.
-5. 이미 공유된 마이그레이션 파일은 수정하지 말고 새 파일을 만듭니다.
+2. `backend/database/migrations`에 새 Laravel 마이그레이션을 추가합니다.
+3. 바뀐 테이블과 컬럼을 조원에게 알립니다.
+4. 이미 공유된 마이그레이션 파일은 수정하지 말고 새 파일을 만듭니다.
 
 이 규칙을 지키면 조원마다 테이블명이나 컬럼명이 달라지는 문제를 피할 수 있습니다.
 
-## 9. 자주 생기는 오류
+## 10. 자주 생기는 오류
 
 - `Can't connect`: XAMPP에서 MySQL이 실행 중인지 확인합니다.
 - `Access denied`: 본인의 `root` 비밀번호를 확인하고 `--password`를 사용합니다.
