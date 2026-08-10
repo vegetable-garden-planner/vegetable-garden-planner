@@ -11,8 +11,11 @@ export interface SignupFormValues extends LoginFormValues {
 }
 
 export interface AuthUser {
+  id?: string;
   email: string;
   nickname: string;
+  role?: "member" | "admin";
+  createdAt?: string;
 }
 
 export type LoginField = keyof LoginFormValues;

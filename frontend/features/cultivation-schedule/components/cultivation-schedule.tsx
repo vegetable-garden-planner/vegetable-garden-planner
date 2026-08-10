@@ -10,13 +10,12 @@ import {
 } from "@/features/cultivation-schedule/domain/cultivation-task";
 import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
 import {
-  CULTIVATION_TASKS_STORAGE_KEY,
-  saveSeasonCultivationTasks,
-} from "@/features/cultivation-schedule/infrastructure/cultivation-task-storage";
+  replaceSeasonCultivationTasks,
+  updateCultivationTaskOnServer,
+} from "@/features/cultivation-schedule/infrastructure/cultivation-task-api";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
 const TASK_TYPE_LABELS: Record<CultivationTaskType, string> = {
   watering: "물주기",
@@ -49,6 +48,9 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   if (spacesState.status === "error") return <Message message={spacesState.message} />;
   if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
   if (tasksState.status === "error") return <Message message={tasksState.message} />;
+  if (seasonsState.status === "loading" || spacesState.status === "loading" || layoutsState.status === "loading" || tasksState.status === "loading") {
+    return <p className="rounded-2xl bg-white p-5 text-muted">재배 일정을 불러오고 있습니다.</p>;
+  }
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
   if (!season) return <Message message="재배 일정을 만들 시즌을 찾을 수 없습니다." />;
@@ -67,7 +69,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
     ? tasks.some((task) => task.updatedAt < layout.updatedAt)
     : false;
 
-  function generate() {
+  async function generate() {
     setActionError("");
     if (!layout) {
       setActionError("먼저 텃밭 격자를 만들고 작물을 배치해 주세요.");
@@ -91,20 +93,18 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
     }
 
     try {
-      saveSeasonCultivationTasks(window.localStorage, seasonId, result.tasks);
-      notifyBrowserStorageChange(CULTIVATION_TASKS_STORAGE_KEY);
+      await replaceSeasonCultivationTasks(seasonId, result.tasks);
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "재배 일정을 저장하지 못했습니다.");
     }
   }
 
-  function removeSchedule() {
+  async function removeSchedule() {
     setActionError("");
     if (!window.confirm("이 시즌의 재배 일정을 모두 삭제할까요?")) return;
 
     try {
-      saveSeasonCultivationTasks(window.localStorage, seasonId, []);
-      notifyBrowserStorageChange(CULTIVATION_TASKS_STORAGE_KEY);
+      await replaceSeasonCultivationTasks(seasonId, []);
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "재배 일정을 삭제하지 못했습니다.");
     }
@@ -171,23 +171,42 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
 }
 
 function TaskList({ tasks }: { tasks: readonly CultivationTask[] }) {
+  const [actionError, setActionError] = useState("");
+
+  async function toggleCompleted(task: CultivationTask) {
+    setActionError("");
+    try {
+      await updateCultivationTaskOnServer(task, {
+        status: task.status === "completed" ? "pending" : "completed",
+      });
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "일정 상태를 변경하지 못했습니다.");
+    }
+  }
+
   return (
-    <ol className="mt-5 space-y-3">
-      {tasks.map((task) => (
-        <li className="rounded-2xl border border-ink/10 bg-white p-5" key={task.id}>
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-bold text-leaf">{task.dueDate}</p>
-              <h3 className="mt-1 text-lg font-bold">{task.title}</h3>
+    <>
+      {actionError && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{actionError}</p>}
+      <ol className="mt-5 space-y-3">
+        {tasks.map((task) => (
+          <li className={`rounded-2xl border border-ink/10 bg-white p-5 ${task.status === "completed" ? "opacity-65" : ""}`} key={task.id}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-bold text-leaf">{task.dueDate}</p>
+                <h3 className={`mt-1 text-lg font-bold ${task.status === "completed" ? "line-through" : ""}`}>{task.title}</h3>
+              </div>
+              <span className={`rounded-full px-3 py-1 text-xs font-bold ${TASK_TYPE_STYLES[task.type]}`}>
+                {TASK_TYPE_LABELS[task.type]}
+              </span>
             </div>
-            <span className={`rounded-full px-3 py-1 text-xs font-bold ${TASK_TYPE_STYLES[task.type]}`}>
-              {TASK_TYPE_LABELS[task.type]}
-            </span>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-muted">{task.notes}</p>
-        </li>
-      ))}
-    </ol>
+            <p className="mt-3 text-sm leading-6 text-muted">{task.notes}</p>
+            <button className="mt-4 rounded-full border border-leaf/25 px-4 py-2 text-sm font-bold text-leaf-dark" onClick={() => toggleCompleted(task)} type="button">
+              {task.status === "completed" ? "미완료로 되돌리기" : "완료 처리"}
+            </button>
+          </li>
+        ))}
+      </ol>
+    </>
   );
 }
 

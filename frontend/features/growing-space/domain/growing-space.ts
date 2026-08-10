@@ -26,6 +26,8 @@ export interface GrowingSpaceInput {
 export interface GrowingSpace extends GrowingSpaceInput {
   id: string;
   createdAt: string;
+  updatedAt?: string;
+  version?: number;
 }
 
 export type GrowingSpaceField = keyof GrowingSpaceFormValues;

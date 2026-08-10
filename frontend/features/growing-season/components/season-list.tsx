@@ -3,16 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
-import { deleteGrowingSeasonWithRelations } from "@/features/growing-season/application/delete-growing-season";
 import {
   getGrowingSeasonStatus,
   type GrowingSeason,
   type GrowingSeasonStatus,
 } from "@/features/growing-season/domain/growing-season";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
-import { GROWING_SEASONS_STORAGE_KEY } from "@/features/growing-season/infrastructure/season-storage";
+import { deleteGrowingSeasonOnServer } from "@/features/growing-season/infrastructure/season-api";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   planned: "예정",
@@ -33,6 +31,9 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
 
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
+  if (seasonsState.status === "loading" || spacesState.status === "loading") {
+    return <p className="rounded-2xl bg-white p-5 text-muted">재배 시즌을 불러오고 있습니다.</p>;
+  }
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
   const cropsById = new Map(CROP_REFERENCES.map((crop) => [crop.id, crop]));
   const selectedSpace = selectedSpaceId ? spacesById.get(selectedSpaceId) : undefined;
@@ -49,13 +50,12 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
 
   const today = new Date().toISOString().slice(0, 10);
 
-  function removeSeason(season: GrowingSeason) {
+  async function removeSeason(season: GrowingSeason) {
     setActionError("");
     if (!window.confirm(`'${season.name}' 시즌을 삭제할까요?`)) return;
 
     try {
-      deleteGrowingSeasonWithRelations(window.localStorage, season.id);
-      notifyBrowserStorageChange(GROWING_SEASONS_STORAGE_KEY);
+      await deleteGrowingSeasonOnServer(season);
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "시즌을 삭제하지 못했습니다.");
     }

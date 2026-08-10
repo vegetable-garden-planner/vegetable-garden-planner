@@ -8,18 +8,15 @@ import {
   SUNLIGHT_OPTIONS,
 } from "@/features/growing-space/data/space-options";
 import {
-  createGrowingSpace,
   validateGrowingSpace,
   type GrowingSpace,
   type GrowingSpaceErrors,
   type GrowingSpaceFormValues,
 } from "@/features/growing-space/domain/growing-space";
 import {
-  addGrowingSpace,
-  GROWING_SPACES_STORAGE_KEY,
-  updateGrowingSpace,
-} from "@/features/growing-space/infrastructure/space-storage";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
+  createGrowingSpaceOnServer,
+  updateGrowingSpaceOnServer,
+} from "@/features/growing-space/infrastructure/space-api";
 import {
   isSunlightExposure,
   type GrowingSpaceType,
@@ -37,6 +34,7 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
   );
   const [errors, setErrors] = useState<GrowingSpaceErrors>({});
   const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   function update<K extends keyof GrowingSpaceFormValues>(
     key: K,
@@ -46,7 +44,7 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
     setErrors((current) => ({ ...current, [key]: undefined }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError("");
 
@@ -56,24 +54,18 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
       return;
     }
 
-    const nextSpace = space
-      ? { ...result.value, id: space.id, createdAt: space.createdAt }
-      : createGrowingSpace(
-          result.value,
-          crypto.randomUUID(),
-          new Date().toISOString(),
-        );
-
+    setSubmitting(true);
     try {
       if (space) {
-        updateGrowingSpace(window.localStorage, nextSpace);
+        await updateGrowingSpaceOnServer(space, result.value);
       } else {
-        addGrowingSpace(window.localStorage, nextSpace);
+        await createGrowingSpaceOnServer(result.value);
       }
-      notifyBrowserStorageChange(GROWING_SPACES_STORAGE_KEY);
       router.push("/spaces");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "공간을 저장하지 못했습니다.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -99,15 +91,15 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
       </fieldset>
 
       <Field label="공간 이름" error={errors.name} id="space-name">
-        <input aria-describedby={errors.name ? "space-name-error" : undefined} aria-invalid={Boolean(errors.name)} className="form-input" id="space-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 거실 창가, 우리집 베란다" value={values.name} />
+        <input aria-describedby={errors.name ? "space-name-error" : undefined} aria-invalid={Boolean(errors.name)} aria-label="공간 이름" className="form-input" id="space-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 거실 창가, 우리집 베란다" value={values.name} />
       </Field>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="가로 크기 (cm)" error={errors.widthCm} id="width">
-          <input aria-describedby={errors.widthCm ? "width-error" : undefined} aria-invalid={Boolean(errors.widthCm)} className="form-input" id="width" inputMode="decimal" min="10" onChange={(event) => update("widthCm", event.target.value)} placeholder="예: 400" type="number" value={values.widthCm} />
+          <input aria-describedby={errors.widthCm ? "width-error" : undefined} aria-invalid={Boolean(errors.widthCm)} aria-label="가로 크기 (cm)" className="form-input" id="width" inputMode="decimal" min="10" onChange={(event) => update("widthCm", event.target.value)} placeholder="예: 400" type="number" value={values.widthCm} />
         </Field>
         <Field label="세로 크기 (cm)" error={errors.lengthCm} id="length">
-          <input aria-describedby={errors.lengthCm ? "length-error" : undefined} aria-invalid={Boolean(errors.lengthCm)} className="form-input" id="length" inputMode="decimal" min="10" onChange={(event) => update("lengthCm", event.target.value)} placeholder="예: 300" type="number" value={values.lengthCm} />
+          <input aria-describedby={errors.lengthCm ? "length-error" : undefined} aria-invalid={Boolean(errors.lengthCm)} aria-label="세로 크기 (cm)" className="form-input" id="length" inputMode="decimal" min="10" onChange={(event) => update("lengthCm", event.target.value)} placeholder="예: 300" type="number" value={values.lengthCm} />
         </Field>
       </div>
 
@@ -126,12 +118,12 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
       </div>
 
       <Field label="메모 (선택)" id="notes">
-        <textarea className="form-input min-h-28 resize-y" id="notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="바람, 배수, 주변 환경 등을 기록해 보세요." value={values.notes} />
+        <textarea aria-label="메모" className="form-input min-h-28 resize-y" id="notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="바람, 배수, 주변 환경 등을 기록해 보세요." value={values.notes} />
       </Field>
 
       {formError && <p className="rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{formError}</p>}
 
-      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">{space ? "변경 내용 저장" : "공간 등록하기"}</button>
+      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark disabled:cursor-wait disabled:opacity-60" disabled={submitting} type="submit">{submitting ? "저장 중…" : space ? "변경 내용 저장" : "공간 등록하기"}</button>
     </form>
   );
 }

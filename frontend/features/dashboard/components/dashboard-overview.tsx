@@ -41,6 +41,9 @@ export function DashboardOverview() {
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
   if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
+  if (auth.status === "loading" || spacesState.status === "loading" || seasonsState.status === "loading" || layoutsState.status === "loading" || tasksState.status === "loading") {
+    return <p className="rounded-2xl bg-white p-5 text-muted">내 텃밭 정보를 불러오고 있습니다.</p>;
+  }
   if (auth.status !== "authenticated") return null;
 
   const today = formatLocalDateOnly(new Date());

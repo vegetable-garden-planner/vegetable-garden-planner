@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { deleteGrowingSpaceWithRelations } from "@/features/growing-space/application/delete-growing-space";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
-import { GROWING_SPACES_STORAGE_KEY } from "@/features/growing-space/infrastructure/space-storage";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
+import { deleteGrowingSpaceOnServer } from "@/features/growing-space/infrastructure/space-api";
 
 const TYPE_LABELS: Record<GrowingSpace["type"], string> = {
   indoor: "실내 화분",
@@ -28,17 +26,17 @@ export function SpaceList() {
 
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
+  if (spacesState.status === "loading" || seasonsState.status === "loading") return <LoadingMessage />;
 
   const { spaces } = spacesState;
   if (spaces.length === 0) return <EmptySpaceList />;
 
-  function removeSpace(space: GrowingSpace) {
+  async function removeSpace(space: GrowingSpace) {
     setActionError("");
     if (!window.confirm(`'${space.name}' 공간을 삭제할까요?`)) return;
 
     try {
-      deleteGrowingSpaceWithRelations(window.localStorage, space.id);
-      notifyBrowserStorageChange(GROWING_SPACES_STORAGE_KEY);
+      await deleteGrowingSpaceOnServer(space);
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "공간을 삭제하지 못했습니다.");
     }
@@ -89,4 +87,8 @@ function EmptySpaceList() {
 
 function ErrorMessage({ message }: { message: string }) {
   return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{message}</p>;
+}
+
+function LoadingMessage() {
+  return <p className="rounded-2xl bg-white p-5 text-muted">재배 공간을 불러오고 있습니다.</p>;
 }

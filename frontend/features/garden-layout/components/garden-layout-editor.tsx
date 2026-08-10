@@ -16,14 +16,12 @@ import {
 } from "@/features/garden-layout/domain/garden-layout";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
-  deleteGardenLayout,
-  GARDEN_LAYOUTS_STORAGE_KEY,
-  saveGardenLayout,
-} from "@/features/garden-layout/infrastructure/garden-layout-storage";
+  deleteGardenLayoutOnServer,
+  saveGardenLayoutOnServer,
+} from "@/features/garden-layout/infrastructure/garden-layout-api";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
 const GARDEN_CROPS = CROP_REFERENCES.filter((crop) =>
   crop.supportedSpaces.includes("garden"),
@@ -46,6 +44,9 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
   if (spacesState.status === "error") return <Message message={spacesState.message} />;
   if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
+  if (seasonsState.status === "loading" || spacesState.status === "loading" || layoutsState.status === "loading") {
+    return <p className="rounded-2xl bg-white p-5 text-muted">작물 배치를 불러오고 있습니다.</p>;
+  }
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
   if (!season) return <Message message="작물 배치를 만들 시즌을 찾을 수 없습니다." />;
@@ -64,7 +65,7 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
         <p className="mt-2 text-sm text-muted">공간 크기 {space.widthCm} × {space.lengthCm}cm</p>
       </div>
       {layout
-        ? <GardenGrid layout={layout} space={space} />
+        ? <GardenGrid key={`${layout.seasonId}:${layout.version ?? layout.updatedAt}`} layout={layout} space={space} />
         : <GardenGridSetup seasonId={season.id} space={space} />}
     </div>
   );
@@ -80,7 +81,7 @@ function GardenGridSetup({
   const [cellSizeCm, setCellSizeCm] = useState<GridCellSizeCm>(25);
   const [error, setError] = useState("");
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     const result = createGardenLayout(
@@ -97,8 +98,7 @@ function GardenGridSetup({
     }
 
     try {
-      saveGardenLayout(window.localStorage, result.layout);
-      notifyBrowserStorageChange(GARDEN_LAYOUTS_STORAGE_KEY);
+      await saveGardenLayoutOnServer(result.layout);
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "격자를 저장하지 못했습니다.");
     }
@@ -133,35 +133,37 @@ function GardenGridSetup({
 function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpace }) {
   const [selectedCropId, setSelectedCropId] = useState(GARDEN_CROPS[0]?.id ?? "");
   const [error, setError] = useState("");
+  const [draftLayout, setDraftLayout] = useState(layout);
   const cropsById = new Map(GARDEN_CROPS.map((crop) => [crop.id, crop]));
   const placementsByCell = new Map(
-    layout.placements.map((placement) => [placement.cellIndex, placement]),
+    draftLayout.placements.map((placement) => [placement.cellIndex, placement]),
   );
-  const outdated = isGardenLayoutOutdated(layout, space);
-  const plantCount = calculatePlantCount(layout.placements, GARDEN_CROPS);
+  const outdated = isGardenLayoutOutdated(draftLayout, space);
+  const plantCount = calculatePlantCount(draftLayout.placements, GARDEN_CROPS);
 
-  function updateCell(cellIndex: number) {
+  async function updateCell(cellIndex: number) {
     setError("");
     try {
       const updated = toggleCropPlacement(
-        layout,
+        draftLayout,
         cellIndex,
         selectedCropId,
         GARDEN_CROPS.map((crop) => crop.id),
         new Date().toISOString(),
       );
-      saveGardenLayout(window.localStorage, updated);
-      notifyBrowserStorageChange(GARDEN_LAYOUTS_STORAGE_KEY);
+      setDraftLayout(updated);
+      const saved = await saveGardenLayoutOnServer(updated);
+      setDraftLayout(saved);
     } catch (updateError) {
+      setDraftLayout(layout);
       setError(updateError instanceof Error ? updateError.message : "작물을 배치하지 못했습니다.");
     }
   }
 
-  function recreateGrid() {
+  async function recreateGrid() {
     if (!window.confirm("현재 작물 배치를 모두 지우고 격자를 다시 만들까요?")) return;
     try {
-      deleteGardenLayout(window.localStorage, layout.seasonId);
-      notifyBrowserStorageChange(GARDEN_LAYOUTS_STORAGE_KEY);
+      await deleteGardenLayoutOnServer(draftLayout);
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : "격자를 삭제하지 못했습니다.");
     }
@@ -185,13 +187,13 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
       <div className="mt-5 overflow-x-auto rounded-3xl border-4 border-[#8a684a] bg-[#d6c39c] p-3">
         <div
           className="grid w-max gap-1"
-          style={{ gridTemplateColumns: `repeat(${layout.columns}, 2.75rem)` }}
+          style={{ gridTemplateColumns: `repeat(${draftLayout.columns}, 2.75rem)` }}
         >
-          {Array.from({ length: layout.columns * layout.rows }, (_, cellIndex) => {
+          {Array.from({ length: draftLayout.columns * draftLayout.rows }, (_, cellIndex) => {
             const placement = placementsByCell.get(cellIndex);
             const crop = placement ? cropsById.get(placement.cropId) : undefined;
-            const row = Math.floor(cellIndex / layout.columns) + 1;
-            const column = (cellIndex % layout.columns) + 1;
+            const row = Math.floor(cellIndex / draftLayout.columns) + 1;
+            const column = (cellIndex % draftLayout.columns) + 1;
             const label = crop ? crop.name : "비어 있음";
             return (
               <button
@@ -210,7 +212,7 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
-        <p className="font-bold text-muted">{layout.columns}열 × {layout.rows}행 · 한 칸 {layout.cellSizeCm}cm</p>
+        <p className="font-bold text-muted">{draftLayout.columns}열 × {draftLayout.rows}행 · 한 칸 {draftLayout.cellSizeCm}cm</p>
         <button className="rounded-full border border-red-200 px-4 py-2 font-bold text-red-700" onClick={recreateGrid} type="button">격자 다시 만들기</button>
       </div>
       <PlantCountSummary summary={plantCount} />

@@ -1,24 +1,18 @@
 "use client";
 
-import type { AuthUser } from "@/features/auth/domain/auth";
-import {
-  AUTH_SESSION_CHANGE_EVENT,
-  clearAuthSession,
-  createAuthSession,
-  saveAuthSession,
-} from "@/features/auth/infrastructure/auth-session";
+import { logoutUser } from "@/features/auth/infrastructure/auth-api";
+import { AUTH_SESSION_CHANGE_EVENT } from "@/features/auth/infrastructure/auth-session";
+import { notifyApiDataChanged } from "@/shared/infrastructure/api-resource-store";
 
-export function establishBrowserAuthSession(user: AuthUser) {
-  const session = createAuthSession(user, new Date().toISOString());
-  saveAuthSession(window.localStorage, session);
-  announceAuthSessionChange();
-}
-
-export function clearBrowserAuthSession() {
-  clearAuthSession(window.localStorage);
-  announceAuthSessionChange();
-}
-
-function announceAuthSessionChange() {
+export function announceAuthSessionChange() {
   window.dispatchEvent(new Event(AUTH_SESSION_CHANGE_EVENT));
+  notifyApiDataChanged();
+}
+
+export async function clearBrowserAuthSession() {
+  try {
+    await logoutUser();
+  } finally {
+    announceAuthSessionChange();
+  }
 }

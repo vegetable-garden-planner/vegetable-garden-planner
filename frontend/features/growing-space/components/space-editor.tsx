@@ -10,6 +10,9 @@ export function SpaceEditor({ spaceId }: { spaceId: string }) {
   if (spacesState.status === "error") {
     return <Message message={spacesState.message} />;
   }
+  if (spacesState.status === "loading") {
+    return <p className="rounded-2xl bg-white p-5 text-muted">공간 정보를 불러오고 있습니다.</p>;
+  }
 
   const space = spacesState.spaces.find((item) => item.id === spaceId);
   if (!space) {

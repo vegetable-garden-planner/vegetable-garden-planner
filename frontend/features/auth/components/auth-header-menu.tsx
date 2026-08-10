@@ -31,5 +31,9 @@ export function AuthHeaderMenu() {
     return <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={clearBrowserAuthSession} type="button">세션 초기화</button>;
   }
 
+  if (auth.status === "loading") {
+    return <span className="px-4 py-2 text-sm text-muted">로그인 확인 중…</span>;
+  }
+
   return <Link className="rounded-full px-4 py-2 text-sm font-bold text-muted hover:text-leaf" href="/login">로그인</Link>;
 }

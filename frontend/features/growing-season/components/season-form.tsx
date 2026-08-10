@@ -7,20 +7,17 @@ import { GROWING_SPACE_LABELS } from "@/features/crop-catalog/data/crop-labels";
 import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
 import { SeasonField } from "@/features/growing-season/components/season-field";
 import {
-  createGrowingSeason,
   validateGrowingSeason,
   type GrowingSeason,
   type GrowingSeasonErrors,
   type GrowingSeasonFormValues,
 } from "@/features/growing-season/domain/growing-season";
 import {
-  addGrowingSeason,
-  GROWING_SEASONS_STORAGE_KEY,
-  updateGrowingSeason,
-} from "@/features/growing-season/infrastructure/season-storage";
+  createGrowingSeasonOnServer,
+  updateGrowingSeasonOnServer,
+} from "@/features/growing-season/infrastructure/season-api";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
 interface SeasonFormProps {
   initialSpaceId: string;
@@ -37,6 +34,7 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
   );
   const [errors, setErrors] = useState<GrowingSeasonErrors>({});
   const [formError, setFormError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   function update<K extends keyof GrowingSeasonFormValues>(
     key: K,
@@ -46,7 +44,7 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
     setErrors((current) => ({ ...current, [key]: undefined }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError("");
     if (spacesState.status !== "ready" || seasonsState.status !== "ready") return;
@@ -62,29 +60,22 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
       return;
     }
 
-    const nextSeason = season
-      ? {
-          ...result.value,
-          id: season.id,
-          createdAt: season.createdAt,
-          featuredCropId: season.featuredCropId,
-        }
-      : createGrowingSeason(
-          { ...result.value, featuredCropId: initialCrop?.id },
-          crypto.randomUUID(),
-          new Date().toISOString(),
-        );
-
+    const input = {
+      ...result.value,
+      featuredCropId: season?.featuredCropId ?? initialCrop?.id,
+    };
+    setSubmitting(true);
     try {
       if (season) {
-        updateGrowingSeason(window.localStorage, nextSeason);
+        await updateGrowingSeasonOnServer(season, input);
       } else {
-        addGrowingSeason(window.localStorage, nextSeason);
+        await createGrowingSeasonOnServer(input);
       }
-      notifyBrowserStorageChange(GROWING_SEASONS_STORAGE_KEY);
-      router.push(`/seasons?spaceId=${encodeURIComponent(nextSeason.spaceId)}`);
+      router.push(`/seasons?spaceId=${encodeURIComponent(input.spaceId)}`);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "시즌을 저장하지 못했습니다.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -94,6 +85,10 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
 
   if (seasonsState.status === "error") {
     return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{seasonsState.message}</p>;
+  }
+
+  if (spacesState.status === "loading" || seasonsState.status === "loading") {
+    return <p className="rounded-2xl bg-white p-5 text-muted">재배 정보를 불러오고 있습니다.</p>;
   }
 
   if (spacesState.spaces.length === 0) {
@@ -106,8 +101,9 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
     );
   }
 
-  const compatibleSpaces = initialCrop
-    ? spacesState.spaces.filter((space) => initialCrop.supportedSpaces.includes(space.type))
+  const supportedSpaceTypes = initialCrop ? new Set(initialCrop.supportedSpaces) : null;
+  const compatibleSpaces = supportedSpaceTypes
+    ? spacesState.spaces.filter((space) => supportedSpaceTypes.has(space.type))
     : spacesState.spaces;
 
   if (initialCrop && compatibleSpaces.length === 0) {
@@ -137,7 +133,7 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
         </select>
       </SeasonField>
       <SeasonField error={errors.name} id="season-name" label="시즌 이름">
-        <input aria-describedby={errors.name ? "season-name-error" : undefined} aria-invalid={Boolean(errors.name)} className="form-input" id="season-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 2026년 봄 시즌" value={values.name} />
+        <input aria-describedby={errors.name ? "season-name-error" : undefined} aria-invalid={Boolean(errors.name)} aria-label="시즌 이름" className="form-input" id="season-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 2026년 봄 시즌" value={values.name} />
       </SeasonField>
       <div className="grid gap-5 sm:grid-cols-2">
         <SeasonField error={errors.startDate} id="season-start" label="시작일">
@@ -148,10 +144,10 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
         </SeasonField>
       </div>
       <SeasonField id="season-notes" label="메모 (선택)">
-        <textarea className="form-input min-h-28 resize-y" id="season-notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="이번 시즌의 목표나 키우고 싶은 작물을 기록해 보세요." value={values.notes} />
+        <textarea aria-label="메모" className="form-input min-h-28 resize-y" id="season-notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="이번 시즌의 목표나 키우고 싶은 작물을 기록해 보세요." value={values.notes} />
       </SeasonField>
       {formError && <p className="rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{formError}</p>}
-      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">{season ? "변경 내용 저장" : "시즌 등록하기"}</button>
+      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark disabled:cursor-wait disabled:opacity-60" disabled={submitting} type="submit">{submitting ? "저장 중…" : season ? "변경 내용 저장" : "시즌 등록하기"}</button>
     </form>
   );
 }

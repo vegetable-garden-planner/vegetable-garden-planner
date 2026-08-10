@@ -1,50 +1,77 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
-import {
-  AUTH_SESSION_CHANGE_EVENT,
-  getAuthSessionSnapshot,
-  parseAuthSessionSnapshot,
-  type AuthSession,
-} from "@/features/auth/infrastructure/auth-session";
+import { useSyncExternalStore } from "react";
+import type { AuthUser } from "@/features/auth/domain/auth";
+import { getCurrentUser } from "@/features/auth/infrastructure/auth-api";
+import { AUTH_SESSION_CHANGE_EVENT } from "@/features/auth/infrastructure/auth-session";
+import { ApiError } from "@/shared/infrastructure/api-client";
 
 export type AuthSessionState =
-  | { status: "authenticated"; session: AuthSession }
+  | { status: "loading" }
+  | { status: "authenticated"; session: { user: AuthUser } }
   | { status: "anonymous" }
   | { status: "error"; message: string };
 
-export function useAuthSession(): AuthSessionState {
-  const snapshot = useSyncExternalStore(
-    subscribeToAuthSession,
-    () => getAuthSessionSnapshot(window.localStorage),
-    getEmptySnapshot,
-  );
+const loadingState: AuthSessionState = { status: "loading" };
+let state: AuthSessionState = loadingState;
+let started = false;
+let activeRequest = 0;
+const listeners = new Set<() => void>();
 
-  return useMemo(() => {
-    try {
-      const session = parseAuthSessionSnapshot(snapshot);
-      return session
-        ? { status: "authenticated", session }
-        : { status: "anonymous" };
-    } catch (error) {
-      return {
-        status: "error",
-        message: error instanceof Error ? error.message : "로그인 정보를 확인하지 못했습니다.",
-      };
-    }
-  }, [snapshot]);
+export function useAuthSession(): AuthSessionState {
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
 
-function subscribeToAuthSession(onStoreChange: () => void) {
-  window.addEventListener("storage", onStoreChange);
-  window.addEventListener(AUTH_SESSION_CHANGE_EVENT, onStoreChange);
+export function refreshAuthSession() {
+  window.dispatchEvent(new Event(AUTH_SESSION_CHANGE_EVENT));
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  if (!started) {
+    started = true;
+    window.addEventListener(AUTH_SESSION_CHANGE_EVENT, load);
+    void load();
+  }
 
   return () => {
-    window.removeEventListener("storage", onStoreChange);
-    window.removeEventListener(AUTH_SESSION_CHANGE_EVENT, onStoreChange);
+    listeners.delete(listener);
+    if (listeners.size === 0) {
+      window.removeEventListener(AUTH_SESSION_CHANGE_EVENT, load);
+      started = false;
+    }
   };
 }
 
-function getEmptySnapshot() {
-  return "";
+function getSnapshot() {
+  return state;
+}
+
+function getServerSnapshot() {
+  return loadingState;
+}
+
+async function load() {
+  const requestId = ++activeRequest;
+  state = loadingState;
+  emit();
+  try {
+    const user = await getCurrentUser();
+    if (requestId === activeRequest) {
+      state = { status: "authenticated", session: { user } };
+    }
+  } catch (error) {
+    if (requestId !== activeRequest) return;
+    state = error instanceof ApiError && error.status === 401
+      ? { status: "anonymous" }
+      : {
+          status: "error",
+          message: error instanceof Error ? error.message : "로그인 정보를 확인하지 못했습니다.",
+        };
+  }
+  emit();
+}
+
+function emit() {
+  listeners.forEach((listener) => listener());
 }

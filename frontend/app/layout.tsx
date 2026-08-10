@@ -7,31 +7,34 @@ const geist = Geist({
   subsets: ["latin"],
 });
 
+function getMetadataBase() {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000");
+  } catch {
+    return new URL("http://localhost:3000");
+  }
+}
+
 export const metadata: Metadata = {
-  title: "심어봄 | 내 밭에 맞는 재배 계획",
-  description:
-    "밭 크기와 작물을 입력하면 배치 수량, 간격 경고, 재배 일정을 만들어주는 한국형 텃밭 계획 도구입니다.",
+  metadataBase: getMetadataBase(),
+  title: "심어봄 | 작은 텃밭의 오늘을 돌봐요",
+  description: "작물의 성장 상태와 오늘의 할 일을 한눈에 확인하는 텃밭 관리 서비스입니다.",
   openGraph: {
-    title: "심어봄 | 내 밭에 맞는 재배 계획",
-    description:
-      "밭 크기와 작물을 입력하면 배치 수량, 간격 경고, 재배 일정을 한눈에 확인할 수 있어요.",
+    title: "심어봄 | 작은 텃밭의 오늘을 돌봐요",
+    description: "작물의 성장 상태와 오늘의 할 일을 한눈에 확인하세요.",
     locale: "ko_KR",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "심어봄 | 내 밭에 맞는 재배 계획",
-    description: "내 밭에 꼭 맞는 재배 계획을 한눈에 확인하세요.",
+    title: "심어봄 | 작은 텃밭의 오늘을 돌봐요",
+    description: "매일의 작은 관리가 풍성한 수확을 만듭니다.",
   },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="ko"
-      className={`${geist.variable} antialiased`}
-      data-scroll-behavior="smooth"
-    >
+    <html lang="ko" className={`${geist.variable} antialiased`} data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );
