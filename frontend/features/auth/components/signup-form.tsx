@@ -9,7 +9,8 @@ import {
   type SignupErrors,
   type SignupFormValues,
 } from "@/features/auth/domain/auth";
-import { establishBrowserAuthSession } from "@/features/auth/infrastructure/browser-auth-session";
+import { register } from "@/features/auth/infrastructure/auth-api";
+import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
 
 interface SignupFormProps {
   nextPath: string;
@@ -17,6 +18,7 @@ interface SignupFormProps {
 
 export function SignupForm({ nextPath }: SignupFormProps) {
   const router = useRouter();
+  const auth = useAuthSession();
   const [values, setValues] = useState<SignupFormValues>({
     email: "",
     nickname: "",
@@ -32,7 +34,7 @@ export function SignupForm({ nextPath }: SignupFormProps) {
     setErrors((current) => ({ ...current, [key]: undefined }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = validateSignup(values);
 
@@ -41,11 +43,13 @@ export function SignupForm({ nextPath }: SignupFormProps) {
       return;
     }
 
-    establishBrowserAuthSession({
-      email: result.value.email,
-      nickname: result.value.nickname,
-    });
-    router.replace(nextPath);
+    try {
+      const user = await register(result.value);
+      auth.authenticate(user);
+      router.replace(nextPath);
+    } catch (error) {
+      setErrors({ email: error instanceof Error ? error.message : "회원가입하지 못했습니다." });
+    }
   }
 
   return (

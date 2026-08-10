@@ -36,12 +36,12 @@ export function DashboardOverview() {
   const layoutsState = useGardenLayouts();
   const tasksState = useCultivationTasks();
 
-  if (auth.status === "error") return <ErrorMessage message={auth.message} />;
+  if (auth.state.status === "error") return <ErrorMessage message={auth.state.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
   if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
-  if (auth.status !== "authenticated") return null;
+  if (auth.state.status !== "authenticated") return null;
 
   const today = formatLocalDateOnly(new Date());
   const summary = createDashboardSummary(
@@ -63,7 +63,7 @@ export function DashboardOverview() {
       <section className="mt-10 sm:mt-14">
         <p className="text-sm font-bold text-leaf">나의 재배 홈</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">
-          {auth.session.user.nickname}님, 오늘도 잘 키워봐요
+          {auth.state.user.nickname}님, 오늘도 잘 키워봐요
         </h1>
         <p className="mt-4 max-w-2xl leading-7 text-muted">
           흩어져 있던 공간과 시즌, 작물 배치를 여기에서 이어서 관리할 수 있어요.

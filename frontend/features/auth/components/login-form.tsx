@@ -5,12 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthField } from "@/features/auth/components/auth-field";
 import {
-  getDevelopmentLoginUser,
   validateLogin,
   type LoginErrors,
   type LoginFormValues,
 } from "@/features/auth/domain/auth";
-import { establishBrowserAuthSession } from "@/features/auth/infrastructure/browser-auth-session";
+import { login } from "@/features/auth/infrastructure/auth-api";
+import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
 
 interface LoginFormProps {
   nextPath: string;
@@ -18,6 +18,7 @@ interface LoginFormProps {
 
 export function LoginForm({ nextPath }: LoginFormProps) {
   const router = useRouter();
+  const auth = useAuthSession();
   const [values, setValues] = useState<LoginFormValues>({ email: "", password: "" });
   const [errors, setErrors] = useState<LoginErrors>({});
 
@@ -26,7 +27,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
     setErrors((current) => ({ ...current, [key]: undefined }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = validateLogin(values);
 
@@ -35,8 +36,13 @@ export function LoginForm({ nextPath }: LoginFormProps) {
       return;
     }
 
-    establishBrowserAuthSession(getDevelopmentLoginUser(result.value.email));
-    router.replace(nextPath);
+    try {
+      const user = await login(result.value);
+      auth.authenticate(user);
+      router.replace(nextPath);
+    } catch (error) {
+      setErrors({ password: error instanceof Error ? error.message : "로그인하지 못했습니다." });
+    }
   }
 
   return (

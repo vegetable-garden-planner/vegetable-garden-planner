@@ -20,7 +20,7 @@ export function SessionAwareLink({
   className,
 }: SessionAwareLinkProps) {
   const auth = useAuthSession();
-  const authenticated = auth.status === "authenticated";
+  const authenticated = auth.state.status === "authenticated";
 
   return (
     <Link className={className} href={authenticated ? authenticatedHref : anonymousHref}>

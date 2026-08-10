@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import { AuthSessionProvider } from "@/features/auth/hooks/use-auth-session";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -32,7 +33,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geist.variable} antialiased`}
       data-scroll-behavior="smooth"
     >
-      <body>{children}</body>
+      <body><AuthSessionProvider>{children}</AuthSessionProvider></body>
     </html>
   );
 }
