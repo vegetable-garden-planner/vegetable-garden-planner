@@ -7,6 +7,11 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\HealthCheckController;
+use App\Http\Controllers\Api\V1\Seasons\DestroySeasonController;
+use App\Http\Controllers\Api\V1\Seasons\IndexSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\ShowSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\StoreSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\UpdateSeasonController;
 use App\Http\Controllers\Api\V1\Spaces\DestroySpaceController;
 use App\Http\Controllers\Api\V1\Spaces\IndexSpaceController;
 use App\Http\Controllers\Api\V1\Spaces\ShowSpaceController;
@@ -31,5 +36,11 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/spaces/{growingSpace}', ShowSpaceController::class);
         Route::patch('/spaces/{growingSpace}', UpdateSpaceController::class);
         Route::delete('/spaces/{growingSpace}', DestroySpaceController::class);
+
+        Route::get('/seasons', IndexSeasonController::class);
+        Route::post('/seasons', StoreSeasonController::class);
+        Route::get('/seasons/{growingSeason}', ShowSeasonController::class);
+        Route::patch('/seasons/{growingSeason}', UpdateSeasonController::class);
+        Route::delete('/seasons/{growingSeason}', DestroySeasonController::class);
     });
 });

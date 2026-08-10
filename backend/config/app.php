@@ -67,6 +67,8 @@ return [
 
     'timezone' => 'UTC',
 
+    'business_timezone' => env('BUSINESS_TIMEZONE', 'Asia/Seoul'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
