@@ -21,7 +21,10 @@ export async function apiRequest<T>(path: string, init: RequestInit = {}): Promi
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
   if (init.body !== undefined) headers.set("Content-Type", "application/json");
-  if (isStateChanging(init.method)) headers.set("X-XSRF-TOKEN", readXsrfToken());
+  if (isStateChanging(init.method)) {
+    if (!findXsrfCookie()) await prepareCsrfCookie();
+    headers.set("X-XSRF-TOKEN", readXsrfToken());
+  }
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
@@ -49,11 +52,15 @@ function isStateChanging(method: string | undefined): boolean {
 }
 
 function readXsrfToken(): string {
-  const cookie = document.cookie.split("; ").find((item) => item.startsWith("XSRF-TOKEN="));
+  const cookie = findXsrfCookie();
   if (!cookie) {
     throw new ApiError("보안 쿠키가 없습니다. 다시 시도해 주세요.", 419, "CSRF_TOKEN_MISSING");
   }
   return decodeURIComponent(cookie.slice("XSRF-TOKEN=".length));
+}
+
+function findXsrfCookie(): string | undefined {
+  return document.cookie.split("; ").find((item) => item.startsWith("XSRF-TOKEN="));
 }
 
 async function createApiError(response: Response): Promise<ApiError> {

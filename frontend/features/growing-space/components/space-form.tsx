@@ -8,18 +8,15 @@ import {
   SUNLIGHT_OPTIONS,
 } from "@/features/growing-space/data/space-options";
 import {
-  createGrowingSpace,
   validateGrowingSpace,
   type GrowingSpace,
   type GrowingSpaceErrors,
   type GrowingSpaceFormValues,
 } from "@/features/growing-space/domain/growing-space";
 import {
-  addGrowingSpace,
-  GROWING_SPACES_STORAGE_KEY,
+  createGrowingSpace,
   updateGrowingSpace,
-} from "@/features/growing-space/infrastructure/space-storage";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
+} from "@/features/growing-space/infrastructure/space-api";
 import {
   isSunlightExposure,
   type GrowingSpaceType,
@@ -46,7 +43,7 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
     setErrors((current) => ({ ...current, [key]: undefined }));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setFormError("");
 
@@ -56,21 +53,9 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
       return;
     }
 
-    const nextSpace = space
-      ? { ...result.value, id: space.id, createdAt: space.createdAt }
-      : createGrowingSpace(
-          result.value,
-          crypto.randomUUID(),
-          new Date().toISOString(),
-        );
-
     try {
-      if (space) {
-        updateGrowingSpace(window.localStorage, nextSpace);
-      } else {
-        addGrowingSpace(window.localStorage, nextSpace);
-      }
-      notifyBrowserStorageChange(GROWING_SPACES_STORAGE_KEY);
+      if (space) await updateGrowingSpace(space, result.value);
+      else await createGrowingSpace(result.value);
       router.push("/spaces");
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "공간을 저장하지 못했습니다.");
