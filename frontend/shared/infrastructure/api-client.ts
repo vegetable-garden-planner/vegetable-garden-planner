@@ -1,5 +1,5 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
-const CSRF_URL = process.env.NEXT_PUBLIC_CSRF_URL ?? "http://localhost:8000/sanctum/csrf-cookie";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api/v1";
+const CSRF_URL = process.env.NEXT_PUBLIC_CSRF_URL ?? "/sanctum/csrf-cookie";
 
 interface ApiErrorBody {
   error?: { code?: string; message?: string; fields?: Record<string, string[]> };

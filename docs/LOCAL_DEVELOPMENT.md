@@ -111,7 +111,7 @@ npm install
 npm run dev
 ```
 
-`frontend/.env.local`의 API 주소는 Laravel 실행 주소와 같아야 합니다. 기본값은 `http://localhost:8000` 기준이며, `php artisan serve`를 다른 주소나 포트로 실행하면 함께 변경합니다.
+`frontend/.env.local`의 `BACKEND_URL`은 Laravel 실행 주소와 같아야 합니다. 기본값은 `http://127.0.0.1:8000`입니다. 브라우저는 `/api/v1`과 `/sanctum` 같은 출처 경로로 요청하고 Next.js가 Laravel에 전달하므로, `localhost`와 `127.0.0.1` 차이로 세션 쿠키가 끊기지 않습니다. 주소나 포트를 바꾸면 `BACKEND_URL`만 함께 변경합니다.
 
 브라우저에서 다음 주소를 엽니다.
 
