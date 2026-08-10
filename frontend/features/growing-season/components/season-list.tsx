@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { assertGrowingSeasonCanBeDeleted } from "@/features/growing-season/application/delete-growing-season";
 import {
   type PersistedGrowingSeason,
@@ -27,12 +27,14 @@ const STATUS_STYLES: Record<GrowingSeasonStatus, string> = {
 export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string }) {
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
+  const cropCatalog = useCropCatalog();
   const [actionError, setActionError] = useState("");
 
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
+  if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
-  const cropsById = new Map(CROP_REFERENCES.map((crop) => [crop.id, crop]));
+  const cropsById = new Map(cropCatalog.crops.map((crop) => [crop.id, crop]));
   const selectedSpace = selectedSpaceId ? spacesById.get(selectedSpaceId) : undefined;
   if (selectedSpaceId && !selectedSpace) {
     return <InvalidSpaceFilter />;

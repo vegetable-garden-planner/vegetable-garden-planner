@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
-import type { CropCategory } from "@/features/crop-catalog/domain/crop-reference";
+import type { CropCategory, CropReference } from "@/features/crop-catalog/domain/crop-reference";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { calculatePlantCount } from "@/features/garden-layout/application/calculate-plant-count";
 import { PlantCountSummary } from "@/features/garden-layout/components/plant-count-summary";
 import {
@@ -25,10 +25,6 @@ import type { GrowingSpace } from "@/features/growing-space/domain/growing-space
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
-const GARDEN_CROPS = CROP_REFERENCES.filter((crop) =>
-  crop.supportedSpaces.includes("garden"),
-);
-
 const CROP_TONES: Record<CropCategory, string> = {
   leaf: "bg-[#75a960] text-white",
   fruit: "bg-[#d66551] text-white",
@@ -42,10 +38,15 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
   const layoutsState = useGardenLayouts();
+  const cropCatalog = useCropCatalog();
 
   if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
   if (spacesState.status === "error") return <Message message={spacesState.message} />;
   if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
+  if (cropCatalog.status === "error") return <Message message={cropCatalog.message} />;
+  if (cropCatalog.status === "loading") return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;
+
+  const gardenCrops = cropCatalog.crops.filter((crop) => crop.supportedSpaces.includes("garden"));
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
   if (!season) return <Message message="작물 배치를 만들 시즌을 찾을 수 없습니다." />;
@@ -64,7 +65,7 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
         <p className="mt-2 text-sm text-muted">공간 크기 {space.widthCm} × {space.lengthCm}cm</p>
       </div>
       {layout
-        ? <GardenGrid layout={layout} space={space} />
+        ? <GardenGrid crops={gardenCrops} layout={layout} space={space} />
         : <GardenGridSetup seasonId={season.id} space={space} />}
     </div>
   );
@@ -130,15 +131,15 @@ function GardenGridSetup({
   );
 }
 
-function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpace }) {
-  const [selectedCropId, setSelectedCropId] = useState(GARDEN_CROPS[0]?.id ?? "");
+function GardenGrid({ crops, layout, space }: { crops: readonly CropReference[]; layout: GardenLayout; space: GrowingSpace }) {
+  const [selectedCropId, setSelectedCropId] = useState(crops[0]?.id ?? "");
   const [error, setError] = useState("");
-  const cropsById = new Map(GARDEN_CROPS.map((crop) => [crop.id, crop]));
+  const cropsById = new Map(crops.map((crop) => [crop.id, crop]));
   const placementsByCell = new Map(
     layout.placements.map((placement) => [placement.cellIndex, placement]),
   );
   const outdated = isGardenLayoutOutdated(layout, space);
-  const plantCount = calculatePlantCount(layout.placements, GARDEN_CROPS);
+  const plantCount = calculatePlantCount(layout.placements, crops);
 
   function updateCell(cellIndex: number) {
     setError("");
@@ -147,7 +148,7 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
         layout,
         cellIndex,
         selectedCropId,
-        GARDEN_CROPS.map((crop) => crop.id),
+        crops.map((crop) => crop.id),
         new Date().toISOString(),
       );
       saveGardenLayout(window.localStorage, updated);
@@ -173,7 +174,7 @@ function GardenGrid({ layout, space }: { layout: GardenLayout; space: GrowingSpa
       <section className="rounded-3xl border border-ink/10 bg-white p-5" aria-labelledby="crop-selector-title">
         <h2 className="text-lg font-bold" id="crop-selector-title">배치할 작물</h2>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-labelledby="crop-selector-title">
-          {GARDEN_CROPS.map((crop) => (
+          {crops.map((crop) => (
             <label className={`shrink-0 cursor-pointer rounded-full border px-4 py-2 text-sm font-bold ${selectedCropId === crop.id ? "border-leaf bg-leaf-soft text-leaf-dark" : "border-ink/10"}`} key={crop.id}>
               <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
               {crop.name}

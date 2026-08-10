@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
 import { AuthSessionProvider } from "@/features/auth/hooks/use-auth-session";
+import { CropCatalogProvider } from "@/features/crop-catalog/hooks/use-crop-catalog";
 
 const geist = Geist({
   variable: "--font-geist",
@@ -33,7 +34,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geist.variable} antialiased`}
       data-scroll-behavior="smooth"
     >
-      <body><AuthSessionProvider>{children}</AuthSessionProvider></body>
+      <body><AuthSessionProvider><CropCatalogProvider>{children}</CropCatalogProvider></AuthSessionProvider></body>
     </html>
   );
 }

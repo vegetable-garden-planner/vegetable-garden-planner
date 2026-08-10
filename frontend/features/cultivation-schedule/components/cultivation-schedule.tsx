@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import {
   generateCultivationSchedule,
   type CultivationTask,
@@ -43,12 +43,15 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   const spacesState = useGrowingSpaces();
   const layoutsState = useGardenLayouts();
   const tasksState = useCultivationTasks();
+  const cropCatalog = useCropCatalog();
   const [actionError, setActionError] = useState("");
 
   if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
   if (spacesState.status === "error") return <Message message={spacesState.message} />;
   if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
   if (tasksState.status === "error") return <Message message={tasksState.message} />;
+  if (cropCatalog.status === "error") return <Message message={cropCatalog.message} />;
+  if (cropCatalog.status === "loading") return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
   if (!season) return <Message message="재배 일정을 만들 시즌을 찾을 수 없습니다." />;
@@ -81,7 +84,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
     const result = generateCultivationSchedule(
       currentSeason,
       layout.placements,
-      CROP_REFERENCES,
+      cropCatalog.crops,
       () => crypto.randomUUID(),
       generatedAt,
     );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GROWING_SPACE_LABELS } from "@/features/crop-catalog/data/crop-labels";
 import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { SeasonField } from "@/features/growing-season/components/season-field";
 import {
   validateGrowingSeason,
@@ -21,12 +22,14 @@ import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spa
 
 interface SeasonFormProps {
   initialSpaceId: string;
-  initialCrop?: CropReference;
+  initialCropId?: string;
   season?: PersistedGrowingSeason;
 }
 
-export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormProps) {
+export function SeasonForm({ initialCropId = "", initialSpaceId, season }: SeasonFormProps) {
   const router = useRouter();
+  const cropCatalog = useCropCatalog();
+  const initialCrop = cropCatalog.crops.find((crop) => crop.id === initialCropId);
   const spacesState = useGrowingSpaces();
   const seasonsState = useGrowingSeasons();
   const [values, setValues] = useState<GrowingSeasonFormValues>(() =>
@@ -75,6 +78,18 @@ export function SeasonForm({ initialCrop, initialSpaceId, season }: SeasonFormPr
 
   if (spacesState.status === "error") {
     return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{spacesState.message}</p>;
+  }
+
+  if (cropCatalog.status === "error") {
+    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{cropCatalog.message}</p>;
+  }
+
+  if (cropCatalog.status === "loading") {
+    return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;
+  }
+
+  if (initialCropId && !initialCrop) {
+    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">선택한 작물 정보를 찾을 수 없습니다.</p>;
   }
 
   if (seasonsState.status === "error") {

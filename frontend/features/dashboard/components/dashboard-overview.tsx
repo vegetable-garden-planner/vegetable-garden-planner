@@ -13,7 +13,7 @@ import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-s
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 import { createDashboardSummary } from "@/features/dashboard/domain/dashboard-summary";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { RegisteredPlantList } from "@/features/dashboard/components/registered-plant-list";
 import { createRegisteredPlantSummaries } from "@/features/dashboard/domain/registered-plant-summary";
 
@@ -35,12 +35,15 @@ export function DashboardOverview() {
   const seasonsState = useGrowingSeasons();
   const layoutsState = useGardenLayouts();
   const tasksState = useCultivationTasks();
+  const cropCatalog = useCropCatalog();
 
   if (auth.state.status === "error") return <ErrorMessage message={auth.state.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
   if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
+  if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
+  if (cropCatalog.status === "loading") return null;
   if (auth.state.status !== "authenticated") return null;
 
   const today = formatLocalDateOnly(new Date());
@@ -54,7 +57,7 @@ export function DashboardOverview() {
   const alerts = createDashboardAlerts(tasksState.tasks, today);
   const registeredPlants = createRegisteredPlantSummaries(
     seasonsState.seasons,
-    CROP_REFERENCES,
+    cropCatalog.crops,
     today,
   );
 

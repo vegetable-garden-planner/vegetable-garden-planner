@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { AuthGate } from "@/features/auth/components/auth-gate";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
 import { SeasonForm } from "@/features/growing-season/components/season-form";
 
 export const metadata: Metadata = {
@@ -14,10 +13,9 @@ export default async function NewSeasonPage(props: PageProps<"/seasons/new">) {
   const query = await props.searchParams;
   const initialSpaceId = typeof query.spaceId === "string" ? query.spaceId : "";
   const requestedCropId = typeof query.cropId === "string" ? query.cropId : "";
-  const initialCrop = CROP_REFERENCES.find((crop) => crop.id === requestedCropId);
   const returnQuery = new URLSearchParams();
   if (initialSpaceId) returnQuery.set("spaceId", initialSpaceId);
-  if (initialCrop) returnQuery.set("cropId", initialCrop.id);
+  if (requestedCropId) returnQuery.set("cropId", requestedCropId);
   const returnPath = returnQuery.size > 0
     ? `/seasons/new?${returnQuery.toString()}`
     : "/seasons/new";
@@ -30,11 +28,11 @@ export default async function NewSeasonPage(props: PageProps<"/seasons/new">) {
           <Link className="mt-8 inline-flex text-sm font-bold text-muted hover:text-leaf" href="/seasons">← 시즌 목록</Link>
           <div className="mb-8 mt-10">
             <p className="text-sm font-bold text-leaf">재배 시즌 등록</p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{initialCrop ? `${initialCrop.name} 관리 기간을 정해 주세요` : "이번 재배 기간을 정해 주세요"}</h1>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">이번 재배 기간을 정해 주세요</h1>
             <p className="mt-4 leading-7 text-muted">시즌은 다음 단계에서 작물 배치와 재배 일정을 만드는 기준으로 사용됩니다.</p>
           </div>
           <section className="rounded-3xl border border-ink/10 bg-white p-6 sm:p-9">
-            <SeasonForm initialCrop={initialCrop} initialSpaceId={initialSpaceId} />
+            <SeasonForm initialCropId={requestedCropId} initialSpaceId={initialSpaceId} />
           </section>
         </div>
       </main>
