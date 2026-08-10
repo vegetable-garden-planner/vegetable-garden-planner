@@ -106,9 +106,12 @@ http://127.0.0.1:8000/api/v1/health
 
 ```powershell
 cd <저장소를-받은-경로>\vegetable-garden-planner\frontend
+Copy-Item .env.example .env.local
 npm install
 npm run dev
 ```
+
+`frontend/.env.local`의 API 주소는 Laravel 실행 주소와 같아야 합니다. 기본값은 `http://localhost:8000` 기준이며, `php artisan serve`를 다른 주소나 포트로 실행하면 함께 변경합니다.
 
 브라우저에서 다음 주소를 엽니다.
 
