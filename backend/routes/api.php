@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\Crops\IndexCropController;
+use App\Http\Controllers\Api\V1\Crops\IndexCropSourceController;
+use App\Http\Controllers\Api\V1\Crops\ShowCropController;
 use App\Http\Controllers\Api\V1\HealthCheckController;
 use App\Http\Controllers\Api\V1\Seasons\DestroySeasonController;
 use App\Http\Controllers\Api\V1\Seasons\IndexSeasonController;
@@ -21,6 +24,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
     Route::get('/health', HealthCheckController::class);
+    Route::get('/crops', IndexCropController::class);
+    Route::get('/crops/{crop}', ShowCropController::class);
+    Route::get('/crop-sources', IndexCropSourceController::class);
 
     Route::prefix('auth')->group(function (): void {
         Route::post('/register', RegisterController::class);
