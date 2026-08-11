@@ -85,16 +85,18 @@ body {
   font-family: var(--font-garden);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+@layer base {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
 }
 
 ::selection {
@@ -212,11 +214,12 @@ textarea {
   transform: scale(0.98);
 }
 
-.app-page :where(a, button).bg-leaf {
+:where(a, button).bg-leaf {
+  color: var(--color-on-photo);
   transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
 }
 
-.app-page :where(a, button).bg-leaf:hover {
+:where(a, button).bg-leaf:hover {
   background: var(--color-primary-hover);
   transform: translateY(-1px);
 }

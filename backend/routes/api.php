@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\Auth\CheckEmailAvailabilityController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
@@ -54,6 +55,8 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/crop-sources', IndexCropSourceController::class);
 
     Route::prefix('auth')->group(function (): void {
+        Route::post('/email-availability', CheckEmailAvailabilityController::class)
+            ->middleware('throttle:20,1');
         Route::post('/register', RegisterController::class);
         Route::post('/login', LoginController::class);
         Route::post('/logout', LogoutController::class)->middleware('auth:sanctum');

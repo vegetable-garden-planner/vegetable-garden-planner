@@ -108,6 +108,32 @@ class AuthenticationTest extends TestCase
         $this->assertDatabaseCount('users', 1);
     }
 
+    public function test_email_availability_can_be_checked_before_registration(): void
+    {
+        User::factory()->create(['email' => 'used@example.com']);
+
+        $this->statefulPost('/api/v1/auth/email-availability', [
+            'email' => ' NEW@Example.com ',
+        ])->assertOk()->assertExactJson([
+            'data' => ['available' => true],
+        ]);
+
+        $this->statefulPost('/api/v1/auth/email-availability', [
+            'email' => ' USED@example.com ',
+        ])->assertOk()->assertExactJson([
+            'data' => ['available' => false],
+        ]);
+
+        $this->statefulPost('/api/v1/auth/email-availability', [
+            'email' => 'invalid-email',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['email'], 'error.fields');
+
+        $this->statefulPost('/api/v1/auth/email-availability', [
+            'email' => 'new@example.com',
+            'role' => 'admin',
+        ])->assertUnprocessable()->assertJsonValidationErrors(['role'], 'error.fields');
+    }
+
     public function test_active_user_can_login_with_normalized_email(): void
     {
         $user = User::factory()->create([

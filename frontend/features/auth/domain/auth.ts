@@ -21,7 +21,7 @@ export interface AuthUser {
 export type LoginField = keyof LoginFormValues;
 export type SignupField = keyof SignupFormValues;
 export type LoginErrors = Partial<Record<LoginField, string>>;
-export type SignupErrors = Partial<Record<SignupField, string>>;
+export type SignupErrors = Partial<Record<SignupField, string>> & { form?: string };
 
 export type LoginValidation =
   | { valid: true; value: LoginFormValues }
@@ -33,6 +33,28 @@ export type SignupValidation =
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PASSWORD_MIN_LENGTH = 8;
+
+export interface PasswordRequirements {
+  hasLetter: boolean;
+  hasMinimumLength: boolean;
+  hasNumber: boolean;
+}
+
+export function isValidEmailAddress(email: string): boolean {
+  return EMAIL_PATTERN.test(email.trim().toLowerCase());
+}
+
+export function getPasswordRequirements(password: string): PasswordRequirements {
+  return {
+    hasLetter: /[A-Za-z]/.test(password),
+    hasMinimumLength: password.length >= PASSWORD_MIN_LENGTH,
+    hasNumber: /[0-9]/.test(password),
+  };
+}
+
+export function passwordsMatch(password: string, confirmation: string): boolean {
+  return confirmation.length > 0 && password === confirmation;
+}
 
 export function validateLogin(values: LoginFormValues): LoginValidation {
   const email = values.email.trim().toLowerCase();
@@ -98,7 +120,7 @@ function validateEmail(
   email: string,
   errors: Pick<LoginErrors, "email">,
 ) {
-  if (!EMAIL_PATTERN.test(email)) {
+  if (!isValidEmailAddress(email)) {
     errors.email = "올바른 이메일 주소를 입력해 주세요.";
   }
 }
@@ -107,7 +129,8 @@ function validatePassword(
   password: string,
   errors: Pick<LoginErrors, "password">,
 ) {
-  if (password.length < PASSWORD_MIN_LENGTH || !/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+  const requirements = getPasswordRequirements(password);
+  if (!requirements.hasMinimumLength || !requirements.hasLetter || !requirements.hasNumber) {
     errors.password = "비밀번호는 영문과 숫자를 포함해 8자 이상 입력해 주세요.";
   }
 }
