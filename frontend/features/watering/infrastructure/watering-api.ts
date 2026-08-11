@@ -14,6 +14,10 @@ interface ListResponse<T> { data: T[] }
 interface CompletionResponse { data: { schedule: WateringSchedule; log: WateringLog } }
 interface SnoozeResponse { data: { schedule: WateringSchedule; snooze: WateringSnooze } }
 
+export async function fetchWateringSchedules(): Promise<WateringSchedule[]> {
+  return (await apiRequest<ListResponse<WateringSchedule>>("/watering-schedules?perPage=100")).data;
+}
+
 export async function fetchSeasonWateringSchedules(seasonId: string): Promise<WateringSchedule[]> {
   return (await apiRequest<ListResponse<WateringSchedule>>(
     `${seasonPath(seasonId)}/watering-schedules?perPage=100`,
