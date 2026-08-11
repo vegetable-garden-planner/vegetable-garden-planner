@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GrowingSpace extends Model
 {
-    use HasUuids;
+    protected $table = 'gardens';
 
     protected $fillable = [
         'name',
-        'type',
+        'space_type',
         'sunlight',
-        'width_cm',
-        'length_cm',
-        'region',
+        'width',
+        'height',
+        'cell_size',
+        'environment',
+        'region_id',
         'notes',
         'version',
     ];
@@ -27,19 +28,25 @@ class GrowingSpace extends Model
     protected function casts(): array
     {
         return [
-            'width_cm' => 'integer',
-            'length_cm' => 'integer',
+            'width' => 'float',
+            'height' => 'float',
+            'cell_size' => 'float',
             'version' => 'integer',
         ];
     }
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'owner_id');
+    }
+
+    public function region(): BelongsTo
+    {
+        return $this->belongsTo(Region::class);
     }
 
     public function seasons(): HasMany
     {
-        return $this->hasMany(GrowingSeason::class);
+        return $this->hasMany(GrowingSeason::class, 'garden_id');
     }
 }

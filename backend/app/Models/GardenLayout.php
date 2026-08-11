@@ -9,33 +9,19 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GardenLayout extends Model
 {
-    protected $primaryKey = 'season_id';
-
-    public $incrementing = false;
-
-    protected $keyType = 'string';
+    protected $table = 'layout_versions';
 
     protected $fillable = [
         'season_id',
-        'space_id',
-        'space_width_cm',
-        'space_length_cm',
-        'cell_size_cm',
-        'columns',
-        'rows',
-        'placements',
+        'created_by',
         'version',
+        'layout_data',
     ];
 
     protected function casts(): array
     {
         return [
-            'space_width_cm' => 'integer',
-            'space_length_cm' => 'integer',
-            'cell_size_cm' => 'integer',
-            'columns' => 'integer',
-            'rows' => 'integer',
-            'placements' => 'array',
+            'layout_data' => 'array',
             'version' => 'integer',
         ];
     }
@@ -43,5 +29,10 @@ class GardenLayout extends Model
     public function season(): BelongsTo
     {
         return $this->belongsTo(GrowingSeason::class, 'season_id');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
     }
 }

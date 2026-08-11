@@ -4,22 +4,21 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CultivationTask extends Model
 {
-    use HasUuids;
+    protected $table = 'tasks';
 
     protected $fillable = [
-        'crop_id',
-        'type',
+        'planting_id',
+        'task_type_id',
         'title',
         'due_date',
         'notes',
         'status',
-        'completed_at',
         'version',
     ];
 
@@ -27,7 +26,6 @@ class CultivationTask extends Model
     {
         return [
             'due_date' => 'date:Y-m-d',
-            'completed_at' => 'datetime',
             'version' => 'integer',
         ];
     }
@@ -35,5 +33,20 @@ class CultivationTask extends Model
     public function season(): BelongsTo
     {
         return $this->belongsTo(GrowingSeason::class, 'season_id');
+    }
+
+    public function planting(): BelongsTo
+    {
+        return $this->belongsTo(Planting::class);
+    }
+
+    public function taskType(): BelongsTo
+    {
+        return $this->belongsTo(TaskType::class);
+    }
+
+    public function completions(): HasMany
+    {
+        return $this->hasMany(TaskCompletion::class, 'task_id');
     }
 }

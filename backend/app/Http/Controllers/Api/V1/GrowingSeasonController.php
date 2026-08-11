@@ -16,10 +16,10 @@ class GrowingSeasonController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = GrowingSeason::query()
-            ->whereHas('space', fn ($query) => $query->where('user_id', $request->user()->id));
+            ->whereHas('space', fn ($query) => $query->where('owner_id', $request->user()->id));
 
         if ($request->filled('spaceId')) {
-            $query->where('growing_space_id', $request->string('spaceId'));
+            $query->where('garden_id', $request->integer('spaceId'));
         }
 
         $seasons = $query->latest('start_date')->get()
@@ -37,7 +37,8 @@ class GrowingSeasonController extends Controller
         }
 
         $season = new GrowingSeason($this->attributes($data));
-        $season->growing_space_id = $space->id;
+        $season->garden_id = $space->id;
+        $season->status = $this->statusFor($data['startDate'], $data['endDate']);
         $season->save();
 
         return response()
@@ -68,7 +69,8 @@ class GrowingSeasonController extends Controller
         }
 
         $season->fill($this->attributes($data));
-        $season->growing_space_id = $space->id;
+        $season->garden_id = $space->id;
+        $season->status = $this->statusFor($startDate, $endDate);
         $season->version++;
         $season->save();
 
@@ -80,7 +82,7 @@ class GrowingSeasonController extends Controller
     public function destroy(Request $request, GrowingSeason $season): JsonResponse
     {
         $this->authorizeOwner($request, $season);
-        if ($season->layout()->exists() || $season->tasks()->exists()) {
+        if ($season->layouts()->exists() || $season->tasks()->exists()) {
             return response()->json([
                 'error' => [
                     'code' => 'SEASON_HAS_DEPENDENCIES',
@@ -102,7 +104,7 @@ class GrowingSeasonController extends Controller
         $nullable = $partial ? ['sometimes', 'nullable'] : ['nullable'];
 
         return $request->validate([
-            'spaceId' => [...$required, 'uuid'],
+            'spaceId' => [...$required, 'integer', 'min:1'],
             'name' => [...$required, 'string', 'min:2', 'max:30'],
             'startDate' => [...$required, 'date_format:Y-m-d'],
             'endDate' => [...$required, 'date_format:Y-m-d', 'after_or_equal:startDate'],
@@ -119,7 +121,7 @@ class GrowingSeasonController extends Controller
         $mapping = [
             'startDate' => 'start_date',
             'endDate' => 'end_date',
-            'featuredCropId' => 'featured_crop_id',
+            'featuredCropId' => 'featured_crop_slug',
         ];
         $attributes = [];
         foreach ($data as $key => $value) {
@@ -134,11 +136,11 @@ class GrowingSeasonController extends Controller
         return $attributes;
     }
 
-    private function ownedSpace(Request $request, string $spaceId): GrowingSpace
+    private function ownedSpace(Request $request, int|string $spaceId): GrowingSpace
     {
         return GrowingSpace::query()
             ->whereKey($spaceId)
-            ->where('user_id', $request->user()->id)
+            ->where('owner_id', $request->user()->id)
             ->firstOrFail();
     }
 
@@ -146,7 +148,7 @@ class GrowingSeasonController extends Controller
         GrowingSpace $space,
         string $startDate,
         string $endDate,
-        ?string $exceptSeasonId = null,
+        int|string|null $exceptSeasonId = null,
     ): bool {
         return $space->seasons()
             ->when($exceptSeasonId, fn ($query) => $query->whereKeyNot($exceptSeasonId))
@@ -168,6 +170,13 @@ class GrowingSeasonController extends Controller
     private function authorizeOwner(Request $request, GrowingSeason $season): void
     {
         $season->loadMissing('space');
-        abort_unless((string) $season->space->user_id === (string) $request->user()->id, 403);
+        abort_unless((string) $season->space->owner_id === (string) $request->user()->id, 403);
+    }
+
+    private function statusFor(string $startDate, string $endDate): string
+    {
+        $today = now()->toDateString();
+
+        return $today < $startDate ? 'planned' : ($today > $endDate ? 'completed' : 'active');
     }
 }

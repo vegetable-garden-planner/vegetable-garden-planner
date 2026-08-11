@@ -22,7 +22,7 @@ class AuthFlowTest extends TestCase
 
     public function test_user_can_register_login_read_session_and_logout(): void
     {
-        $origin = ['Origin' => 'http://localhost'];
+        $origin = ['Origin' => 'http://localhost:4173'];
 
         $register = $this->withHeaders($origin)->postJson('/api/v1/auth/register', [
             'email' => 'gardener@example.com',
@@ -44,7 +44,7 @@ class AuthFlowTest extends TestCase
         ])->assertOk();
         $this->withHeaders($origin)->getJson('/api/v1/me')
             ->assertOk()
-            ->assertJsonPath('data.id', $user->id);
+            ->assertJsonPath('data.id', (string) $user->id);
     }
 
     public function test_duplicate_email_is_rejected(): void

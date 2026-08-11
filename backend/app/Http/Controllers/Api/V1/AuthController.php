@@ -35,11 +35,11 @@ class AuthController extends Controller
         }
 
         $user = User::query()->create([
-            'name' => $data['nickname'],
             'nickname' => $data['nickname'],
             'email' => mb_strtolower($data['email']),
             'password' => Hash::make($data['password']),
             'role' => 'member',
+            'status' => 'active',
         ]);
 
         Auth::guard('web')->login($user);
@@ -55,6 +55,7 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
         $credentials['email'] = mb_strtolower($credentials['email']);
+        $credentials['status'] = 'active';
 
         if (! Auth::guard('web')->attempt($credentials)) {
             throw ValidationException::withMessages([

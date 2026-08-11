@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,14 +11,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GrowingSeason extends Model
 {
-    use HasUuids;
+    protected $table = 'seasons';
 
     protected $fillable = [
         'name',
         'start_date',
         'end_date',
+        'status',
         'notes',
-        'featured_crop_id',
+        'featured_crop_slug',
         'version',
     ];
 
@@ -34,12 +34,22 @@ class GrowingSeason extends Model
 
     public function space(): BelongsTo
     {
-        return $this->belongsTo(GrowingSpace::class, 'growing_space_id');
+        return $this->belongsTo(GrowingSpace::class, 'garden_id');
     }
 
     public function layout(): HasOne
     {
-        return $this->hasOne(GardenLayout::class, 'season_id');
+        return $this->hasOne(GardenLayout::class, 'season_id')->latestOfMany('version');
+    }
+
+    public function layouts(): HasMany
+    {
+        return $this->hasMany(GardenLayout::class, 'season_id');
+    }
+
+    public function plantings(): HasMany
+    {
+        return $this->hasMany(Planting::class, 'season_id');
     }
 
     public function tasks(): HasMany

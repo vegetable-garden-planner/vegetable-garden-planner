@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Models\Crop;
 use App\Models\GardenLayout;
 use App\Models\GrowingSeason;
+use App\Models\Planting;
 use App\Support\ApiData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class GardenLayoutController extends Controller
@@ -18,9 +22,12 @@ class GardenLayoutController extends Controller
     public function index(Request $request): JsonResponse
     {
         $layouts = GardenLayout::query()
-            ->whereHas('season.space', fn ($query) => $query->where('user_id', $request->user()->id))
-            ->latest('updated_at')
+            ->whereHas('season.space', fn ($query) => $query->where('owner_id', $request->user()->id))
+            ->orderByDesc('version')
+            ->orderByDesc('id')
             ->get()
+            ->unique('season_id')
+            ->values()
             ->map(fn (GardenLayout $layout): array => ApiData::layout($layout));
 
         return response()->json(['data' => $layouts]);
@@ -40,7 +47,7 @@ class GardenLayoutController extends Controller
     {
         $this->authorizeOwner($request, $season);
         $season->loadMissing('space');
-        abort_unless($season->space->type === 'garden', 409, '격자 배치는 마당·텃밭 공간에서만 사용할 수 있습니다.');
+        abort_unless($season->space->space_type === 'garden', 409, '격자 배치는 마당·텃밭 공간에서만 사용할 수 있습니다.');
 
         $data = $this->validateInput($request);
         $columns = intdiv($data['spaceWidthCm'], $data['cellSizeCm']);
@@ -53,22 +60,53 @@ class GardenLayoutController extends Controller
         }
         $this->validatePlacements($data['placements'], $cellCount);
 
-        $layout = $season->layout;
-        $created = $layout === null;
-        $layout ??= new GardenLayout([
-            'season_id' => $season->id,
-            'space_id' => $season->space->id,
-        ]);
-        $layout->fill([
-            'space_width_cm' => $data['spaceWidthCm'],
-            'space_length_cm' => $data['spaceLengthCm'],
-            'cell_size_cm' => $data['cellSizeCm'],
-            'columns' => $columns,
-            'rows' => $rows,
-            'placements' => $data['placements'],
-            'version' => $created ? 1 : $layout->version + 1,
-        ]);
-        $layout->save();
+        $previous = $season->layout()->first();
+        $created = $previous === null;
+        $layout = DB::transaction(function () use ($request, $season, $data, $columns, $rows, $previous): GardenLayout {
+            $tasks = $season->tasks()->with('planting.crop')->get();
+            $taskCrops = $tasks->mapWithKeys(
+                fn ($task): array => [$task->id => $task->planting?->crop?->slug],
+            );
+            $season->tasks()->update(['planting_id' => null]);
+            $season->plantings()->delete();
+
+            $plantingByCrop = [];
+            foreach ($data['placements'] as $placement) {
+                $crop = Crop::query()->where('slug', $placement['cropId'])->firstOrFail();
+                $planting = Planting::query()->create([
+                    'season_id' => $season->id,
+                    'crop_id' => $crop->id,
+                    'start_x' => $placement['cellIndex'] % $columns,
+                    'start_y' => intdiv($placement['cellIndex'], $columns),
+                    'width' => 1,
+                    'height' => 1,
+                ]);
+                $plantingByCrop[$placement['cropId']] ??= $planting->id;
+            }
+
+            foreach ($tasks as $task) {
+                $cropSlug = $taskCrops->get($task->id);
+                if ($cropSlug !== null && isset($plantingByCrop[$cropSlug])) {
+                    $task->planting_id = $plantingByCrop[$cropSlug];
+                    $task->save();
+                }
+            }
+
+            return GardenLayout::query()->create([
+                'season_id' => $season->id,
+                'created_by' => $request->user()->id,
+                'version' => ($previous?->version ?? 0) + 1,
+                'layout_data' => [
+                    'spaceId' => (string) $season->space->id,
+                    'spaceWidthCm' => $data['spaceWidthCm'],
+                    'spaceLengthCm' => $data['spaceLengthCm'],
+                    'cellSizeCm' => $data['cellSizeCm'],
+                    'columns' => $columns,
+                    'rows' => $rows,
+                    'placements' => $data['placements'],
+                ],
+            ]);
+        });
 
         return response()
             ->json(['data' => ApiData::layout($layout)], $created ? 201 : 200)
@@ -78,7 +116,13 @@ class GardenLayoutController extends Controller
     public function destroy(Request $request, GrowingSeason $season): JsonResponse
     {
         $this->authorizeOwner($request, $season);
-        $season->layout()->firstOrFail()->delete();
+        $season->layout()->firstOrFail();
+
+        DB::transaction(function () use ($season): void {
+            $season->tasks()->update(['planting_id' => null]);
+            $season->plantings()->delete();
+            $season->layouts()->delete();
+        });
 
         return response()->json(status: 204);
     }
@@ -92,7 +136,13 @@ class GardenLayoutController extends Controller
             'cellSizeCm' => ['required', 'integer', 'in:10,25,50,100'],
             'placements' => ['present', 'array', 'max:400'],
             'placements.*.cellIndex' => ['required', 'integer', 'min:0'],
-            'placements.*.cropId' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
+            'placements.*.cropId' => [
+                'required',
+                'string',
+                'max:100',
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/',
+                Rule::exists('crops', 'slug'),
+            ],
         ]);
     }
 
@@ -115,6 +165,6 @@ class GardenLayoutController extends Controller
     private function authorizeOwner(Request $request, GrowingSeason $season): void
     {
         $season->loadMissing('space');
-        abort_unless((string) $season->space->user_id === (string) $request->user()->id, 403);
+        abort_unless((string) $season->space->owner_id === (string) $request->user()->id, 403);
     }
 }

@@ -9,13 +9,15 @@ use App\Models\GrowingSpace;
 use App\Support\ApiData;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class GrowingSpaceController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
         $spaces = GrowingSpace::query()
-            ->where('user_id', $request->user()->id)
+            ->with('region')
+            ->where('owner_id', $request->user()->id)
             ->latest()
             ->get()
             ->map(fn (GrowingSpace $space): array => ApiData::space($space));
@@ -27,7 +29,9 @@ class GrowingSpaceController extends Controller
     {
         $data = $this->validateInput($request);
         $space = new GrowingSpace($this->attributes($data));
-        $space->user_id = $request->user()->id;
+        $space->owner_id = $request->user()->id;
+        $space->region_id = $this->resolveRegionId($data['region']);
+        $space->cell_size = 25;
         $space->save();
 
         return response()
@@ -49,6 +53,9 @@ class GrowingSpaceController extends Controller
         $this->authorizeOwner($request, $space);
         $data = $this->validateInput($request, true);
         $space->fill($this->attributes($data));
+        if (array_key_exists('region', $data)) {
+            $space->region_id = $this->resolveRegionId($data['region']);
+        }
         $space->version++;
         $space->save();
 
@@ -96,13 +103,23 @@ class GrowingSpaceController extends Controller
      */
     private function attributes(array $data): array
     {
-        $mapping = ['widthCm' => 'width_cm', 'lengthCm' => 'length_cm'];
+        $mapping = [
+            'type' => 'space_type',
+            'widthCm' => 'width',
+            'lengthCm' => 'height',
+        ];
         $attributes = [];
         foreach ($data as $key => $value) {
+            if ($key === 'region') {
+                continue;
+            }
             if ($key === 'notes' && $value === null) {
                 $value = '';
             }
             $attributes[$mapping[$key] ?? $key] = $value;
+        }
+        if (array_key_exists('sunlight', $data)) {
+            $attributes['environment'] = $data['sunlight'];
         }
 
         return $attributes;
@@ -110,6 +127,24 @@ class GrowingSpaceController extends Controller
 
     private function authorizeOwner(Request $request, GrowingSpace $space): void
     {
-        abort_unless((string) $space->user_id === (string) $request->user()->id, 403);
+        abort_unless((string) $space->owner_id === (string) $request->user()->id, 403);
+    }
+
+    private function resolveRegionId(string $name): int
+    {
+        $climateZoneId = DB::table('climate_zones')->where('name', '기타')->value('id');
+        if ($climateZoneId === null) {
+            $climateZoneId = DB::table('climate_zones')->insertGetId([
+                'name' => '기타',
+                'description' => '사용자 입력 지역을 위한 기본 기후 구역',
+            ]);
+        }
+
+        $regionId = DB::table('regions')->where('name', $name)->value('id');
+
+        return (int) ($regionId ?? DB::table('regions')->insertGetId([
+            'climate_zone_id' => $climateZoneId,
+            'name' => $name,
+        ]));
     }
 }

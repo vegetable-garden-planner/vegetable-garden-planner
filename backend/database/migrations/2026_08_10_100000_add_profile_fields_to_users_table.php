@@ -11,20 +11,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table): void {
-            $table->string('nickname', 20)->nullable()->after('name');
-            $table->string('role', 20)->default('member')->after('password');
-        });
+        if (! Schema::hasColumn('users', 'nickname')) {
+            Schema::table('users', fn (Blueprint $table) => $table->string('nickname', 20)->nullable());
+        }
+        if (! Schema::hasColumn('users', 'role')) {
+            Schema::table('users', fn (Blueprint $table) => $table->string('role', 20)->default('member'));
+        }
+        if (! Schema::hasColumn('users', 'status')) {
+            Schema::table('users', fn (Blueprint $table) => $table->string('status', 20)->default('active'));
+        }
 
-        DB::table('users')->whereNull('nickname')->update([
-            'nickname' => DB::raw('name'),
-        ]);
+        DB::table('users')->whereNull('nickname')->update(['nickname' => '새싹']);
     }
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table): void {
-            $table->dropColumn(['nickname', 'role']);
-        });
+        // The legacy MySQL schema owns these columns, so rollbacks preserve them.
     }
 };

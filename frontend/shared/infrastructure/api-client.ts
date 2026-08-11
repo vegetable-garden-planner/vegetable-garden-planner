@@ -68,7 +68,6 @@ export async function apiRequest<T>(
 let csrfRequest: Promise<void> | null = null;
 
 async function ensureCsrfCookie() {
-  if (readCookie("XSRF-TOKEN")) return;
   csrfRequest ??= fetch(`${API_ROOT}/sanctum/csrf-cookie`, {
     credentials: "include",
     headers: { Accept: "application/json" },
