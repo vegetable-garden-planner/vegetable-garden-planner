@@ -48,16 +48,16 @@
 - `ETag`, `If-Match`, 트랜잭션을 통한 동시 수정 충돌 방지
 - 프론트엔드 strict TypeScript, ESLint, 단위·API 클라이언트 테스트
 - Laravel 인증·소유권·경계값·부작용 기능 테스트와 Pint
+- GitHub Actions에서 Laravel 테스트·Pint와 프론트 테스트·TypeScript·ESLint·빌드 자동 검증
 - 반응형 화면과 주요 빈 상태·오류 상태
 
 ## 출시 전 필수
 
 1. 회원가입부터 기록까지 실제 사용자 흐름 통합 테스트
-2. GitHub Actions에서 Laravel 테스트, Pint, 프론트 테스트, TypeScript, ESLint, build 자동 실행
-3. 닷홈 상품의 PHP·문서 루트·SSH·Composer·cron 지원 확인
-4. 운영 도메인, HTTPS, Sanctum 쿠키, CORS 환경에서 로그인 검증
-5. 운영 DB 백업·마이그레이션·롤백 절차 리허설
-6. 오래된 화면 안내 문구와 실제 서버 저장 동작의 최종 문구 점검
+2. 닷홈 상품의 PHP·문서 루트·SSH·Composer·cron 지원 확인
+3. 운영 도메인, HTTPS, Sanctum 쿠키, CORS 환경에서 로그인 검증
+4. 운영 DB 백업·마이그레이션·롤백 절차 리허설
+5. 오래된 화면 안내 문구와 실제 서버 저장 동작의 최종 문구 점검
 
 ## MVP 후속
 
