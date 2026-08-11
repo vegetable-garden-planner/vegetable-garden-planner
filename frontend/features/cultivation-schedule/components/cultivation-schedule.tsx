@@ -49,6 +49,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
   if (spacesState.status === "error") return <Message message={spacesState.message} />;
   if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
+  if (layoutsState.status === "loading") return <p className="text-muted">작물 배치를 불러오고 있습니다.</p>;
   if (tasksState.status === "error") return <Message message={tasksState.message} />;
   if (cropCatalog.status === "error") return <Message message={cropCatalog.message} />;
   if (cropCatalog.status === "loading") return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;

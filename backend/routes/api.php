@@ -10,6 +10,10 @@ use App\Http\Controllers\Api\V1\Crops\IndexCropController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropSourceController;
 use App\Http\Controllers\Api\V1\Crops\ShowCropController;
 use App\Http\Controllers\Api\V1\HealthCheckController;
+use App\Http\Controllers\Api\V1\Layouts\DestroyGardenLayoutController;
+use App\Http\Controllers\Api\V1\Layouts\IndexGardenLayoutController;
+use App\Http\Controllers\Api\V1\Layouts\PutGardenLayoutController;
+use App\Http\Controllers\Api\V1\Layouts\ShowGardenLayoutController;
 use App\Http\Controllers\Api\V1\Seasons\DestroySeasonController;
 use App\Http\Controllers\Api\V1\Seasons\IndexSeasonController;
 use App\Http\Controllers\Api\V1\Seasons\ShowSeasonController;
@@ -43,10 +47,15 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/spaces/{growingSpace}', UpdateSpaceController::class);
         Route::delete('/spaces/{growingSpace}', DestroySpaceController::class);
 
+        Route::get('/layouts', IndexGardenLayoutController::class);
+
         Route::get('/seasons', IndexSeasonController::class);
         Route::post('/seasons', StoreSeasonController::class);
         Route::get('/seasons/{growingSeason}', ShowSeasonController::class);
         Route::patch('/seasons/{growingSeason}', UpdateSeasonController::class);
         Route::delete('/seasons/{growingSeason}', DestroySeasonController::class);
+        Route::get('/seasons/{growingSeason}/layout', ShowGardenLayoutController::class);
+        Route::put('/seasons/{growingSeason}/layout', PutGardenLayoutController::class);
+        Route::delete('/seasons/{growingSeason}/layout', DestroyGardenLayoutController::class);
     });
 });

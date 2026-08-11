@@ -41,6 +41,7 @@ export function DashboardOverview() {
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
+  if (layoutsState.status === "loading") return <p className="text-muted">작물 배치를 불러오고 있습니다.</p>;
   if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
   if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
   if (cropCatalog.status === "loading") return null;

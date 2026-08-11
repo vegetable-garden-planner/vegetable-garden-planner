@@ -19,7 +19,7 @@ test("홈 요약은 실제 시즌·배치·미완료 일정에서 계산한다",
   };
   const layout: GardenLayout = {
     seasonId: season.id, spaceId: space.id, spaceWidthCm: 200, spaceLengthCm: 100,
-    cellSizeCm: 25, columns: 8, rows: 4, placements: [{ cellIndex: 0, cropId: "lettuce" }],
+    cellSizeCm: 25, columns: 8, rows: 4, placements: [{ cellIndex: 0, cropId: "lettuce" }], version: 1,
     updatedAt: "2026-08-01T00:00:00Z",
   };
   const task: CultivationTask = {
