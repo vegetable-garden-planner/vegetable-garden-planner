@@ -39,6 +39,7 @@ const layout: GardenLayout = {
   columns: 4,
   rows: 6,
   placements: [],
+  version: 1,
   updatedAt: "2026-06-01T00:00:00.000Z",
 };
 

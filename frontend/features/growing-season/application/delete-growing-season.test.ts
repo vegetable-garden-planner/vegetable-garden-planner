@@ -3,29 +3,17 @@ import test from "node:test";
 import type { KeyValueStorage } from "../../../shared/infrastructure/key-value-storage.ts";
 import type { CultivationTask } from "../../cultivation-schedule/domain/cultivation-task.ts";
 import { saveSeasonCultivationTasks } from "../../cultivation-schedule/infrastructure/cultivation-task-storage.ts";
-import { createGardenLayout } from "../../garden-layout/domain/garden-layout.ts";
-import { saveGardenLayout } from "../../garden-layout/infrastructure/garden-layout-storage.ts";
 import { addSeasonRecord } from "../../season-record/infrastructure/season-record-storage.ts";
 import {
   assertGrowingSeasonCanBeDeleted,
-  GrowingSeasonHasLayoutError,
   GrowingSeasonHasRecordsError,
   GrowingSeasonHasTasksError,
 } from "./delete-growing-season.ts";
 
 const seasonId = "season-1";
-const spaceId = "space-1";
 
 test("연결 데이터가 없으면 시즌 삭제를 허용한다", () => {
   assert.doesNotThrow(() => assertGrowingSeasonCanBeDeleted(createMemoryStorage(), seasonId));
-});
-
-test("작물 배치가 연결된 시즌 삭제를 거부한다", () => {
-  const storage = createMemoryStorage();
-  const result = createGardenLayout(seasonId, spaceId, 100, 100, 25, "2026-08-06T00:00:00.000Z");
-  if (!result.valid) assert.fail(result.message);
-  saveGardenLayout(storage, result.layout);
-  assert.throws(() => assertGrowingSeasonCanBeDeleted(storage, seasonId), GrowingSeasonHasLayoutError);
 });
 
 test("재배 일정이 연결된 시즌 삭제를 거부한다", () => {

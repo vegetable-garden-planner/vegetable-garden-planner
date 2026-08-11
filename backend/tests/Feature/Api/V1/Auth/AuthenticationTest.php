@@ -25,6 +25,14 @@ class AuthenticationTest extends TestCase
             ->assertCookie('XSRF-TOKEN');
     }
 
+    public function test_api_guest_receives_json_even_without_accept_header(): void
+    {
+        $this->get('/api/v1/layouts')
+            ->assertUnauthorized()
+            ->assertHeader('Content-Type', 'application/json')
+            ->assertJsonPath('error.code', 'UNAUTHENTICATED');
+    }
+
     public function test_user_can_register_and_start_a_session(): void
     {
         $response = $this->statefulPost('/api/v1/auth/register', [

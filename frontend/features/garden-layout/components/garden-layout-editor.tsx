@@ -17,13 +17,11 @@ import {
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
   deleteGardenLayout,
-  GARDEN_LAYOUTS_STORAGE_KEY,
-  saveGardenLayout,
-} from "@/features/garden-layout/infrastructure/garden-layout-storage";
+  putGardenLayout,
+} from "@/features/garden-layout/infrastructure/garden-layout-api";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { notifyBrowserStorageChange } from "@/shared/infrastructure/browser-storage-events";
 
 const CROP_TONES: Record<CropCategory, string> = {
   leaf: "bg-[#75a960] text-white",
@@ -43,6 +41,7 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
   if (spacesState.status === "error") return <Message message={spacesState.message} />;
   if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
+  if (layoutsState.status === "loading") return <p className="text-muted">작물 배치를 불러오고 있습니다.</p>;
   if (cropCatalog.status === "error") return <Message message={cropCatalog.message} />;
   if (cropCatalog.status === "loading") return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;
 
@@ -65,24 +64,28 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
         <p className="mt-2 text-sm text-muted">공간 크기 {space.widthCm} × {space.lengthCm}cm</p>
       </div>
       {layout
-        ? <GardenGrid crops={gardenCrops} layout={layout} space={space} />
-        : <GardenGridSetup seasonId={season.id} space={space} />}
+        ? <GardenGrid crops={gardenCrops} layout={layout} reload={layoutsState.reload} space={space} />
+        : <GardenGridSetup reload={layoutsState.reload} seasonId={season.id} space={space} />}
     </div>
   );
 }
 
 function GardenGridSetup({
   seasonId,
+  reload,
   space,
 }: {
   seasonId: string;
+  reload: () => Promise<void>;
   space: GrowingSpace;
 }) {
   const [cellSizeCm, setCellSizeCm] = useState<GridCellSizeCm>(25);
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
-  function submit(event: FormEvent<HTMLFormElement>) {
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSaving) return;
     setError("");
     const result = createGardenLayout(
       seasonId,
@@ -97,11 +100,14 @@ function GardenGridSetup({
       return;
     }
 
+    setIsSaving(true);
     try {
-      saveGardenLayout(window.localStorage, result.layout);
-      notifyBrowserStorageChange(GARDEN_LAYOUTS_STORAGE_KEY);
+      await putGardenLayout(result.layout);
+      await reload();
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "격자를 저장하지 못했습니다.");
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -126,14 +132,25 @@ function GardenGridSetup({
       </label>
       <p className="mt-4 rounded-xl bg-cream p-4 text-sm font-bold">예상 격자: {columns}열 × {rows}행 · {columns * rows}칸</p>
       {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{error}</p>}
-      <button className="mt-6 w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white" type="submit">격자 만들기</button>
+      <button className="mt-6 w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white disabled:opacity-60" disabled={isSaving} type="submit">{isSaving ? "저장 중" : "격자 만들기"}</button>
     </form>
   );
 }
 
-function GardenGrid({ crops, layout, space }: { crops: readonly CropReference[]; layout: GardenLayout; space: GrowingSpace }) {
+function GardenGrid({
+  crops,
+  layout,
+  reload,
+  space,
+}: {
+  crops: readonly CropReference[];
+  layout: GardenLayout;
+  reload: () => Promise<void>;
+  space: GrowingSpace;
+}) {
   const [selectedCropId, setSelectedCropId] = useState(crops[0]?.id ?? "");
   const [error, setError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
   const cropsById = new Map(crops.map((crop) => [crop.id, crop]));
   const placementsByCell = new Map(
     layout.placements.map((placement) => [placement.cellIndex, placement]),
@@ -141,8 +158,10 @@ function GardenGrid({ crops, layout, space }: { crops: readonly CropReference[];
   const outdated = isGardenLayoutOutdated(layout, space);
   const plantCount = calculatePlantCount(layout.placements, crops);
 
-  function updateCell(cellIndex: number) {
+  async function updateCell(cellIndex: number) {
+    if (isSaving) return;
     setError("");
+    setIsSaving(true);
     try {
       const updated = toggleCropPlacement(
         layout,
@@ -151,20 +170,26 @@ function GardenGrid({ crops, layout, space }: { crops: readonly CropReference[];
         crops.map((crop) => crop.id),
         new Date().toISOString(),
       );
-      saveGardenLayout(window.localStorage, updated);
-      notifyBrowserStorageChange(GARDEN_LAYOUTS_STORAGE_KEY);
+      await putGardenLayout(updated);
+      await reload();
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : "작물을 배치하지 못했습니다.");
+    } finally {
+      setIsSaving(false);
     }
   }
 
-  function recreateGrid() {
+  async function recreateGrid() {
+    if (isSaving) return;
     if (!window.confirm("현재 작물 배치를 모두 지우고 격자를 다시 만들까요?")) return;
+    setIsSaving(true);
     try {
-      deleteGardenLayout(window.localStorage, layout.seasonId);
-      notifyBrowserStorageChange(GARDEN_LAYOUTS_STORAGE_KEY);
+      await deleteGardenLayout(layout);
+      await reload();
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : "격자를 삭제하지 못했습니다.");
+    } finally {
+      setIsSaving(false);
     }
   }
 
@@ -198,8 +223,9 @@ function GardenGrid({ crops, layout, space }: { crops: readonly CropReference[];
               <button
                 aria-label={`${row}행 ${column}열, ${label}`}
                 className={`grid size-11 place-items-center rounded-md border border-white/50 text-xs font-bold ${crop ? CROP_TONES[crop.category] : "bg-white/55 text-[#70573f]"}`}
+                disabled={isSaving}
                 key={cellIndex}
-                onClick={() => updateCell(cellIndex)}
+                onClick={() => void updateCell(cellIndex)}
                 title={`${row}행 ${column}열 · ${label}`}
                 type="button"
               >
@@ -212,7 +238,7 @@ function GardenGrid({ crops, layout, space }: { crops: readonly CropReference[];
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
         <p className="font-bold text-muted">{layout.columns}열 × {layout.rows}행 · 한 칸 {layout.cellSizeCm}cm</p>
-        <button className="rounded-full border border-red-200 px-4 py-2 font-bold text-red-700" onClick={recreateGrid} type="button">격자 다시 만들기</button>
+        <button className="rounded-full border border-red-200 px-4 py-2 font-bold text-red-700 disabled:opacity-60" disabled={isSaving} onClick={() => void recreateGrid()} type="button">격자 다시 만들기</button>
       </div>
       <PlantCountSummary summary={plantCount} />
       <p className="mt-3 text-sm text-muted">선택한 작물을 빈 칸에 배치하세요. 같은 작물이 있는 칸을 다시 누르면 제거됩니다.</p>
