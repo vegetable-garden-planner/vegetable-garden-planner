@@ -17,12 +17,12 @@ const proOffering = getProductOffering("pro");
 
 export default function PlansPage() {
   return (
-    <div className="min-h-screen bg-cream text-ink">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_100%_0%,var(--color-primary-soft),transparent_32rem),linear-gradient(180deg,var(--color-page),var(--color-surface))] pt-1 text-ink">
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
         <section className="mx-auto max-w-3xl text-center">
-          <p className="text-sm font-bold text-leaf">심어봄의 이용 방식</p>
-          <h1 className="mt-4 text-balance text-4xl font-bold tracking-tight sm:text-6xl">
+          <p className="page-kicker">심어봄의 이용 방식</p>
+          <h1 className="mt-4 text-balance text-4xl font-bold tracking-[-0.045em] text-[var(--color-ink-strong)] sm:text-6xl">
             정보는 무료로,<br className="hidden sm:block" /> 반복 관리는 더 똑똑하게
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted">
@@ -36,7 +36,7 @@ export default function PlansPage() {
           <OfferingCard offering={proOffering} featured />
         </div>
 
-        <section className="mt-10 rounded-3xl bg-paper p-6 sm:p-8" aria-labelledby="payment-principle-title">
+        <section className="surface-panel mt-10 p-6 sm:p-8" aria-labelledby="payment-principle-title">
           <p className="text-sm font-bold text-leaf">현재 개발 원칙</p>
           <h2 className="mt-2 text-2xl font-bold" id="payment-principle-title">아직 결제는 받지 않습니다</h2>
           <p className="mt-3 max-w-3xl leading-7 text-muted">
@@ -58,10 +58,10 @@ function OfferingCard({
 }) {
   const ready = isOfferingReady(offering);
   return (
-    <section className={`rounded-[2rem] border p-7 sm:p-9 ${featured ? "border-leaf bg-ink text-white shadow-xl" : "border-ink/10 bg-white"}`}>
+    <section className={`rounded-[2rem] border p-7 sm:p-9 ${featured ? "border-leaf bg-[linear-gradient(145deg,var(--color-ink-strong),var(--color-primary-hover))] text-white shadow-[var(--shadow-md)]" : "border-[var(--color-border)] bg-white shadow-[var(--shadow-sm)]"}`}>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className={`text-sm font-bold ${featured ? "text-sprout" : "text-leaf"}`}>{offering.plan.name}</p>
+          <p className={`text-sm font-bold ${featured ? "text-[var(--color-accent)]" : "text-leaf"}`}>{offering.plan.name}</p>
           <p className="mt-2 text-3xl font-bold">
             {offering.plan.price === 0 ? "무료" : `월 ${offering.plan.price.toLocaleString("ko-KR")}원`}
           </p>
@@ -74,7 +74,7 @@ function OfferingCard({
       <ul className="mt-7 space-y-5">
         {offering.benefits.map((benefit) => (
           <li className="flex gap-3" key={benefit.key}>
-            <span className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold ${benefit.availability === "available" ? "bg-leaf-soft text-leaf-dark" : "bg-white/10 text-sprout"}`} aria-hidden="true">
+            <span className={`mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-xs font-bold ${benefit.availability === "available" ? "bg-leaf-soft text-leaf-dark" : "bg-white/10 text-[var(--color-accent)]"}`} aria-hidden="true">
               {benefit.availability === "available" ? "✓" : "→"}
             </span>
             <div>
@@ -85,7 +85,7 @@ function OfferingCard({
         ))}
       </ul>
       {ready ? (
-        <Link className="mt-8 inline-flex w-full justify-center rounded-full bg-leaf px-5 py-3 font-bold text-white" href="/start">무료로 시작하기</Link>
+        <Link className="primary-action mt-8 w-full px-5 py-3" href="/start">무료로 시작하기</Link>
       ) : (
         <button className="mt-8 w-full cursor-not-allowed rounded-full bg-white/10 px-5 py-3 font-bold text-white/60" disabled type="button">Laravel 연동 후 제공</button>
       )}

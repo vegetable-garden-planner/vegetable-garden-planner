@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import Link from "next/link";
-import { AppHeader } from "@/components/app-header";
+import { AppPageShell } from "@/components/app-page-shell";
 import { SessionAwareLink } from "@/components/session-aware-link";
 import {
   CROP_CATEGORY_LABELS,
@@ -30,17 +30,18 @@ export default function CropDetailPage(
     : `${crop.name} 키우기 시작`;
 
   return (
-    <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
-      <div className="mx-auto max-w-4xl">
-        <AppHeader />
-        <Link className="mt-8 inline-flex text-sm font-bold text-muted hover:text-leaf" href="/crops">← 식물 목록</Link>
-
-        <section className="mt-8 rounded-3xl border border-ink/10 bg-white p-6 sm:p-10">
+    <AppPageShell
+      backHref="/crops"
+      backLabel="식물 목록"
+      description={crop.summary}
+      eyebrow={`${CROP_CATEGORY_LABELS[crop.category]} · ${crop.familyName}`}
+      title={crop.name}
+    >
+        <section className="surface-panel p-6 sm:p-10">
           <div className="flex flex-wrap items-start justify-between gap-5">
             <div>
-              <p className="text-sm font-bold text-leaf">{CROP_CATEGORY_LABELS[crop.category]} · {crop.familyName}</p>
-              <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">{crop.name}</h1>
-              <p className="mt-5 max-w-2xl leading-7 text-muted">{crop.summary}</p>
+              <p className="text-sm font-bold text-leaf">재배 핵심 정보</p>
+              <p className="mt-2 max-w-2xl leading-7 text-muted">공간과 계절에 맞는 시작 시기와 관리 간격을 확인하세요.</p>
             </div>
             <span className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark">{CROP_DIFFICULTY_LABELS[crop.difficulty]}</span>
           </div>
@@ -93,22 +94,23 @@ export default function CropDetailPage(
         </section>
 
         {source && (
-          <aside className="mt-6 rounded-2xl bg-paper p-5 text-sm leading-6 text-muted">
+          <aside className="surface-panel mt-6 p-5 text-sm leading-6 text-muted">
             <p><strong className="text-ink">자료 출처:</strong> {source.organization}</p>
             <a className="font-bold text-leaf underline" href={source.url} rel="noreferrer" target="_blank">{source.title}</a>
             <p className="mt-1">최종 검토일: {source.reviewedAt}</p>
           </aside>
         )}
-      </div>
-    </main>
+    </AppPageShell>
   );
 }
 
 function PageMessage({ error = false, message }: { error?: boolean; message: string }) {
   return (
-    <main className="min-h-screen bg-cream px-5 py-16 text-center text-ink">
-      <p className={error ? "font-semibold text-red-700" : "text-muted"} role={error ? "alert" : undefined}>{message}</p>
-      <Link className="mt-5 inline-flex font-bold text-leaf underline" href="/crops">작물 목록으로 돌아가기</Link>
+    <main className="app-page grid place-items-center text-center">
+      <div className="surface-panel max-w-md p-8">
+        <p className={error ? "font-semibold text-[var(--color-danger)]" : "text-muted"} role={error ? "alert" : undefined}>{message}</p>
+        <Link className="primary-action mt-5 px-5 py-3" href="/crops">작물 목록으로 돌아가기</Link>
+      </div>
     </main>
   );
 }

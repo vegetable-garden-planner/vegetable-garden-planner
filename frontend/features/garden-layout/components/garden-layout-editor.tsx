@@ -121,7 +121,7 @@ function GardenGridSetup({
   const rows = Math.floor(space.lengthCm / cellSizeCm);
 
   return (
-    <form className="rounded-3xl border border-ink/10 bg-white p-6" onSubmit={submit}>
+    <form className="surface-panel p-6" onSubmit={submit}>
       <h2 className="text-xl font-bold">격자 칸 크기를 정해 주세요</h2>
       <p className="mt-3 text-sm leading-6 text-muted">작은 칸은 세밀하지만 격자 수가 많아집니다. 최대 400칸까지 만들 수 있습니다.</p>
       <label className="mt-6 block">
@@ -196,7 +196,7 @@ function GardenGrid({
   return (
     <div>
       {outdated && <p className="mb-5 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800" role="alert">공간 크기가 격자를 만든 이후 변경되었습니다. 정확한 배치를 위해 격자를 다시 만들어 주세요.</p>}
-      <section className="rounded-3xl border border-ink/10 bg-white p-5" aria-labelledby="crop-selector-title">
+      <section className="surface-panel p-5" aria-labelledby="crop-selector-title">
         <h2 className="text-lg font-bold" id="crop-selector-title">배치할 작물</h2>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-labelledby="crop-selector-title">
           {crops.map((crop) => (

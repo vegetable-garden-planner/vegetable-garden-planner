@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AppHeader } from "@/components/app-header";
+import { AppPageShell } from "@/components/app-page-shell";
 import { SpaceList } from "@/features/growing-space/components/space-list";
 import { AuthGate } from "@/features/auth/components/auth-gate";
 
@@ -12,16 +12,14 @@ export const metadata: Metadata = {
 export default function SpacesPage() {
   return (
     <AuthGate loginHref="/login?next=%2Fspaces">
-      <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
-      <div className="mx-auto max-w-4xl">
-        <AppHeader action={<Link className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white" href="/spaces/new">공간 추가</Link>} />
-        <div className="mb-8 mt-12 sm:mt-16">
-          <p className="text-sm font-bold text-leaf">나의 재배 공간</p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">어디에서 식물을 키우고 있나요?</h1>
-        </div>
+      <AppPageShell
+        action={<Link className="primary-action px-4 py-2.5 text-sm" href="/spaces/new">공간 추가</Link>}
+        description="실내 화분부터 베란다와 텃밭까지, 식물이 자라는 환경을 한눈에 관리하세요."
+        eyebrow="나의 재배 공간"
+        title="어디에서 식물을 키우고 있나요?"
+      >
         <SpaceList />
-      </div>
-      </main>
+      </AppPageShell>
     </AuthGate>
   );
 }

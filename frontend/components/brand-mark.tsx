@@ -1,10 +1,7 @@
 export function BrandMark() {
   return (
-    <span className="grid size-9 rotate-3 grid-cols-2 gap-0.5 rounded-[10px] bg-leaf p-1.5 shadow-sm" aria-hidden="true">
-      <span className="rounded-sm bg-[#d8e7c9]" />
-      <span className="rounded-sm bg-[#89ad72]" />
-      <span className="rounded-sm bg-[#6e9459]" />
-      <span className="rounded-sm bg-[#f0c86d]" />
+    <span className="grid size-10 place-items-center rounded-full bg-white shadow-[var(--shadow-sm)]" aria-hidden="true">
+      <span className="relative h-5 w-3 -rotate-[40deg] rounded-[100%_0_100%_0] border-2 border-leaf after:absolute after:-bottom-1.5 after:right-0.5 after:h-4 after:w-0.5 after:rotate-[35deg] after:bg-leaf after:content-['']" />
     </span>
   );
 }

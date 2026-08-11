@@ -51,7 +51,8 @@ export function SpaceList() {
             (season) => season.spaceId === space.id,
           ).length;
           return (
-            <li className="relative rounded-3xl border border-ink/10 bg-white p-6 transition hover:-translate-y-0.5 hover:border-leaf/30 hover:shadow-sm" key={space.id}>
+            <li className="surface-panel relative overflow-hidden p-6 transition hover:-translate-y-1 hover:border-leaf/30 hover:shadow-[var(--shadow-md)]" key={space.id}>
+              <span className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--color-primary),var(--color-secondary))]" aria-hidden="true" />
               <Link aria-label={`${space.name}에서 키우는 시즌 보기`} className="absolute inset-0 rounded-3xl focus:outline-2 focus:outline-offset-2 focus:outline-leaf" href={`/seasons?spaceId=${encodeURIComponent(space.id)}`} />
               <p className="text-sm font-bold text-leaf">{TYPE_LABELS[space.type]}</p>
               <h2 className="mt-2 text-xl font-bold">{space.name}</h2>
@@ -77,7 +78,7 @@ export function SpaceList() {
 
 function EmptySpaceList() {
   return (
-    <div className="rounded-3xl border border-dashed border-leaf/30 bg-white p-8 text-center">
+    <div className="surface-panel border-dashed p-8 text-center">
       <h2 className="text-xl font-bold">아직 등록한 공간이 없어요</h2>
       <p className="mt-3 text-muted">작은 화분 자리부터 내 첫 재배 공간으로 등록해 보세요.</p>
       <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href="/spaces/new">첫 공간 등록하기</Link>

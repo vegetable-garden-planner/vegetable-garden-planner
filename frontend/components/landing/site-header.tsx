@@ -12,8 +12,8 @@ const navigation = [
 
 export function SiteHeader() {
   return (
-    <header className="relative z-20 border-b border-ink/8 bg-cream/85 backdrop-blur-xl">
-      <div className="mx-auto flex h-18 max-w-7xl items-center justify-between px-5 sm:px-8 lg:px-12">
+    <header className="sticky top-4 z-40 mx-4 rounded-[1.4rem] border border-white/80 bg-white/88 shadow-[var(--shadow-sm)] backdrop-blur-xl sm:mx-6 lg:mx-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link className="flex items-center gap-3 font-bold tracking-[-0.02em]" href="/" aria-label="심어봄 홈">
           <BrandMark />
           <span className="text-lg">심어봄</span>
@@ -34,7 +34,7 @@ export function SiteHeader() {
             anonymousLabel="시작하기"
             authenticatedHref="/dashboard"
             authenticatedLabel="내 텃밭"
-            className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white transition hover:bg-leaf-dark"
+            className="primary-action px-4 py-2.5 text-sm"
           />
         </div>
       </div>

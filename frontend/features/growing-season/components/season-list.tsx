@@ -75,7 +75,8 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
             ? cropsById.get(season.featuredCropId)
             : undefined;
           return (
-            <li className="rounded-3xl border border-ink/10 bg-white p-6" key={season.id}>
+            <li className="surface-panel relative overflow-hidden p-6 transition hover:-translate-y-1 hover:shadow-[var(--shadow-md)]" key={season.id}>
+              <span className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--color-primary),var(--color-secondary))]" aria-hidden="true" />
               <div className="flex items-center justify-between gap-3">
                 <p className="text-sm font-bold text-leaf">{linkedSpace?.name ?? "연결된 공간을 찾을 수 없음"}</p>
                 <span className={`rounded-full px-3 py-1 text-xs font-bold ${STATUS_STYLES[status]}`}>{STATUS_LABELS[status]}</span>
@@ -118,7 +119,7 @@ function EmptySeasonList({
     ? `/seasons/new?spaceId=${encodeURIComponent(selectedSpaceId)}`
     : "/seasons/new";
   return (
-    <div className="rounded-3xl border border-dashed border-leaf/30 bg-white p-8 text-center">
+    <div className="surface-panel border-dashed p-8 text-center">
       <h2 className="text-xl font-bold">{spaceName ? `‘${spaceName}’에 등록한 시즌이 없어요` : "아직 등록한 시즌이 없어요"}</h2>
       <p className="mt-3 text-muted">재배 기간을 등록하면 식물 배치와 일정 관리의 기준이 됩니다.</p>
       <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href={newSeasonHref}>첫 시즌 등록하기</Link>
@@ -129,7 +130,7 @@ function EmptySeasonList({
 
 function InvalidSpaceFilter() {
   return (
-    <div className="rounded-3xl border border-dashed border-red-200 bg-white p-8 text-center">
+    <div className="surface-panel border-dashed border-red-200 p-8 text-center">
       <h2 className="text-xl font-bold">선택한 공간을 찾을 수 없어요</h2>
       <p className="mt-3 text-muted">공간이 삭제되었거나 주소가 올바르지 않습니다.</p>
       <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href="/spaces">내 공간으로 돌아가기</Link>

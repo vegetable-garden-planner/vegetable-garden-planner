@@ -59,7 +59,7 @@ export function DiagnosisForm() {
 
   if (isResultStep && recommendation) {
     return (
-      <section aria-live="polite" className="rounded-3xl border border-ink/10 bg-white p-6 shadow-sm sm:p-9">
+      <section aria-live="polite" className="surface-panel p-6 sm:p-9">
         <p className="text-sm font-bold text-leaf">추천 시작 단계 · {recommendation.spaceType}</p>
         <h2 className="mt-3 text-2xl font-bold tracking-tight sm:text-3xl">{recommendation.title}</h2>
         <p className="mt-4 leading-7 text-muted">{recommendation.description}</p>
@@ -99,7 +99,7 @@ export function DiagnosisForm() {
   }
 
   return (
-    <section className="rounded-3xl border border-ink/10 bg-white p-6 shadow-sm sm:p-9">
+    <section className="surface-panel p-6 sm:p-9">
       <div className="flex items-center justify-between gap-4">
         <p className="text-sm font-bold text-leaf">시작 진단</p>
         <p className="text-sm text-muted">{step + 1} / {STEP_TITLES.length}</p>

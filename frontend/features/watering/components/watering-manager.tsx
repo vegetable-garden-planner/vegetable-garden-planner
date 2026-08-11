@@ -39,7 +39,7 @@ export function WateringManager({ seasonId }: { seasonId: string }) {
   if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
   if (cropCatalog.status === "error") return <Message message={cropCatalog.message} />;
   if (cropCatalog.status === "loading" || layoutsState.status === "loading" || schedulesState.status === "loading") {
-    return <p className="rounded-2xl bg-white p-5 text-muted">물주기 관리 정보를 불러오고 있습니다.</p>;
+    return <p className="surface-panel p-5 text-muted">물주기 관리 정보를 불러오고 있습니다.</p>;
   }
   if (schedulesState.status === "error") return <Message message={schedulesState.message} />;
 
@@ -214,7 +214,7 @@ function EmptyState({
   title: string;
 }) {
   return (
-    <section className="mt-5 rounded-3xl border border-dashed border-leaf/30 bg-white p-7 text-center">
+    <section className="surface-panel mt-5 border-dashed p-7 text-center">
       <h2 className="text-xl font-bold">{title}</h2>
       <p className="mt-3 text-sm leading-6 text-muted">{description}</p>
       {href && label && <Link className="mt-5 inline-flex rounded-full bg-leaf-soft px-5 py-3 text-sm font-bold text-leaf-dark" href={href}>{label}</Link>}
