@@ -34,6 +34,16 @@ use App\Http\Controllers\Api\V1\Tasks\GenerateSeasonTaskController;
 use App\Http\Controllers\Api\V1\Tasks\IndexSeasonTaskController;
 use App\Http\Controllers\Api\V1\Tasks\IndexTaskController;
 use App\Http\Controllers\Api\V1\Tasks\UpdateTaskController;
+use App\Http\Controllers\Api\V1\Watering\CompleteWateringController;
+use App\Http\Controllers\Api\V1\Watering\DestroyWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\IndexSeasonWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\IndexWateringLogController;
+use App\Http\Controllers\Api\V1\Watering\IndexWateringSnoozeController;
+use App\Http\Controllers\Api\V1\Watering\ReopenWateringCompletionController;
+use App\Http\Controllers\Api\V1\Watering\ShowWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\SnoozeWateringController;
+use App\Http\Controllers\Api\V1\Watering\StoreWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\UpdateWateringScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
@@ -66,6 +76,18 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/records/{cultivationRecord}', UpdateRecordController::class);
         Route::delete('/records/{cultivationRecord}', DestroyRecordController::class);
 
+        Route::get('/watering-schedules/{wateringSchedule}', ShowWateringScheduleController::class);
+        Route::patch('/watering-schedules/{wateringSchedule}', UpdateWateringScheduleController::class);
+        Route::delete('/watering-schedules/{wateringSchedule}', DestroyWateringScheduleController::class);
+        Route::get('/watering-schedules/{wateringSchedule}/logs', IndexWateringLogController::class);
+        Route::post('/watering-schedules/{wateringSchedule}/complete', CompleteWateringController::class);
+        Route::delete(
+            '/watering-schedules/{wateringSchedule}/logs/{wateringLog}',
+            ReopenWateringCompletionController::class,
+        );
+        Route::get('/watering-schedules/{wateringSchedule}/snoozes', IndexWateringSnoozeController::class);
+        Route::post('/watering-schedules/{wateringSchedule}/snoozes', SnoozeWateringController::class);
+
         Route::get('/seasons', IndexSeasonController::class);
         Route::post('/seasons', StoreSeasonController::class);
         Route::get('/seasons/{growingSeason}', ShowSeasonController::class);
@@ -79,5 +101,13 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/seasons/{growingSeason}/tasks', DestroySeasonTaskController::class);
         Route::get('/seasons/{growingSeason}/records', IndexSeasonRecordController::class);
         Route::post('/seasons/{growingSeason}/records', StoreSeasonRecordController::class);
+        Route::get(
+            '/seasons/{growingSeason}/watering-schedules',
+            IndexSeasonWateringScheduleController::class,
+        );
+        Route::post(
+            '/seasons/{growingSeason}/watering-schedules',
+            StoreWateringScheduleController::class,
+        );
     });
 });

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Layouts;
 
+use App\Exceptions\ApiConflictException;
 use App\Models\GardenLayout;
 use App\Models\GrowingSeason;
 use App\Support\Http\EntityTag;
@@ -21,6 +22,13 @@ final class DeleteGardenLayout
 
             if ($layout->version !== $expectedVersion) {
                 EntityTag::versionConflict();
+            }
+
+            if ($season->wateringSchedules()->exists()) {
+                throw new ApiConflictException(
+                    'LAYOUT_HAS_WATERING_SCHEDULES',
+                    '물주기 일정을 먼저 삭제해야 텃밭 배치를 삭제할 수 있습니다.',
+                );
             }
 
             $layout->delete();

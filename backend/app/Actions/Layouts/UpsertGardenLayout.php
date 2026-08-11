@@ -56,6 +56,17 @@ final class UpsertGardenLayout
                     EntityTag::versionConflict();
                 }
                 $version = $expectedVersion + 1;
+
+                $scheduledCropIds = $lockedSeason->wateringSchedules()
+                    ->pluck('crop_id')
+                    ->all();
+                $replacementCropIds = array_column($placements, 'cropId');
+                if (array_diff($scheduledCropIds, $replacementCropIds) !== []) {
+                    throw new ApiConflictException(
+                        'LAYOUT_CROP_HAS_WATERING_SCHEDULE',
+                        '물주기 일정이 있는 작물은 배치에서 제거할 수 없습니다.',
+                    );
+                }
             }
 
             $columns = intdiv($space->width_cm, $input['cellSizeCm']);

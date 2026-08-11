@@ -55,6 +55,12 @@ class GrowingSeason extends Model
         return $this->hasMany(CultivationRecord::class);
     }
 
+    /** @return HasMany<WateringSchedule, $this> */
+    public function wateringSchedules(): HasMany
+    {
+        return $this->hasMany(WateringSchedule::class);
+    }
+
     /**
      * @return array<string, string>
      */
