@@ -2,6 +2,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   getSafeReturnPath,
+  getPasswordRequirements,
+  isValidEmailAddress,
+  passwordsMatch,
   validateLogin,
   validateSignup,
   type SignupFormValues,
@@ -47,6 +50,23 @@ test("비밀번호 불일치와 필수 동의 누락을 거부한다", () => {
     assert.ok(result.errors.termsAccepted);
     assert.ok(result.errors.privacyAccepted);
   }
+});
+
+test("회원가입 입력 상태를 필드별로 확인한다", () => {
+  assert.equal(isValidEmailAddress("gardener@example.com"), true);
+  assert.equal(isValidEmailAddress("gardener@"), false);
+  assert.deepEqual(getPasswordRequirements("garden123"), {
+    hasLetter: true,
+    hasMinimumLength: true,
+    hasNumber: true,
+  });
+  assert.deepEqual(getPasswordRequirements("한글비밀번호123"), {
+    hasLetter: false,
+    hasMinimumLength: true,
+    hasNumber: true,
+  });
+  assert.equal(passwordsMatch("garden123", "garden123"), true);
+  assert.equal(passwordsMatch("garden123", ""), false);
 });
 
 test("내부 복귀 경로만 허용한다", () => {
