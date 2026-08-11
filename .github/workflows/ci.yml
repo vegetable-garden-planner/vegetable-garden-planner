@@ -78,7 +78,7 @@ jobs:
         run: npm test
 
       - name: TypeScript 검사
-        run: npx tsc --noEmit
+        run: npm run typecheck
 
       - name: ESLint 및 의존성 경계 검사
         run: npm run lint

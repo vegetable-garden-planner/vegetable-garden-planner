@@ -120,7 +120,7 @@ vendor\bin\pint --test
 
 cd ..\frontend
 npm.cmd test
-npx.cmd tsc --noEmit
+npm.cmd run typecheck
 npm.cmd run lint
 npm.cmd run build
 ```
