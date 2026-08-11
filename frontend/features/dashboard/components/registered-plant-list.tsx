@@ -20,7 +20,7 @@ export function RegisteredPlantList({
           <p className="text-sm font-bold text-leaf">계속 돌보기</p>
           <h2 className="mt-1 text-xl font-bold" id="registered-plants-title">내가 관리하는 식물</h2>
         </div>
-        <Link className="text-sm font-bold text-leaf" href="/crops">식물 더 등록하기</Link>
+        <Link className="inline-flex items-center rounded-full border border-leaf px-4 py-2 text-sm font-bold text-leaf transition hover:bg-leaf-soft" href="/crops">식물 더 등록하기</Link>
       </div>
 
       {plants.length === 0 ? (

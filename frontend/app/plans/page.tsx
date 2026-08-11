@@ -23,7 +23,8 @@ export default function PlansPage() {
         <section className="mx-auto max-w-3xl text-center">
           <p className="page-kicker">심어봄의 이용 방식</p>
           <h1 className="mt-4 text-balance text-4xl font-bold tracking-[-0.045em] text-[var(--color-ink-strong)] sm:text-6xl">
-            정보는 무료로,<br className="hidden sm:block" /> 반복 관리는 더 똑똑하게
+            <span className="block">정보는 무료로</span>
+            <span className="block">반복 관리는 더 똑똑하게</span>
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-muted">
             꽃을 살리고 식물을 시작하는 데 필요한 정보는 무료로 제공합니다.
