@@ -1,43 +1,40 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { CultivationTask } from "@/features/cultivation-schedule/domain/cultivation-task";
-import {
-  CULTIVATION_TASKS_STORAGE_KEY,
-  getCultivationTasksSnapshot,
-  parseCultivationTasksSnapshot,
-} from "@/features/cultivation-schedule/infrastructure/cultivation-task-storage";
-import { subscribeToBrowserStorage } from "@/shared/infrastructure/browser-storage-events";
+import { fetchCultivationTasks } from "@/features/cultivation-schedule/infrastructure/cultivation-task-api";
 
 export type CultivationTasksState =
+  | { status: "loading" }
   | { status: "ready"; tasks: CultivationTask[] }
   | { status: "error"; message: string };
 
-export function useCultivationTasks(): CultivationTasksState {
-  const snapshot = useSyncExternalStore(
-    subscribeToStorage,
-    () => getCultivationTasksSnapshot(window.localStorage),
-    getEmptySnapshot,
-  );
-
-  return useMemo(() => {
+export function useCultivationTasks(): CultivationTasksState & { reload: () => Promise<void> } {
+  const [state, setState] = useState<CultivationTasksState>({ status: "loading" });
+  const reload = useCallback(async () => {
+    setState({ status: "loading" });
     try {
-      return { status: "ready", tasks: parseCultivationTasksSnapshot(snapshot) };
+      setState({ status: "ready", tasks: await fetchCultivationTasks() });
     } catch (error) {
-      return {
-        status: "error",
-        message: error instanceof Error
-          ? error.message
-          : "재배 일정을 불러오지 못했습니다.",
-      };
+      setState({ status: "error", message: toMessage(error) });
     }
-  }, [snapshot]);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void fetchCultivationTasks().then(
+      (tasks) => { if (active) setState({ status: "ready", tasks }); },
+      (error: unknown) => {
+        if (active) setState({ status: "error", message: toMessage(error) });
+      },
+    );
+
+    return () => { active = false; };
+  }, []);
+
+  return { ...state, reload };
 }
 
-function subscribeToStorage(onStoreChange: () => void) {
-  return subscribeToBrowserStorage(CULTIVATION_TASKS_STORAGE_KEY, onStoreChange);
-}
-
-function getEmptySnapshot() {
-  return "";
+function toMessage(error: unknown): string {
+  return error instanceof Error ? error.message : "재배 일정을 불러오지 못했습니다.";
 }

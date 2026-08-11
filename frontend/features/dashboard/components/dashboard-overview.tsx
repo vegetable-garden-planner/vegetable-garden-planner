@@ -43,6 +43,7 @@ export function DashboardOverview() {
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
   if (layoutsState.status === "loading") return <p className="text-muted">작물 배치를 불러오고 있습니다.</p>;
   if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
+  if (tasksState.status === "loading") return <p className="text-muted">재배 일정을 불러오고 있습니다.</p>;
   if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
   if (cropCatalog.status === "loading") return null;
   if (auth.state.status !== "authenticated") return null;

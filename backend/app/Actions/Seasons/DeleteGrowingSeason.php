@@ -28,10 +28,19 @@ final class DeleteGrowingSeason
                     $this->seasonHasLayout();
                 }
 
+                if ($lockedSeason->tasks()->exists()) {
+                    $this->seasonHasTasks();
+                }
+
                 $lockedSeason->delete();
             });
         } catch (ForeignKeyConstraintViolationException) {
-            $this->seasonHasLayout();
+            $freshSeason = GrowingSeason::query()->findOrFail($season->id);
+            if ($freshSeason->layout()->exists()) {
+                $this->seasonHasLayout();
+            }
+
+            $this->seasonHasTasks();
         }
     }
 
@@ -40,6 +49,14 @@ final class DeleteGrowingSeason
         throw new ApiConflictException(
             'SEASON_HAS_LAYOUT',
             '저장된 작물 배치를 먼저 삭제해야 시즌을 삭제할 수 있습니다.',
+        );
+    }
+
+    private function seasonHasTasks(): never
+    {
+        throw new ApiConflictException(
+            'SEASON_HAS_TASKS',
+            '재배 시즌의 일정을 먼저 삭제해야 시즌을 삭제할 수 있습니다.',
         );
     }
 }
