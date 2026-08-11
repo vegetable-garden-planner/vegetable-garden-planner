@@ -1057,6 +1057,30 @@ paths:
         '419':
           $ref: '#/components/responses/CsrfMismatch'
 
+  /watering-schedules:
+    get:
+      tags: [Watering]
+      summary: 현재 사용자의 전체 물주기 일정 목록 조회
+      operationId: listWateringSchedules
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 사용자 소유 물주기 일정 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/WateringSchedule'
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
   /seasons/{seasonId}/watering-schedules:
     get:
       tags: [Watering]

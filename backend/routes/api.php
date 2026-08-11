@@ -38,6 +38,7 @@ use App\Http\Controllers\Api\V1\Watering\CompleteWateringController;
 use App\Http\Controllers\Api\V1\Watering\DestroyWateringScheduleController;
 use App\Http\Controllers\Api\V1\Watering\IndexSeasonWateringScheduleController;
 use App\Http\Controllers\Api\V1\Watering\IndexWateringLogController;
+use App\Http\Controllers\Api\V1\Watering\IndexWateringScheduleController;
 use App\Http\Controllers\Api\V1\Watering\IndexWateringSnoozeController;
 use App\Http\Controllers\Api\V1\Watering\ReopenWateringCompletionController;
 use App\Http\Controllers\Api\V1\Watering\ShowWateringScheduleController;
@@ -76,6 +77,7 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/records/{cultivationRecord}', UpdateRecordController::class);
         Route::delete('/records/{cultivationRecord}', DestroyRecordController::class);
 
+        Route::get('/watering-schedules', IndexWateringScheduleController::class);
         Route::get('/watering-schedules/{wateringSchedule}', ShowWateringScheduleController::class);
         Route::patch('/watering-schedules/{wateringSchedule}', UpdateWateringScheduleController::class);
         Route::delete('/watering-schedules/{wateringSchedule}', DestroyWateringScheduleController::class);
