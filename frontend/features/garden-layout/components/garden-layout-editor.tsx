@@ -200,7 +200,7 @@ function GardenGrid({
         <h2 className="text-lg font-bold" id="crop-selector-title">배치할 작물</h2>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-labelledby="crop-selector-title">
           {crops.map((crop) => (
-            <label className={`shrink-0 cursor-pointer rounded-full border px-4 py-2 text-sm font-bold ${selectedCropId === crop.id ? "border-leaf bg-leaf-soft text-leaf-dark" : "border-ink/10"}`} key={crop.id}>
+            <label className={`relative shrink-0 cursor-pointer rounded-full border px-4 py-2 text-sm font-bold ${selectedCropId === crop.id ? "border-leaf bg-leaf-soft text-leaf-dark" : "border-ink/10"}`} key={crop.id}>
               <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
               {crop.name}
             </label>

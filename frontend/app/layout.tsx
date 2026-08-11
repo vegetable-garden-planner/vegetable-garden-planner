@@ -9,7 +9,10 @@ const geist = Geist({
   subsets: ["latin"],
 });
 
+const metadataBase = new URL(process.env.SITE_URL ?? "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase,
   title: "심어봄 | 내 밭에 맞는 재배 계획",
   description:
     "밭 크기와 작물을 입력하면 배치 수량, 간격 경고, 재배 일정을 만들어주는 한국형 텃밭 계획 도구입니다.",

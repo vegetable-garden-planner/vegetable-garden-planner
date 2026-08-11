@@ -72,6 +72,34 @@ test("배치 교체는 현재 version을 If-Match로 보내고 저장 필드만 
   });
 });
 
+test("신규 빈 격자는 If-Match 없이 빈 placements 배열을 전송한다", async () => {
+  Object.defineProperty(globalThis, "document", {
+    configurable: true,
+    value: { cookie: "XSRF-TOKEN=test-token" },
+  });
+  const layout = { ...createLayout("season-empty", 0), placements: [] };
+  let requestBody = "";
+  let ifMatch: string | null = null;
+
+  globalThis.fetch = async (_input, init) => {
+    const headers = new Headers(init?.headers);
+    ifMatch = headers.get("If-Match");
+    requestBody = String(init?.body);
+    return Response.json({ data: { ...layout, version: 1 } }, { status: 201 });
+  };
+
+  const saved = await putGardenLayout(layout);
+
+  assert.equal(ifMatch, null);
+  assert.equal(saved.version, 1);
+  assert.deepEqual(JSON.parse(requestBody), {
+    spaceWidthCm: 200,
+    spaceLengthCm: 100,
+    cellSizeCm: 25,
+    placements: [],
+  });
+});
+
 function createLayout(seasonId: string, version: number): GardenLayout {
   return {
     seasonId,

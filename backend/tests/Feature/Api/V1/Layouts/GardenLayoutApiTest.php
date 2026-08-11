@@ -55,6 +55,27 @@ class GardenLayoutApiTest extends TestCase
             ->assertJsonCount(2, 'data.placements');
     }
 
+    public function test_owner_can_create_empty_layout_before_placing_crops(): void
+    {
+        [$owner, $space, $season] = $this->ownedSeason();
+        $payload = [
+            ...$this->validPayload($space),
+            'placements' => [],
+        ];
+
+        $this->actingAs($owner)
+            ->putJson("/api/v1/seasons/{$season->id}/layout", $payload)
+            ->assertCreated()
+            ->assertHeader('ETag', '"1"')
+            ->assertJsonCount(0, 'data.placements');
+
+        $this->assertDatabaseHas('garden_layouts', [
+            'growing_season_id' => $season->id,
+            'version' => 1,
+        ]);
+        $this->assertDatabaseCount('garden_layout_placements', 0);
+    }
+
     public function test_missing_layout_is_not_found_and_other_user_is_forbidden(): void
     {
         [$owner, $space, $season] = $this->ownedSeason();

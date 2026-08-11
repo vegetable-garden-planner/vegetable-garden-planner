@@ -50,6 +50,17 @@ CORS_ALLOWED_ORIGINS=https://example.com,https://www.example.com
 
 `APP_KEY`는 `php artisan key:generate`로 한 번 생성하고 이후 임의로 바꾸지 않습니다. 키를 바꾸면 기존 암호화 데이터와 세션을 읽을 수 없습니다.
 
+Next.js 프론트엔드의 운영 환경에는 공개 주소와 백엔드 주소를 별도로 설정합니다.
+
+```dotenv
+SITE_URL=https://example.com
+BACKEND_URL=https://api.example.com
+NEXT_PUBLIC_API_URL=/api/v1
+NEXT_PUBLIC_CSRF_URL=/sanctum/csrf-cookie
+```
+
+`SITE_URL`은 검색 결과와 SNS 공유 메타데이터의 절대 주소 기준으로 사용하므로 실제 HTTPS 프론트엔드 주소와 같아야 합니다.
+
 ## 4. SSH와 Composer가 있는 경우의 배포 순서
 
 ```bash

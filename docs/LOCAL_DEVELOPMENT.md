@@ -79,7 +79,7 @@ npm.cmd install
 npm.cmd run dev
 ```
 
-브라우저에서 `http://localhost:3000`을 엽니다. `frontend/.env.local`의 `BACKEND_URL` 기본값은 `http://127.0.0.1:8000`이며 Next.js가 `/api/v1`과 `/sanctum` 요청을 Laravel로 전달합니다.
+브라우저에서 `http://localhost:3000`을 엽니다. `frontend/.env.local`의 `BACKEND_URL` 기본값은 `http://127.0.0.1:8000`이며 Next.js가 `/api/v1`과 `/sanctum` 요청을 Laravel로 전달합니다. `SITE_URL`은 페이지 메타데이터와 공유 이미지의 기준 주소이며 로컬 기본값은 `http://localhost:3000`입니다.
 
 ## 7. 다른 팀원의 변경을 받은 뒤
 
