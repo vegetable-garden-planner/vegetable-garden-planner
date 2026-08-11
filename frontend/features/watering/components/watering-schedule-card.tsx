@@ -72,7 +72,8 @@ export function WateringScheduleCard({
   }
 
   return (
-    <li className="rounded-3xl border border-ink/10 bg-white p-5 sm:p-6">
+    <li className="surface-panel relative overflow-hidden p-5 transition hover:shadow-[var(--shadow-md)] sm:p-6">
+      <span className="absolute inset-y-0 left-0 w-1 bg-[linear-gradient(var(--color-primary),var(--color-secondary))]" aria-hidden="true" />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-bold text-leaf">{crop?.familyName ?? "작물 정보 확인 필요"}</p>
@@ -111,7 +112,7 @@ export function WateringScheduleCard({
 
       {schedule.enabled && (
         <div className="mt-4 flex flex-wrap gap-2">
-          <button className="rounded-full bg-sky-700 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50" disabled={disabled} onClick={() => setOpenAction(openAction === "complete" ? null : "complete")} type="button">
+          <button className="rounded-full bg-leaf px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50" disabled={disabled} onClick={() => setOpenAction(openAction === "complete" ? null : "complete")} type="button">
             물주기 완료
           </button>
           <button className="rounded-full bg-amber-100 px-4 py-2.5 text-xs font-bold text-amber-900 disabled:opacity-50" disabled={disabled} onClick={() => setOpenAction(openAction === "snooze" ? null : "snooze")} type="button">

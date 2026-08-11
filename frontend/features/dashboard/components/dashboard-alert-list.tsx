@@ -19,7 +19,7 @@ export function DashboardAlertList({
   const hiddenCount = summary.totalCount - summary.alerts.length;
 
   return (
-    <section className="mt-6 rounded-3xl border border-ink/10 bg-white p-6" aria-labelledby="dashboard-alert-title">
+    <section className="surface-panel mt-6 p-6" aria-labelledby="dashboard-alert-title">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-sm font-bold text-leaf">다가오는 관리 일정</p>

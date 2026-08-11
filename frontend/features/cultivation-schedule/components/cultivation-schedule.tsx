@@ -132,7 +132,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
         />
       ) : (
         <>
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-ink/10 bg-white p-5">
+          <div className="surface-panel mt-5 flex flex-wrap items-center justify-between gap-3 p-5">
             <div>
               <p className="font-bold">배치 작물 {new Set(layout.placements.map((item) => item.cropId)).size}종</p>
               <p className="mt-1 text-sm text-muted">심기와 수확 시작 일정을 시즌 안에서 계산합니다.</p>
@@ -202,7 +202,7 @@ function TaskList({
   return (
     <ol className="mt-5 space-y-3">
       {tasks.map((task) => (
-        <li className={`rounded-2xl border border-ink/10 bg-white p-5 ${task.status === "completed" ? "opacity-60" : ""}`} key={task.id}>
+        <li className={`surface-panel p-5 transition hover:shadow-[var(--shadow-md)] ${task.status === "completed" ? "opacity-60" : ""}`} key={task.id}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-sm font-bold text-leaf">{task.dueDate}</p>
@@ -249,7 +249,7 @@ function EmptySchedule({
   title: string;
 }) {
   return (
-    <section className="mt-5 rounded-3xl border border-dashed border-leaf/30 bg-white p-7 text-center">
+    <section className="surface-panel mt-5 border-dashed p-7 text-center">
       <h2 className="text-xl font-bold">{title}</h2>
       <p className="mt-3 text-sm leading-6 text-muted">{description}</p>
       {href && label && <Link className="mt-5 inline-flex rounded-full bg-leaf-soft px-5 py-3 text-sm font-bold text-leaf-dark" href={href}>{label}</Link>}

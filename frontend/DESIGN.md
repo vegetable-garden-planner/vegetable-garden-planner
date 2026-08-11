@@ -1,4 +1,4 @@
-# 심어봄 랜딩 디자인 시스템
+# 심어봄 웹 디자인 시스템
 
 ## 1. Atmosphere / signature
 
@@ -50,6 +50,11 @@ Figma `홈 (전체)` 프레임의 온실 아침 풍경을 기준으로 한다. �
 ## 5. Components
 
 - Header: 높이 72px, 사진 위에서는 투명, 스크롤 이후에도 텍스트 대비를 유지한다. 링크는 14px/600. hover는 opacity와 primary-soft 밑줄, focus는 2px ring과 4px offset.
+- App header: 내부 화면에서는 흰색 반투명 surface, 24px 안팎의 radius와 `--shadow-sm`을 사용한다. 모바일 내비게이션은 한 줄 스크롤을 유지하되 스크롤바는 노출하지 않는다.
+- App page: `AppPageShell`을 단일 기준으로 사용한다. 상단에 앱 헤더, primary 색 세로선이 있는 kicker/title/description hero, 이후 실제 기능 콘텐츠 순서로 배치한다.
+- Surface panel: 검색, 폼, 요약처럼 여러 입력을 묶는 영역은 흰색 배경, border 1px, radius 24px, `--shadow-sm`을 사용한다. 기능 컴포넌트가 각자 별도 페이지 배경을 만들지 않는다.
+- Form control: 높이 48px 이상, 16px 안팎 radius, 흰색 배경과 border를 기본으로 하며 focus는 primary ring으로 표시한다.
+- Auth page: 데스크톱에서는 온실 사진과 폼을 1:1로 나눈 패널, 모바일에서는 폼을 우선 노출한다. 이미지 위 문구에는 overlay를 둔다.
 - Primary button: primary 배경, 흰색 텍스트, 16px/700, 수평 24px, 수직 14px, radius 999px. hover는 primary-hover, active는 scale 0.98, disabled는 opacity 0.45.
 - Icon button: 40px 정사각, radius 999px, 투명 배경. hover는 흰색 12% 또는 primary-soft, focus는 동일한 ring.
 - Photo card: radius 24px, overflow hidden. 사진은 실제 Figma 에셋을 사용하고 텍스트 대비용 그라디언트만 허용한다.

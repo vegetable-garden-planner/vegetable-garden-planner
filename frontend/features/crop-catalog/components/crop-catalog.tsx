@@ -48,7 +48,7 @@ export function CropCatalog() {
 
   return (
     <div>
-      <div className="grid gap-3 rounded-3xl border border-ink/10 bg-white p-5 sm:grid-cols-3">
+      <div className="surface-panel grid gap-3 p-5 sm:grid-cols-3">
         <label className="sm:col-span-1">
           <span className="mb-2 block text-sm font-bold">식물 검색</span>
           <input className="form-input" onChange={(event) => setQuery(event.target.value)} placeholder="이름, 과명, 특징" type="search" value={query} />
@@ -89,7 +89,8 @@ function CropCards({ crops }: { crops: readonly CropReference[] }) {
   return (
     <ul className="grid gap-4 md:grid-cols-2">
       {crops.map((crop) => (
-        <li className="relative rounded-3xl border border-ink/10 bg-white p-6 transition hover:-translate-y-0.5 hover:border-leaf/30 hover:shadow-sm" key={crop.id}>
+        <li className="surface-panel relative overflow-hidden p-6 transition hover:-translate-y-1 hover:border-leaf/30 hover:shadow-[var(--shadow-md)]" key={crop.id}>
+          <span className="absolute inset-y-0 left-0 w-1 bg-[linear-gradient(var(--color-primary),var(--color-secondary))]" aria-hidden="true" />
           <Link aria-label={`${crop.name} 상세 정보 보기`} className="absolute inset-0 rounded-3xl focus:outline-2 focus:outline-offset-2 focus:outline-leaf" href={`/crops/${crop.id}`} />
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -123,7 +124,7 @@ function CropFact({ label, value }: { label: string; value: string }) {
 
 function EmptyResult() {
   return (
-    <div className="rounded-3xl border border-dashed border-leaf/30 bg-white p-8 text-center">
+    <div className="surface-panel border-dashed p-8 text-center">
       <h2 className="text-xl font-bold">조건에 맞는 식물이 없어요</h2>
       <p className="mt-3 text-muted">검색어나 필터를 바꿔 다시 확인해 보세요.</p>
     </div>

@@ -36,7 +36,7 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
   const [actionError, setActionError] = useState("");
 
   if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
-  if (recordsState.status === "loading") return <p className="rounded-2xl bg-white p-5 text-muted">시즌 기록을 불러오고 있습니다.</p>;
+  if (recordsState.status === "loading") return <p className="surface-panel p-5 text-muted">시즌 기록을 불러오고 있습니다.</p>;
   if (recordsState.status === "error") return <Message message={recordsState.message} />;
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
@@ -105,14 +105,14 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
         </div>
 
         {visibleRecords.length === 0 ? (
-          <div className="mt-5 rounded-3xl border border-dashed border-leaf/30 bg-white p-7 text-center">
+          <div className="surface-panel mt-5 border-dashed p-7 text-center">
             <h3 className="text-xl font-bold">{filter === "all" ? "아직 남긴 기록이 없어요" : "이 종류의 기록이 없어요"}</h3>
             <p className="mt-3 text-sm leading-6 text-muted">한 일과 식물의 변화를 남기면 시즌을 돌아보기 쉬워집니다.</p>
           </div>
         ) : (
           <ol className="mt-5 space-y-4">
             {visibleRecords.map((record) => (
-              <li className="rounded-3xl border border-ink/10 bg-white p-5 sm:p-6" key={record.id}>
+              <li className="surface-panel p-5 transition hover:shadow-[var(--shadow-md)] sm:p-6" key={record.id}>
                 {editingId === record.id ? (
                   <CultivationRecordForm
                     disabled={busyKey !== ""}

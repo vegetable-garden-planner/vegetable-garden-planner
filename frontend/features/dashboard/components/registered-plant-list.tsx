@@ -14,7 +14,7 @@ export function RegisteredPlantList({
   plants: readonly RegisteredPlantSummary[];
 }) {
   return (
-    <section className="mt-10 rounded-3xl border border-ink/10 bg-white p-6" aria-labelledby="registered-plants-title">
+    <section className="surface-panel mt-10 p-6" aria-labelledby="registered-plants-title">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-sm font-bold text-leaf">계속 돌보기</p>

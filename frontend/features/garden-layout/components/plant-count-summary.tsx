@@ -6,7 +6,7 @@ export function PlantCountSummary({
   summary: PlantCountSummaryValue;
 }) {
   return (
-    <section className="mt-5 rounded-3xl border border-ink/10 bg-white p-5" aria-labelledby="plant-count-title">
+    <section className="surface-panel mt-5 p-5" aria-labelledby="plant-count-title">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="text-sm font-bold text-leaf">예상 심기 수량</p>

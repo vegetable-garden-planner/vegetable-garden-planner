@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --cream: #f7f3e9;
-  --paper: #fffdf7;
-  --ink: #213026;
-  --muted: #647066;
-  --leaf: #2d5b36;
-  --leaf-dark: #21472a;
-  --leaf-soft: #dfe8d8;
-  --soil: #b66b45;
-  --sun: #e6ad46;
+  --cream: #f8f9f4;
+  --paper: #ffffff;
+  --ink: #173a30;
+  --muted: #6c7973;
+  --leaf: #0c9769;
+  --leaf-dark: #087d57;
+  --leaf-soft: #e4f3ed;
+  --soil: #ad6848;
+  --sun: #ffc283;
   --color-page: #ffffff;
   --color-surface: #f8f9f4;
   --color-surface-warm: #fff8ef;
@@ -80,27 +80,160 @@ html {
 
 body {
   margin: 0;
-  background: var(--cream);
+  background: var(--color-page);
   color: var(--ink);
-  font-family: var(--font-geist), "Pretendard", "Noto Sans KR", sans-serif;
+  font-family: var(--font-garden);
 }
 
 a {
+  color: inherit;
   text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: var(--color-primary-soft);
+  color: var(--color-ink-strong);
+}
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.app-page {
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 28px 20px 80px;
+  background:
+    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-accent) 24%, transparent) 0, transparent 25rem),
+    radial-gradient(circle at 0% 38%, color-mix(in srgb, var(--color-primary-soft) 82%, transparent) 0, transparent 30rem),
+    linear-gradient(180deg, var(--color-page) 0, var(--color-surface) 48%, var(--color-page) 100%);
+  color: var(--color-ink);
+}
+
+.page-hero {
+  position: relative;
+  max-width: 760px;
+  margin: 64px 0 34px;
+  padding-left: 24px;
+}
+
+.page-hero::before {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  width: 4px;
+  border-radius: 999px;
+  background: linear-gradient(var(--color-primary), var(--color-secondary));
+  content: "";
+}
+
+.page-kicker {
+  color: var(--color-primary);
+  font-size: var(--type-label-size);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.page-title {
+  margin-top: 12px;
+  color: var(--color-ink-strong);
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.page-lead {
+  max-width: 680px;
+  margin-top: 18px;
+  color: var(--color-muted);
+  font-size: 1.05rem;
+  line-height: 1.75;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 28px;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 700;
+  transition: color var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+}
+
+.back-link:hover {
+  color: var(--color-primary);
+  transform: translateX(-3px);
+}
+
+.surface-panel {
+  border: 1px solid var(--color-border);
+  border-radius: 28px;
+  background: color-mix(in srgb, var(--color-page) 94%, transparent);
+  box-shadow: var(--shadow-sm);
+}
+
+.primary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-on-photo);
+  font-weight: 700;
+  transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+}
+
+.primary-action:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.app-header-nav {
+  scrollbar-width: none;
+}
+
+.app-header-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.primary-action:active {
+  transform: scale(0.98);
+}
+
+.app-page :where(a, button).bg-leaf {
+  transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+}
+
+.app-page :where(a, button).bg-leaf:hover {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
 }
 
 .form-input {
   width: 100%;
   border: 1px solid color-mix(in srgb, var(--ink) 15%, transparent);
-  border-radius: 0.75rem;
-  background: white;
-  padding: 0.75rem 0.875rem;
+  border-color: var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-page);
+  padding: 0.875rem 1rem;
   color: var(--ink);
 }
 
 .form-input:focus {
-  border-color: var(--leaf);
-  outline: 2px solid color-mix(in srgb, var(--leaf) 18%, transparent);
+  border-color: var(--color-primary);
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
   outline-offset: 1px;
 }
 
@@ -135,5 +268,11 @@ a {
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .app-page {
+    padding: 32px 32px 96px;
   }
 }

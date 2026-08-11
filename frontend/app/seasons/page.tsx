@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AppHeader } from "@/components/app-header";
+import { AppPageShell } from "@/components/app-page-shell";
 import { AuthGate } from "@/features/auth/components/auth-gate";
 import { SeasonList } from "@/features/growing-season/components/season-list";
 
@@ -18,16 +18,14 @@ export default async function SeasonsPage(props: PageProps<"/seasons">) {
 
   return (
     <AuthGate loginHref={`/login?next=${encodeURIComponent(returnPath)}`}>
-      <main className="min-h-screen bg-cream px-5 py-8 text-ink sm:px-8 sm:py-12">
-        <div className="mx-auto max-w-4xl">
-          <AppHeader action={<Link className="rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white" href="/seasons/new">시즌 추가</Link>} />
-          <div className="mb-8 mt-12 sm:mt-16">
-            <p className="text-sm font-bold text-leaf">나의 재배 시즌</p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">언제 무엇을 키울지 준비해요</h1>
-          </div>
-          <SeasonList selectedSpaceId={selectedSpaceId} />
-        </div>
-      </main>
+      <AppPageShell
+        action={<Link className="primary-action px-4 py-2.5 text-sm" href="/seasons/new">시즌 추가</Link>}
+        description="재배 기간을 정하면 작물 배치와 관리 일정, 성장 기록이 하나의 흐름으로 이어집니다."
+        eyebrow="나의 재배 시즌"
+        title="언제 무엇을 키울지 준비해요"
+      >
+        <SeasonList selectedSpaceId={selectedSpaceId} />
+      </AppPageShell>
     </AuthGate>
   );
 }

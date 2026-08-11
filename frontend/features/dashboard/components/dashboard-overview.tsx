@@ -78,18 +78,8 @@ export function DashboardOverview() {
 
   return (
     <div>
-      <section className="mt-10 sm:mt-14">
-        <p className="text-sm font-bold text-leaf">나의 재배 홈</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">
-          {auth.state.user.nickname}님, 오늘도 잘 키워봐요
-        </h1>
-        <p className="mt-4 max-w-2xl leading-7 text-muted">
-          흩어져 있던 공간과 시즌, 작물 배치를 여기에서 이어서 관리할 수 있어요.
-        </p>
-      </section>
-
-      <section className="mt-8 rounded-[2rem] bg-leaf p-6 text-white shadow-[0_18px_45px_rgba(45,91,54,0.2)] sm:p-8">
-        <p className="text-sm font-bold text-white/70">다음 할 일</p>
+      <section className="rounded-[2rem] bg-[linear-gradient(135deg,var(--color-ink-strong),var(--color-primary-hover))] p-6 text-white shadow-[var(--shadow-md)] sm:p-8">
+        <p className="text-sm font-bold text-[var(--color-accent)]">{auth.state.user.nickname}님의 다음 할 일</p>
         <div className="mt-3 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
             <h2 className="text-2xl font-bold">{summary.nextAction.title}</h2>
@@ -113,7 +103,7 @@ export function DashboardOverview() {
       <RegisteredPlantList plants={registeredPlants} />
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
-        <section className="rounded-3xl border border-ink/10 bg-white p-6">
+        <section className="surface-panel p-6">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-xl font-bold">내 재배 시즌</h2>
             <Link className="text-sm font-bold text-leaf" href="/seasons">전체 보기</Link>
@@ -144,7 +134,7 @@ export function DashboardOverview() {
           )}
         </section>
 
-        <section className="rounded-3xl border border-ink/10 bg-paper p-6">
+        <section className="surface-panel bg-[var(--color-surface-warm)] p-6">
           <h2 className="text-xl font-bold">빠른 작업</h2>
           <div className="mt-5 grid gap-3">
             <QuickLink href="/spaces/new" label="새 공간 등록" description="화분·베란다·텃밭 추가" />
@@ -159,7 +149,7 @@ export function DashboardOverview() {
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-ink/10 bg-white p-5">
+    <div className="surface-panel p-5">
       <p className="text-sm text-muted">{label}</p>
       <p className="mt-2 text-2xl font-bold">{value}</p>
     </div>
@@ -176,7 +166,7 @@ function QuickLink({
   description: string;
 }) {
   return (
-    <Link className="rounded-2xl border border-ink/10 bg-white p-4 transition hover:border-leaf/30" href={href}>
+    <Link className="rounded-2xl border border-[var(--color-border)] bg-white p-4 transition hover:-translate-y-0.5 hover:border-leaf/30 hover:shadow-[var(--shadow-sm)]" href={href}>
       <p className="font-bold">{label} <span className="text-leaf" aria-hidden="true">→</span></p>
       <p className="mt-1 text-sm text-muted">{description}</p>
     </Link>
