@@ -22,7 +22,7 @@ Next.js 화면 → Laravel API → MariaDB (XAMPP)
 - 기존 DB의 물주기 완료 취소 지원 파일: `database/migrations/20260807_02_add_watering_log_schedule.sql`
 - 기존 DB의 물주기 규칙·일정 무결성 보완 파일: `database/migrations/20260807_03_harden_watering_rules_and_schedule.sql`
 - 공통 요금제 초기 데이터: `database/seeds/20260807_billing_plans.sql`
-- 현재 프런트엔드의 물주기 일정·로그 등 일부 기능은 아직 `localStorage`를 사용하므로, 해당 기능의 실제 DB 사용에는 Laravel API 연결 작업이 별도로 필요합니다.
+- 사용자 공간·시즌·배치·재배 일정·시즌 기록·물주기 일정과 로그는 Laravel API를 통해 데이터베이스에 저장합니다.
 
 ## 2. Laravel 백엔드를 사용하는 새 조원
 

@@ -3,11 +3,13 @@
 import { useState } from "react";
 import type { PersistedGrowingSeason } from "../../growing-season/domain/growing-season";
 import {
-  localDateTimeToOffsetIso,
-  toLocalDateTimeInput,
   type CompleteWateringInput,
   type WateringSchedule,
 } from "../domain/watering";
+import {
+  localDateTimeToOffsetIso,
+  toLocalDateTimeInput,
+} from "../../../shared/domain/local-date-time";
 
 export function WateringCompleteForm({
   disabled,

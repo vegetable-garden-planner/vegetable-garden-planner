@@ -3,10 +3,10 @@ import test from "node:test";
 import type { PersistedGrowingSeason } from "../../growing-season/domain/growing-season.ts";
 import {
   getWateringScheduleStatus,
-  localDateTimeToOffsetIso,
   validateWateringScheduleDraft,
   type WateringSchedule,
 } from "./watering.ts";
+import { localDateTimeToOffsetIso } from "../../../shared/domain/local-date-time.ts";
 
 test("활성 일정의 기한 지남·오늘·예정 상태를 날짜 기준으로 계산한다", () => {
   const schedule = createSchedule();
