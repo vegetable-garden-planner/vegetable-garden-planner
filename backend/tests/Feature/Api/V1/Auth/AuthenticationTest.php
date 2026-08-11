@@ -55,6 +55,10 @@ class AuthenticationTest extends TestCase
         $this->assertTrue(Hash::check('garden123', $user->password));
         $this->assertSame(UserStatus::Active, $user->status);
         $this->assertAuthenticatedAs($user);
+
+        $this->getJson('/api/v1/me')
+            ->assertOk()
+            ->assertJsonPath('data.id', $user->id);
     }
 
     public function test_registration_rejects_invalid_and_unknown_fields(): void
