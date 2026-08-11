@@ -51,6 +51,12 @@ class User extends Authenticatable
         return $this->hasMany(GrowingSpace::class, 'owner_id');
     }
 
+    /** @return HasMany<WateringLog, $this> */
+    public function wateringLogs(): HasMany
+    {
+        return $this->hasMany(WateringLog::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

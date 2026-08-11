@@ -17,6 +17,7 @@ Next.js 프론트엔드에 JSON API를 제공하는 Laravel 12 백엔드입니�
 이미 최초 설정을 마쳤다면 Laragon에서 MySQL을 시작하고 다음 명령으로 백엔드를 실행합니다.
 
 ```powershell
+php artisan migrate
 php artisan serve
 ```
 
@@ -35,3 +36,14 @@ GET http://127.0.0.1:8000/api/v1/health
 새 백엔드 코드는 Laravel의 `database/migrations`를 최종 기준으로 사용합니다. 저장소 루트의 기존 `database/schema.sql`은 초기 설계 자료이며, 전체 도메인 테이블을 Laravel 마이그레이션으로 옮기기 전까지 자동으로 함께 실행하지 않습니다.
 
 사용자 및 외부 공개 자원 ID는 UUIDv7, 작물 ID는 slug를 사용합니다. 스키마를 phpMyAdmin에서만 수정하지 말고 반드시 새 Laravel 마이그레이션으로 기록합니다.
+
+## 구현된 사용자 API
+
+- 세션 인증과 현재 사용자 조회
+- 작물 기준정보 조회
+- 재배 공간·시즌·텃밭 배치
+- 재배 일정 생성·상태 변경
+- 시즌 활동 기록
+- 시즌·작물별 물주기 일정, 완료·미루기 이력과 최신 완료 취소
+
+변경 API는 응답의 `ETag`를 다음 요청의 `If-Match`로 보내 동시 수정 충돌을 방지합니다. 전체 계약은 [OpenAPI 명세](../docs/openapi.yaml)를 기준으로 확인합니다.
