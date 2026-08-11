@@ -33,7 +33,7 @@ GET http://127.0.0.1:8000/api/v1/health
 
 ## 데이터베이스 기준
 
-새 백엔드 코드는 Laravel의 `database/migrations`를 최종 기준으로 사용합니다. 저장소 루트의 기존 `database/schema.sql`은 초기 설계 자료이며, 전체 도메인 테이블을 Laravel 마이그레이션으로 옮기기 전까지 자동으로 함께 실행하지 않습니다.
+Laravel의 `database/migrations`가 유일한 데이터베이스 스키마 기준입니다. 새 환경에서는 빈 DB를 만든 뒤 `php artisan migrate`만 실행합니다. SQL 스키마 가져오기나 phpMyAdmin 수동 컬럼 변경으로 구조를 공유하지 않습니다.
 
 사용자 및 외부 공개 자원 ID는 UUIDv7, 작물 ID는 slug를 사용합니다. 스키마를 phpMyAdmin에서만 수정하지 말고 반드시 새 Laravel 마이그레이션으로 기록합니다.
 
