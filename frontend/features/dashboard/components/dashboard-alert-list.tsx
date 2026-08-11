@@ -34,18 +34,18 @@ export function DashboardAlertList({
 
       {summary.alerts.length > 0 ? (
         <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-          {summary.alerts.map((alert) => <AlertItem alert={alert} key={alert.taskId} />)}
+          {summary.alerts.map((alert) => <AlertItem alert={alert} key={`${alert.source}-${alert.id}`} />)}
         </ul>
       ) : (
         <p className="mt-5 rounded-2xl bg-cream p-5 text-sm leading-6 text-muted">
-          기한이 지났거나 7일 안에 예정된 미완료 일정이 없습니다.
+          기한이 지났거나 7일 안에 예정된 재배·물주기 일정이 없습니다.
         </p>
       )}
 
       {hiddenCount > 0 && (
         <p className="mt-4 text-sm font-bold text-muted">알림 {hiddenCount}개가 더 있습니다. 각 시즌의 재배 일정에서 확인해 주세요.</p>
       )}
-      <p className="mt-4 text-xs leading-5 text-muted">현재 알림은 앱을 열었을 때 대시보드에서 확인할 수 있습니다. 푸시·이메일 알림은 서버 연동 후 제공됩니다.</p>
+      <p className="mt-4 text-xs leading-5 text-muted">현재 알림은 앱을 열었을 때 대시보드에서 확인할 수 있습니다. 푸시·이메일 알림은 후속 알림 인프라 연결 후 제공됩니다.</p>
     </section>
   );
 }
@@ -59,6 +59,7 @@ function AlertItem({ alert }: { alert: DashboardAlert }) {
           <time dateTime={alert.dueDate}>{alert.dueDate}</time>
         </div>
         <p className="mt-2 font-bold text-ink">{alert.title}</p>
+        <p className="mt-1 text-xs font-bold opacity-70">{alert.source === "watering" ? "물주기 일정" : "재배 일정"}</p>
       </Link>
     </li>
   );

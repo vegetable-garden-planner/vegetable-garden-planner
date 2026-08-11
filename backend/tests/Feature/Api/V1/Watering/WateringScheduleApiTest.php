@@ -25,6 +25,7 @@ class WateringScheduleApiTest extends TestCase
         $log = WateringLog::factory()->for($schedule, 'wateringSchedule')->create();
 
         $this->getJson("/api/v1/seasons/{$season->id}/watering-schedules")->assertUnauthorized();
+        $this->getJson('/api/v1/watering-schedules')->assertUnauthorized();
         $this->postJson("/api/v1/seasons/{$season->id}/watering-schedules", [])->assertUnauthorized();
         $this->getJson("/api/v1/watering-schedules/{$schedule->id}")->assertUnauthorized();
         $this->patchJson("/api/v1/watering-schedules/{$schedule->id}", [])->assertUnauthorized();
@@ -32,6 +33,30 @@ class WateringScheduleApiTest extends TestCase
         $this->postJson("/api/v1/watering-schedules/{$schedule->id}/complete", [])->assertUnauthorized();
         $this->postJson("/api/v1/watering-schedules/{$schedule->id}/snoozes", [])->assertUnauthorized();
         $this->deleteJson("/api/v1/watering-schedules/{$schedule->id}/logs/{$log->id}")->assertUnauthorized();
+    }
+
+    public function test_owner_can_list_only_their_schedules_across_seasons_in_due_order(): void
+    {
+        [$owner, , $season] = $this->ownedSeasonWithLayout();
+        $later = WateringSchedule::factory()->for($season, 'growingSeason')->create([
+            'next_watering_at' => '2026-05-03T00:00:00Z',
+        ]);
+        [, , $secondSeason] = $this->ownedSeasonWithLayoutFor($owner);
+        $earlier = WateringSchedule::factory()->for($secondSeason, 'growingSeason')->create([
+            'next_watering_at' => '2026-05-01T00:00:00Z',
+        ]);
+        [, , $otherSeason] = $this->ownedSeasonWithLayout();
+        WateringSchedule::factory()->for($otherSeason, 'growingSeason')->create([
+            'next_watering_at' => '2026-04-01T00:00:00Z',
+        ]);
+
+        $this->actingAs($owner)
+            ->getJson('/api/v1/watering-schedules?perPage=100')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $earlier->id)
+            ->assertJsonPath('data.1.id', $later->id)
+            ->assertJsonPath('meta.total', 2);
     }
 
     public function test_owner_can_create_list_and_show_schedule_for_a_placed_crop(): void
@@ -342,6 +367,13 @@ class WateringScheduleApiTest extends TestCase
     private function ownedSeasonWithLayout(): array
     {
         $owner = User::factory()->create();
+
+        return $this->ownedSeasonWithLayoutFor($owner);
+    }
+
+    /** @return array{User, GrowingSpace, GrowingSeason} */
+    private function ownedSeasonWithLayoutFor(User $owner): array
+    {
         $space = GrowingSpace::factory()->for($owner, 'owner')->create();
         $season = GrowingSeason::factory()->for($space, 'growingSpace')->create();
         $layout = GardenLayout::query()->create([

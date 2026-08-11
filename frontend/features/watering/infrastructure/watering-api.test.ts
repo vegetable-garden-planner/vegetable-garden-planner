@@ -5,6 +5,7 @@ import {
   completeWatering,
   createWateringSchedule,
   deleteWateringSchedule,
+  fetchWateringSchedules,
   fetchSeasonWateringSchedules,
   fetchWateringHistory,
   reopenWateringCompletion,
@@ -31,6 +32,18 @@ test("시즌 물주기 일정 목록을 한 번의 요청으로 불러온다", a
   const schedules = await fetchSeasonWateringSchedules("season/1");
   assert.equal(schedules.length, 1);
   assert.equal(requestedUrl, "/api/v1/seasons/season%2F1/watering-schedules?perPage=100");
+});
+
+test("사용자의 전체 물주기 일정 목록을 한 번의 요청으로 불러온다", async () => {
+  let requestedUrl = "";
+  globalThis.fetch = async (input) => {
+    requestedUrl = String(input);
+    return Response.json({ data: [createSchedule()] });
+  };
+
+  const schedules = await fetchWateringSchedules();
+  assert.equal(schedules.length, 1);
+  assert.equal(requestedUrl, "/api/v1/watering-schedules?perPage=100");
 });
 
 test("일정 생성은 서버 입력 필드만 전송한다", async () => {

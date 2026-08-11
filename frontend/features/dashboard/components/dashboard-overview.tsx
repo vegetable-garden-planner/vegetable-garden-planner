@@ -16,6 +16,7 @@ import { createDashboardSummary } from "@/features/dashboard/domain/dashboard-su
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { RegisteredPlantList } from "@/features/dashboard/components/registered-plant-list";
 import { createRegisteredPlantSummaries } from "@/features/dashboard/domain/registered-plant-summary";
+import { useAllWateringSchedules } from "@/features/watering/hooks/use-all-watering-schedules";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   planned: "예정",
@@ -35,6 +36,7 @@ export function DashboardOverview() {
   const seasonsState = useGrowingSeasons();
   const layoutsState = useGardenLayouts();
   const tasksState = useCultivationTasks();
+  const wateringState = useAllWateringSchedules();
   const cropCatalog = useCropCatalog();
 
   if (auth.state.status === "error") return <ErrorMessage message={auth.state.message} />;
@@ -44,6 +46,8 @@ export function DashboardOverview() {
   if (layoutsState.status === "loading") return <p className="text-muted">작물 배치를 불러오고 있습니다.</p>;
   if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
   if (tasksState.status === "loading") return <p className="text-muted">재배 일정을 불러오고 있습니다.</p>;
+  if (wateringState.status === "error") return <ErrorMessage message={wateringState.message} />;
+  if (wateringState.status === "loading") return <p className="text-muted">물주기 일정을 불러오고 있습니다.</p>;
   if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
   if (cropCatalog.status === "loading") return null;
   if (auth.state.status !== "authenticated") return null;
@@ -56,7 +60,16 @@ export function DashboardOverview() {
     tasksState.tasks,
     today,
   );
-  const alerts = createDashboardAlerts(tasksState.tasks, today);
+  let alerts;
+  try {
+    alerts = createDashboardAlerts({
+      tasks: tasksState.tasks,
+      wateringSchedules: wateringState.schedules,
+      crops: cropCatalog.crops,
+    }, today);
+  } catch (error) {
+    return <ErrorMessage message={error instanceof Error ? error.message : "대시보드 알림을 계산하지 못했습니다."} />;
+  }
   const registeredPlants = createRegisteredPlantSummaries(
     seasonsState.seasons,
     cropCatalog.crops,
