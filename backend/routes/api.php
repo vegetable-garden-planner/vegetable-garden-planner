@@ -24,6 +24,12 @@ use App\Http\Controllers\Api\V1\Spaces\IndexSpaceController;
 use App\Http\Controllers\Api\V1\Spaces\ShowSpaceController;
 use App\Http\Controllers\Api\V1\Spaces\StoreSpaceController;
 use App\Http\Controllers\Api\V1\Spaces\UpdateSpaceController;
+use App\Http\Controllers\Api\V1\Tasks\DestroySeasonTaskController;
+use App\Http\Controllers\Api\V1\Tasks\DestroyTaskController;
+use App\Http\Controllers\Api\V1\Tasks\GenerateSeasonTaskController;
+use App\Http\Controllers\Api\V1\Tasks\IndexSeasonTaskController;
+use App\Http\Controllers\Api\V1\Tasks\IndexTaskController;
+use App\Http\Controllers\Api\V1\Tasks\UpdateTaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
@@ -49,6 +55,10 @@ Route::prefix('v1')->group(function (): void {
 
         Route::get('/layouts', IndexGardenLayoutController::class);
 
+        Route::get('/tasks', IndexTaskController::class);
+        Route::patch('/tasks/{cultivationTask}', UpdateTaskController::class);
+        Route::delete('/tasks/{cultivationTask}', DestroyTaskController::class);
+
         Route::get('/seasons', IndexSeasonController::class);
         Route::post('/seasons', StoreSeasonController::class);
         Route::get('/seasons/{growingSeason}', ShowSeasonController::class);
@@ -57,5 +67,8 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/seasons/{growingSeason}/layout', ShowGardenLayoutController::class);
         Route::put('/seasons/{growingSeason}/layout', PutGardenLayoutController::class);
         Route::delete('/seasons/{growingSeason}/layout', DestroyGardenLayoutController::class);
+        Route::get('/seasons/{growingSeason}/tasks', IndexSeasonTaskController::class);
+        Route::post('/seasons/{growingSeason}/tasks/generate', GenerateSeasonTaskController::class);
+        Route::delete('/seasons/{growingSeason}/tasks', DestroySeasonTaskController::class);
     });
 });
