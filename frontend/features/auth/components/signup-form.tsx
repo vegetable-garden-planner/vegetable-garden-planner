@@ -55,7 +55,7 @@ export function SignupForm({ nextPath }: SignupFormProps) {
   return (
     <form className="space-y-5" noValidate onSubmit={submit}>
       <p className="rounded-2xl bg-leaf-soft/60 p-4 text-sm leading-6 text-muted">
-        Laravel 연동 전 화면 검증 단계입니다. 실제 계정은 생성되지 않으며 비밀번호도 저장하지 않습니다.
+        가입 정보는 Laravel 서버에서 검증하며 비밀번호는 안전하게 암호화해 저장합니다.
       </p>
       <AuthField error={errors.email} id="signup-email" label="이메일">
         <input aria-describedby={errors.email ? "signup-email-error" : undefined} aria-invalid={Boolean(errors.email)} autoComplete="email" className="form-input" id="signup-email" onChange={(event) => update("email", event.target.value)} placeholder="garden@example.com" type="email" value={values.email} />

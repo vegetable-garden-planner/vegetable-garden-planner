@@ -48,7 +48,7 @@ export function LoginForm({ nextPath }: LoginFormProps) {
   return (
     <form className="space-y-5" noValidate onSubmit={submit}>
       <p className="rounded-2xl bg-leaf-soft/60 p-4 text-sm leading-6 text-muted">
-        현재는 프론트엔드 개발용 로그인입니다. 입력한 비밀번호는 저장되지 않습니다.
+        Laravel 세션으로 안전하게 로그인하고 내 재배 데이터를 이어서 관리합니다.
       </p>
       <AuthField error={errors.email} id="login-email" label="이메일">
         <input aria-describedby={errors.email ? "login-email-error" : undefined} aria-invalid={Boolean(errors.email)} autoComplete="email" className="form-input" id="login-email" onChange={(event) => update("email", event.target.value)} placeholder="garden@example.com" type="email" value={values.email} />
