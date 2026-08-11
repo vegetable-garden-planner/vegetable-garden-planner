@@ -48,13 +48,14 @@
 - `ETag`, `If-Match`, 트랜잭션을 통한 동시 수정 충돌 방지
 - 프론트엔드 strict TypeScript, ESLint, 단위·API 클라이언트 테스트
 - Laravel 인증·소유권·경계값·부작용 기능 테스트와 Pint
+- 회원가입부터 시즌 기록까지 실제 세션과 DB를 관통하는 Laravel API 통합 테스트
 - GitHub Actions에서 Laravel과 Next.js 전체 검증 자동 실행
 - ESLint에서 순환 의존성, 계층 침범, 복잡도와 중첩 한도 검사
 - 반응형 화면과 주요 빈 상태·오류 상태
 
 ## 출시 전 필수
 
-1. 회원가입부터 기록까지 실제 사용자 흐름 통합 테스트
+1. 회원가입부터 기록까지 브라우저 기준 핵심 사용자 흐름 E2E 테스트
 2. 닷홈 상품의 PHP·문서 루트·SSH·Composer·cron 지원 확인
 3. 운영 도메인, HTTPS, Sanctum 쿠키, CORS 환경에서 로그인 검증
 4. 운영 DB 백업·마이그레이션·롤백 절차 리허설
