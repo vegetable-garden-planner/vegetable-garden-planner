@@ -4,11 +4,11 @@ import { useState } from "react";
 import type { CropReference } from "../../crop-catalog/domain/crop-reference";
 import type { PersistedGrowingSeason } from "../../growing-season/domain/growing-season";
 import {
-  toLocalDateTimeInput,
   validateWateringScheduleDraft,
   type WateringScheduleDraft,
   type WateringScheduleInput,
 } from "../domain/watering";
+import { toLocalDateTimeInput } from "../../../shared/domain/local-date-time";
 
 export function WateringCreateForm({
   crops,

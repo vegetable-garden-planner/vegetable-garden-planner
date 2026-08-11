@@ -136,6 +136,7 @@ export function WateringManager({ seasonId }: { seasonId: string }) {
         <nav className="mt-4 flex flex-wrap gap-2" aria-label="시즌 관리 메뉴">
           <Link className="rounded-full bg-white px-4 py-2 text-xs font-bold text-leaf-dark" href={`/seasons/${seasonId}/layout`}>작물 배치</Link>
           <Link className="rounded-full bg-white px-4 py-2 text-xs font-bold text-leaf-dark" href={`/seasons/${seasonId}/tasks`}>재배 일정</Link>
+          <Link className="rounded-full bg-white px-4 py-2 text-xs font-bold text-leaf-dark" href={`/seasons/${seasonId}/records`}>시즌 기록</Link>
         </nav>
       </section>
 
