@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -15,7 +18,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -23,12 +26,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'nickname',
         'email',
+        'nickname',
         'password',
         'role',
         'status',
-        'region_id',
     ];
 
     /**
@@ -42,6 +44,20 @@ class User extends Authenticatable
     ];
 
     /**
+     * @return HasMany<GrowingSpace, $this>
+     */
+    public function growingSpaces(): HasMany
+    {
+        return $this->hasMany(GrowingSpace::class, 'owner_id');
+    }
+
+    /** @return HasMany<WateringLog, $this> */
+    public function wateringLogs(): HasMany
+    {
+        return $this->hasMany(WateringLog::class);
+    }
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -51,11 +67,8 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
+            'status' => UserStatus::class,
         ];
-    }
-
-    public function growingSpaces(): HasMany
-    {
-        return $this->hasMany(GrowingSpace::class, 'owner_id');
     }
 }

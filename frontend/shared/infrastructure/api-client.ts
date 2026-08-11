@@ -1,113 +1,86 @@
-const API_ROOT = (process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api/v1";
+const CSRF_URL = process.env.NEXT_PUBLIC_CSRF_URL ?? "/sanctum/csrf-cookie";
 
 interface ApiErrorBody {
-  error?: {
-    message?: string;
-    fields?: Record<string, string[]>;
-  };
-  message?: string;
-  errors?: Record<string, string[]>;
+  error?: { code?: string; message?: string; fields?: Record<string, string[]> };
 }
 
 export class ApiError extends Error {
+  readonly status: number;
+  readonly code: string;
+  readonly fields: Record<string, string[]>;
+
   constructor(
     message: string,
-    readonly status: number,
-    readonly fields: Record<string, string[]> = {},
+    status: number,
+    code: string,
+    fields: Record<string, string[]> = {},
   ) {
     super(message);
     this.name = "ApiError";
+    this.status = status;
+    this.code = code;
+    this.fields = fields;
   }
 }
 
-export async function apiGetList<T>(path: string): Promise<T[]> {
-  const response = await apiRequest<{ data: T[] }>(path);
-  return response.data;
-}
-
-export async function apiGetData<T>(path: string): Promise<T> {
-  const response = await apiRequest<{ data: T }>(path);
-  return response.data;
-}
-
-export async function apiRequest<T>(
-  path: string,
-  init: RequestInit = {},
-): Promise<T> {
-  const method = (init.method ?? "GET").toUpperCase();
-  if (!(["GET", "HEAD", "OPTIONS"].includes(method))) {
-    await ensureCsrfCookie();
-  }
-
+export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
-  if (init.body && !headers.has("Content-Type")) {
-    headers.set("Content-Type", "application/json");
-  }
-  const csrfToken = readCookie("XSRF-TOKEN");
-  if (csrfToken) {
-    headers.set("X-XSRF-TOKEN", decodeURIComponent(csrfToken));
+  if (init.body !== undefined) headers.set("Content-Type", "application/json");
+  if (isStateChanging(init.method)) {
+    if (!findXsrfCookie()) await prepareCsrfCookie();
+    headers.set("X-XSRF-TOKEN", readXsrfToken());
   }
 
-  const response = await fetch(`${API_ROOT}/api/v1${path}`, {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     credentials: "include",
     headers,
   });
 
-  if (!response.ok) {
-    throw await toApiError(response);
-  }
-  if (response.status === 204) {
-    return undefined as T;
-  }
-
+  if (!response.ok) throw await createApiError(response);
+  if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
 }
 
-let csrfRequest: Promise<void> | null = null;
-
-async function ensureCsrfCookie() {
-  csrfRequest ??= fetch(`${API_ROOT}/sanctum/csrf-cookie`, {
+export async function prepareCsrfCookie(): Promise<void> {
+  const response = await fetch(CSRF_URL, {
     credentials: "include",
     headers: { Accept: "application/json" },
-  }).then((response) => {
-    if (!response.ok) {
-      throw new ApiError("보안 쿠키를 발급받지 못했습니다.", response.status);
-    }
-  }).finally(() => {
-    csrfRequest = null;
   });
-  await csrfRequest;
+  if (!response.ok) {
+    throw new ApiError("보안 쿠키를 준비하지 못했습니다.", response.status, "CSRF_COOKIE_FAILED");
+  }
 }
 
-async function toApiError(response: Response) {
-  let body: ApiErrorBody = {};
+function isStateChanging(method: string | undefined): boolean {
+  return method !== undefined && !["GET", "HEAD", "OPTIONS"].includes(method.toUpperCase());
+}
+
+function readXsrfToken(): string {
+  const cookie = findXsrfCookie();
+  if (!cookie) {
+    throw new ApiError("보안 쿠키가 없습니다. 다시 시도해 주세요.", 419, "CSRF_TOKEN_MISSING");
+  }
+  return decodeURIComponent(cookie.slice("XSRF-TOKEN=".length));
+}
+
+function findXsrfCookie(): string | undefined {
+  return document.cookie.split("; ").find((item) => item.startsWith("XSRF-TOKEN="));
+}
+
+async function createApiError(response: Response): Promise<ApiError> {
+  let body: ApiErrorBody;
   try {
     body = await response.json() as ApiErrorBody;
   } catch {
-    // Empty and non-JSON error responses use the status-based message below.
+    return new ApiError("서버 요청을 처리하지 못했습니다.", response.status, "HTTP_ERROR");
   }
-  const fields = body.error?.fields ?? body.errors ?? {};
-  const firstFieldMessage = Object.values(fields).flat()[0];
-  const fallback = response.status === 401
-    ? "로그인이 필요합니다."
-    : response.status === 419
-      ? "로그인 보안 정보가 만료되었습니다. 다시 시도해 주세요."
-      : "요청을 처리하지 못했습니다.";
   return new ApiError(
-    body.error?.message ?? firstFieldMessage ?? body.message ?? fallback,
+    body.error?.message ?? "서버 요청을 처리하지 못했습니다.",
     response.status,
-    fields,
+    body.error?.code ?? "HTTP_ERROR",
+    body.error?.fields,
   );
-}
-
-function readCookie(name: string) {
-  if (typeof document === "undefined") return "";
-  const prefix = `${name}=`;
-  return document.cookie
-    .split(";")
-    .map((cookie) => cookie.trim())
-    .find((cookie) => cookie.startsWith(prefix))
-    ?.slice(prefix.length) ?? "";
 }

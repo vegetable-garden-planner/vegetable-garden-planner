@@ -1,39 +1,68 @@
-import type { CultivationTask } from "@/features/cultivation-schedule/domain/cultivation-task";
-import { apiGetList, apiRequest } from "@/shared/infrastructure/api-client";
-import { notifyApiDataChanged } from "@/shared/infrastructure/api-resource-store";
+import type { CultivationTask } from "../domain/cultivation-task.ts";
+import type { GardenLayout } from "../../garden-layout/domain/garden-layout.ts";
+import { apiRequest } from "../../../shared/infrastructure/api-client.ts";
 
-export const listCultivationTasks = () => apiGetList<CultivationTask>("/tasks");
-
-export async function replaceSeasonCultivationTasks(
-  seasonId: string,
-  tasks: readonly CultivationTask[],
-) {
-  const response = await apiRequest<{ data: CultivationTask[] }>(`/seasons/${seasonId}/tasks`, {
-    method: "PUT",
-    body: JSON.stringify({
-      tasks: tasks.map((task) => ({
-        cropId: task.cropId,
-        type: task.type,
-        title: task.title,
-        dueDate: task.dueDate,
-        notes: task.notes,
-        status: task.status,
-      })),
-    }),
-  });
-  notifyApiDataChanged();
-  return response.data;
+interface TaskListResponse {
+  data: CultivationTask[];
 }
 
-export async function updateCultivationTaskOnServer(
+interface TaskResponse {
+  data: CultivationTask;
+}
+
+export type CultivationTaskUpdate = Partial<
+  Pick<CultivationTask, "title" | "dueDate" | "notes" | "status">
+>;
+
+export async function fetchCultivationTasks(): Promise<CultivationTask[]> {
+  return (await apiRequest<TaskListResponse>("/tasks?perPage=100")).data;
+}
+
+export async function generateCultivationTasks(layout: GardenLayout): Promise<CultivationTask[]> {
+  return (await apiRequest<TaskListResponse>(seasonTasksPath(layout.seasonId, "/generate"), {
+    method: "POST",
+    headers: versionHeader(layout.version),
+  })).data;
+}
+
+export async function updateCultivationTask(
   task: CultivationTask,
-  patch: Partial<Pick<CultivationTask, "title" | "dueDate" | "notes" | "status">>,
-) {
-  const response = await apiRequest<{ data: CultivationTask }>(`/tasks/${task.id}`, {
+  update: CultivationTaskUpdate,
+): Promise<CultivationTask> {
+  return (await apiRequest<TaskResponse>(taskPath(task.id), {
     method: "PATCH",
-    headers: task.version ? { "If-Match": `"${task.version}"` } : undefined,
-    body: JSON.stringify(patch),
+    headers: versionHeader(task.version),
+    body: JSON.stringify(update),
+  })).data;
+}
+
+export async function deleteCultivationTask(task: CultivationTask): Promise<void> {
+  await apiRequest<void>(taskPath(task.id), {
+    method: "DELETE",
+    headers: versionHeader(task.version),
   });
-  notifyApiDataChanged();
-  return response.data;
+}
+
+export async function deleteSeasonCultivationTasks(
+  seasonId: string,
+  tasks: readonly CultivationTask[],
+): Promise<void> {
+  await apiRequest<void>(seasonTasksPath(seasonId), {
+    method: "DELETE",
+    body: JSON.stringify({
+      tasks: tasks.map(({ id, version }) => ({ id, version })),
+    }),
+  });
+}
+
+function versionHeader(version: number): Record<string, string> {
+  return { "If-Match": `"${version}"` };
+}
+
+function taskPath(taskId: string): string {
+  return `/tasks/${encodeURIComponent(taskId)}`;
+}
+
+function seasonTasksPath(seasonId: string, suffix = ""): string {
+  return `/seasons/${encodeURIComponent(seasonId)}/tasks${suffix}`;
 }

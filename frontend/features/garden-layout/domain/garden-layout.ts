@@ -17,8 +17,8 @@ export interface GardenLayout {
   columns: number;
   rows: number;
   placements: readonly CropPlacement[];
+  version: number;
   updatedAt: string;
-  version?: number;
 }
 
 export type GardenLayoutCreation =
@@ -70,6 +70,7 @@ export function createGardenLayout(
       columns,
       rows,
       placements: [],
+      version: 0,
       updatedAt,
     },
   };

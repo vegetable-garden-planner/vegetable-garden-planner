@@ -1,10 +1,10 @@
 openapi: 3.1.0
 info:
   title: 심어봄 API
-  version: 0.3.0
+  version: 1.0.0
   description: |
-    심어봄 Next.js 프론트엔드와 향후 Laravel 백엔드 사이의 MVP 계약 초안입니다.
-    현재 백엔드 기반과 상태 확인 API가 구현되었으며 나머지 operation은 계획 상태입니다.
+    현재 Laravel 12 백엔드에 구현되어 테스트되는 심어봄 API 계약입니다.
+    계획 단계의 엔드포인트는 포함하지 않습니다.
 servers:
   - url: http://localhost:8000/api/v1
     description: Laravel 로컬 개발 서버
@@ -15,8 +15,6 @@ tags:
     description: 회원 인증
   - name: Crops
     description: 공개 작물 기준 데이터
-  - name: AdminCrops
-    description: 관리자 전용 작물·재배 규칙 관리
   - name: Spaces
     description: 사용자 재배 공간
   - name: Seasons
@@ -27,6 +25,9 @@ tags:
     description: 앞으로 수행할 재배 일정
   - name: Records
     description: 실제 수행·관찰 기록
+
+  - name: Watering
+    description: 시즌별 작물 물주기 일정과 완료·미루기 이력
 
 paths:
   /health:
@@ -202,150 +203,25 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
-  /admin/crops:
+  /crop-sources:
     get:
-      tags: [AdminCrops]
-      summary: 관리자 작물 목록 조회
-      operationId: listAdminCrops
-      parameters:
-        - name: query
-          in: query
-          schema:
-            type: string
-            maxLength: 100
-        - name: status
-          in: query
-          schema:
-            $ref: '#/components/schemas/CropPublicationStatus'
-        - $ref: '#/components/parameters/Page'
-        - $ref: '#/components/parameters/PerPage'
+      tags: [Crops]
+      summary: 작물 기준정보 출처 목록 조회
+      operationId: listCropSources
+      security: []
       responses:
         '200':
-          description: 공개 전·공개·보관 작물을 포함한 관리자 목록
+          description: 출처 목록 조회 성공
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: '#/components/schemas/PaginatedResponse'
-                  - type: object
-                    properties:
-                      data:
-                        type: array
-                        items:
-                          $ref: '#/components/schemas/ManagedCrop'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-    post:
-      tags: [AdminCrops]
-      summary: 관리자 작물과 재배 규칙 등록
-      operationId: createAdminCrop
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CropInput'
-      responses:
-        '201':
-          description: 작물 등록 성공
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ManagedCropResponse'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '419':
-          $ref: '#/components/responses/CsrfMismatch'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
-  /admin/crops/{cropId}:
-    parameters:
-      - $ref: '#/components/parameters/CropId'
-    get:
-      tags: [AdminCrops]
-      summary: 관리자 작물 한 건 조회
-      operationId: getAdminCrop
-      responses:
-        '200':
-          description: 관리자 작물 조회 성공
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ManagedCropResponse'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-    patch:
-      tags: [AdminCrops]
-      summary: 관리자 작물과 재배 규칙 일부 수정
-      operationId: updateAdminCrop
-      parameters:
-        - $ref: '#/components/parameters/IfMatch'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CropPatch'
-      responses:
-        '200':
-          description: 작물 수정 또는 공개 상태 변경 성공
-          headers:
-            ETag:
-              $ref: '#/components/headers/ETag'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ManagedCropResponse'
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '412':
-          $ref: '#/components/responses/PreconditionFailed'
-        '419':
-          $ref: '#/components/responses/CsrfMismatch'
-        '422':
-          $ref: '#/components/responses/ValidationFailed'
-    delete:
-      tags: [AdminCrops]
-      summary: 사용되지 않은 공개 전 작물 삭제
-      description: 배치·일정이 참조하는 작물은 삭제하지 않고 status를 archived로 변경한다.
-      operationId: deleteAdminCrop
-      parameters:
-        - $ref: '#/components/parameters/IfMatch'
-      responses:
-        '204':
-          description: 작물 삭제 성공
-        '401':
-          $ref: '#/components/responses/Unauthenticated'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
-        '409':
-          $ref: '#/components/responses/Conflict'
-        '412':
-          $ref: '#/components/responses/PreconditionFailed'
-        '419':
-          $ref: '#/components/responses/CsrfMismatch'
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CropSource'
 
   /spaces:
     get:
@@ -620,6 +496,31 @@ paths:
         '419':
           $ref: '#/components/responses/CsrfMismatch'
 
+  /layouts:
+    get:
+      tags: [Layouts]
+      summary: 내 시즌 격자와 작물 배치 목록 조회
+      operationId: listLayouts
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 격자 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/GardenLayout'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
   /seasons/{seasonId}/layout:
     parameters:
       - $ref: '#/components/parameters/SeasonId'
@@ -708,6 +609,35 @@ paths:
         '419':
           $ref: '#/components/responses/CsrfMismatch'
 
+  /tasks:
+    get:
+      tags: [Tasks]
+      summary: 로그인 사용자의 전체 재배 일정 목록 조회
+      operationId: listTasks
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/TaskStatus'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 소유한 일정 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CultivationTask'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
   /seasons/{seasonId}/tasks:
     get:
       tags: [Tasks]
@@ -741,6 +671,33 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Tasks]
+      summary: 시즌의 재배 일정 전체 삭제
+      operationId: deleteSeasonTasks
+      parameters:
+        - $ref: '#/components/parameters/SeasonId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CultivationTaskBulkDelete'
+      responses:
+        '204':
+          description: 시즌 일정 전체 삭제 성공
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '419':
+          $ref: '#/components/responses/CsrfMismatch'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
   /seasons/{seasonId}/tasks/generate:
     post:
       tags: [Tasks]
@@ -748,6 +705,7 @@ paths:
       operationId: generateSeasonTasks
       parameters:
         - $ref: '#/components/parameters/SeasonId'
+        - $ref: '#/components/parameters/IfMatch'
       responses:
         '201':
           description: 일정 자동 생성 성공
@@ -769,6 +727,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '409':
           $ref: '#/components/responses/Conflict'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
         '419':
           $ref: '#/components/responses/CsrfMismatch'
   /tasks/{taskId}:
@@ -950,6 +910,272 @@ paths:
         '419':
           $ref: '#/components/responses/CsrfMismatch'
 
+  /watering-schedules:
+    get:
+      tags: [Watering]
+      summary: 현재 사용자의 전체 물주기 일정 목록 조회
+      operationId: listWateringSchedules
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 사용자 소유 물주기 일정 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/WateringSchedule'
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /seasons/{seasonId}/watering-schedules:
+    get:
+      tags: [Watering]
+      summary: 시즌 물주기 일정 목록 조회
+      operationId: listSeasonWateringSchedules
+      parameters:
+        - $ref: '#/components/parameters/SeasonId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 물주기 일정 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/WateringSchedule'
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Watering]
+      summary: 배치된 작물의 물주기 일정 생성
+      operationId: createWateringSchedule
+      parameters:
+        - $ref: '#/components/parameters/SeasonId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WateringScheduleInput' }
+      responses:
+        '201':
+          description: 물주기 일정 생성 성공
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WateringScheduleResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /watering-schedules/{wateringScheduleId}:
+    parameters:
+      - $ref: '#/components/parameters/WateringScheduleId'
+    get:
+      tags: [Watering]
+      summary: 물주기 일정 상세 조회
+      operationId: getWateringSchedule
+      responses:
+        '200':
+          description: 물주기 일정 조회 성공
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WateringScheduleResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      tags: [Watering]
+      summary: 물주기 일정 수정
+      operationId: updateWateringSchedule
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/WateringSchedulePatch' }
+      responses:
+        '200':
+          description: 물주기 일정 수정 성공
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WateringScheduleResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Watering]
+      summary: 이력이 없는 물주기 일정 삭제
+      operationId: deleteWateringSchedule
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '204': { description: 물주기 일정 삭제 성공 }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+
+  /watering-schedules/{wateringScheduleId}/complete:
+    post:
+      tags: [Watering]
+      summary: 물주기 완료 및 다음 일정 계산
+      operationId: completeWatering
+      parameters:
+        - $ref: '#/components/parameters/WateringScheduleId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CompleteWateringInput' }
+      responses:
+        '201':
+          description: 완료 기록 생성과 다음 일정 계산 성공
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CompleteWateringResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /watering-schedules/{wateringScheduleId}/logs:
+    get:
+      tags: [Watering]
+      summary: 물주기 완료 이력 조회
+      operationId: listWateringLogs
+      parameters:
+        - $ref: '#/components/parameters/WateringScheduleId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 완료 이력 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/WateringLog' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /watering-schedules/{wateringScheduleId}/logs/{wateringLogId}:
+    delete:
+      tags: [Watering]
+      summary: 가장 최근 물주기 완료 취소
+      operationId: reopenWateringCompletion
+      parameters:
+        - $ref: '#/components/parameters/WateringScheduleId'
+        - $ref: '#/components/parameters/WateringLogId'
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '200':
+          description: 완료 취소 및 이전 예정 시각 복원 성공
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/WateringScheduleResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+
+  /watering-schedules/{wateringScheduleId}/snoozes:
+    get:
+      tags: [Watering]
+      summary: 물주기 미루기 이력 조회
+      operationId: listWateringSnoozes
+      parameters:
+        - $ref: '#/components/parameters/WateringScheduleId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 미루기 이력 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/WateringSnooze' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    post:
+      tags: [Watering]
+      summary: 다음 물주기 시각 미루기
+      operationId: snoozeWatering
+      parameters:
+        - $ref: '#/components/parameters/WateringScheduleId'
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SnoozeWateringInput' }
+      responses:
+        '201':
+          description: 물주기 미루기 성공
+          headers:
+            ETag: { $ref: '#/components/headers/ETag' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SnoozeWateringResponse' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
 components:
   securitySchemes:
     sessionCookie:
@@ -1010,6 +1236,20 @@ components:
         format: uuid
     RecordId:
       name: recordId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    WateringScheduleId:
+      name: wateringScheduleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    WateringLogId:
+      name: wateringLogId
       in: path
       required: true
       schema:
@@ -1355,112 +1595,6 @@ components:
           type: string
           minLength: 1
           maxLength: 100
-    CropPublicationStatus:
-      type: string
-      enum: [draft, published, archived]
-    CropInput:
-      type: object
-      additionalProperties: false
-      required:
-        - id
-        - name
-        - familyName
-        - category
-        - difficulty
-        - plantingMaterial
-        - supportedSpaces
-        - plantingPeriod
-        - harvestPeriod
-        - plantSpacingCm
-        - summary
-        - sourceId
-        - status
-      properties:
-        id:
-          type: string
-          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
-          maxLength: 80
-        name:
-          type: string
-          minLength: 1
-          maxLength: 50
-        familyName:
-          type: string
-          minLength: 1
-          maxLength: 50
-        category:
-          $ref: '#/components/schemas/CropCategory'
-        difficulty:
-          $ref: '#/components/schemas/CropDifficulty'
-        plantingMaterial:
-          $ref: '#/components/schemas/PlantingMaterial'
-        supportedSpaces:
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
-            $ref: '#/components/schemas/GrowingSpaceType'
-        plantingPeriod:
-          $ref: '#/components/schemas/CropPeriod'
-        harvestPeriod:
-          $ref: '#/components/schemas/CropPeriod'
-        plantSpacingCm:
-          type: integer
-          minimum: 1
-          maximum: 1000
-        summary:
-          type: string
-          minLength: 1
-          maxLength: 500
-        sourceId:
-          type: string
-          minLength: 1
-          maxLength: 100
-        status:
-          $ref: '#/components/schemas/CropPublicationStatus'
-    CropPatch:
-      type: object
-      additionalProperties: false
-      minProperties: 1
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 50
-        familyName:
-          type: string
-          minLength: 1
-          maxLength: 50
-        category:
-          $ref: '#/components/schemas/CropCategory'
-        difficulty:
-          $ref: '#/components/schemas/CropDifficulty'
-        plantingMaterial:
-          $ref: '#/components/schemas/PlantingMaterial'
-        supportedSpaces:
-          type: array
-          minItems: 1
-          uniqueItems: true
-          items:
-            $ref: '#/components/schemas/GrowingSpaceType'
-        plantingPeriod:
-          $ref: '#/components/schemas/CropPeriod'
-        harvestPeriod:
-          $ref: '#/components/schemas/CropPeriod'
-        plantSpacingCm:
-          type: integer
-          minimum: 1
-          maximum: 1000
-        summary:
-          type: string
-          minLength: 1
-          maxLength: 500
-        sourceId:
-          type: string
-          minLength: 1
-          maxLength: 100
-        status:
-          $ref: '#/components/schemas/CropPublicationStatus'
     Crop:
       type: object
       required:
@@ -1509,29 +1643,22 @@ components:
         careGuide:
           $ref: '#/components/schemas/PlantCareGuide'
 
-    ManagedCrop:
-      allOf:
-        - $ref: '#/components/schemas/Crop'
-        - type: object
-          required: [status, version, createdAt, updatedAt]
-          properties:
-            status:
-              $ref: '#/components/schemas/CropPublicationStatus'
-            version:
-              type: integer
-              minimum: 1
-            createdAt:
-              type: string
-              format: date-time
-            updatedAt:
-              type: string
-              format: date-time
-    ManagedCropResponse:
+    CropSource:
       type: object
-      required: [data]
+      required: [id, organization, title, url, reviewedAt]
       properties:
-        data:
-          $ref: '#/components/schemas/ManagedCrop'
+        id:
+          type: string
+        organization:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+          format: uri
+        reviewedAt:
+          type: string
+          format: date
 
     CropPlacement:
       type: object
@@ -1640,6 +1767,26 @@ components:
           maxLength: 1000
         status:
           $ref: '#/components/schemas/TaskStatus'
+    CultivationTaskBulkDelete:
+      type: object
+      additionalProperties: false
+      required: [tasks]
+      properties:
+        tasks:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: object
+            additionalProperties: false
+            required: [id, version]
+            properties:
+              id:
+                type: string
+                format: uuid
+              version:
+                type: integer
+                minimum: 1
     CultivationTask:
       type: object
       required:
@@ -1700,6 +1847,9 @@ components:
       type: object
       additionalProperties: false
       required: [type, occurredAt, notes]
+      dependentRequired:
+        quantity: [unit]
+        unit: [quantity]
       properties:
         type:
           $ref: '#/components/schemas/CultivationRecordType'
@@ -1719,6 +1869,9 @@ components:
       type: object
       additionalProperties: false
       minProperties: 1
+      dependentRequired:
+        quantity: [unit]
+        unit: [quantity]
       properties:
         type:
           $ref: '#/components/schemas/CultivationRecordType'
@@ -1771,6 +1924,133 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/CultivationRecord'
+
+    WateringScheduleInput:
+      type: object
+      additionalProperties: false
+      required: [cropId, intervalDays, nextWateringAt, enabled]
+      properties:
+        cropId:
+          type: string
+          description: 해당 시즌의 텃밭 배치에 포함된 작물 slug
+        intervalDays:
+          type: integer
+          minimum: 1
+          maximum: 365
+        nextWateringAt:
+          type: string
+          format: date-time
+          description: 재배 시즌 안의 시각
+        enabled:
+          type: boolean
+    WateringSchedulePatch:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        intervalDays:
+          type: integer
+          minimum: 1
+          maximum: 365
+        nextWateringAt:
+          type: string
+          format: date-time
+          description: 재배 시즌 안의 시각
+        enabled:
+          type: boolean
+    WateringSchedule:
+      type: object
+      required:
+        - id
+        - seasonId
+        - cropId
+        - intervalDays
+        - nextWateringAt
+        - enabled
+        - version
+        - createdAt
+        - updatedAt
+      properties:
+        id: { type: string, format: uuid }
+        seasonId: { type: string, format: uuid }
+        cropId: { type: string }
+        intervalDays: { type: integer, minimum: 1, maximum: 365 }
+        nextWateringAt: { type: string, format: date-time }
+        enabled: { type: boolean }
+        version: { type: integer, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    WateringScheduleResponse:
+      type: object
+      required: [data]
+      properties:
+        data: { $ref: '#/components/schemas/WateringSchedule' }
+    CompleteWateringInput:
+      type: object
+      additionalProperties: false
+      required: [wateredAt, amountMl, memo]
+      properties:
+        wateredAt:
+          type: string
+          format: date-time
+          description: 재배 시즌 안의 실제 완료 시각
+        amountMl:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 100000
+        memo:
+          type: [string, 'null']
+          maxLength: 500
+    WateringLog:
+      type: object
+      required: [id, scheduleId, userId, scheduledFor, wateredAt, amountMl, memo, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        scheduleId: { type: string, format: uuid }
+        userId: { type: string, format: uuid }
+        scheduledFor: { type: string, format: date-time }
+        wateredAt: { type: string, format: date-time }
+        amountMl: { type: [integer, 'null'] }
+        memo: { type: string }
+        createdAt: { type: string, format: date-time }
+    CompleteWateringResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [schedule, log]
+          properties:
+            schedule: { $ref: '#/components/schemas/WateringSchedule' }
+            log: { $ref: '#/components/schemas/WateringLog' }
+    SnoozeWateringInput:
+      type: object
+      additionalProperties: false
+      required: [snoozedUntil]
+      properties:
+        snoozedUntil:
+          type: string
+          format: date-time
+          description: 현재 예정 시각보다 늦고 재배 시즌 안인 시각
+    WateringSnooze:
+      type: object
+      required: [id, scheduleId, originalAt, snoozedUntil, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        scheduleId: { type: string, format: uuid }
+        originalAt: { type: string, format: date-time }
+        snoozedUntil: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+    SnoozeWateringResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [schedule, snooze]
+          properties:
+            schedule: { $ref: '#/components/schemas/WateringSchedule' }
+            snooze: { $ref: '#/components/schemas/WateringSnooze' }
 
     PaginationMeta:
       type: object

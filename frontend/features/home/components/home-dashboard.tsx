@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "@/app/home.module.css";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import { createHomeDashboardModel } from "@/features/home/domain/home-dashboard";
@@ -53,29 +53,31 @@ export function HomeDashboard() {
   const seasonsState = useGrowingSeasons();
   const layoutsState = useGardenLayouts();
   const tasksState = useCultivationTasks();
+  const cropCatalog = useCropCatalog();
   const now = new Date();
   const today = formatLocalDate(now);
-  const authenticated = auth.status === "authenticated";
+  const authenticated = auth.state.status === "authenticated";
   const resourcesReady = spacesState.status === "ready"
     && seasonsState.status === "ready"
     && layoutsState.status === "ready"
-    && tasksState.status === "ready";
+    && tasksState.status === "ready"
+    && cropCatalog.status === "ready";
   const model = resourcesReady
     ? createHomeDashboardModel(
         spacesState.spaces,
         seasonsState.seasons,
         layoutsState.layouts,
         tasksState.tasks,
-        CROP_REFERENCES,
+        cropCatalog.crops,
         today,
       )
-    : createHomeDashboardModel([], [], [], [], CROP_REFERENCES, today);
+    : createHomeDashboardModel([], [], [], [], cropCatalog.crops, today);
   const dataError = authenticated
-    ? [spacesState, seasonsState, layoutsState, tasksState]
+    ? [spacesState, seasonsState, layoutsState, tasksState, cropCatalog]
         .find((state) => state.status === "error")
     : undefined;
   const resourcesLoading = authenticated && !resourcesReady && !dataError;
-  const nickname = authenticated ? auth.session.user.nickname : "새싹";
+  const nickname = auth.state.status === "authenticated" ? auth.state.user.nickname : "새싹";
   const primaryName = model.primaryCrop?.name ?? "첫 작물";
   const nextHref = model.primarySeason
     ? `/seasons/${model.primarySeason.id}/tasks`
@@ -120,7 +122,7 @@ export function HomeDashboard() {
                   : <>{nickname}님이 키우는 작물 {model.cropCount}개가<br />서버에 안전하게 저장되어 있어요.</>
                 : <>공간과 햇빛을 등록하면<br />나만의 재배 일정이 이어져요.</>}
             </p>
-            {!authenticated && auth.status !== "loading" && <Link className={styles.heroAction} href="/signup?next=%2F">무료로 시작하기</Link>}
+            {!authenticated && auth.state.status !== "loading" && <Link className={styles.heroAction} href="/signup?next=%2F">무료로 시작하기</Link>}
           </div>
           <div className={styles.dateCapsule} aria-label={`${formatKoreanDate(now)}, ${resourcesLoading ? "해야 할 일을 불러오는 중" : `오늘까지 해야 할 일 ${model.todayTaskCount}개`}`}>
             <span className={styles.capsuleLeaf} aria-hidden="true" />

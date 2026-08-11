@@ -13,9 +13,10 @@ import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-s
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 import { createDashboardSummary } from "@/features/dashboard/domain/dashboard-summary";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { RegisteredPlantList } from "@/features/dashboard/components/registered-plant-list";
 import { createRegisteredPlantSummaries } from "@/features/dashboard/domain/registered-plant-summary";
+import { useAllWateringSchedules } from "@/features/watering/hooks/use-all-watering-schedules";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   planned: "예정",
@@ -35,16 +36,21 @@ export function DashboardOverview() {
   const seasonsState = useGrowingSeasons();
   const layoutsState = useGardenLayouts();
   const tasksState = useCultivationTasks();
+  const wateringState = useAllWateringSchedules();
+  const cropCatalog = useCropCatalog();
 
-  if (auth.status === "error") return <ErrorMessage message={auth.message} />;
+  if (auth.state.status === "error") return <ErrorMessage message={auth.state.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
+  if (layoutsState.status === "loading") return <p className="text-muted">작물 배치를 불러오고 있습니다.</p>;
   if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
-  if (auth.status === "loading" || spacesState.status === "loading" || seasonsState.status === "loading" || layoutsState.status === "loading" || tasksState.status === "loading") {
-    return <p className="rounded-2xl bg-white p-5 text-muted">내 텃밭 정보를 불러오고 있습니다.</p>;
-  }
-  if (auth.status !== "authenticated") return null;
+  if (tasksState.status === "loading") return <p className="text-muted">재배 일정을 불러오고 있습니다.</p>;
+  if (wateringState.status === "error") return <ErrorMessage message={wateringState.message} />;
+  if (wateringState.status === "loading") return <p className="text-muted">물주기 일정을 불러오고 있습니다.</p>;
+  if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
+  if (cropCatalog.status === "loading") return null;
+  if (auth.state.status !== "authenticated") return null;
 
   const today = formatLocalDateOnly(new Date());
   const summary = createDashboardSummary(
@@ -54,10 +60,19 @@ export function DashboardOverview() {
     tasksState.tasks,
     today,
   );
-  const alerts = createDashboardAlerts(tasksState.tasks, today);
+  let alerts;
+  try {
+    alerts = createDashboardAlerts({
+      tasks: tasksState.tasks,
+      wateringSchedules: wateringState.schedules,
+      crops: cropCatalog.crops,
+    }, today);
+  } catch (error) {
+    return <ErrorMessage message={error instanceof Error ? error.message : "대시보드 알림을 계산하지 못했습니다."} />;
+  }
   const registeredPlants = createRegisteredPlantSummaries(
     seasonsState.seasons,
-    CROP_REFERENCES,
+    cropCatalog.crops,
     today,
   );
 
@@ -66,7 +81,7 @@ export function DashboardOverview() {
       <section className="mt-10 sm:mt-14">
         <p className="text-sm font-bold text-leaf">나의 재배 홈</p>
         <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl">
-          {auth.session.user.nickname}님, 오늘도 잘 키워봐요
+          {auth.state.user.nickname}님, 오늘도 잘 키워봐요
         </h1>
         <p className="mt-4 max-w-2xl leading-7 text-muted">
           흩어져 있던 공간과 시즌, 작물 배치를 여기에서 이어서 관리할 수 있어요.

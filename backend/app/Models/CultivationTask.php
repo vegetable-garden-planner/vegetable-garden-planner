@@ -4,49 +4,53 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\CultivationTaskStatus;
+use App\Enums\CultivationTaskType;
+use Database\Factories\CultivationTaskFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CultivationTask extends Model
 {
-    protected $table = 'tasks';
+    /** @use HasFactory<CultivationTaskFactory> */
+    use HasFactory, HasUuids;
 
+    /** @var list<string> */
     protected $fillable = [
-        'planting_id',
-        'task_type_id',
+        'growing_season_id',
+        'crop_id',
+        'type',
         'title',
         'due_date',
         'notes',
         'status',
+        'completed_at',
         'version',
     ];
 
+    /** @return BelongsTo<GrowingSeason, $this> */
+    public function growingSeason(): BelongsTo
+    {
+        return $this->belongsTo(GrowingSeason::class);
+    }
+
+    /** @return BelongsTo<Crop, $this> */
+    public function crop(): BelongsTo
+    {
+        return $this->belongsTo(Crop::class);
+    }
+
+    /** @return array<string, string> */
     protected function casts(): array
     {
         return [
-            'due_date' => 'date:Y-m-d',
+            'type' => CultivationTaskType::class,
+            'status' => CultivationTaskStatus::class,
+            'due_date' => 'immutable_date',
+            'completed_at' => 'immutable_datetime',
             'version' => 'integer',
         ];
-    }
-
-    public function season(): BelongsTo
-    {
-        return $this->belongsTo(GrowingSeason::class, 'season_id');
-    }
-
-    public function planting(): BelongsTo
-    {
-        return $this->belongsTo(Planting::class);
-    }
-
-    public function taskType(): BelongsTo
-    {
-        return $this->belongsTo(TaskType::class);
-    }
-
-    public function completions(): HasMany
-    {
-        return $this->hasMany(TaskCompletion::class, 'task_id');
     }
 }

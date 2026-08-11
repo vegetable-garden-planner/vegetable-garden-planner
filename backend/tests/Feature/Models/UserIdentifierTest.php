@@ -6,17 +6,17 @@ namespace Tests\Feature\Models;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class UserIdentifierTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_new_users_use_the_existing_mysql_auto_increment_identifier(): void
+    public function test_new_users_receive_uuid_version_seven_identifiers(): void
     {
         $user = User::factory()->create();
 
-        $this->assertIsInt($user->id);
-        $this->assertGreaterThan(0, $user->id);
+        $this->assertTrue(Str::isUuid($user->id, version: 7));
     }
 }

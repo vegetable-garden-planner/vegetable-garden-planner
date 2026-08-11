@@ -1,6 +1,8 @@
+"use client";
+
 import Link from "next/link";
-import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
 import type { CropDifficulty } from "@/features/crop-catalog/domain/crop-reference";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 
 const HIGHLIGHT_COLORS: Readonly<Record<string, string>> = {
   lettuce: "bg-[#7da765]",
@@ -15,9 +17,9 @@ const DIFFICULTY_LABELS: Record<CropDifficulty, string> = {
   challenging: "관리가 필요해요",
 };
 
-const crops = CROP_REFERENCES.filter((crop) => crop.id in HIGHLIGHT_COLORS);
-
 export function CropHighlights() {
+  const catalog = useCropCatalog();
+  const crops = catalog.crops.filter((crop) => crop.id in HIGHLIGHT_COLORS);
   return (
     <section id="crops" className="scroll-mt-20 bg-paper px-5 py-20 sm:px-8 sm:py-28 lg:px-12">
       <div className="mx-auto max-w-7xl">

@@ -25,9 +25,9 @@ export interface GrowingSpaceInput {
 
 export interface GrowingSpace extends GrowingSpaceInput {
   id: string;
+  version: number;
   createdAt: string;
-  updatedAt?: string;
-  version?: number;
+  updatedAt: string;
 }
 
 export type GrowingSpaceField = keyof GrowingSpaceFormValues;
@@ -85,7 +85,7 @@ export function createGrowingSpace(
   id: string,
   createdAt: string,
 ): GrowingSpace {
-  return { ...input, id, createdAt };
+  return { ...input, id, version: 1, createdAt, updatedAt: createdAt };
 }
 
 function validateSize(

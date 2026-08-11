@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useState } from "react";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
+import { deleteGrowingSpace } from "@/features/growing-space/infrastructure/space-api";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { deleteGrowingSpaceOnServer } from "@/features/growing-space/infrastructure/space-api";
 
 const TYPE_LABELS: Record<GrowingSpace["type"], string> = {
   indoor: "실내 화분",
@@ -26,7 +26,6 @@ export function SpaceList() {
 
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
-  if (spacesState.status === "loading" || seasonsState.status === "loading") return <LoadingMessage />;
 
   const { spaces } = spacesState;
   if (spaces.length === 0) return <EmptySpaceList />;
@@ -36,7 +35,8 @@ export function SpaceList() {
     if (!window.confirm(`'${space.name}' 공간을 삭제할까요?`)) return;
 
     try {
-      await deleteGrowingSpaceOnServer(space);
+      await deleteGrowingSpace(space);
+      await spacesState.reload();
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "공간을 삭제하지 못했습니다.");
     }
@@ -63,7 +63,7 @@ export function SpaceList() {
               </dl>
               <div className="relative z-10 mt-6 flex gap-2 border-t border-ink/10 pt-4">
                 <Link className="rounded-full border border-ink/15 px-4 py-2 text-sm font-bold" href={`/spaces/${space.id}/edit`}>수정</Link>
-                <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => removeSpace(space)} type="button">삭제</button>
+                <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => void removeSpace(space)} type="button">삭제</button>
                 <Link className="ml-auto rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/new?spaceId=${space.id}`}>시즌 추가</Link>
               </div>
               <p className="mt-4 text-sm font-bold text-leaf">이 공간의 시즌 보기 →</p>
@@ -87,8 +87,4 @@ function EmptySpaceList() {
 
 function ErrorMessage({ message }: { message: string }) {
   return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{message}</p>;
-}
-
-function LoadingMessage() {
-  return <p className="rounded-2xl bg-white p-5 text-muted">재배 공간을 불러오고 있습니다.</p>;
 }

@@ -15,7 +15,9 @@ const garden: GrowingSpace = {
   lengthCm: 300,
   region: "서울",
   notes: "",
+  version: 1,
   createdAt: "2026-01-01T00:00:00.000Z",
+  updatedAt: "2026-01-01T00:00:00.000Z",
 };
 
 const activeSeason: GrowingSeason = {
@@ -37,6 +39,7 @@ const layout: GardenLayout = {
   columns: 4,
   rows: 6,
   placements: [],
+  version: 1,
   updatedAt: "2026-06-01T00:00:00.000Z",
 };
 
@@ -50,6 +53,7 @@ const task: CultivationTask = {
   notes: "",
   status: "pending",
   completedAt: null,
+  version: 1,
   createdAt: "2026-06-01T00:00:00.000Z",
   updatedAt: "2026-06-01T00:00:00.000Z",
 };

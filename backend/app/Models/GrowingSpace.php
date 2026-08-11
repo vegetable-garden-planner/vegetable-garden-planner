@@ -4,49 +4,60 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\GrowingSpaceType;
+use App\Enums\SunlightExposure;
+use Database\Factories\GrowingSpaceFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class GrowingSpace extends Model
 {
-    protected $table = 'gardens';
+    /** @use HasFactory<GrowingSpaceFactory> */
+    use HasFactory, HasUuids;
 
+    /**
+     * @var list<string>
+     */
     protected $fillable = [
         'name',
-        'space_type',
+        'type',
         'sunlight',
-        'width',
-        'height',
-        'cell_size',
-        'environment',
-        'region_id',
+        'width_cm',
+        'length_cm',
+        'region',
         'notes',
-        'version',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'width' => 'float',
-            'height' => 'float',
-            'cell_size' => 'float',
-            'version' => 'integer',
-        ];
-    }
-
-    public function user(): BelongsTo
+    /**
+     * @return BelongsTo<User, $this>
+     */
+    public function owner(): BelongsTo
     {
         return $this->belongsTo(User::class, 'owner_id');
     }
 
-    public function region(): BelongsTo
-    {
-        return $this->belongsTo(Region::class);
-    }
-
+    /**
+     * @return HasMany<GrowingSeason, $this>
+     */
     public function seasons(): HasMany
     {
-        return $this->hasMany(GrowingSeason::class, 'garden_id');
+        return $this->hasMany(GrowingSeason::class);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'type' => GrowingSpaceType::class,
+            'sunlight' => SunlightExposure::class,
+            'width_cm' => 'integer',
+            'length_cm' => 'integer',
+            'version' => 'integer',
+        ];
     }
 }

@@ -1,28 +1,51 @@
-import type { GardenLayout } from "@/features/garden-layout/domain/garden-layout";
-import { apiGetList, apiRequest } from "@/shared/infrastructure/api-client";
-import { notifyApiDataChanged } from "@/shared/infrastructure/api-resource-store";
+import type { GardenLayout } from "../domain/garden-layout.ts";
+import { apiRequest } from "../../../shared/infrastructure/api-client.ts";
 
-export const listGardenLayouts = () => apiGetList<GardenLayout>("/layouts");
-
-export async function saveGardenLayoutOnServer(layout: GardenLayout) {
-  const response = await apiRequest<{ data: GardenLayout }>(`/seasons/${layout.seasonId}/layout`, {
-    method: "PUT",
-    headers: layout.version ? { "If-Match": `"${layout.version}"` } : undefined,
-    body: JSON.stringify({
-      spaceWidthCm: layout.spaceWidthCm,
-      spaceLengthCm: layout.spaceLengthCm,
-      cellSizeCm: layout.cellSizeCm,
-      placements: layout.placements,
-    }),
-  });
-  notifyApiDataChanged();
-  return response.data;
+interface GardenLayoutResponse {
+  data: GardenLayout;
 }
 
-export async function deleteGardenLayoutOnServer(layout: GardenLayout) {
-  await apiRequest<void>(`/seasons/${layout.seasonId}/layout`, {
+interface GardenLayoutListResponse {
+  data: GardenLayout[];
+}
+
+type GardenLayoutInput = Pick<
+  GardenLayout,
+  "spaceWidthCm" | "spaceLengthCm" | "cellSizeCm" | "placements"
+>;
+
+export async function fetchGardenLayouts(): Promise<GardenLayout[]> {
+  return (await apiRequest<GardenLayoutListResponse>("/layouts?perPage=100")).data;
+}
+
+export async function putGardenLayout(layout: GardenLayout): Promise<GardenLayout> {
+  const headers = layout.version > 0
+    ? { "If-Match": `"${layout.version}"` }
+    : undefined;
+
+  return (await apiRequest<GardenLayoutResponse>(layoutPath(layout.seasonId), {
+    method: "PUT",
+    headers,
+    body: JSON.stringify(toInput(layout)),
+  })).data;
+}
+
+export async function deleteGardenLayout(layout: GardenLayout): Promise<void> {
+  await apiRequest<void>(layoutPath(layout.seasonId), {
     method: "DELETE",
-    headers: layout.version ? { "If-Match": `"${layout.version}"` } : undefined,
+    headers: { "If-Match": `"${layout.version}"` },
   });
-  notifyApiDataChanged();
+}
+
+function toInput(layout: GardenLayout): GardenLayoutInput {
+  return {
+    spaceWidthCm: layout.spaceWidthCm,
+    spaceLengthCm: layout.spaceLengthCm,
+    cellSizeCm: layout.cellSizeCm,
+    placements: layout.placements,
+  };
+}
+
+function layoutPath(seasonId: string): string {
+  return `/seasons/${encodeURIComponent(seasonId)}/layout`;
 }

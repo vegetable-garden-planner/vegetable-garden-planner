@@ -27,7 +27,7 @@ export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
         <div className="mb-8 mt-10">
           <p className="text-sm font-bold text-leaf">재배 공간 등록</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">식물을 키울 공간을 알려주세요</h1>
-          <p className="mt-4 leading-7 text-muted">등록한 공간은 로그인한 계정에 저장되며, 시즌과 작물 배치의 기준으로 사용됩니다.</p>
+          <p className="mt-4 leading-7 text-muted">등록한 공간은 내 계정에 저장되어 다른 기기에서도 이어서 관리할 수 있습니다.</p>
         </div>
         <section className="rounded-3xl border border-ink/10 bg-white p-6 sm:p-9">
           <SpaceForm initialType={initialType} />

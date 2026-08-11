@@ -13,8 +13,12 @@ export interface GrowingSeasonInput extends GrowingSeasonFormValues {
 export interface GrowingSeason extends GrowingSeasonInput {
   id: string;
   createdAt: string;
-  updatedAt?: string;
-  version?: number;
+}
+
+export interface PersistedGrowingSeason extends GrowingSeason {
+  status: GrowingSeasonStatus;
+  version: number;
+  updatedAt: string;
 }
 
 export type GrowingSeasonField = keyof GrowingSeasonFormValues;

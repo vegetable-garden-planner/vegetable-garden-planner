@@ -10,9 +10,6 @@ export function SeasonEditor({ seasonId }: { seasonId: string }) {
   if (seasonsState.status === "error") {
     return <Message message={seasonsState.message} />;
   }
-  if (seasonsState.status === "loading") {
-    return <p className="rounded-2xl bg-white p-5 text-muted">시즌 정보를 불러오고 있습니다.</p>;
-  }
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
   if (!season) {

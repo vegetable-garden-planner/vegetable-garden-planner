@@ -11,11 +11,11 @@ export interface SignupFormValues extends LoginFormValues {
 }
 
 export interface AuthUser {
-  id?: string;
+  id: string;
   email: string;
   nickname: string;
-  role?: "member" | "admin";
-  createdAt?: string;
+  role: string;
+  createdAt: string;
 }
 
 export type LoginField = keyof LoginFormValues;
@@ -92,11 +92,6 @@ export function getSafeReturnPath(
   }
 
   return requestedPath;
-}
-
-export function getDevelopmentLoginUser(email: string): AuthUser {
-  const nickname = email.split("@")[0] || "새싹";
-  return { email, nickname };
 }
 
 function validateEmail(

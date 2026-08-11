@@ -14,6 +14,7 @@ import {
   type CropReference,
 } from "@/features/crop-catalog/domain/crop-reference";
 import type { GrowingSpaceType } from "@/shared/domain/growing-environment";
+import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 
 const CATEGORY_OPTIONS: readonly { value: CropCategory | "all"; label: string }[] = [
   { value: "all", label: "전체 종류" },
@@ -32,14 +33,18 @@ const SPACE_OPTIONS: readonly { value: GrowingSpaceType | "all"; label: string }
   { value: "garden", label: "마당·텃밭" },
 ];
 
-export function CropCatalog({ crops }: { crops: readonly CropReference[] }) {
+export function CropCatalog() {
+  const catalog = useCropCatalog();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<CropCategory | "all">("all");
   const [space, setSpace] = useState<GrowingSpaceType | "all">("all");
   const filteredCrops = useMemo(
-    () => filterCropReferences(crops, { query, category, space }),
-    [category, crops, query, space],
+    () => filterCropReferences(catalog.crops, { query, category, space }),
+    [catalog.crops, category, query, space],
   );
+
+  if (catalog.status === "loading") return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;
+  if (catalog.status === "error") return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{catalog.message}</p>;
 
   return (
     <div>
@@ -66,6 +71,16 @@ export function CropCatalog({ crops }: { crops: readonly CropReference[] }) {
       {filteredCrops.length === 0
         ? <EmptyResult />
         : <CropCards crops={filteredCrops} />}
+
+      <aside className="mt-10 rounded-2xl bg-paper p-5 text-sm leading-6 text-muted">
+        <p className="font-bold text-ink">자료 출처</p>
+        <p className="mt-1">각 상세 화면에서 해당 작물의 출처와 검토일을 확인할 수 있습니다.</p>
+        <ul className="mt-3 space-y-1">
+          {catalog.sources.map((source) => (
+            <li key={source.id}><a className="font-bold text-leaf underline" href={source.url} rel="noreferrer" target="_blank">{source.organization} · {source.title}</a></li>
+          ))}
+        </ul>
+      </aside>
     </div>
   );
 }

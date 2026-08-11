@@ -2,36 +2,114 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\CultivationTaskController;
-use App\Http\Controllers\Api\V1\GardenLayoutController;
-use App\Http\Controllers\Api\V1\GrowingSeasonController;
-use App\Http\Controllers\Api\V1\GrowingSpaceController;
+use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
+use App\Http\Controllers\Api\V1\Auth\LoginController;
+use App\Http\Controllers\Api\V1\Auth\LogoutController;
+use App\Http\Controllers\Api\V1\Auth\RegisterController;
+use App\Http\Controllers\Api\V1\Crops\IndexCropController;
+use App\Http\Controllers\Api\V1\Crops\IndexCropSourceController;
+use App\Http\Controllers\Api\V1\Crops\ShowCropController;
 use App\Http\Controllers\Api\V1\HealthCheckController;
+use App\Http\Controllers\Api\V1\Layouts\DestroyGardenLayoutController;
+use App\Http\Controllers\Api\V1\Layouts\IndexGardenLayoutController;
+use App\Http\Controllers\Api\V1\Layouts\PutGardenLayoutController;
+use App\Http\Controllers\Api\V1\Layouts\ShowGardenLayoutController;
+use App\Http\Controllers\Api\V1\Records\DestroyRecordController;
+use App\Http\Controllers\Api\V1\Records\IndexSeasonRecordController;
+use App\Http\Controllers\Api\V1\Records\StoreSeasonRecordController;
+use App\Http\Controllers\Api\V1\Records\UpdateRecordController;
+use App\Http\Controllers\Api\V1\Seasons\DestroySeasonController;
+use App\Http\Controllers\Api\V1\Seasons\IndexSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\ShowSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\StoreSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\UpdateSeasonController;
+use App\Http\Controllers\Api\V1\Spaces\DestroySpaceController;
+use App\Http\Controllers\Api\V1\Spaces\IndexSpaceController;
+use App\Http\Controllers\Api\V1\Spaces\ShowSpaceController;
+use App\Http\Controllers\Api\V1\Spaces\StoreSpaceController;
+use App\Http\Controllers\Api\V1\Spaces\UpdateSpaceController;
+use App\Http\Controllers\Api\V1\Tasks\DestroySeasonTaskController;
+use App\Http\Controllers\Api\V1\Tasks\DestroyTaskController;
+use App\Http\Controllers\Api\V1\Tasks\GenerateSeasonTaskController;
+use App\Http\Controllers\Api\V1\Tasks\IndexSeasonTaskController;
+use App\Http\Controllers\Api\V1\Tasks\IndexTaskController;
+use App\Http\Controllers\Api\V1\Tasks\UpdateTaskController;
+use App\Http\Controllers\Api\V1\Watering\CompleteWateringController;
+use App\Http\Controllers\Api\V1\Watering\DestroyWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\IndexSeasonWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\IndexWateringLogController;
+use App\Http\Controllers\Api\V1\Watering\IndexWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\IndexWateringSnoozeController;
+use App\Http\Controllers\Api\V1\Watering\ReopenWateringCompletionController;
+use App\Http\Controllers\Api\V1\Watering\ShowWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\SnoozeWateringController;
+use App\Http\Controllers\Api\V1\Watering\StoreWateringScheduleController;
+use App\Http\Controllers\Api\V1\Watering\UpdateWateringScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function (): void {
     Route::get('/health', HealthCheckController::class);
+    Route::get('/crops', IndexCropController::class);
+    Route::get('/crops/{crop}', ShowCropController::class);
+    Route::get('/crop-sources', IndexCropSourceController::class);
 
-    Route::post('/auth/register', [AuthController::class, 'register']);
-    Route::post('/auth/login', [AuthController::class, 'login']);
+    Route::prefix('auth')->group(function (): void {
+        Route::post('/register', RegisterController::class);
+        Route::post('/login', LoginController::class);
+        Route::post('/logout', LogoutController::class)->middleware('auth:sanctum');
+    });
+
+    Route::get('/me', CurrentUserController::class)->middleware('auth:sanctum');
 
     Route::middleware('auth:sanctum')->group(function (): void {
-        Route::post('/auth/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
+        Route::get('/spaces', IndexSpaceController::class);
+        Route::post('/spaces', StoreSpaceController::class);
+        Route::get('/spaces/{growingSpace}', ShowSpaceController::class);
+        Route::patch('/spaces/{growingSpace}', UpdateSpaceController::class);
+        Route::delete('/spaces/{growingSpace}', DestroySpaceController::class);
 
-        Route::apiResource('spaces', GrowingSpaceController::class);
-        Route::apiResource('seasons', GrowingSeasonController::class);
+        Route::get('/layouts', IndexGardenLayoutController::class);
 
-        Route::get('/layouts', [GardenLayoutController::class, 'index']);
-        Route::get('/seasons/{season}/layout', [GardenLayoutController::class, 'show']);
-        Route::put('/seasons/{season}/layout', [GardenLayoutController::class, 'upsert']);
-        Route::delete('/seasons/{season}/layout', [GardenLayoutController::class, 'destroy']);
+        Route::get('/tasks', IndexTaskController::class);
+        Route::patch('/tasks/{cultivationTask}', UpdateTaskController::class);
+        Route::delete('/tasks/{cultivationTask}', DestroyTaskController::class);
 
-        Route::get('/tasks', [CultivationTaskController::class, 'index']);
-        Route::get('/seasons/{season}/tasks', [CultivationTaskController::class, 'forSeason']);
-        Route::put('/seasons/{season}/tasks', [CultivationTaskController::class, 'replace']);
-        Route::patch('/tasks/{task}', [CultivationTaskController::class, 'update']);
-        Route::delete('/tasks/{task}', [CultivationTaskController::class, 'destroy']);
+        Route::patch('/records/{cultivationRecord}', UpdateRecordController::class);
+        Route::delete('/records/{cultivationRecord}', DestroyRecordController::class);
+
+        Route::get('/watering-schedules', IndexWateringScheduleController::class);
+        Route::get('/watering-schedules/{wateringSchedule}', ShowWateringScheduleController::class);
+        Route::patch('/watering-schedules/{wateringSchedule}', UpdateWateringScheduleController::class);
+        Route::delete('/watering-schedules/{wateringSchedule}', DestroyWateringScheduleController::class);
+        Route::get('/watering-schedules/{wateringSchedule}/logs', IndexWateringLogController::class);
+        Route::post('/watering-schedules/{wateringSchedule}/complete', CompleteWateringController::class);
+        Route::delete(
+            '/watering-schedules/{wateringSchedule}/logs/{wateringLog}',
+            ReopenWateringCompletionController::class,
+        );
+        Route::get('/watering-schedules/{wateringSchedule}/snoozes', IndexWateringSnoozeController::class);
+        Route::post('/watering-schedules/{wateringSchedule}/snoozes', SnoozeWateringController::class);
+
+        Route::get('/seasons', IndexSeasonController::class);
+        Route::post('/seasons', StoreSeasonController::class);
+        Route::get('/seasons/{growingSeason}', ShowSeasonController::class);
+        Route::patch('/seasons/{growingSeason}', UpdateSeasonController::class);
+        Route::delete('/seasons/{growingSeason}', DestroySeasonController::class);
+        Route::get('/seasons/{growingSeason}/layout', ShowGardenLayoutController::class);
+        Route::put('/seasons/{growingSeason}/layout', PutGardenLayoutController::class);
+        Route::delete('/seasons/{growingSeason}/layout', DestroyGardenLayoutController::class);
+        Route::get('/seasons/{growingSeason}/tasks', IndexSeasonTaskController::class);
+        Route::post('/seasons/{growingSeason}/tasks/generate', GenerateSeasonTaskController::class);
+        Route::delete('/seasons/{growingSeason}/tasks', DestroySeasonTaskController::class);
+        Route::get('/seasons/{growingSeason}/records', IndexSeasonRecordController::class);
+        Route::post('/seasons/{growingSeason}/records', StoreSeasonRecordController::class);
+        Route::get(
+            '/seasons/{growingSeason}/watering-schedules',
+            IndexSeasonWateringScheduleController::class,
+        );
+        Route::post(
+            '/seasons/{growingSeason}/watering-schedules',
+            StoreWateringScheduleController::class,
+        );
     });
 });

@@ -1,34 +1,37 @@
-import type { GrowingSeason, GrowingSeasonInput } from "@/features/growing-season/domain/growing-season";
-import { apiGetList, apiRequest } from "@/shared/infrastructure/api-client";
-import { notifyApiDataChanged } from "@/shared/infrastructure/api-resource-store";
+import type {
+  GrowingSeasonInput,
+  PersistedGrowingSeason,
+} from "@/features/growing-season/domain/growing-season";
+import { apiRequest } from "@/shared/infrastructure/api-client";
 
-export const listGrowingSeasons = () => apiGetList<GrowingSeason>("/seasons");
+interface SeasonResponse { data: PersistedGrowingSeason }
+interface SeasonListResponse { data: PersistedGrowingSeason[] }
 
-export async function createGrowingSeasonOnServer(input: GrowingSeasonInput) {
-  const season = await mutate<GrowingSeason>("/seasons", "POST", input);
-  notifyApiDataChanged();
-  return season;
+export async function fetchGrowingSeasons(): Promise<PersistedGrowingSeason[]> {
+  return (await apiRequest<SeasonListResponse>("/seasons?perPage=100")).data;
 }
 
-export async function updateGrowingSeasonOnServer(season: GrowingSeason, input: GrowingSeasonInput) {
-  const updated = await mutate<GrowingSeason>(`/seasons/${season.id}`, "PATCH", input, season.version);
-  notifyApiDataChanged();
-  return updated;
+export async function createGrowingSeason(input: GrowingSeasonInput): Promise<PersistedGrowingSeason> {
+  return (await apiRequest<SeasonResponse>("/seasons", {
+    method: "POST",
+    body: JSON.stringify(input),
+  })).data;
 }
 
-export async function deleteGrowingSeasonOnServer(season: GrowingSeason) {
-  await apiRequest<void>(`/seasons/${season.id}`, {
+export async function updateGrowingSeason(
+  season: PersistedGrowingSeason,
+  input: GrowingSeasonInput,
+): Promise<PersistedGrowingSeason> {
+  return (await apiRequest<SeasonResponse>(`/seasons/${encodeURIComponent(season.id)}`, {
+    method: "PATCH",
+    headers: { "If-Match": `"${season.version}"` },
+    body: JSON.stringify(input),
+  })).data;
+}
+
+export async function deleteGrowingSeason(season: PersistedGrowingSeason): Promise<void> {
+  await apiRequest<void>(`/seasons/${encodeURIComponent(season.id)}`, {
     method: "DELETE",
-    headers: season.version ? { "If-Match": `"${season.version}"` } : undefined,
+    headers: { "If-Match": `"${season.version}"` },
   });
-  notifyApiDataChanged();
-}
-
-async function mutate<T>(path: string, method: string, body: unknown, version?: number) {
-  const response = await apiRequest<{ data: T }>(path, {
-    method,
-    headers: version ? { "If-Match": `"${version}"` } : undefined,
-    body: JSON.stringify(body),
-  });
-  return response.data;
 }
