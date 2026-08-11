@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
-import { assertGrowingSeasonCanBeDeleted } from "@/features/growing-season/application/delete-growing-season";
 import {
   type PersistedGrowingSeason,
   type GrowingSeasonStatus,
@@ -52,7 +51,6 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
     if (!window.confirm(`'${season.name}' 시즌을 삭제할까요?`)) return;
 
     try {
-      assertGrowingSeasonCanBeDeleted(window.localStorage, season.id);
       await deleteGrowingSeason(season);
       await seasonsState.reload();
     } catch (error) {

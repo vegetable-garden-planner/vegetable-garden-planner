@@ -49,6 +49,12 @@ class GrowingSeason extends Model
         return $this->hasMany(CultivationTask::class);
     }
 
+    /** @return HasMany<CultivationRecord, $this> */
+    public function records(): HasMany
+    {
+        return $this->hasMany(CultivationRecord::class);
+    }
+
     /**
      * @return array<string, string>
      */
