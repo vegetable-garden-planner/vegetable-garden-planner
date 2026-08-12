@@ -60,7 +60,7 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
 
   const layout = layoutsState.layouts.find((item) => item.seasonId === seasonId);
   return (
-    <div>
+    <div className="min-w-0 max-w-full">
       <div className="mb-6 rounded-2xl bg-leaf-soft/60 p-5">
         <p className="text-sm font-bold text-leaf">{space.name} · {season.name}</p>
         <p className="mt-2 text-sm text-muted">공간 크기 {space.widthCm} × {space.lengthCm}cm</p>
@@ -205,11 +205,11 @@ function GardenGrid({
   }
 
   return (
-    <div>
+    <div className="min-w-0 max-w-full">
       {outdated && <p className="mb-5 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800" role="alert">공간 크기가 격자를 만든 이후 변경되었습니다. 정확한 배치를 위해 격자를 다시 만들어 주세요.</p>}
-      <section className="surface-panel p-5" aria-labelledby="crop-selector-title">
+      <section className="surface-panel min-w-0 max-w-full overflow-hidden p-5" aria-labelledby="crop-selector-title">
         <h2 className="text-lg font-bold" id="crop-selector-title">배치할 작물</h2>
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-labelledby="crop-selector-title">
+        <div className="mt-4 flex max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-1" role="radiogroup" aria-labelledby="crop-selector-title">
           {crops.map((crop) => (
             <label className={`shrink-0 cursor-pointer rounded-2xl border px-4 py-2 text-sm font-bold ${cropChoiceClass(selectedCropId === crop.id, isCompleteSeasonFit(cropFits.get(crop.id)))}`} key={crop.id}>
               <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
@@ -225,7 +225,7 @@ function GardenGrid({
         )}
       </section>
 
-      <div className="mt-5 overflow-x-auto rounded-3xl border-4 border-[#8a684a] bg-[#d6c39c] p-3">
+      <div className="mt-5 max-w-full overflow-x-auto overscroll-x-contain rounded-3xl border-4 border-[#8a684a] bg-[#d6c39c] p-3">
         <div
           className="grid w-max gap-1"
           style={{ gridTemplateColumns: `repeat(${layout.columns}, 2.75rem)` }}
