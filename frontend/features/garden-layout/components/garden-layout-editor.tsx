@@ -243,7 +243,42 @@ function GardenGrid({
       <PlantCountSummary summary={plantCount} />
       <p className="mt-3 text-sm text-muted">선택한 작물을 빈 칸에 배치하세요. 같은 작물이 있는 칸을 다시 누르면 제거됩니다.</p>
       {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{error}</p>}
+      <LayoutNextStep hasPlacements={layout.placements.length > 0} seasonId={layout.seasonId} />
     </div>
+  );
+}
+
+function LayoutNextStep({
+  hasPlacements,
+  seasonId,
+}: {
+  hasPlacements: boolean;
+  seasonId: string;
+}) {
+  if (!hasPlacements) {
+    return (
+      <section className="surface-panel mt-6 border-dashed p-6" aria-labelledby="layout-next-step-title">
+        <p className="text-sm font-bold text-leaf">다음 단계</p>
+        <h2 className="mt-1 text-xl font-bold" id="layout-next-step-title">작물을 먼저 배치해 주세요</h2>
+        <p className="mt-2 text-sm leading-6 text-muted">한 칸 이상 작물을 배치하면 해당 작물과 시즌 기간에 맞는 재배 일정을 만들 수 있습니다.</p>
+      </section>
+    );
+  }
+
+  return (
+    <section className="mt-6 rounded-3xl bg-[#0f513f] p-6 text-white shadow-[var(--shadow-md)] sm:flex sm:items-center sm:justify-between sm:gap-6" aria-labelledby="layout-next-step-title">
+      <div>
+        <p className="text-sm font-bold text-[#ffd26f]">작물 배치 완료 · 다음 단계</p>
+        <h2 className="mt-2 text-2xl font-bold" id="layout-next-step-title">작물별 재배 일정을 만들어 보세요</h2>
+        <p className="mt-2 text-sm leading-6 text-white/80">배치한 작물과 시즌 기간을 기준으로 심기와 수확 일정을 자동으로 준비합니다.</p>
+      </div>
+      <Link
+        className="mt-5 inline-flex shrink-0 items-center justify-center rounded-full bg-white px-6 py-3.5 font-bold text-[#0f513f] transition hover:bg-[#eef8f3] sm:mt-0"
+        href={`/seasons/${seasonId}/tasks`}
+      >
+        작물별 일정 만들기 →
+      </Link>
+    </section>
   );
 }
 
