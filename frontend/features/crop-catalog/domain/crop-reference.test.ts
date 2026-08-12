@@ -12,6 +12,24 @@ test("대표 채소와 꽃 13종 기준 데이터가 유효하다", () => {
   assert.deepEqual(validateCropReferenceData(CROP_REFERENCES, CROP_SOURCES), []);
 });
 
+test("꽃다발은 접속 가능한 Iowa State 공식 관리 자료를 사용한다", () => {
+  const bouquet = CROP_REFERENCES.find((crop) => crop.id === "gift-bouquet");
+  const source = CROP_SOURCES.find(
+    (candidate) => candidate.id === bouquet?.sourceId,
+  );
+
+  assert.ok(source);
+  assert.equal(source.organization, "Iowa State University Extension and Outreach");
+  assert.equal(
+    source.url,
+    "https://yardandgarden.extension.iastate.edu/how-to/how-harvest-condition-and-care-cut-flowers",
+  );
+  assert.equal(
+    CROP_SOURCES.some((candidate) => candidate.id === "penn-state-cut-flower-care"),
+    false,
+  );
+});
+
 test("이름·과명·설명으로 작물을 검색한다", () => {
   assert.deepEqual(
     filterCropReferences(CROP_REFERENCES, {

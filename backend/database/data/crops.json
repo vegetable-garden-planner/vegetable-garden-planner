@@ -8,11 +8,11 @@
       "reviewedAt": "2026-08-06"
     },
     {
-      "id": "penn-state-cut-flower-care",
-      "organization": "Penn State Extension",
-      "title": "Give Your Fresh Flowers Some Love",
-      "url": "https://extension.psu.edu/give-your-fresh-flowers-some-love",
-      "reviewedAt": "2026-08-07"
+      "id": "iowa-state-cut-flower-care",
+      "organization": "Iowa State University Extension and Outreach",
+      "title": "How to Harvest, Condition, and Care for Cut Flowers",
+      "url": "https://yardandgarden.extension.iastate.edu/how-to/how-harvest-condition-and-care-cut-flowers",
+      "reviewedAt": "2026-08-12"
     },
     {
       "id": "rhs-phalaenopsis-guide",
@@ -298,7 +298,7 @@
       },
       "plantSpacingCm": 1,
       "summary": "선물 받은 꽃을 바로 손질하고 물을 관리해 가능한 오래 감상하는 방법을 안내합니다.",
-      "sourceId": "penn-state-cut-flower-care",
+      "sourceId": "iowa-state-cut-flower-care",
       "careGuide": {
         "lifespan": "꽃 종류와 신선도에 따라 보통 며칠에서 2주 안팎",
         "light": "직사광선과 강한 조명을 피해 서늘하고 밝은 곳",

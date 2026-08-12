@@ -67,6 +67,13 @@ class CropCatalogApiTest extends TestCase
                 'id' => 'nongsaro-beginner-garden-manual',
                 'organization' => '농촌진흥청 농사로',
                 'reviewedAt' => '2026-08-06',
-            ]);
+            ])
+            ->assertJsonFragment([
+                'id' => 'iowa-state-cut-flower-care',
+                'organization' => 'Iowa State University Extension and Outreach',
+                'url' => 'https://yardandgarden.extension.iastate.edu/how-to/how-harvest-condition-and-care-cut-flowers',
+                'reviewedAt' => '2026-08-12',
+            ])
+            ->assertJsonMissing(['id' => 'penn-state-cut-flower-care']);
     }
 }
