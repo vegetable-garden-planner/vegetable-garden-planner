@@ -57,6 +57,12 @@ class User extends Authenticatable
         return $this->hasMany(WateringLog::class);
     }
 
+    /** @return HasMany<SocialAccount, $this> */
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

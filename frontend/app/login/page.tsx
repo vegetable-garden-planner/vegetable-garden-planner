@@ -11,10 +11,15 @@ export const metadata: Metadata = {
 export default async function LoginPage(props: PageProps<"/login">) {
   const query = await props.searchParams;
   const nextPath = getSafeReturnPath(query.next);
+  const socialError = query.socialError === "google-config"
+    ? "Google 로그인이 아직 서버에 설정되지 않았습니다. 관리자에게 알려 주세요."
+    : query.socialError === "google"
+      ? "Google 로그인을 완료하지 못했습니다. 다시 시도해 주세요."
+      : "";
 
   return (
     <AuthPageShell description="로그인 후 재배 공간과 계획을 이어서 관리할 수 있습니다." eyebrow="회원 인증" title="다시 만나 반가워요">
-      <LoginForm nextPath={nextPath} />
+      <LoginForm nextPath={nextPath} socialError={socialError} />
     </AuthPageShell>
   );
 }

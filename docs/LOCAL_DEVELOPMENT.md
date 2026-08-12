@@ -37,7 +37,15 @@ DB_PORT=3306
 DB_DATABASE=vegetable_garden_planner
 DB_USERNAME=root
 DB_PASSWORD=
+
+KAKAO_REST_API_KEY=선택_카카오_REST_API_키
+FRONTEND_URL=http://localhost:3000
+GOOGLE_CLIENT_ID=선택_Google_OAuth_클라이언트_ID
+GOOGLE_CLIENT_SECRET=선택_Google_OAuth_클라이언트_비밀키
+GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 ```
+
+외부 키가 없어도 기본 이메일 로그인과 수동 일조 시간 선택은 동작합니다. 주소 검색과 Google 로그인은 각각의 키를 설정해야 실제 외부 서비스까지 완료됩니다.
 
 ## 4. 빈 데이터베이스 만들기
 
