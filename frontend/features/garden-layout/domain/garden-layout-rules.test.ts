@@ -4,6 +4,7 @@ import type { CropReference } from "../../crop-catalog/domain/crop-reference.ts"
 import type { GrowingSeason } from "../../growing-season/domain/growing-season.ts";
 import type { GardenLayout } from "./garden-layout.ts";
 import {
+  getCropSeasonFit,
   getGardenLayoutRuleWarnings,
   InvalidGardenLayoutRuleDataError,
 } from "./garden-layout-rules.ts";
@@ -69,6 +70,29 @@ test("연도를 넘는 권장 심는 시기는 다음 해 초 시즌과도 겹�
   const warnings = getGardenLayoutRuleWarnings(layout, season, crops, [layout], [season]);
 
   assert.equal(warnings.some((warning) => warning.type === "planting-period"), false);
+});
+
+test("시즌 안에서 권장 심기와 수확 날짜를 순서대로 찾는다", () => {
+  const crop = createCrop("pepper", "고추", "가지과", 40, 5, 6);
+  const season = createSeason("summer", "2026-05-15", "2026-09-30");
+
+  assert.deepEqual(getCropSeasonFit(season, crop), {
+    plantingDate: "2026-05-15",
+    harvestDate: "2026-06-01",
+  });
+});
+
+test("심기 또는 수확 시기가 시즌 밖이면 자동 일정 불가 상태를 반환한다", () => {
+  const crop = createCrop("pepper", "고추", "가지과", 40, 3, 5);
+
+  assert.deepEqual(
+    getCropSeasonFit(createSeason("late", "2026-08-01", "2026-09-30"), crop),
+    { plantingDate: null, harvestDate: null },
+  );
+  assert.deepEqual(
+    getCropSeasonFit(createSeason("short", "2026-05-01", "2026-05-31"), crop),
+    { plantingDate: "2026-05-01", harvestDate: null },
+  );
 });
 
 test("작물 사이 거리가 요구 간격과 정확히 같으면 경고하지 않는다", () => {

@@ -1,4 +1,4 @@
-import type { CropReference } from "../../crop-catalog/domain/crop-reference.ts";
+import type { CropPeriod, CropReference } from "../../crop-catalog/domain/crop-reference.ts";
 import type { GrowingSeason } from "../../growing-season/domain/growing-season.ts";
 import type { CropPlacement, GardenLayout } from "./garden-layout.ts";
 
@@ -29,6 +29,33 @@ export class InvalidGardenLayoutRuleDataError extends Error {
 interface ResolvedPlacement {
   placement: CropPlacement;
   crop: CropReference;
+}
+
+export interface CropSeasonFit {
+  plantingDate: string | null;
+  harvestDate: string | null;
+}
+
+export function getCropSeasonFit(
+  season: Pick<GrowingSeason, "startDate" | "endDate">,
+  crop: Pick<CropReference, "plantingPeriod" | "harvestPeriod">,
+): CropSeasonFit {
+  assertValidSeasonPeriod(season);
+  const plantingDate = firstMatchingPeriodDate(
+    season.startDate,
+    season.endDate,
+    crop.plantingPeriod,
+  );
+  if (!plantingDate) return { plantingDate: null, harvestDate: null };
+
+  return {
+    plantingDate,
+    harvestDate: firstMatchingPeriodDate(
+      plantingDate,
+      season.endDate,
+      crop.harvestPeriod,
+    ),
+  };
 }
 
 export function getGardenLayoutRuleWarnings(
@@ -70,7 +97,7 @@ function getPlantingPeriodWarnings(
   const warnings: GardenLayoutRuleWarning[] = [];
   for (const cropPlacements of placementsByCropId.values()) {
     const crop = cropPlacements[0]?.crop;
-    if (!crop || seasonOverlapsCropPeriod(season, crop)) continue;
+    if (!crop || getCropSeasonFit(season, crop).plantingDate) continue;
 
     warnings.push({
       type: "planting-period",
@@ -185,9 +212,8 @@ function resolvePlacements(
   });
 }
 
-function seasonOverlapsCropPeriod(
+function assertValidSeasonPeriod(
   season: Pick<GrowingSeason, "startDate" | "endDate">,
-  crop: CropReference,
 ) {
   if (
     !isDateOnly(season.startDate)
@@ -198,28 +224,27 @@ function seasonOverlapsCropPeriod(
       "재배 시기를 검사할 시즌 기간이 올바르지 않습니다.",
     );
   }
+}
 
-  const startYear = Number(season.startDate.slice(0, 4));
-  const endYear = Number(season.endDate.slice(0, 4));
-  const spansYearBoundary = crop.plantingPeriod.endMonth
-    < crop.plantingPeriod.startMonth;
-  const firstPeriodYear = spansYearBoundary ? startYear - 1 : startYear;
-
-  for (let year = firstPeriodYear; year <= endYear; year += 1) {
-    const periodStart = toDateOnly(year, crop.plantingPeriod.startMonth, 1);
-    const periodEnd = toDateOnly(
-      spansYearBoundary ? year + 1 : year,
-      crop.plantingPeriod.endMonth,
-      getLastDayOfMonth(
-        spansYearBoundary ? year + 1 : year,
-        crop.plantingPeriod.endMonth,
-      ),
-    );
-    if (season.startDate <= periodEnd && season.endDate >= periodStart) {
-      return true;
-    }
+function firstMatchingPeriodDate(
+  startDate: string,
+  endDate: string,
+  period: CropPeriod,
+): string | null {
+  for (let date = startDate; date <= endDate; date = nextDate(date)) {
+    const month = Number(date.slice(5, 7));
+    const matches = period.startMonth <= period.endMonth
+      ? month >= period.startMonth && month <= period.endMonth
+      : month >= period.startMonth || month <= period.endMonth;
+    if (matches) return date;
   }
-  return false;
+  return null;
+}
+
+function nextDate(value: string) {
+  const date = new Date(`${value}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10);
 }
 
 function findPreviousCultivatedSeason(
@@ -296,14 +321,6 @@ function isDateOnly(value: string) {
   const timestamp = Date.parse(`${value}T00:00:00.000Z`);
   return Number.isFinite(timestamp)
     && new Date(timestamp).toISOString().slice(0, 10) === value;
-}
-
-function toDateOnly(year: number, month: number, day: number) {
-  return `${year.toString().padStart(4, "0")}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
-}
-
-function getLastDayOfMonth(year: number, month: number) {
-  return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
 
 function formatDistance(distanceCm: number) {
