@@ -33,7 +33,7 @@ export function AppPageShell({
 }: AppPageShellProps) {
   return (
     <main className="app-page">
-      <div className={`mx-auto ${widthClasses[width]}`}>
+      <div className={`mx-auto w-full min-w-0 ${widthClasses[width]}`}>
         <AppHeader action={action} homeHref={homeHref} />
         {backHref && backLabel && <Link className="back-link" href={backHref}>← {backLabel}</Link>}
         <header className="page-hero">
