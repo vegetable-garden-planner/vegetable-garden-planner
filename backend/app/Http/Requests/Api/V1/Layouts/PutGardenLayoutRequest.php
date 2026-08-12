@@ -27,7 +27,7 @@ class PutGardenLayoutRequest extends StrictJsonRequest
             'spaceWidthCm' => ['required', 'integer', 'min:10', 'max:100000'],
             'spaceLengthCm' => ['required', 'integer', 'min:10', 'max:100000'],
             'cellSizeCm' => ['required', 'integer', Rule::in(self::CELL_SIZES)],
-            'placements' => ['required', 'array', 'max:'.self::MAX_CELLS],
+            'placements' => ['present', 'array', 'max:'.self::MAX_CELLS],
             'placements.*' => ['required', 'array:cellIndex,cropId'],
             'placements.*.cellIndex' => ['required', 'integer', 'min:0', 'distinct:strict'],
             'placements.*.cropId' => ['required', 'string', 'max:100', 'exists:crops,id'],

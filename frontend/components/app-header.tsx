@@ -16,7 +16,7 @@ const navigation = [
   { label: "무료·프로", href: "/plans" },
 ];
 
-export function AppHeader({ action, homeHref = "/dashboard" }: AppHeaderProps) {
+export function AppHeader({ action, homeHref = "/" }: AppHeaderProps) {
   return (
     <header className="sticky top-4 z-40 flex flex-wrap items-center justify-between gap-3 rounded-[1.4rem] border border-white/80 bg-white/88 px-4 py-3 shadow-[var(--shadow-sm)] backdrop-blur-xl sm:px-5">
       <Link className="flex items-center gap-2.5 font-bold tracking-[-0.03em]" href={homeHref}>
