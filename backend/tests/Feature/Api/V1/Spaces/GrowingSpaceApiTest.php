@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1\Spaces;
 
 use App\Enums\GrowingSpaceType;
+use App\Enums\SpaceOrientation;
 use App\Enums\SunlightExposure;
 use App\Models\GrowingSpace;
 use App\Models\User;
@@ -35,6 +36,11 @@ class GrowingSpaceApiTest extends TestCase
             'name' => '  주말 텃밭  ',
             'region' => '  서울  ',
             'notes' => '  남향 구역  ',
+            'address' => '  서울특별시 중구 세종대로 110  ',
+            'latitude' => 37.5665,
+            'longitude' => 126.978,
+            'orientation' => SpaceOrientation::South->value,
+            'estimatedSunlightHours' => 6.5,
         ]);
 
         $response
@@ -44,6 +50,9 @@ class GrowingSpaceApiTest extends TestCase
             ->assertJsonPath('data.widthCm', 200)
             ->assertJsonPath('data.region', '서울')
             ->assertJsonPath('data.notes', '남향 구역')
+            ->assertJsonPath('data.address', '서울특별시 중구 세종대로 110')
+            ->assertJsonPath('data.orientation', 'south')
+            ->assertJsonPath('data.estimatedSunlightHours', 6.5)
             ->assertJsonPath('data.version', 1);
 
         $space = GrowingSpace::query()->sole();

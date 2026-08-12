@@ -28,6 +28,11 @@ class GrowingSpaceFactory extends Factory
             'width_cm' => 200,
             'length_cm' => 300,
             'region' => '서울',
+            'address' => null,
+            'latitude' => null,
+            'longitude' => null,
+            'orientation' => null,
+            'estimated_sunlight_hours' => null,
             'notes' => '',
             'version' => 1,
         ];

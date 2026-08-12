@@ -14,6 +14,7 @@ const garden: GrowingSpace = {
   widthCm: 200,
   lengthCm: 300,
   region: "서울",
+  address: null, latitude: null, longitude: null, orientation: null, estimatedSunlightHours: null,
   notes: "",
   version: 1,
   createdAt: "2026-01-01T00:00:00.000Z",

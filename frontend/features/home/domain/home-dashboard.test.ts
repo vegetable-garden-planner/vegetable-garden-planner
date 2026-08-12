@@ -10,6 +10,7 @@ import { CROP_REFERENCES } from "../../crop-catalog/data/crop-references.ts";
 test("홈 요약은 실제 시즌·배치·미완료 일정에서 계산한다", () => {
   const space: GrowingSpace = {
     id: "space-1", name: "베란다", type: "balcony", sunlight: "full",
+    address: null, latitude: null, longitude: null, orientation: null, estimatedSunlightHours: null,
     widthCm: 200, lengthCm: 100, region: "서울", notes: "", version: 1,
     createdAt: "2026-08-01T00:00:00Z", updatedAt: "2026-08-01T00:00:00Z",
   };

@@ -223,6 +223,42 @@ paths:
                     items:
                       $ref: '#/components/schemas/CropSource'
 
+  /locations/geocode:
+    get:
+      tags: [Locations]
+      summary: 카카오 주소를 위도·경도로 변환
+      operationId: geocodeAddress
+      parameters:
+        - in: query
+          name: address
+          required: true
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 255
+      responses:
+        '200':
+          description: 주소 변환 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data:
+                    type: object
+                    required: [address, latitude, longitude]
+                    properties:
+                      address: { type: string }
+                      latitude: { type: number }
+                      longitude: { type: number }
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          description: 주소 검색 설정 또는 외부 서비스 오류
+
   /spaces:
     get:
       tags: [Spaces]
@@ -1392,6 +1428,9 @@ components:
     SunlightExposure:
       type: string
       enum: [low, partial, full]
+    SpaceOrientation:
+      type: string
+      enum: [open, north, northeast, east, southeast, south, southwest, west, northwest]
     GrowingSpaceInput:
       type: object
       required: [name, type, sunlight, widthCm, lengthCm, region, notes]
@@ -1416,6 +1455,25 @@ components:
           type: string
           minLength: 1
           maxLength: 100
+        address:
+          type: [string, 'null']
+          maxLength: 255
+        latitude:
+          type: [number, 'null']
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: [number, 'null']
+          minimum: -180
+          maximum: 180
+        orientation:
+          oneOf:
+            - $ref: '#/components/schemas/SpaceOrientation'
+            - type: 'null'
+        estimatedSunlightHours:
+          type: [number, 'null']
+          minimum: 0
+          maximum: 24
         notes:
           type: string
           maxLength: 1000
@@ -1444,6 +1502,25 @@ components:
           type: string
           minLength: 1
           maxLength: 100
+        address:
+          type: [string, 'null']
+          maxLength: 255
+        latitude:
+          type: [number, 'null']
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: [number, 'null']
+          minimum: -180
+          maximum: 180
+        orientation:
+          oneOf:
+            - $ref: '#/components/schemas/SpaceOrientation'
+            - type: 'null'
+        estimatedSunlightHours:
+          type: [number, 'null']
+          minimum: 0
+          maximum: 24
         notes:
           type: string
           maxLength: 1000

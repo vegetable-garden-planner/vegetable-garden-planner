@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\V1\Layouts\DestroyGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\IndexGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\PutGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\ShowGardenLayoutController;
+use App\Http\Controllers\Api\V1\Locations\GeocodeAddressController;
 use App\Http\Controllers\Api\V1\Records\DestroyRecordController;
 use App\Http\Controllers\Api\V1\Records\IndexSeasonRecordController;
 use App\Http\Controllers\Api\V1\Records\StoreSeasonRecordController;
@@ -65,6 +66,9 @@ Route::prefix('v1')->group(function (): void {
     Route::get('/me', CurrentUserController::class)->middleware('auth:sanctum');
 
     Route::middleware('auth:sanctum')->group(function (): void {
+        Route::get('/locations/geocode', GeocodeAddressController::class)
+            ->middleware('throttle:30,1');
+
         Route::get('/spaces', IndexSpaceController::class);
         Route::post('/spaces', StoreSpaceController::class);
         Route::get('/spaces/{growingSpace}', ShowSpaceController::class);
