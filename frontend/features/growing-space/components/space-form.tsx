@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { SunlightLocationAssistant } from "@/features/growing-space/components/sunlight-location-assistant";
 import {
   REGION_OPTIONS,
   SPACE_TYPE_OPTIONS,
@@ -110,6 +111,20 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
         </Field>
       </div>
 
+      <SunlightLocationAssistant
+        onApply={(location, sunlight) => {
+          setValues((current) => ({ ...current, ...location, sunlight }));
+          setErrors((current) => ({ ...current, latitude: undefined, longitude: undefined }));
+        }}
+        value={{
+          address: values.address,
+          estimatedSunlightHours: values.estimatedSunlightHours,
+          latitude: values.latitude,
+          longitude: values.longitude,
+          orientation: values.orientation,
+        }}
+      />
+
       <Field label="메모 (선택)" id="notes">
         <textarea className="form-input min-h-28 resize-y" id="notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="바람, 배수, 주변 환경 등을 기록해 보세요." value={values.notes} />
       </Field>
@@ -129,6 +144,11 @@ function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValue
     widthCm: "",
     lengthCm: "",
     region: "",
+    address: "",
+    latitude: "",
+    longitude: "",
+    orientation: null,
+    estimatedSunlightHours: null,
     notes: "",
   };
 }
@@ -141,6 +161,11 @@ function toFormValues(space: GrowingSpace): GrowingSpaceFormValues {
     widthCm: String(space.widthCm),
     lengthCm: String(space.lengthCm),
     region: space.region,
+    address: space.address ?? "",
+    latitude: space.latitude === null ? "" : String(space.latitude),
+    longitude: space.longitude === null ? "" : String(space.longitude),
+    orientation: space.orientation,
+    estimatedSunlightHours: space.estimatedSunlightHours,
     notes: space.notes,
   };
 }

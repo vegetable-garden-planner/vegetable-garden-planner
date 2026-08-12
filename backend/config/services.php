@@ -2,6 +2,10 @@
 
 return [
 
+    'kakao' => [
+        'rest_api_key' => env('KAKAO_REST_API_KEY'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

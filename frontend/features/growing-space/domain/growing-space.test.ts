@@ -13,6 +13,11 @@ const validValues: GrowingSpaceFormValues = {
   widthCm: "400",
   lengthCm: "150",
   region: "서울특별시",
+  address: "서울특별시 중구 세종대로 110",
+  latitude: "37.5665000",
+  longitude: "126.9780000",
+  orientation: "south",
+  estimatedSunlightHours: 6.5,
   notes: "남향",
 };
 

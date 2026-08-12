@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1\Spaces;
 
 use App\Enums\GrowingSpaceType;
+use App\Enums\SpaceOrientation;
 use App\Enums\SunlightExposure;
 use App\Http\Requests\Api\V1\StrictJsonRequest;
 use Illuminate\Validation\Rule;
@@ -18,6 +19,11 @@ abstract class GrowingSpaceRequest extends StrictJsonRequest
         'widthCm' => 'width_cm',
         'lengthCm' => 'length_cm',
         'region' => 'region',
+        'address' => 'address',
+        'latitude' => 'latitude',
+        'longitude' => 'longitude',
+        'orientation' => 'orientation',
+        'estimatedSunlightHours' => 'estimated_sunlight_hours',
         'notes' => 'notes',
     ];
 
@@ -50,6 +56,11 @@ abstract class GrowingSpaceRequest extends StrictJsonRequest
             'widthCm' => [$presence, 'integer', 'min:10', 'max:100000'],
             'lengthCm' => [$presence, 'integer', 'min:10', 'max:100000'],
             'region' => [$presence, 'string', 'min:1', 'max:100'],
+            'address' => [$presence === 'required' ? 'nullable' : $presence, 'nullable', 'string', 'max:255'],
+            'latitude' => [$presence === 'required' ? 'nullable' : $presence, 'nullable', 'numeric', 'between:-90,90', 'required_with:longitude'],
+            'longitude' => [$presence === 'required' ? 'nullable' : $presence, 'nullable', 'numeric', 'between:-180,180', 'required_with:latitude'],
+            'orientation' => [$presence === 'required' ? 'nullable' : $presence, 'nullable', 'string', Rule::enum(SpaceOrientation::class)],
+            'estimatedSunlightHours' => [$presence === 'required' ? 'nullable' : $presence, 'nullable', 'numeric', 'between:0,24'],
             'notes' => [$presence === 'required' ? 'present' : $presence, 'string', 'max:1000'],
         ];
     }
@@ -58,7 +69,7 @@ abstract class GrowingSpaceRequest extends StrictJsonRequest
     {
         $normalized = [];
 
-        foreach (['name', 'region', 'notes'] as $field) {
+        foreach (['name', 'region', 'address', 'notes'] as $field) {
             if ($this->exists($field)) {
                 $normalized[$field] = trim((string) $this->input($field));
             }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\GrowingSpaceType;
+use App\Enums\SpaceOrientation;
 use App\Enums\SunlightExposure;
 use Database\Factories\GrowingSpaceFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -28,6 +29,11 @@ class GrowingSpace extends Model
         'width_cm',
         'length_cm',
         'region',
+        'address',
+        'latitude',
+        'longitude',
+        'orientation',
+        'estimated_sunlight_hours',
         'notes',
     ];
 
@@ -57,6 +63,10 @@ class GrowingSpace extends Model
             'sunlight' => SunlightExposure::class,
             'width_cm' => 'integer',
             'length_cm' => 'integer',
+            'latitude' => 'decimal:7',
+            'longitude' => 'decimal:7',
+            'orientation' => SpaceOrientation::class,
+            'estimated_sunlight_hours' => 'decimal:1',
             'version' => 'integer',
         ];
     }

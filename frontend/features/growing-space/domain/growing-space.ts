@@ -2,6 +2,7 @@ import type {
   GrowingSpaceType,
   SunlightExposure,
 } from "@/shared/domain/growing-environment";
+import type { SpaceOrientation } from "@/features/growing-space/domain/sunlight-estimate";
 
 export interface GrowingSpaceFormValues {
   name: string;
@@ -10,6 +11,11 @@ export interface GrowingSpaceFormValues {
   widthCm: string;
   lengthCm: string;
   region: string;
+  address: string;
+  latitude: string;
+  longitude: string;
+  orientation: SpaceOrientation | null;
+  estimatedSunlightHours: number | null;
   notes: string;
 }
 
@@ -20,6 +26,11 @@ export interface GrowingSpaceInput {
   widthCm: number;
   lengthCm: number;
   region: string;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  orientation: SpaceOrientation | null;
+  estimatedSunlightHours: number | null;
   notes: string;
 }
 
@@ -48,6 +59,8 @@ export function validateGrowingSpace(
   const region = values.region.trim();
   const widthCm = Number(values.widthCm);
   const lengthCm = Number(values.lengthCm);
+  const latitude = values.latitude === "" ? null : Number(values.latitude);
+  const longitude = values.longitude === "" ? null : Number(values.longitude);
 
   if (!name) {
     errors.name = "공간 이름을 입력해 주세요.";
@@ -60,6 +73,14 @@ export function validateGrowingSpace(
 
   if (!region) {
     errors.region = "재배 지역을 선택해 주세요.";
+  }
+
+  if ((latitude === null) !== (longitude === null)) {
+    errors.latitude = "위도와 경도를 함께 입력해 주세요.";
+  } else if (latitude !== null && (!Number.isFinite(latitude) || latitude < -90 || latitude > 90)) {
+    errors.latitude = "올바른 위도를 입력해 주세요.";
+  } else if (longitude !== null && (!Number.isFinite(longitude) || longitude < -180 || longitude > 180)) {
+    errors.longitude = "올바른 경도를 입력해 주세요.";
   }
 
   if (Object.keys(errors).length > 0) {
@@ -75,6 +96,11 @@ export function validateGrowingSpace(
       widthCm,
       lengthCm,
       region,
+      address: values.address.trim() || null,
+      latitude,
+      longitude,
+      orientation: values.orientation,
+      estimatedSunlightHours: values.estimatedSunlightHours,
       notes: values.notes.trim(),
     },
   };
