@@ -6,8 +6,8 @@
 
 ```text
 브라우저
-  → Next.js 16 App Router
-  → /api/v1, /sanctum rewrite
+  ├→ Next.js 16 App Router → /api/v1, /sanctum rewrite
+  └→ Laravel Blade 관리자 콘솔 (/admin)
   → Laravel 12 + Sanctum
   → MySQL/MariaDB
 ```
@@ -50,6 +50,23 @@ routes/api.php
 - 여러 테이블을 바꾸는 쓰기 작업은 트랜잭션에서 처리합니다.
 - 삭제 제약이나 중복과 같은 관계 오류는 명시적인 `409` 코드로 반환합니다.
 - 내부 예외와 스택 추적을 API 응답에 노출하지 않습니다.
+
+## 관리자 콘솔 경계
+
+관리자 콘솔은 사용자용 Next.js 화면과 분리된 Laravel Blade 웹 화면입니다. 동일한 Laravel 세션을 사용하지만 `auth`와 `admin` 미들웨어를 모두 통과해야 합니다.
+
+```text
+routes/web.php
+  → Admin Controller: 조회 조건과 화면 응답
+  → Admin Action/Service: 상태 변경과 운영 지표 계산
+  → Eloquent Model
+  → Blade View
+```
+
+- `role=admin`, `status=active`인 계정만 접근합니다.
+- 일반 회원을 비활성화하면 세션과 Sanctum 토큰을 함께 폐기합니다.
+- 관리자 자신과 다른 관리자 계정은 회원 관리 화면에서 비활성화할 수 없습니다.
+- 작물 기준정보는 현재 조회 전용이며 변경은 기준 데이터와 마이그레이션으로 공유합니다.
 
 ## 데이터베이스 기준
 
