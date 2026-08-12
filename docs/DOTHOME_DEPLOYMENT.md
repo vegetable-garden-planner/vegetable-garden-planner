@@ -34,6 +34,12 @@ https://api.example.com  -> Laravel backend/public
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://api.example.com
+FRONTEND_URL=https://example.com
+
+KAKAO_REST_API_KEY=카카오_REST_API_키
+GOOGLE_CLIENT_ID=Google_OAuth_클라이언트_ID
+GOOGLE_CLIENT_SECRET=Google_OAuth_클라이언트_비밀키
+GOOGLE_REDIRECT_URI=https://example.com/auth/google/callback
 
 DB_CONNECTION=mysql
 DB_HOST=호스팅에서_제공한_DB_호스트
@@ -47,6 +53,8 @@ SESSION_SECURE_COOKIE=true
 SANCTUM_STATEFUL_DOMAINS=example.com,www.example.com
 CORS_ALLOWED_ORIGINS=https://example.com,https://www.example.com
 ```
+
+Google Cloud Console의 승인된 리디렉션 URI에도 `GOOGLE_REDIRECT_URI`와 정확히 같은 HTTPS 주소를 등록합니다. 카카오 REST API 키와 Google 비밀키는 프론트엔드 환경 변수에 넣지 않습니다.
 
 `APP_KEY`는 `php artisan key:generate`로 한 번 생성하고 이후 임의로 바꾸지 않습니다. 키를 바꾸면 기존 암호화 데이터와 세션을 읽을 수 없습니다.
 

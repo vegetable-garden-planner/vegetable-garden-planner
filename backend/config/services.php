@@ -6,6 +6,16 @@ return [
         'rest_api_key' => env('KAKAO_REST_API_KEY'),
     ],
 
+    'frontend' => [
+        'url' => env('FRONTEND_URL', 'http://localhost:3000'),
+    ],
+
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI', 'http://localhost:3000/auth/google/callback'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

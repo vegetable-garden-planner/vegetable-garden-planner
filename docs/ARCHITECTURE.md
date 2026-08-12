@@ -73,10 +73,12 @@ Laravel Sanctum SPA 세션 인증을 사용합니다.
 
 ```text
 GET /sanctum/csrf-cookie
-→ POST /api/v1/auth/login 또는 register
+→ POST /api/v1/auth/login 또는 register, 또는 GET /auth/google/redirect
 → HttpOnly 세션 쿠키
 → 보호 API 요청에 쿠키와 X-XSRF-TOKEN 전송
 ```
+
+Google 로그인은 Laravel Socialite의 OAuth state 검증을 거쳐 이메일이 확인된 계정을 `social_accounts`에 연결하고 동일한 Laravel 세션을 발급합니다. OAuth 비밀키나 액세스 토큰은 프론트엔드와 DB에 노출·저장하지 않습니다.
 
 프론트엔드의 `api-client.ts`가 CSRF 준비와 공통 오류 변환을 담당합니다. 토큰이나 DB 비밀번호를 `localStorage` 또는 `NEXT_PUBLIC_*` 비밀값으로 저장하지 않습니다.
 
@@ -108,6 +110,7 @@ GET /sanctum/csrf-cookie
 ```mermaid
 erDiagram
     USERS ||--o{ GROWING_SPACES : owns
+    USERS ||--o{ SOCIAL_ACCOUNTS : connects
     GROWING_SPACES ||--o{ GROWING_SEASONS : contains
     GROWING_SEASONS ||--o| GARDEN_LAYOUTS : has
     GARDEN_LAYOUTS ||--o{ GARDEN_LAYOUT_PLACEMENTS : contains
