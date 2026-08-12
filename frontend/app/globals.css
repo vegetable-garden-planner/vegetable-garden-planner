@@ -75,7 +75,14 @@
 }
 
 html {
+  overflow-x: hidden;
   scroll-behavior: smooth;
+}
+
+@supports (overflow: clip) {
+  html {
+    overflow-x: clip;
+  }
 }
 
 body {
