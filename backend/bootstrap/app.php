@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Exceptions\ApiConflictException;
 use App\Exceptions\ApiPreconditionException;
+use App\Http\Middleware\EnsureAdmin;
 use App\Http\Responses\ApiErrorResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
@@ -24,7 +25,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
-        $middleware->redirectGuestsTo(static fn (Request $request): ?string => null);
+        $middleware->alias(['admin' => EnsureAdmin::class]);
+        $middleware->redirectGuestsTo(static fn (Request $request): ?string => $request->is('api/*')
+            ? null
+            : route('admin.login'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (ValidationException $exception, Request $request): ?JsonResponse {
