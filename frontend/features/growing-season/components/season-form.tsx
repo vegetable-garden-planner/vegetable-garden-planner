@@ -127,7 +127,17 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
         <div className="rounded-2xl bg-leaf-soft/60 p-5">
           <p className="text-sm font-bold text-leaf">선택한 식물</p>
           <p className="mt-1 text-xl font-bold">{initialCrop.name}</p>
-          <p className="mt-2 text-sm leading-6 text-muted">이 시즌에 선택한 식물을 연결해 저장합니다.</p>
+          <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+            <div className="rounded-xl bg-white/70 px-4 py-3">
+              <dt className="text-muted">권장 심기</dt>
+              <dd className="mt-1 font-bold">{initialCrop.plantingPeriod.label}</dd>
+            </div>
+            <div className="rounded-xl bg-white/70 px-4 py-3">
+              <dt className="text-muted">권장 수확</dt>
+              <dd className="mt-1 font-bold">{initialCrop.harvestPeriod.label}</dd>
+            </div>
+          </dl>
+          <p className="mt-3 text-sm leading-6 text-muted">위 심기와 수확 시기가 모두 포함되도록 아래 시즌 기간을 정하면 자동 일정을 만들 수 있습니다.</p>
         </div>
       )}
       <SeasonField error={errors.spaceId} id="season-space" label="재배 공간">
@@ -140,10 +150,10 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
         <input aria-describedby={errors.name ? "season-name-error" : undefined} aria-invalid={Boolean(errors.name)} className="form-input" id="season-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 2026년 봄 시즌" value={values.name} />
       </SeasonField>
       <div className="grid gap-5 sm:grid-cols-2">
-        <SeasonField error={errors.startDate} id="season-start" label="시작일">
+        <SeasonField error={errors.startDate} id="season-start" label={initialCrop ? `시작일 · 권장 심기 ${initialCrop.plantingPeriod.label}` : "시작일"}>
           <input aria-describedby={errors.startDate ? "season-start-error" : undefined} aria-invalid={Boolean(errors.startDate)} className="form-input" id="season-start" onChange={(event) => update("startDate", event.target.value)} type="date" value={values.startDate} />
         </SeasonField>
-        <SeasonField error={errors.endDate} id="season-end" label="종료일">
+        <SeasonField error={errors.endDate} id="season-end" label={initialCrop ? `종료일 · 권장 수확 ${initialCrop.harvestPeriod.label}` : "종료일"}>
           <input aria-describedby={errors.endDate ? "season-end-error" : undefined} aria-invalid={Boolean(errors.endDate)} className="form-input" id="season-end" min={values.startDate || undefined} onChange={(event) => update("endDate", event.target.value)} type="date" value={values.endDate} />
         </SeasonField>
       </div>

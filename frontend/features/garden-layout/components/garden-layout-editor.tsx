@@ -14,12 +14,14 @@ import {
   type GardenLayout,
   type GridCellSizeCm,
 } from "@/features/garden-layout/domain/garden-layout";
+import { getCropSeasonFit } from "@/features/garden-layout/domain/garden-layout-rules";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
   deleteGardenLayout,
   putGardenLayout,
 } from "@/features/garden-layout/infrastructure/garden-layout-api";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
+import type { GrowingSeason } from "@/features/growing-season/domain/growing-season";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 
@@ -64,7 +66,7 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
         <p className="mt-2 text-sm text-muted">공간 크기 {space.widthCm} × {space.lengthCm}cm</p>
       </div>
       {layout
-        ? <GardenGrid crops={gardenCrops} layout={layout} reload={layoutsState.reload} space={space} />
+        ? <GardenGrid crops={gardenCrops} layout={layout} reload={layoutsState.reload} season={season} space={space} />
         : <GardenGridSetup reload={layoutsState.reload} seasonId={season.id} space={space} />}
     </div>
   );
@@ -141,22 +143,31 @@ function GardenGrid({
   crops,
   layout,
   reload,
+  season,
   space,
 }: {
   crops: readonly CropReference[];
   layout: GardenLayout;
   reload: () => Promise<void>;
+  season: GrowingSeason;
   space: GrowingSpace;
 }) {
-  const [selectedCropId, setSelectedCropId] = useState(crops[0]?.id ?? "");
+  const [selectedCropId, setSelectedCropId] = useState(
+    crops.find((crop) => isCompleteSeasonFit(getCropSeasonFit(season, crop)))?.id
+      ?? crops[0]?.id
+      ?? "",
+  );
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const cropsById = new Map(crops.map((crop) => [crop.id, crop]));
+  const cropFits = new Map(crops.map((crop) => [crop.id, getCropSeasonFit(season, crop)]));
   const placementsByCell = new Map(
     layout.placements.map((placement) => [placement.cellIndex, placement]),
   );
   const outdated = isGardenLayoutOutdated(layout, space);
   const plantCount = calculatePlantCount(layout.placements, crops);
+  const selectedCrop = cropsById.get(selectedCropId);
+  const selectedCropFit = cropFits.get(selectedCropId);
 
   async function updateCell(cellIndex: number) {
     if (isSaving) return;
@@ -200,12 +211,18 @@ function GardenGrid({
         <h2 className="text-lg font-bold" id="crop-selector-title">배치할 작물</h2>
         <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="radiogroup" aria-labelledby="crop-selector-title">
           {crops.map((crop) => (
-            <label className={`shrink-0 cursor-pointer rounded-full border px-4 py-2 text-sm font-bold ${selectedCropId === crop.id ? "border-leaf bg-leaf-soft text-leaf-dark" : "border-ink/10"}`} key={crop.id}>
+            <label className={`shrink-0 cursor-pointer rounded-2xl border px-4 py-2 text-sm font-bold ${cropChoiceClass(selectedCropId === crop.id, isCompleteSeasonFit(cropFits.get(crop.id)))}`} key={crop.id}>
               <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
-              {crop.name}
+              <span className="block">{crop.name}</span>
+              <span className="mt-0.5 block text-[0.68rem] font-semibold opacity-75">{isCompleteSeasonFit(cropFits.get(crop.id)) ? "현재 시즌 추천" : "다른 시기 권장"} · 심기 {crop.plantingPeriod.label}</span>
             </label>
           ))}
         </div>
+        {selectedCrop && selectedCropFit && (
+          <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-bold ${isCompleteSeasonFit(selectedCropFit) ? "bg-leaf-soft/60 text-leaf-dark" : "bg-amber-50 text-amber-900"}`} role="status">
+            {cropSeasonMessage(selectedCrop, selectedCropFit)}
+          </p>
+        )}
       </section>
 
       <div className="mt-5 overflow-x-auto rounded-3xl border-4 border-[#8a684a] bg-[#d6c39c] p-3">
@@ -243,24 +260,80 @@ function GardenGrid({
       <PlantCountSummary summary={plantCount} />
       <p className="mt-3 text-sm text-muted">선택한 작물을 빈 칸에 배치하세요. 같은 작물이 있는 칸을 다시 누르면 제거됩니다.</p>
       {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{error}</p>}
-      <LayoutNextStep hasPlacements={layout.placements.length > 0} seasonId={layout.seasonId} />
+      <LayoutNextStep crops={crops} layout={layout} season={season} />
     </div>
   );
 }
 
+function isCompleteSeasonFit(
+  fit: { plantingDate: string | null; harvestDate: string | null } | undefined,
+) {
+  return Boolean(fit?.plantingDate && fit.harvestDate);
+}
+
+function cropChoiceClass(selected: boolean, recommended: boolean) {
+  if (recommended) {
+    return selected ? "border-leaf bg-leaf-soft text-leaf-dark" : "border-ink/10";
+  }
+  return selected
+    ? "border-amber-500 bg-amber-100 text-amber-950 ring-2 ring-amber-200"
+    : "border-amber-300 bg-amber-50 text-amber-900";
+}
+
+function cropSeasonMessage(
+  crop: CropReference,
+  fit: { plantingDate: string | null; harvestDate: string | null },
+) {
+  if (isCompleteSeasonFit(fit)) {
+    return `${crop.name}은 현재 시즌에 심기와 수확 일정을 모두 만들 수 있습니다.`;
+  }
+  if (fit.plantingDate) {
+    return `${crop.name}은 심을 수 있지만 권장 수확 시기(${crop.harvestPeriod.label})가 현재 시즌에 포함되지 않습니다. 배치는 가능하지만 자동 일정은 만들 수 없습니다.`;
+  }
+  return `${crop.name}의 권장 심기 시기는 ${crop.plantingPeriod.label}입니다. 현재 시즌에는 자동 일정을 만들 수 없지만 배치는 가능합니다.`;
+}
+
 function LayoutNextStep({
-  hasPlacements,
-  seasonId,
+  crops,
+  layout,
+  season,
 }: {
-  hasPlacements: boolean;
-  seasonId: string;
+  crops: readonly CropReference[];
+  layout: GardenLayout;
+  season: GrowingSeason;
 }) {
-  if (!hasPlacements) {
+  if (layout.placements.length === 0) {
     return (
       <section className="surface-panel mt-6 border-dashed p-6" aria-labelledby="layout-next-step-title">
         <p className="text-sm font-bold text-leaf">다음 단계</p>
         <h2 className="mt-1 text-xl font-bold" id="layout-next-step-title">작물을 먼저 배치해 주세요</h2>
         <p className="mt-2 text-sm leading-6 text-muted">한 칸 이상 작물을 배치하면 해당 작물과 시즌 기간에 맞는 재배 일정을 만들 수 있습니다.</p>
+      </section>
+    );
+  }
+
+  const placedCropIds = new Set(layout.placements.map((placement) => placement.cropId));
+  const scheduleIssues = crops.flatMap((crop) => {
+    if (!placedCropIds.has(crop.id)) return [];
+    const fit = getCropSeasonFit(season, crop);
+    if (!fit.plantingDate) return [`${crop.name}: 권장 심기 ${crop.plantingPeriod.label}`];
+    if (!fit.harvestDate) return [`${crop.name}: 권장 수확 ${crop.harvestPeriod.label}`];
+    return [];
+  });
+
+  if (scheduleIssues.length > 0) {
+    return (
+      <section className="mt-6 rounded-3xl border border-amber-300 bg-amber-50 p-6" aria-labelledby="layout-next-step-title">
+        <p className="text-sm font-bold text-amber-800">자동 일정 전에 확인해 주세요</p>
+        <h2 className="mt-2 text-2xl font-bold text-amber-950" id="layout-next-step-title">현재 시즌과 권장 시기가 맞지 않아요</h2>
+        <p className="mt-2 text-sm leading-6 text-amber-900">작물을 키우지 못하게 막는 것은 아니지만, 지금 기간으로는 신뢰할 수 있는 자동 일정을 만들 수 없습니다.</p>
+        <ul className="mt-4 space-y-1 text-sm font-bold text-amber-950">
+          {scheduleIssues.map((issue) => <li key={issue}>· {issue}</li>)}
+        </ul>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Link className="rounded-full bg-amber-900 px-5 py-3 text-sm font-bold text-white" href={`/seasons/${season.id}/edit`}>시즌 기간 수정하기</Link>
+          <Link className="rounded-full border border-amber-400 bg-white px-5 py-3 text-sm font-bold text-amber-950" href="#crop-selector-title">다른 작물 선택하기</Link>
+        </div>
       </section>
     );
   }
@@ -274,7 +347,7 @@ function LayoutNextStep({
       </div>
       <Link
         className="mt-5 inline-flex shrink-0 items-center justify-center rounded-full bg-white px-6 py-3.5 font-bold text-[#0f513f] transition hover:bg-[#eef8f3] sm:mt-0"
-        href={`/seasons/${seasonId}/tasks`}
+        href={`/seasons/${season.id}/tasks`}
       >
         작물별 일정 만들기 →
       </Link>

@@ -16,6 +16,7 @@ import {
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import { ApiError } from "@/shared/infrastructure/api-client";
 
 const TASK_TYPE_LABELS: Record<CultivationTaskType, string> = {
   watering: "물주기",
@@ -43,6 +44,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   const layoutsState = useGardenLayouts();
   const tasksState = useCultivationTasks();
   const [actionError, setActionError] = useState("");
+  const [actionErrorCode, setActionErrorCode] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
   if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
@@ -71,12 +73,14 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
 
   async function runAction(action: () => Promise<void>): Promise<void> {
     setActionError("");
+    setActionErrorCode("");
     setIsSaving(true);
     try {
       await action();
       await tasksState.reload();
     } catch (error) {
       setActionError(toMessage(error));
+      setActionErrorCode(error instanceof ApiError ? error.code : "");
     } finally {
       setIsSaving(false);
     }
@@ -159,7 +163,17 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
             </div>
           </div>
 
-          {actionError && <p className="mt-4 rounded-2xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{actionError}</p>}
+          {actionError && (
+            <div className="mt-4 rounded-2xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">
+              <p>{actionError}</p>
+              {actionErrorCode === "CROP_PERIOD_OUTSIDE_SEASON" && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <Link className="rounded-full bg-red-700 px-4 py-2 text-white" href={`/seasons/${seasonId}/edit`}>시즌 기간 수정하기</Link>
+                  <Link className="rounded-full border border-red-300 bg-white px-4 py-2 text-red-800" href={`/seasons/${seasonId}/layout`}>작물 다시 선택하기</Link>
+                </div>
+              )}
+            </div>
+          )}
           {scheduleIsOutdated && (
             <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800" role="alert">
               일정을 만든 뒤 작물 배치가 변경되었습니다. 현재 배치 기준으로 일정을 다시 만들어 주세요.
