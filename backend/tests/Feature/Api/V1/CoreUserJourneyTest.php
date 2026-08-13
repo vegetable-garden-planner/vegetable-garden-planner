@@ -61,7 +61,6 @@ class CoreUserJourneyTest extends TestCase
             'sunlight' => 'full',
             'widthCm' => 200,
             'lengthCm' => 300,
-            'region' => '서울',
             'notes' => '회원가입부터 만든 공간',
         ])
             ->assertCreated()

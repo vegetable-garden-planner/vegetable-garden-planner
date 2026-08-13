@@ -1433,7 +1433,7 @@ components:
       enum: [open, north, northeast, east, southeast, south, southwest, west, northwest]
     GrowingSpaceInput:
       type: object
-      required: [name, type, sunlight, widthCm, lengthCm, region, notes]
+      required: [name, type, sunlight, widthCm, lengthCm, notes]
       properties:
         name:
           type: string
@@ -1451,10 +1451,6 @@ components:
           type: integer
           minimum: 10
           maximum: 100000
-        region:
-          type: string
-          minLength: 1
-          maxLength: 100
         address:
           type: [string, 'null']
           maxLength: 255
@@ -1498,10 +1494,6 @@ components:
           type: integer
           minimum: 10
           maximum: 100000
-        region:
-          type: string
-          minLength: 1
-          maxLength: 100
         address:
           type: [string, 'null']
           maxLength: 255

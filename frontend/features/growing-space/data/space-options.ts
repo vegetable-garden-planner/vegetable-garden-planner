@@ -22,12 +22,8 @@ export const SUNLIGHT_OPTIONS: readonly {
   { value: "full", label: "6시간 이상" },
 ];
 
-export const REGION_OPTIONS = [
-  "서울특별시",
-  "경기도",
-  "강원특별자치도",
-  "충청도",
-  "전라도",
-  "경상도",
-  "제주특별자치도",
+export const SPACE_SIZE_PRESETS = [
+  { label: "작은 창가", description: "화분 2~3개", widthCm: 60, lengthCm: 30 },
+  { label: "화분대", description: "선반이나 작은 베란다", widthCm: 120, lengthCm: 60 },
+  { label: "넓은 베란다", description: "여러 화분과 이동 공간", widthCm: 300, lengthCm: 100 },
 ] as const;

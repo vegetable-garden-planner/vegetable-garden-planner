@@ -12,7 +12,6 @@ const validValues: GrowingSpaceFormValues = {
   sunlight: "full",
   widthCm: "400",
   lengthCm: "150",
-  region: "서울특별시",
   address: "서울특별시 중구 세종대로 110",
   latitude: "37.5665000",
   longitude: "126.9780000",
@@ -30,12 +29,11 @@ test("정상 공간 입력을 숫자 크기로 변환한다", () => {
   }
 });
 
-test("빈 이름과 지역을 거부한다", () => {
-  const result = validateGrowingSpace({ ...validValues, name: "  ", region: "" });
+test("빈 이름을 거부한다", () => {
+  const result = validateGrowingSpace({ ...validValues, name: "  " });
   assert.equal(result.valid, false);
   if (!result.valid) {
     assert.equal(Boolean(result.errors.name), true);
-    assert.equal(Boolean(result.errors.region), true);
   }
 });
 
