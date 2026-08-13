@@ -22,13 +22,21 @@ final class KakaoAddressGeocoder
             $response = Http::acceptJson()
                 ->withHeaders(['Authorization' => "KakaoAK {$apiKey}"])
                 ->timeout(5)
-                ->retry(2, 150)
+                ->retry(2, 150, throw: false)
                 ->get('https://dapi.kakao.com/v2/local/search/address.json', [
                     'query' => $address,
                     'size' => 1,
                 ]);
         } catch (ConnectionException $exception) {
             throw new RuntimeException('주소 검색 서버에 연결하지 못했습니다.', previous: $exception);
+        }
+
+        if (in_array($response->status(), [401, 403], true)) {
+            throw new RuntimeException('카카오 REST API 키가 올바르지 않거나 주소 검색 권한이 없습니다.');
+        }
+
+        if ($response->status() === 429) {
+            throw new RuntimeException('주소 검색 요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.');
         }
 
         if ($response->failed()) {
