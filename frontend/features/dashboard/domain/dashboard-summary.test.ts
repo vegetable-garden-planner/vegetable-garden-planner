@@ -86,6 +86,21 @@ test("격자가 없는 텃밭 시즌을 작물 배치로 연결한다", () => {
   assert.equal(summary.recentSeasons[0]?.layoutHref, "/seasons/season-active/layout");
 });
 
+test("베란다 시즌도 작물 배치를 다음 작업으로 안내한다", () => {
+  const balcony = { ...garden, id: "space-balcony", type: "balcony" as const };
+  const balconySeason = { ...activeSeason, id: "season-balcony", spaceId: balcony.id };
+  const summary = createDashboardSummary(
+    [balcony],
+    [balconySeason],
+    [],
+    [],
+    "2026-08-06",
+  );
+
+  assert.equal(summary.nextAction.href, "/seasons/season-balcony/layout");
+  assert.equal(summary.recentSeasons[0]?.layoutHref, "/seasons/season-balcony/layout");
+});
+
 test("격자가 있고 일정이 없으면 일정 자동 생성으로 연결한다", () => {
   const summary = createDashboardSummary(
     [garden],

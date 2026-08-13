@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
+import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
   type PersistedGrowingSeason,
   type GrowingSeasonStatus,
 } from "@/features/growing-season/domain/growing-season";
+import { getSeasonNextStep } from "@/features/growing-season/domain/season-next-step";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { deleteGrowingSeason } from "@/features/growing-season/infrastructure/season-api";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
@@ -27,13 +29,19 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
   const cropCatalog = useCropCatalog();
+  const layoutsState = useGardenLayouts();
   const [actionError, setActionError] = useState("");
 
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
+  if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
+  if (layoutsState.status === "loading") return <p className="text-muted">시즌의 다음 단계를 확인하고 있습니다.</p>;
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
   const cropsById = new Map(cropCatalog.crops.map((crop) => [crop.id, crop]));
+  const layoutsBySeasonId = new Map(
+    layoutsState.layouts.map((layout) => [layout.seasonId, layout]),
+  );
   const selectedSpace = selectedSpaceId ? spacesById.get(selectedSpaceId) : undefined;
   if (selectedSpaceId && !selectedSpace) {
     return <InvalidSpaceFilter />;
@@ -74,6 +82,10 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
           const featuredCrop = season.featuredCropId
             ? cropsById.get(season.featuredCropId)
             : undefined;
+          const nextStep = getSeasonNextStep(
+            season.id,
+            layoutsBySeasonId.get(season.id),
+          );
           return (
             <li className="surface-panel relative overflow-hidden p-6 transition hover:-translate-y-1 hover:shadow-[var(--shadow-md)]" key={season.id}>
               <span className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--color-primary),var(--color-secondary))]" aria-hidden="true" />
@@ -88,17 +100,20 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
                 <dd className="mt-1 font-bold">{season.startDate} ~ {season.endDate}</dd>
               </dl>
               {season.notes && <p className="mt-4 border-t border-ink/10 pt-4 text-sm leading-6 text-muted">{season.notes}</p>}
+              <section className="mt-5 rounded-2xl bg-leaf-soft/70 p-4" aria-label={`${season.name} 다음 단계`}>
+                <p className="text-sm font-bold text-leaf-dark">{nextStep.title}</p>
+                <p className="mt-1 text-sm leading-6 text-muted">{nextStep.description}</p>
+                <Link className="mt-3 inline-flex rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white hover:bg-leaf-dark" href={nextStep.href}>{nextStep.label} →</Link>
+              </section>
               <div className="mt-6 flex flex-wrap gap-2 border-t border-ink/10 pt-4">
                 <Link className="rounded-full border border-ink/15 px-4 py-2 text-sm font-bold" href={`/seasons/${season.id}/edit`}>수정</Link>
                 <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/records`}>시즌 기록</Link>
                 <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => void removeSeason(season)} type="button">삭제</button>
-                {linkedSpace?.type === "garden" && (
-                  <div className="ml-auto flex gap-2">
-                    <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/watering`}>물주기</Link>
-                    <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/tasks`}>재배 일정</Link>
-                    <Link className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/layout`}>작물 배치</Link>
-                  </div>
-                )}
+                <div className="ml-auto flex flex-wrap gap-2">
+                  <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/watering`}>물주기</Link>
+                  <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/tasks`}>재배 일정</Link>
+                  <Link className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/layout`}>작물 배치</Link>
+                </div>
               </div>
             </li>
           );

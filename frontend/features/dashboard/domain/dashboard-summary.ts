@@ -70,9 +70,9 @@ function toDashboardSeason(
   today: string,
 ): DashboardSeason {
   const space = spacesById.get(season.spaceId);
-  const canCreateLayout = space?.type === "garden"
+  const canCreateLayout = space !== undefined
     && !layoutsBySeasonId.has(season.id);
-  const canManageSchedule = space?.type === "garden"
+  const canManageSchedule = space !== undefined
     && layoutsBySeasonId.has(season.id);
 
   return {
@@ -111,11 +111,9 @@ function getNextAction(
     };
   }
 
-  const gardenSpaceIds = new Set(
-    spaces.filter((space) => space.type === "garden").map((space) => space.id),
-  );
+  const spaceIds = new Set(spaces.map((space) => space.id));
   const seasonWithoutLayout = seasons.find(
-    (season) => gardenSpaceIds.has(season.spaceId) && !layoutsBySeasonId.has(season.id),
+    (season) => spaceIds.has(season.spaceId) && !layoutsBySeasonId.has(season.id),
   );
   if (seasonWithoutLayout) {
     return {
