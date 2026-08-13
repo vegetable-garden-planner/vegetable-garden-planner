@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { AppHeader } from "@/components/app-header";
 import { SpaceForm } from "@/features/growing-space/components/space-form";
-import { isGrowingSpaceType } from "@/shared/domain/growing-environment";
+import { isGrowingSpaceType, isSunlightExposure } from "@/shared/domain/growing-environment";
 import { AuthGate } from "@/features/auth/components/auth-gate";
 
 export const metadata: Metadata = {
@@ -16,6 +16,11 @@ export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
   const initialType = typeof requestedType === "string" && isGrowingSpaceType(requestedType)
     ? requestedType
     : "indoor";
+  const initialSunlight = typeof query.sunlight === "string" && isSunlightExposure(query.sunlight)
+    ? query.sunlight
+    : undefined;
+  const initialWidthCm = parseSuggestedSize(query.width);
+  const initialLengthCm = parseSuggestedSize(query.length);
   const returnPath = `/spaces/new?type=${initialType}`;
 
   return (
@@ -30,10 +35,21 @@ export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
           <p className="mt-4 leading-7 text-muted">등록한 공간은 내 계정에 저장되어 다른 기기에서도 이어서 관리할 수 있습니다.</p>
         </div>
         <section className="rounded-3xl border border-ink/10 bg-white p-6 sm:p-9">
-          <SpaceForm initialType={initialType} />
+          <SpaceForm
+            initialLengthCm={initialLengthCm}
+            initialSunlight={initialSunlight}
+            initialType={initialType}
+            initialWidthCm={initialWidthCm}
+          />
         </section>
       </div>
       </main>
     </AuthGate>
   );
+}
+
+function parseSuggestedSize(value: string | string[] | undefined) {
+  if (typeof value !== "string" || !/^\d{2,6}$/.test(value)) return undefined;
+  const parsed = Number(value);
+  return parsed >= 10 && parsed <= 100_000 ? value : undefined;
 }

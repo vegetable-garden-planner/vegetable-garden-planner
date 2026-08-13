@@ -23,8 +23,19 @@
   --color-on-photo: #ffffff;
   --color-overlay: #0b2118;
   --color-danger: #b84c42;
+  --color-danger-soft: #fbefed;
   --color-focus: #0c9769;
-  --font-garden: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  --color-forest-deep: #071f17;
+  --color-forest-panel: #102b21;
+  --color-shell: #f4f2eb;
+  --color-panel: #fffdf8;
+  --color-soil-dark: #594535;
+  --color-soil: #81664c;
+  --color-sage: #dce8c9;
+  --color-sage-strong: #83a85d;
+  --color-warning: #d28a43;
+  --color-warning-soft: #faefe1;
+  --font-garden: "Pretendard", "SUIT", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
   --type-display-size: 48px;
   --type-h1-mobile-size: 40px;
   --type-h2-size: 32px;
@@ -33,6 +44,10 @@
   --type-body-size: 16px;
   --type-label-size: 14px;
   --type-caption-size: 12px;
+  --type-display-compact-size: 40px;
+  --type-h2-compact-size: 28px;
+  --type-body-sm-size: 14px;
+  --type-micro-size: 10px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -48,7 +63,19 @@
   --space-30: 120px;
   --space-36: 144px;
   --layout-max: 1160px;
+  --layout-app-max: 1440px;
+  --layout-editor-max: 1180px;
   --layout-gutter: 24px;
+  --control-sm: 36px;
+  --control-md: 44px;
+  --control-lg: 52px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+  --line-thin: 1px;
+  --line-strong: 4px;
   --motion-fast: 160ms;
   --motion-base: 220ms;
   --motion-slow: 360ms;
@@ -82,7 +109,7 @@ body {
   margin: 0;
   background: var(--cream);
   color: var(--ink);
-  font-family: var(--font-geist), "Pretendard", "Noto Sans KR", sans-serif;
+  font-family: var(--font-garden);
 }
 
 a {

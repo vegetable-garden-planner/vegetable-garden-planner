@@ -20,17 +20,27 @@ import {
 import {
   isSunlightExposure,
   type GrowingSpaceType,
+  type SunlightExposure,
 } from "@/shared/domain/growing-environment";
 
 interface SpaceFormProps {
   initialType: GrowingSpaceType;
+  initialSunlight?: SunlightExposure;
+  initialWidthCm?: string;
+  initialLengthCm?: string;
   space?: GrowingSpace;
 }
 
-export function SpaceForm({ initialType, space }: SpaceFormProps) {
+export function SpaceForm({
+  initialType,
+  initialSunlight,
+  initialWidthCm,
+  initialLengthCm,
+  space,
+}: SpaceFormProps) {
   const router = useRouter();
   const [values, setValues] = useState<GrowingSpaceFormValues>(() =>
-    space ? toFormValues(space) : createEmptyValues(initialType),
+    space ? toFormValues(space) : createEmptyValues(initialType, initialSunlight, initialWidthCm, initialLengthCm),
   );
   const [errors, setErrors] = useState<GrowingSpaceErrors>({});
   const [formError, setFormError] = useState("");
@@ -121,13 +131,18 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
   );
 }
 
-function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValues {
+function createEmptyValues(
+  initialType: GrowingSpaceType,
+  initialSunlight?: SunlightExposure,
+  initialWidthCm = "",
+  initialLengthCm = "",
+): GrowingSpaceFormValues {
   return {
     name: "",
     type: initialType,
-    sunlight: "partial",
-    widthCm: "",
-    lengthCm: "",
+    sunlight: initialSunlight ?? "partial",
+    widthCm: initialWidthCm,
+    lengthCm: initialLengthCm,
     region: "",
     notes: "",
   };

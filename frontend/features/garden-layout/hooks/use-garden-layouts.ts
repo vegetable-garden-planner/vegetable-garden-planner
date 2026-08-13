@@ -13,7 +13,6 @@ export function useGardenLayouts(): GardenLayoutsState & { reload: () => Promise
   const [state, setState] = useState<GardenLayoutsState>({ status: "loading" });
 
   const reload = useCallback(async () => {
-    setState({ status: "loading" });
     try {
       setState({ status: "ready", layouts: await fetchGardenLayouts() });
     } catch (error) {

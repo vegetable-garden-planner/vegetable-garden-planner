@@ -21,7 +21,18 @@ Figma `홈 (전체)` 프레임의 온실 아침 풍경을 기준으로 한다. �
 - `--color-on-photo: #FFFFFF`: 어두운 사진 위 텍스트.
 - `--color-overlay: #0B2118`: 사진 가독성 오버레이의 기준색.
 - `--color-danger: #B84C42`: 오류 상태.
+- `--color-danger-soft: #FBEFED`: 오류 안내의 옅은 배경.
 - `--color-focus: #0C9769`: 포커스 링.
+- `--color-forest-deep: #071F17`: 시작 진단과 사진형 헤더의 가장 어두운 배경.
+- `--color-forest-panel: #102B21`: 어두운 화면 위 입력 패널.
+- `--color-shell: #F4F2EB`: 운영 화면의 바깥 배경.
+- `--color-panel: #FFFDF8`: 운영 화면 카드와 편집 패널.
+- `--color-soil-dark: #594535`: 텃밭 테두리와 흙의 어두운 층.
+- `--color-soil: #81664C`: 텃밭 흙 바탕.
+- `--color-sage: #DCE8C9`: 잎채소 배치 칸.
+- `--color-sage-strong: #83A85D`: 잎채소 배치 강조.
+- `--color-warning: #D28A43`: 주의 상태와 열매채소 배치 강조.
+- `--color-warning-soft: #FAEFE1`: 주의 상태의 옅은 배경.
 
 본문/배경과 primary/흰색 조합은 일반 텍스트 4.5:1, 큰 텍스트와 UI 3:1을 기준으로 사용한다. `#46B18D`와 `#FFC283`은 큰 텍스트 또는 장식에만 쓴다.
 
@@ -36,6 +47,10 @@ Figma `홈 (전체)` 프레임의 온실 아침 풍경을 기준으로 한다. �
 - `--type-body`: 16px, 400, line-height 1.6, letter-spacing -0.01em.
 - `--type-label`: 14px, 600, line-height 1.4, letter-spacing -0.01em.
 - `--type-caption`: 12px, 500, line-height 1.45, letter-spacing 0.
+- `--type-display-compact`: 40px, 700, line-height 1.14, letter-spacing -0.04em.
+- `--type-h2-compact`: 28px, 700, line-height 1.24, letter-spacing -0.035em.
+- `--type-body-sm`: 14px, 400, line-height 1.55, letter-spacing -0.01em.
+- `--type-micro`: 10px, 600, line-height 1.4, letter-spacing 0.
 
 ## 4. Spacing
 
@@ -46,6 +61,10 @@ Figma `홈 (전체)` 프레임의 온실 아침 풍경을 기준으로 한다. �
 - `--space-12: 48px`, `--space-16: 64px`, `--space-20: 80px`, `--space-24: 96px`.
 - `--space-30: 120px`, `--space-36: 144px`.
 - 콘텐츠 최대 폭 `--layout-max: 1160px`, 본문 거터 `--layout-gutter: 24px`.
+- 운영 화면 최대 폭 `--layout-app-max: 1440px`, 상세 편집 본문 폭 `--layout-editor-max: 1180px`.
+- 컨트롤 높이 `--control-sm: 36px`, `--control-md: 44px`, `--control-lg: 52px`.
+- 모서리는 `--radius-sm: 8px`, `--radius-md: 12px`, `--radius-lg: 16px`, `--radius-xl: 24px`, `--radius-pill: 999px`만 사용한다.
+- 선 굵기는 `--line-thin: 1px`, `--line-strong: 4px`를 사용한다.
 
 ## 5. Components
 
@@ -57,6 +76,9 @@ Figma `홈 (전체)` 프레임의 온실 아침 풍경을 기준으로 한다. �
 - Task row: 최소 높이 56px, 아이콘 원형 40px, 행 사이 구분선. hover는 surface, focus-within은 ring.
 - Recommendation card: 사진 상단, 정보 하단, radius 16px, border 1px. 링크 전체가 클릭되며 hover 시 translateY(-4px), active 시 translateY(0).
 - Empty/loading/error: empty는 surface 배경과 설명+CTA, loading은 surface/primary-soft skeleton, error는 danger 텍스트와 재시도 CTA.
+- Diagnosis stage: 화면 전체를 어두운 온실 사진으로 채우고 왼쪽 또는 중앙의 한 패널만 입력 영역으로 사용한다. 단계 이동 시 패널은 opacity와 transform으로만 전환한다.
+- Garden bed: 흙색의 두꺼운 테두리 안에 작물 원형 또는 사진을 배치한다. 모바일은 요약 배치, 데스크톱은 왼쪽 작물 목록·중앙 격자·오른쪽 속성 패널의 3영역 편집기로 전환한다.
+- App footer: primary 배경, 사진형 CTA 다음에 붙이며 네 열 정보 구조를 유지한다.
 
 ## 6. Motion
 

@@ -1,13 +1,7 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
 import "./globals.css";
 import { AuthSessionProvider } from "@/features/auth/hooks/use-auth-session";
 import { CropCatalogProvider } from "@/features/crop-catalog/hooks/use-crop-catalog";
-
-const geist = Geist({
-  variable: "--font-geist",
-  subsets: ["latin"],
-});
 
 const metadataBase = new URL(process.env.SITE_URL ?? "http://localhost:3000");
 
@@ -34,7 +28,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
-      className={`${geist.variable} antialiased`}
+      className="antialiased"
       data-scroll-behavior="smooth"
     >
       <body><AuthSessionProvider><CropCatalogProvider>{children}</CropCatalogProvider></AuthSessionProvider></body>
