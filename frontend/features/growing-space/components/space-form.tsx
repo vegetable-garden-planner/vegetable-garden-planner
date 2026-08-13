@@ -4,7 +4,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { SunlightLocationAssistant } from "@/features/growing-space/components/sunlight-location-assistant";
 import {
-  REGION_OPTIONS,
+  SPACE_SIZE_PRESETS,
   SPACE_TYPE_OPTIONS,
   SUNLIGHT_OPTIONS,
 } from "@/features/growing-space/data/space-options";
@@ -88,6 +88,29 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
         <input aria-describedby={errors.name ? "space-name-error" : undefined} aria-invalid={Boolean(errors.name)} className="form-input" id="space-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 거실 창가, 우리집 베란다" value={values.name} />
       </Field>
 
+      <fieldset>
+        <legend className="text-lg font-bold">공간 크기</legend>
+        <p className="mt-1 text-sm leading-6 text-muted">정확히 재지 않아도 됩니다. 가장 비슷한 크기를 고른 뒤 필요하면 숫자만 조절하세요.</p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {SPACE_SIZE_PRESETS.map((preset) => {
+            const selected = values.widthCm === String(preset.widthCm) && values.lengthCm === String(preset.lengthCm);
+            return (
+              <button className={`rounded-2xl border p-4 text-left ${selected ? "border-leaf bg-leaf-soft/60" : "border-ink/10 bg-white"}`} key={preset.label} onClick={() => {
+                update("widthCm", String(preset.widthCm));
+                update("lengthCm", String(preset.lengthCm));
+              }} type="button">
+                <strong className="block">{preset.label}</strong>
+                <span className="mt-1 block text-sm text-muted">{preset.widthCm} × {preset.lengthCm}cm · {preset.description}</span>
+              </button>
+            );
+          })}
+        </div>
+        <details className="mt-3 rounded-2xl border border-ink/10 bg-white p-4 text-sm leading-6">
+          <summary className="cursor-pointer font-bold">줄자 없이 대략 재는 방법</summary>
+          <p className="mt-2 text-muted">A4 용지는 약 21 × 30cm, 스마트폰 긴 쪽은 약 15cm입니다. A4 용지나 스마트폰을 몇 번 놓을 수 있는지 세면 충분합니다. 바닥 타일 한 장 크기를 알고 있다면 타일 개수로 계산해도 됩니다.</p>
+        </details>
+      </fieldset>
+
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="가로 크기 (cm)" error={errors.widthCm} id="width">
           <input aria-describedby={errors.widthCm ? "width-error" : undefined} aria-invalid={Boolean(errors.widthCm)} className="form-input" id="width" inputMode="decimal" min="10" onChange={(event) => update("widthCm", event.target.value)} placeholder="예: 400" type="number" value={values.widthCm} />
@@ -97,16 +120,10 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
         </Field>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div>
         <Field label="하루 일조 시간" id="sunlight">
           <select className="form-input" id="sunlight" onChange={(event) => updateSunlight(event.target.value)} value={values.sunlight}>
             {SUNLIGHT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-          </select>
-        </Field>
-        <Field label="재배 지역" error={errors.region} id="region">
-          <select aria-describedby={errors.region ? "region-error" : undefined} aria-invalid={Boolean(errors.region)} className="form-input" id="region" onChange={(event) => update("region", event.target.value)} value={values.region}>
-            <option value="">지역 선택</option>
-            {REGION_OPTIONS.map((region) => <option key={region} value={region}>{region}</option>)}
           </select>
         </Field>
       </div>
@@ -143,7 +160,6 @@ function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValue
     sunlight: "partial",
     widthCm: "",
     lengthCm: "",
-    region: "",
     address: "",
     latitude: "",
     longitude: "",
@@ -160,7 +176,6 @@ function toFormValues(space: GrowingSpace): GrowingSpaceFormValues {
     sunlight: space.sunlight,
     widthCm: String(space.widthCm),
     lengthCm: String(space.lengthCm),
-    region: space.region,
     address: space.address ?? "",
     latitude: space.latitude === null ? "" : String(space.latitude),
     longitude: space.longitude === null ? "" : String(space.longitude),
