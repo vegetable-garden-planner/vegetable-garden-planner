@@ -39,5 +39,5 @@ export function useGardenLayouts(): GardenLayoutsState & { reload: () => Promise
 }
 
 function toMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "재배 공간 격자를 불러오지 못했습니다.";
+  return error instanceof Error ? error.message : "텃밭 격자를 불러오지 못했습니다.";
 }

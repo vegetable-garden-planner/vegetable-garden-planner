@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Layouts;
 
+use App\Enums\GrowingSpaceType;
 use App\Exceptions\ApiConflictException;
 use App\Models\GardenLayout;
 use App\Models\GrowingSeason;
@@ -29,6 +30,13 @@ final class UpsertGardenLayout
                 ->lockForUpdate()
                 ->findOrFail($season->id);
             $space = $lockedSeason->growingSpace;
+
+            if ($space->type !== GrowingSpaceType::Garden) {
+                throw new ApiConflictException(
+                    'LAYOUT_REQUIRES_GARDEN',
+                    '격자 배치는 마당·텃밭 유형의 공간에서만 사용할 수 있습니다.',
+                );
+            }
 
             if ($input['spaceWidthCm'] !== $space->width_cm
                 || $input['spaceLengthCm'] !== $space->length_cm) {

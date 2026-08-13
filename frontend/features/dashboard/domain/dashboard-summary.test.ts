@@ -86,9 +86,9 @@ test("격자가 없는 텃밭 시즌을 작물 배치로 연결한다", () => {
   assert.equal(summary.recentSeasons[0]?.layoutHref, "/seasons/season-active/layout");
 });
 
-test("베란다 시즌도 작물 배치를 다음 작업으로 안내한다", () => {
+test("작물을 고른 베란다 시즌은 격자 없이 일정으로 안내한다", () => {
   const balcony = { ...garden, id: "space-balcony", type: "balcony" as const };
-  const balconySeason = { ...activeSeason, id: "season-balcony", spaceId: balcony.id };
+  const balconySeason = { ...activeSeason, id: "season-balcony", spaceId: balcony.id, featuredCropId: "lettuce" };
   const summary = createDashboardSummary(
     [balcony],
     [balconySeason],
@@ -97,8 +97,18 @@ test("베란다 시즌도 작물 배치를 다음 작업으로 안내한다", ()
     "2026-08-06",
   );
 
-  assert.equal(summary.nextAction.href, "/seasons/season-balcony/layout");
-  assert.equal(summary.recentSeasons[0]?.layoutHref, "/seasons/season-balcony/layout");
+  assert.equal(summary.nextAction.href, "/seasons/season-balcony/tasks");
+  assert.equal(summary.recentSeasons[0]?.layoutHref, undefined);
+  assert.equal(summary.recentSeasons[0]?.scheduleHref, "/seasons/season-balcony/tasks");
+});
+
+test("작물을 고르지 않은 화분 시즌은 작물 선택으로 안내한다", () => {
+  const indoor = { ...garden, id: "space-indoor", type: "indoor" as const };
+  const indoorSeason = { ...activeSeason, id: "season-indoor", spaceId: indoor.id };
+  const summary = createDashboardSummary([indoor], [indoorSeason], [], [], "2026-08-06");
+
+  assert.equal(summary.nextAction.href, "/seasons/season-indoor/edit");
+  assert.equal(summary.nextAction.label, "작물 선택하기");
 });
 
 test("격자가 있고 일정이 없으면 일정 자동 생성으로 연결한다", () => {

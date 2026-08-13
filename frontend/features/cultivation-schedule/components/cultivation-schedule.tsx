@@ -16,6 +16,7 @@ import {
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import type { GrowingSpaceType } from "@/shared/domain/growing-environment";
 import { ApiError } from "@/shared/infrastructure/api-client";
 
 const TASK_TYPE_LABELS: Record<CultivationTaskType, string> = {
@@ -59,14 +60,23 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   if (!season) return <Message message="재배 일정을 만들 시즌을 찾을 수 없습니다." />;
   const space = spacesState.spaces.find((item) => item.id === season.spaceId);
   if (!space) return <Message message="시즌에 연결된 재배 공간을 찾을 수 없습니다." />;
+  const currentSeason = season;
+  const currentSpace = space;
 
   const layout = layoutsState.layouts.find((item) => item.seasonId === seasonId);
   const tasks = tasksState.tasks
     .filter((task) => task.seasonId === seasonId)
     .sort(compareTasks);
-  const scheduleIsOutdated = layout
-    ? tasks.some((task) => task.updatedAt < layout.updatedAt)
+  const scheduleSourceUpdatedAt = space.type === "garden" ? layout?.updatedAt : season.updatedAt;
+  const scheduleIsOutdated = scheduleSourceUpdatedAt
+    ? tasks.some((task) => task.updatedAt < scheduleSourceUpdatedAt)
     : false;
+  const emptyState = getScheduleEmptyState(
+    space.type,
+    Boolean(season.featuredCropId),
+    layout?.placements.length,
+    seasonId,
+  );
 
   async function runAction(action: () => Promise<void>): Promise<void> {
     setActionError("");
@@ -84,14 +94,20 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   }
 
   async function generate(): Promise<void> {
-    if (!layout) {
-      setActionError("먼저 재배 공간 격자를 만들고 작물을 배치해 주세요.");
+    if (currentSpace.type === "garden" && !layout) {
+      setActionError("먼저 텃밭 격자를 만들고 작물을 배치해 주세요.");
       return;
     }
-    if (tasks.length > 0 && !window.confirm("기존 일정을 현재 작물 배치 기준으로 다시 만들까요?")) {
+    if (currentSpace.type !== "garden" && !currentSeason.featuredCropId) {
+      setActionError("먼저 이번 시즌에 키울 작물을 선택해 주세요.");
       return;
     }
-    await runAction(async () => { await generateCultivationTasks(layout); });
+    if (tasks.length > 0 && !window.confirm("기존 일정을 현재 작물 선택 기준으로 다시 만들까요?")) {
+      return;
+    }
+    const sourceVersion = currentSpace.type === "garden" ? layout?.version : currentSeason.version;
+    if (sourceVersion === undefined) return;
+    await runAction(async () => { await generateCultivationTasks(currentSeason.id, sourceVersion); });
   }
 
   async function removeSchedule(): Promise<void> {
@@ -117,25 +133,15 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
         <p className="mt-2 text-sm text-muted">{season.startDate} ~ {season.endDate}</p>
       </section>
 
-      {!layout ? (
-        <EmptySchedule
-          description="자동 일정은 격자에 배치한 작물을 기준으로 만듭니다. 먼저 작물 배치를 완료해 주세요."
-          href={`/seasons/${seasonId}/layout`}
-          label="작물 배치하러 가기"
-          title="아직 작물 배치가 없어요"
-        />
-      ) : layout.placements.length === 0 ? (
-        <EmptySchedule
-          description="격자는 만들어졌지만 배치된 작물이 없습니다. 키울 작물을 하나 이상 배치해 주세요."
-          href={`/seasons/${seasonId}/layout`}
-          label="작물 배치하러 가기"
-          title="일정을 만들 작물이 없어요"
-        />
-      ) : (
+      {emptyState ? <EmptySchedule {...emptyState} /> : (
         <>
           <div className="surface-panel mt-5 flex flex-wrap items-center justify-between gap-3 p-5">
             <div>
-              <p className="font-bold">배치 작물 {new Set(layout.placements.map((item) => item.cropId)).size}종</p>
+              <p className="font-bold">
+                {space.type === "garden"
+                  ? `배치 작물 ${new Set(layout?.placements.map((item) => item.cropId)).size}종`
+                  : "선택한 작물로 일정 준비"}
+              </p>
               <p className="mt-1 text-sm text-muted">심기와 수확 시작 일정을 시즌 안에서 계산합니다.</p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -166,14 +172,19 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
               {actionErrorCode === "CROP_PERIOD_OUTSIDE_SEASON" && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   <Link className="rounded-full bg-red-700 px-4 py-2 text-white" href={`/seasons/${seasonId}/edit`}>시즌 기간 수정하기</Link>
-                  <Link className="rounded-full border border-red-300 bg-white px-4 py-2 text-red-800" href={`/seasons/${seasonId}/layout`}>작물 다시 선택하기</Link>
+                  <Link
+                    className="rounded-full border border-red-300 bg-white px-4 py-2 text-red-800"
+                    href={space.type === "garden" ? `/seasons/${seasonId}/layout` : `/seasons/${seasonId}/edit`}
+                  >
+                    작물 다시 선택하기
+                  </Link>
                 </div>
               )}
             </div>
           )}
           {scheduleIsOutdated && (
             <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800" role="alert">
-              일정을 만든 뒤 작물 배치가 변경되었습니다. 현재 배치 기준으로 일정을 다시 만들어 주세요.
+              일정을 만든 뒤 작물 선택 또는 배치가 변경되었습니다. 현재 계획으로 일정을 다시 만들어 주세요.
             </p>
           )}
           {tasks.length > 0 ? (
@@ -185,7 +196,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
             />
           ) : (
             <EmptySchedule
-              description="버튼을 누르면 배치한 작물별 심기와 수확 시작 일정을 만듭니다."
+              description="버튼을 누르면 선택한 작물별 심기와 수확 시작 일정을 만듭니다."
               title="아직 만든 일정이 없어요"
             />
           )}
@@ -197,6 +208,39 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
       </p>
     </div>
   );
+}
+
+function getScheduleEmptyState(
+  spaceType: GrowingSpaceType,
+  hasFeaturedCrop: boolean,
+  placementCount: number | undefined,
+  seasonId: string,
+): { description: string; href: string; label: string; title: string } | null {
+  if (spaceType !== "garden") {
+    return hasFeaturedCrop ? null : {
+      description: "화분·베란다는 격자를 만들지 않습니다. 이번 시즌에 키울 작물을 선택하면 바로 일정을 만들 수 있어요.",
+      href: `/seasons/${seasonId}/edit`,
+      label: "키울 작물 선택하기",
+      title: "먼저 키울 작물을 선택해 주세요",
+    };
+  }
+  if (placementCount === undefined) {
+    return {
+      description: "자동 일정은 격자에 배치한 작물을 기준으로 만듭니다. 먼저 작물 배치를 완료해 주세요.",
+      href: `/seasons/${seasonId}/layout`,
+      label: "작물 배치하러 가기",
+      title: "아직 작물 배치가 없어요",
+    };
+  }
+  if (placementCount === 0) {
+    return {
+      description: "격자는 만들어졌지만 배치된 작물이 없습니다. 키울 작물을 하나 이상 배치해 주세요.",
+      href: `/seasons/${seasonId}/layout`,
+      label: "작물 배치하러 가기",
+      title: "일정을 만들 작물이 없어요",
+    };
+  }
+  return null;
 }
 
 function TaskList({

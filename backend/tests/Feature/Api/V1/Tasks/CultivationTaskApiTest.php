@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1\Tasks;
 
+use App\Enums\GrowingSpaceType;
 use App\Models\CultivationTask;
 use App\Models\GardenLayout;
 use App\Models\GrowingSeason;
@@ -174,6 +175,25 @@ class CultivationTaskApiTest extends TestCase
             ->assertJsonPath('data.1.dueDate', '2027-05-01');
     }
 
+    public function test_container_season_generates_tasks_from_featured_crop_without_layout(): void
+    {
+        [$owner, , $season] = $this->ownedSeason([
+            'start_date' => '2026-04-01',
+            'end_date' => '2026-06-30',
+            'featured_crop_id' => 'lettuce',
+        ], ['type' => GrowingSpaceType::Balcony]);
+
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"1"')
+            ->postJson("/api/v1/seasons/{$season->id}/tasks/generate")
+            ->assertCreated()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.cropId', 'lettuce');
+
+        $this->assertDatabaseCount('garden_layouts', 0);
+        $this->assertDatabaseCount('cultivation_tasks', 2);
+    }
+
     public function test_owner_can_update_completion_and_return_task_to_pending(): void
     {
         [$owner, , $season] = $this->ownedSeason();
@@ -286,10 +306,10 @@ class CultivationTaskApiTest extends TestCase
     }
 
     /** @return array{User, GrowingSpace, GrowingSeason} */
-    private function ownedSeason(array $seasonAttributes = []): array
+    private function ownedSeason(array $seasonAttributes = [], array $spaceAttributes = []): array
     {
         $owner = User::factory()->create();
-        $space = GrowingSpace::factory()->for($owner, 'owner')->create();
+        $space = GrowingSpace::factory()->for($owner, 'owner')->create($spaceAttributes);
         $season = GrowingSeason::factory()->for($space, 'growingSpace')->create($seasonAttributes);
 
         return [$owner, $space, $season];

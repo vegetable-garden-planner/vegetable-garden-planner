@@ -71,9 +71,10 @@ function toDashboardSeason(
 ): DashboardSeason {
   const space = spacesById.get(season.spaceId);
   const canCreateLayout = space !== undefined
+    && space.type === "garden"
     && !layoutsBySeasonId.has(season.id);
   const canManageSchedule = space !== undefined
-    && layoutsBySeasonId.has(season.id);
+    && (space.type !== "garden" ? Boolean(season.featuredCropId) : layoutsBySeasonId.has(season.id));
 
   return {
     id: season.id,
@@ -111,21 +112,40 @@ function getNextAction(
     };
   }
 
-  const spaceIds = new Set(spaces.map((space) => space.id));
-  const seasonWithoutLayout = seasons.find(
-    (season) => spaceIds.has(season.spaceId) && !layoutsBySeasonId.has(season.id),
+  const spacesById = new Map(spaces.map((space) => [space.id, space]));
+  const containerSeasonWithoutCrop = seasons.find(
+    (season) => spacesById.get(season.spaceId)?.type !== "garden" && !season.featuredCropId,
   );
+  if (containerSeasonWithoutCrop) {
+    return {
+      title: `‘${containerSeasonWithoutCrop.name}’에서 키울 작물을 골라 주세요`,
+      description: "화분·베란다는 격자 없이 선택한 작물을 기준으로 재배 일정을 만듭니다.",
+      href: `/seasons/${containerSeasonWithoutCrop.id}/edit`,
+      label: "작물 선택하기",
+    };
+  }
+
+  const seasonWithoutLayout = seasons.find((season) => {
+    const space = spacesById.get(season.spaceId);
+    return space?.type === "garden" && !layoutsBySeasonId.has(season.id);
+  });
   if (seasonWithoutLayout) {
     return {
       title: `‘${seasonWithoutLayout.name}’ 작물을 배치해 보세요`,
-      description: "재배 공간 격자를 만들고 심을 작물을 칸마다 배치할 수 있어요.",
+      description: "텃밭 격자를 만들고 심을 작물을 칸마다 배치할 수 있어요.",
       href: `/seasons/${seasonWithoutLayout.id}/layout`,
       label: "작물 배치하기",
     };
   }
 
   const seasonWithoutTasks = seasons.find(
-    (season) => layoutsBySeasonId.has(season.id) && !taskSeasonIds.has(season.id),
+    (season) => {
+      const space = spacesById.get(season.spaceId);
+      const sourceIsReady = space?.type === "garden"
+        ? layoutsBySeasonId.has(season.id)
+        : Boolean(season.featuredCropId);
+      return sourceIsReady && !taskSeasonIds.has(season.id);
+    },
   );
   if (seasonWithoutTasks) {
     return {

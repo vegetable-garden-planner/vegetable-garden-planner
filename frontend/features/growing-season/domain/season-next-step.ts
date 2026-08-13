@@ -1,4 +1,6 @@
 import type { GardenLayout } from "../../garden-layout/domain/garden-layout.ts";
+import type { GrowingSeason } from "./growing-season.ts";
+import type { GrowingSpaceType } from "../../../shared/domain/growing-environment.ts";
 
 export interface SeasonNextStep {
   description: string;
@@ -8,10 +10,27 @@ export interface SeasonNextStep {
 }
 
 export function getSeasonNextStep(
-  seasonId: string,
+  season: Pick<GrowingSeason, "id" | "featuredCropId">,
+  spaceType: GrowingSpaceType,
   layout: GardenLayout | undefined,
 ): SeasonNextStep {
-  const layoutHref = `/seasons/${seasonId}/layout`;
+  if (spaceType !== "garden") {
+    return season.featuredCropId
+      ? {
+          title: "다음 단계 · 작물별 재배 일정 만들기",
+          description: "선택한 작물과 시즌 기간을 기준으로 심기와 관리 일정을 만들 수 있어요.",
+          href: `/seasons/${season.id}/tasks`,
+          label: "재배 일정 만들기",
+        }
+      : {
+          title: "다음 단계 · 키울 작물 선택하기",
+          description: "화분·베란다는 격자 대신 이번 시즌에 키울 작물을 먼저 선택해 주세요.",
+          href: `/seasons/${season.id}/edit`,
+          label: "작물 선택하기",
+        };
+  }
+
+  const layoutHref = `/seasons/${season.id}/layout`;
 
   if (!layout) {
     return {
@@ -34,7 +53,7 @@ export function getSeasonNextStep(
   return {
     title: "다음 단계 · 작물별 재배 일정 만들기",
     description: "배치한 작물과 시즌 기간을 기준으로 심기와 수확 일정을 만들 수 있어요.",
-    href: `/seasons/${seasonId}/tasks`,
+    href: `/seasons/${season.id}/tasks`,
     label: "재배 일정 만들기",
   };
 }

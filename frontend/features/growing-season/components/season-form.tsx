@@ -17,8 +17,15 @@ import {
   createGrowingSeason,
   updateGrowingSeason,
 } from "@/features/growing-season/infrastructure/season-api";
-import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
-import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import {
+  useGrowingSeasons,
+  type GrowingSeasonsState,
+} from "@/features/growing-season/hooks/use-growing-seasons";
+import {
+  useGrowingSpaces,
+  type GrowingSpacesState,
+} from "@/features/growing-space/hooks/use-growing-spaces";
+import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 
 interface SeasonFormProps {
   initialSpaceId: string;
@@ -34,6 +41,9 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
   const seasonsState = useGrowingSeasons();
   const [values, setValues] = useState<GrowingSeasonFormValues>(() =>
     season ? toFormValues(season) : createEmptyValues(initialSpaceId, initialCrop),
+  );
+  const [featuredCropId, setFeaturedCropId] = useState(
+    season?.featuredCropId ?? initialCrop?.id ?? "",
   );
   const [errors, setErrors] = useState<GrowingSeasonErrors>({});
   const [formError, setFormError] = useState("");
@@ -54,49 +64,47 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
     const result = validateGrowingSeason(
       values,
       compatibleSpaces.map((space) => space.id),
-      seasonsState.seasons,
+      seasons,
       season?.id,
     );
     if (!result.valid) {
       setErrors(result.errors);
       return;
     }
+    const cropSelection = resolveCropSelection(selectedSpace, compatibleCrops, featuredCropId);
+    if (cropSelection.error) {
+      setFormError(cropSelection.error);
+      return;
+    }
 
     const input = {
       ...result.value,
-      featuredCropId: season?.featuredCropId ?? initialCrop?.id,
+      featuredCropId: cropSelection.cropId,
     };
 
     try {
-      if (season) await updateGrowingSeason(season, input);
-      else await createGrowingSeason(input);
+      await persistSeason(season, input);
       router.push(`/seasons?spaceId=${encodeURIComponent(input.spaceId)}`);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "시즌을 저장하지 못했습니다.");
     }
   }
 
-  if (spacesState.status === "error") {
-    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{spacesState.message}</p>;
+  const formStatus = getSeasonFormStatus({
+    cropState: cropCatalog,
+    hasInvalidInitialCrop: Boolean(initialCropId && !initialCrop),
+    seasonState: seasonsState,
+    spaceState: spacesState,
+  });
+
+  if (formStatus) {
+    return <SeasonFormStatus status={formStatus} />;
   }
 
-  if (cropCatalog.status === "error") {
-    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{cropCatalog.message}</p>;
-  }
+  const spaces = requireReadySpaces(spacesState);
+  const seasons = requireReadySeasons(seasonsState);
 
-  if (cropCatalog.status === "loading") {
-    return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;
-  }
-
-  if (initialCropId && !initialCrop) {
-    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">선택한 작물 정보를 찾을 수 없습니다.</p>;
-  }
-
-  if (seasonsState.status === "error") {
-    return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{seasonsState.message}</p>;
-  }
-
-  if (spacesState.spaces.length === 0) {
+  if (spaces.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-leaf/30 p-7 text-center">
         <h2 className="text-xl font-bold">먼저 재배 공간을 등록해 주세요</h2>
@@ -107,8 +115,10 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
   }
 
   const compatibleSpaces = initialCrop
-    ? spacesState.spaces.filter((space) => initialCrop.supportedSpaces.includes(space.type))
-    : spacesState.spaces;
+    ? spaces.filter((space) => initialCrop.supportedSpaces.includes(space.type))
+    : spaces;
+  const selectedSpace = spaces.find((space) => space.id === values.spaceId);
+  const compatibleCrops = cropsForSpace(cropCatalog.crops, selectedSpace);
 
   if (initialCrop && compatibleSpaces.length === 0) {
     const recommendedType = initialCrop.supportedSpaces[0] ?? "indoor";
@@ -146,6 +156,12 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
           {compatibleSpaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}
         </select>
       </SeasonField>
+      <SeasonCropField
+        crops={compatibleCrops}
+        onChange={setFeaturedCropId}
+        selectedCropId={featuredCropId}
+        space={selectedSpace}
+      />
       <SeasonField error={errors.name} id="season-name" label="시즌 이름">
         <input aria-describedby={errors.name ? "season-name-error" : undefined} aria-invalid={Boolean(errors.name)} className="form-input" id="season-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 2026년 봄 시즌" value={values.name} />
       </SeasonField>
@@ -164,6 +180,109 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
       <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">{season ? "변경 내용 저장" : "시즌 등록하기"}</button>
     </form>
   );
+}
+
+type SeasonFormStatusInput = {
+  cropState: { message?: string; status: string };
+  hasInvalidInitialCrop: boolean;
+  seasonState: { message?: string; status: string };
+  spaceState: { message?: string; status: string };
+};
+
+function getSeasonFormStatus(input: SeasonFormStatusInput) {
+  if (input.spaceState.status === "error") {
+    return { isError: true, message: input.spaceState.message ?? "공간 정보를 불러오지 못했습니다." };
+  }
+  if (input.cropState.status === "error") {
+    return { isError: true, message: input.cropState.message ?? "작물 정보를 불러오지 못했습니다." };
+  }
+  if (input.cropState.status === "loading") {
+    return { isError: false, message: "작물 정보를 불러오고 있습니다." };
+  }
+  if (input.hasInvalidInitialCrop) {
+    return { isError: true, message: "선택한 작물 정보를 찾을 수 없습니다." };
+  }
+  if (input.seasonState.status === "error") {
+    return { isError: true, message: input.seasonState.message ?? "시즌 정보를 불러오지 못했습니다." };
+  }
+
+  return null;
+}
+
+function SeasonFormStatus({ status }: { status: { isError: boolean; message: string } }) {
+  const className = status.isError
+    ? "rounded-2xl bg-red-50 p-5 font-semibold text-red-700"
+    : "text-muted";
+
+  return <p className={className} role={status.isError ? "alert" : undefined}>{status.message}</p>;
+}
+
+function requireReadySpaces(state: GrowingSpacesState): GrowingSpace[] {
+  if (state.status !== "ready") throw new Error("재배 공간을 불러오지 못했습니다.");
+  return state.spaces;
+}
+
+function requireReadySeasons(state: GrowingSeasonsState): PersistedGrowingSeason[] {
+  if (state.status !== "ready") throw new Error("재배 시즌을 불러오지 못했습니다.");
+  return state.seasons;
+}
+
+async function persistSeason(
+  season: PersistedGrowingSeason | undefined,
+  input: Parameters<typeof createGrowingSeason>[0],
+) {
+  if (season) {
+    await updateGrowingSeason(season, input);
+    return;
+  }
+  await createGrowingSeason(input);
+}
+
+function SeasonCropField({
+  crops,
+  onChange,
+  selectedCropId,
+  space,
+}: {
+  crops: readonly CropReference[];
+  onChange: (cropId: string) => void;
+  selectedCropId: string;
+  space: GrowingSpace | undefined;
+}) {
+  const selectedValue = crops.some((crop) => crop.id === selectedCropId) ? selectedCropId : "";
+  const isGarden = space?.type === "garden";
+  return (
+    <SeasonField id="season-crop" label={isGarden ? "대표 작물 (선택)" : "키울 작물"}>
+      <select className="form-input" id="season-crop" onChange={(event) => onChange(event.target.value)} value={selectedValue}>
+        <option value="">작물 선택</option>
+        {crops.map((crop) => (
+          <option key={crop.id} value={crop.id}>{crop.name} · 권장 심기 {crop.plantingPeriod.label}</option>
+        ))}
+      </select>
+      <p className="mt-2 text-sm text-muted">
+        {isGarden
+          ? "텃밭은 다음 단계의 격자에서 여러 작물을 배치할 수 있습니다."
+          : "화분·베란다는 격자 없이 선택한 작물로 재배 일정을 만듭니다."}
+      </p>
+    </SeasonField>
+  );
+}
+
+function cropsForSpace(crops: readonly CropReference[], space: GrowingSpace | undefined) {
+  if (!space) return crops;
+  return crops.filter((crop) => crop.supportedSpaces.includes(space.type));
+}
+
+function resolveCropSelection(
+  space: GrowingSpace | undefined,
+  crops: readonly CropReference[],
+  cropId: string,
+): { cropId: string | null; error: string } {
+  const isCompatible = crops.some((crop) => crop.id === cropId);
+  if (space?.type !== "garden" && !isCompatible) {
+    return { cropId: null, error: "화분·베란다 시즌에서 키울 작물을 선택해 주세요." };
+  }
+  return { cropId: isCompatible ? cropId : null, error: "" };
 }
 
 function createEmptyValues(
