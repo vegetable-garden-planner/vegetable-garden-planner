@@ -1,11 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Script from "next/script";
 import {
   estimateSunlight,
   type SpaceOrientation,
 } from "@/features/growing-space/domain/sunlight-estimate";
 import { geolocationErrorMessage } from "@/features/growing-space/domain/location-message";
+import {
+  selectedPostcodeAddress,
+  type PostcodeResult,
+} from "@/features/growing-space/domain/postcode-address";
 import { geocodeAddress } from "@/features/growing-space/infrastructure/location-api";
 import type { SunlightExposure } from "@/shared/domain/growing-environment";
 
@@ -38,17 +43,18 @@ export function SunlightLocationAssistant({ onApply, value }: SunlightLocationAs
   const [addressInput, setAddressInput] = useState(value.address);
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
+  const [postcodeReady, setPostcodeReady] = useState(false);
 
-  async function searchAddress() {
-    if (addressInput.trim().length < 2) {
-      setMessage("도로명 주소를 입력해 주세요.");
+  async function searchAddress(address: string) {
+    if (address.trim().length < 2) {
+      setMessage("주소 검색 창에서 주소를 선택해 주세요.");
       return;
     }
 
     setBusy(true);
     setMessage("");
     try {
-      const location = await geocodeAddress(addressInput.trim());
+      const location = await geocodeAddress(address.trim());
       applyLocation(location.latitude, location.longitude, location.address, value.orientation);
       setAddressInput(location.address);
     } catch (error) {
@@ -56,6 +62,21 @@ export function SunlightLocationAssistant({ onApply, value }: SunlightLocationAs
     } finally {
       setBusy(false);
     }
+  }
+
+  function openPostcodeSearch() {
+    if (!postcodeReady || !window.daum) {
+      setMessage("주소 검색창을 준비하고 있습니다. 잠시 후 다시 눌러 주세요.");
+      return;
+    }
+
+    new window.daum.Postcode({
+      oncomplete: (result: PostcodeResult) => {
+        const address = selectedPostcodeAddress(result);
+        setAddressInput(address);
+        void searchAddress(address);
+      },
+    }).open();
   }
 
   function useCurrentLocation() {
@@ -108,13 +129,19 @@ export function SunlightLocationAssistant({ onApply, value }: SunlightLocationAs
 
   return (
     <section className="rounded-3xl border border-leaf/20 bg-leaf-soft/35 p-5" aria-labelledby="sunlight-helper-title">
+      <Script
+        onError={() => setMessage("주소 검색창을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.")}
+        onReady={() => setPostcodeReady(true)}
+        src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+        strategy="lazyOnload"
+      />
       <h2 className="text-lg font-bold" id="sunlight-helper-title">햇빛 자동 추정</h2>
       <p className="mt-2 text-sm leading-6 text-muted">주소 또는 현재 위치 중 한 가지 방법으로 장소를 정한 뒤, 창·베란다가 바라보는 방향을 선택하면 예상 일조 시간을 계산합니다.</p>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
         <label className="font-bold sm:col-span-2" htmlFor="space-address-search">주소로 찾기</label>
-        <input className="form-input" id="space-address-search" onChange={(event) => setAddressInput(event.target.value)} placeholder="예: 서울특별시 중구 세종대로 110" value={addressInput} />
-        <button className="rounded-full border border-leaf px-5 py-3 font-bold text-leaf disabled:opacity-50" disabled={busy} onClick={() => void searchAddress()} type="button">입력한 주소 검색</button>
+        <input className="form-input bg-white" id="space-address-search" placeholder="주소 검색 버튼을 눌러 선택해 주세요" readOnly value={addressInput} />
+        <button className="rounded-full border border-leaf px-5 py-3 font-bold text-leaf disabled:opacity-50" disabled={busy} onClick={openPostcodeSearch} type="button">주소 검색창 열기</button>
       </div>
 
       <div className="my-4 flex items-center gap-3 text-xs text-muted" aria-hidden="true"><span className="h-px flex-1 bg-ink/10" />또는<span className="h-px flex-1 bg-ink/10" /></div>
