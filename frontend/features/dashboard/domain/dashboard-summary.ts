@@ -118,7 +118,7 @@ function getNextAction(
   if (seasonWithoutLayout) {
     return {
       title: `‘${seasonWithoutLayout.name}’ 작물을 배치해 보세요`,
-      description: "텃밭 격자를 만들고 심을 작물을 칸마다 배치할 수 있어요.",
+      description: "재배 공간 격자를 만들고 심을 작물을 칸마다 배치할 수 있어요.",
       href: `/seasons/${seasonWithoutLayout.id}/layout`,
       label: "작물 배치하기",
     };

@@ -59,9 +59,6 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   if (!season) return <Message message="재배 일정을 만들 시즌을 찾을 수 없습니다." />;
   const space = spacesState.spaces.find((item) => item.id === season.spaceId);
   if (!space) return <Message message="시즌에 연결된 재배 공간을 찾을 수 없습니다." />;
-  if (space.type !== "garden") {
-    return <Message message="자동 재배 일정은 현재 마당·텃밭의 격자 배치에서 사용할 수 있습니다." />;
-  }
 
   const layout = layoutsState.layouts.find((item) => item.seasonId === seasonId);
   const tasks = tasksState.tasks
@@ -88,7 +85,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
 
   async function generate(): Promise<void> {
     if (!layout) {
-      setActionError("먼저 텃밭 격자를 만들고 작물을 배치해 주세요.");
+      setActionError("먼저 재배 공간 격자를 만들고 작물을 배치해 주세요.");
       return;
     }
     if (tasks.length > 0 && !window.confirm("기존 일정을 현재 작물 배치 기준으로 다시 만들까요?")) {

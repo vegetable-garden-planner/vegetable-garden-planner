@@ -20,7 +20,7 @@ tags:
   - name: Seasons
     description: 사용자 재배 시즌
   - name: Layouts
-    description: 시즌별 텃밭 격자와 작물 배치
+    description: 시즌별 재배 공간 격자와 작물 배치
   - name: Tasks
     description: 앞으로 수행할 재배 일정
   - name: Records

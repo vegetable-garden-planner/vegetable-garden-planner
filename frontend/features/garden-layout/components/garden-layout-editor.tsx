@@ -47,16 +47,12 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   if (cropCatalog.status === "error") return <Message message={cropCatalog.message} />;
   if (cropCatalog.status === "loading") return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;
 
-  const gardenCrops = cropCatalog.crops.filter((crop) => crop.supportedSpaces.includes("garden"));
-
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
   if (!season) return <Message message="작물 배치를 만들 시즌을 찾을 수 없습니다." />;
 
   const space = spacesState.spaces.find((item) => item.id === season.spaceId);
   if (!space) return <Message message="시즌에 연결된 재배 공간을 찾을 수 없습니다." />;
-  if (space.type !== "garden") {
-    return <Message message="격자 배치는 마당·텃밭 유형의 공간에서 사용할 수 있습니다." />;
-  }
+  const compatibleCrops = cropCatalog.crops.filter((crop) => crop.supportedSpaces.includes(space.type));
 
   const layout = layoutsState.layouts.find((item) => item.seasonId === seasonId);
   return (
@@ -66,7 +62,7 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
         <p className="mt-2 text-sm text-muted">공간 크기 {space.widthCm} × {space.lengthCm}cm</p>
       </div>
       {layout
-        ? <GardenGrid crops={gardenCrops} layout={layout} reload={layoutsState.reload} season={season} space={space} />
+        ? <GardenGrid crops={compatibleCrops} layout={layout} reload={layoutsState.reload} season={season} space={space} />
         : <GardenGridSetup reload={layoutsState.reload} seasonId={season.id} space={space} />}
     </div>
   );

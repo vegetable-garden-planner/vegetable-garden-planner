@@ -6,6 +6,7 @@ namespace App\Http\Requests\Api\V1\Layouts;
 
 use App\Http\Requests\Api\V1\StrictJsonRequest;
 use App\Models\Crop;
+use App\Models\GrowingSeason;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
@@ -87,18 +88,33 @@ class PutGardenLayoutRequest extends StrictJsonRequest
                     return;
                 }
 
-                $gardenCropIds = Crop::query()
+                $season = $this->route('growingSeason');
+                if (! $season instanceof GrowingSeason) {
+                    $validator->errors()->add('placements', '재배 시즌 정보를 확인할 수 없습니다.');
+
+                    return;
+                }
+
+                $space = $season->growingSpace()->first();
+                if ($space === null) {
+                    $validator->errors()->add('placements', '시즌에 연결된 재배 공간을 확인할 수 없습니다.');
+
+                    return;
+                }
+
+                $spaceType = $space->type->value;
+                $supportedCropIds = Crop::query()
                     ->whereIn('id', $cropIds)
                     ->get()
-                    ->filter(fn (Crop $crop): bool => in_array('garden', $crop->supported_spaces, true))
+                    ->filter(fn (Crop $crop): bool => in_array($spaceType, $crop->supported_spaces, true))
                     ->pluck('id');
 
                 foreach ($placements as $index => $placement) {
                     if (is_array($placement)
                         && isset($placement['cropId'])
                         && is_string($placement['cropId'])
-                        && ! $gardenCropIds->contains($placement['cropId'])) {
-                        $validator->errors()->add("placements.{$index}.cropId", '텃밭에 배치할 수 없는 작물입니다.');
+                        && ! $supportedCropIds->contains($placement['cropId'])) {
+                        $validator->errors()->add("placements.{$index}.cropId", '선택한 재배 공간에 배치할 수 없는 작물입니다.');
                     }
                 }
             },
