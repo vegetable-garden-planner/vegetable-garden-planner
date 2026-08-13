@@ -22,6 +22,7 @@ import {
   isSunlightExposure,
   type GrowingSpaceType,
 } from "@/shared/domain/growing-environment";
+import { ApiError } from "@/shared/infrastructure/api-client";
 
 interface SpaceFormProps {
   initialType: GrowingSpaceType;
@@ -59,7 +60,9 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
       else await createGrowingSpace(result.value);
       router.push("/spaces");
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "공간을 저장하지 못했습니다.");
+      const serverErrors = toSpaceServerErrors(error);
+      setErrors(serverErrors.fields);
+      setFormError(serverErrors.form);
     }
   }
 
@@ -151,6 +154,40 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
       <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">{space ? "변경 내용 저장" : "공간 등록하기"}</button>
     </form>
   );
+}
+
+function toSpaceServerErrors(error: unknown): {
+  fields: GrowingSpaceErrors;
+  form: string;
+} {
+  if (!(error instanceof ApiError)) {
+    return { fields: {}, form: "공간을 저장하지 못했습니다." };
+  }
+
+  if (error.fields.region) {
+    return {
+      fields: {},
+      form: "공간 등록 기능을 업데이트하고 있습니다. 잠시 후 다시 시도해 주세요.",
+    };
+  }
+
+  const fields: GrowingSpaceErrors = {
+    name: error.fields.name?.[0],
+    widthCm: error.fields.widthCm?.[0],
+    lengthCm: error.fields.lengthCm?.[0],
+    address: error.fields.address?.[0],
+    latitude: error.fields.latitude?.[0],
+    longitude: error.fields.longitude?.[0],
+    orientation: error.fields.orientation?.[0],
+    estimatedSunlightHours: error.fields.estimatedSunlightHours?.[0],
+    notes: error.fields.notes?.[0],
+  };
+  const hasVisibleFieldError = Object.values(fields).some(Boolean);
+
+  return {
+    fields,
+    form: hasVisibleFieldError ? "표시된 입력값을 확인해 주세요." : error.message,
+  };
 }
 
 function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValues {
