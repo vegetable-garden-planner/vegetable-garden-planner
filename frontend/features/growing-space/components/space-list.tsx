@@ -59,7 +59,6 @@ export function SpaceList() {
               <dl className="mt-5 grid grid-cols-2 gap-4 text-sm">
                 <div><dt className="text-muted">크기</dt><dd className="mt-1 font-bold">{space.widthCm} × {space.lengthCm}cm</dd></div>
                 <div><dt className="text-muted">햇빛</dt><dd className="mt-1 font-bold">{space.estimatedSunlightHours === null ? SUNLIGHT_LABELS[space.sunlight] : `약 ${space.estimatedSunlightHours}시간`}</dd></div>
-                <div><dt className="text-muted">지역</dt><dd className="mt-1 font-bold">{space.region}</dd></div>
                 <div><dt className="text-muted">연결 시즌</dt><dd className="mt-1 font-bold">{seasonCount}개</dd></div>
               </dl>
               <div className="relative z-10 mt-6 flex gap-2 border-t border-ink/10 pt-4">

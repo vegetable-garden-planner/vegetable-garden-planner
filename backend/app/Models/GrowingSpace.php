@@ -28,7 +28,6 @@ class GrowingSpace extends Model
         'sunlight',
         'width_cm',
         'length_cm',
-        'region',
         'address',
         'latitude',
         'longitude',

@@ -10,7 +10,6 @@ export interface GrowingSpaceFormValues {
   sunlight: SunlightExposure;
   widthCm: string;
   lengthCm: string;
-  region: string;
   address: string;
   latitude: string;
   longitude: string;
@@ -25,7 +24,6 @@ export interface GrowingSpaceInput {
   sunlight: SunlightExposure;
   widthCm: number;
   lengthCm: number;
-  region: string;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -56,7 +54,6 @@ export function validateGrowingSpace(
 ): GrowingSpaceValidation {
   const errors: GrowingSpaceErrors = {};
   const name = values.name.trim();
-  const region = values.region.trim();
   const widthCm = Number(values.widthCm);
   const lengthCm = Number(values.lengthCm);
   const latitude = values.latitude === "" ? null : Number(values.latitude);
@@ -70,10 +67,6 @@ export function validateGrowingSpace(
 
   validateSize("widthCm", widthCm, errors);
   validateSize("lengthCm", lengthCm, errors);
-
-  if (!region) {
-    errors.region = "재배 지역을 선택해 주세요.";
-  }
 
   if ((latitude === null) !== (longitude === null)) {
     errors.latitude = "위도와 경도를 함께 입력해 주세요.";
@@ -95,7 +88,6 @@ export function validateGrowingSpace(
       sunlight: values.sunlight,
       widthCm,
       lengthCm,
-      region,
       address: values.address.trim() || null,
       latitude,
       longitude,

@@ -18,7 +18,6 @@ abstract class GrowingSpaceRequest extends StrictJsonRequest
         'sunlight' => 'sunlight',
         'widthCm' => 'width_cm',
         'lengthCm' => 'length_cm',
-        'region' => 'region',
         'address' => 'address',
         'latitude' => 'latitude',
         'longitude' => 'longitude',
@@ -55,7 +54,6 @@ abstract class GrowingSpaceRequest extends StrictJsonRequest
             'sunlight' => [$presence, 'string', Rule::enum(SunlightExposure::class)],
             'widthCm' => [$presence, 'integer', 'min:10', 'max:100000'],
             'lengthCm' => [$presence, 'integer', 'min:10', 'max:100000'],
-            'region' => [$presence, 'string', 'min:1', 'max:100'],
             'address' => [$presence === 'required' ? 'nullable' : $presence, 'nullable', 'string', 'max:255'],
             'latitude' => [$presence === 'required' ? 'nullable' : $presence, 'nullable', 'numeric', 'between:-90,90', 'required_with:longitude'],
             'longitude' => [$presence === 'required' ? 'nullable' : $presence, 'nullable', 'numeric', 'between:-180,180', 'required_with:latitude'],
@@ -69,7 +67,7 @@ abstract class GrowingSpaceRequest extends StrictJsonRequest
     {
         $normalized = [];
 
-        foreach (['name', 'region', 'address', 'notes'] as $field) {
+        foreach (['name', 'address', 'notes'] as $field) {
             if ($this->exists($field)) {
                 $normalized[$field] = trim((string) $this->input($field));
             }

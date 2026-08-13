@@ -34,7 +34,6 @@ class GrowingSpaceApiTest extends TestCase
         $response = $this->actingAs($user)->postJson('/api/v1/spaces', [
             ...$this->validPayload(),
             'name' => '  주말 텃밭  ',
-            'region' => '  서울  ',
             'notes' => '  남향 구역  ',
             'address' => '  서울특별시 중구 세종대로 110  ',
             'latitude' => 37.5665,
@@ -48,7 +47,6 @@ class GrowingSpaceApiTest extends TestCase
             ->assertHeader('ETag', '"1"')
             ->assertJsonPath('data.name', '주말 텃밭')
             ->assertJsonPath('data.widthCm', 200)
-            ->assertJsonPath('data.region', '서울')
             ->assertJsonPath('data.notes', '남향 구역')
             ->assertJsonPath('data.address', '서울특별시 중구 세종대로 110')
             ->assertJsonPath('data.orientation', 'south')
@@ -71,7 +69,6 @@ class GrowingSpaceApiTest extends TestCase
             'sunlight' => 'unknown',
             'widthCm' => 9,
             'lengthCm' => 100001,
-            'region' => ' ',
             'notes' => '',
             'ownerId' => User::factory()->create()->id,
         ]);
@@ -85,7 +82,6 @@ class GrowingSpaceApiTest extends TestCase
                 'sunlight',
                 'widthCm',
                 'lengthCm',
-                'region',
                 'ownerId',
             ], 'error.fields');
 
@@ -247,7 +243,6 @@ class GrowingSpaceApiTest extends TestCase
             'sunlight' => SunlightExposure::Full->value,
             'widthCm' => 200,
             'lengthCm' => 300,
-            'region' => '서울',
             'notes' => '',
         ];
     }
