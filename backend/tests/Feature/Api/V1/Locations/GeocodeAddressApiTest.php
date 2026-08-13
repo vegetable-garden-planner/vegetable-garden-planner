@@ -57,4 +57,16 @@ class GeocodeAddressApiTest extends TestCase
             ->assertNotFound()
             ->assertJsonPath('error.code', 'ADDRESS_NOT_FOUND');
     }
+
+    public function test_invalid_kakao_key_returns_a_json_configuration_error(): void
+    {
+        config(['services.kakao.rest_api_key' => 'invalid-key']);
+        Http::fake(['dapi.kakao.com/*' => Http::response(['msg' => 'invalid app key'], 401)]);
+
+        $this->actingAs(User::factory()->create())
+            ->getJson('/api/v1/locations/geocode?address=서울시청')
+            ->assertStatus(503)
+            ->assertJsonPath('error.code', 'GEOCODER_UNAVAILABLE')
+            ->assertJsonPath('error.message', '카카오 REST API 키가 올바르지 않거나 주소 검색 권한이 없습니다.');
+    }
 }
