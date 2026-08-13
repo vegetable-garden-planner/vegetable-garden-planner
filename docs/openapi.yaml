@@ -20,7 +20,7 @@ tags:
   - name: Seasons
     description: 사용자 재배 시즌
   - name: Layouts
-    description: 시즌별 재배 공간 격자와 작물 배치
+    description: 텃밭 시즌별 격자와 작물 배치
   - name: Tasks
     description: 앞으로 수행할 재배 일정
   - name: Records
@@ -738,6 +738,7 @@ paths:
     post:
       tags: [Tasks]
       summary: 시즌 기준 재배 일정 자동 생성
+      description: 텃밭은 현재 격자 버전, 화분·베란다는 현재 시즌 버전을 If-Match로 전송합니다.
       operationId: generateSeasonTasks
       parameters:
         - $ref: '#/components/parameters/SeasonId'

@@ -1,5 +1,4 @@
 import type { CultivationTask } from "../domain/cultivation-task.ts";
-import type { GardenLayout } from "../../garden-layout/domain/garden-layout.ts";
 import { apiRequest } from "../../../shared/infrastructure/api-client.ts";
 
 interface TaskListResponse {
@@ -18,10 +17,10 @@ export async function fetchCultivationTasks(): Promise<CultivationTask[]> {
   return (await apiRequest<TaskListResponse>("/tasks?perPage=100")).data;
 }
 
-export async function generateCultivationTasks(layout: GardenLayout): Promise<CultivationTask[]> {
-  return (await apiRequest<TaskListResponse>(seasonTasksPath(layout.seasonId, "/generate"), {
+export async function generateCultivationTasks(seasonId: string, sourceVersion: number): Promise<CultivationTask[]> {
+  return (await apiRequest<TaskListResponse>(seasonTasksPath(seasonId, "/generate"), {
     method: "POST",
-    headers: versionHeader(layout.version),
+    headers: versionHeader(sourceVersion),
   })).data;
 }
 

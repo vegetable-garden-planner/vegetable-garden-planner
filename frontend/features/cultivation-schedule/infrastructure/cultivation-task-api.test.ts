@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { CultivationTask } from "../domain/cultivation-task.ts";
-import type { GardenLayout } from "../../garden-layout/domain/garden-layout.ts";
 import {
   deleteCultivationTask,
   deleteSeasonCultivationTasks,
@@ -36,7 +35,7 @@ test("내 재배 일정 목록을 한 번의 요청으로 불러온다", async (
   assert.equal(requestedUrl, "/api/v1/tasks?perPage=100");
 });
 
-test("일정 생성은 현재 배치 버전을 If-Match로 전송한다", async () => {
+test("일정 생성은 현재 배치 또는 시즌 버전을 If-Match로 전송한다", async () => {
   prepareDocumentCookie();
   let requestedUrl = "";
   let method = "";
@@ -48,7 +47,7 @@ test("일정 생성은 현재 배치 버전을 If-Match로 전송한다", async 
     return Response.json({ data: [createTask()] }, { status: 201 });
   };
 
-  await generateCultivationTasks(createLayout());
+  await generateCultivationTasks("season-1", 3);
 
   assert.equal(requestedUrl, "/api/v1/seasons/season-1/tasks/generate");
   assert.equal(method, "POST");
@@ -115,7 +114,6 @@ function prepareDocumentCookie(): void {
     value: { cookie: "XSRF-TOKEN=test-token" },
   });
 }
-
 function createTask(): CultivationTask {
   return {
     id: "task-1",
@@ -129,21 +127,6 @@ function createTask(): CultivationTask {
     completedAt: null,
     version: 4,
     createdAt: "2026-03-01T00:00:00.000Z",
-    updatedAt: "2026-03-01T00:00:00.000Z",
-  };
-}
-
-function createLayout(): GardenLayout {
-  return {
-    seasonId: "season-1",
-    spaceId: "space-1",
-    spaceWidthCm: 200,
-    spaceLengthCm: 100,
-    cellSizeCm: 25,
-    columns: 8,
-    rows: 4,
-    placements: [{ cellIndex: 0, cropId: "lettuce" }],
-    version: 3,
     updatedAt: "2026-03-01T00:00:00.000Z",
   };
 }

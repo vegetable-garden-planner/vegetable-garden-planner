@@ -52,6 +52,9 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
 
   const space = spacesState.spaces.find((item) => item.id === season.spaceId);
   if (!space) return <Message message="시즌에 연결된 재배 공간을 찾을 수 없습니다." />;
+  if (space.type !== "garden") {
+    return <ContainerSpaceNextStep season={season} space={space} />;
+  }
   const compatibleCrops = cropCatalog.crops.filter((crop) => crop.supportedSpaces.includes(space.type));
 
   const layout = layoutsState.layouts.find((item) => item.seasonId === seasonId);
@@ -65,6 +68,27 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
         ? <GardenGrid crops={compatibleCrops} layout={layout} reload={layoutsState.reload} season={season} space={space} />
         : <GardenGridSetup reload={layoutsState.reload} seasonId={season.id} space={space} />}
     </div>
+  );
+}
+
+function ContainerSpaceNextStep({ season, space }: { season: GrowingSeason; space: GrowingSpace }) {
+  const hasCrop = Boolean(season.featuredCropId);
+
+  return (
+    <section className="surface-panel border-leaf/20 p-7 text-center">
+      <p className="text-sm font-bold text-leaf">{space.name} · 화분·베란다 재배</p>
+      <h2 className="mt-2 text-2xl font-bold">격자를 만들지 않고 다음 단계로 진행해요</h2>
+      <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-muted">
+        격자 배치는 여러 구역에 작물을 나누어 심는 마당·텃밭 전용 기능입니다.
+        화분·베란다는 이번 시즌에 키울 작물을 선택한 뒤 바로 재배 일정을 만듭니다.
+      </p>
+      <Link
+        className="mt-6 inline-flex rounded-full bg-leaf px-6 py-3 font-bold text-white"
+        href={hasCrop ? `/seasons/${season.id}/tasks` : `/seasons/${season.id}/edit`}
+      >
+        {hasCrop ? "다음 단계 · 재배 일정 만들기" : "다음 단계 · 키울 작물 선택하기"} →
+      </Link>
+    </section>
   );
 }
 

@@ -83,7 +83,8 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
             ? cropsById.get(season.featuredCropId)
             : undefined;
           const nextStep = getSeasonNextStep(
-            season.id,
+            season,
+            linkedSpace?.type ?? "garden",
             layoutsBySeasonId.get(season.id),
           );
           return (
@@ -112,7 +113,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
                 <div className="ml-auto flex flex-wrap gap-2">
                   <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/watering`}>물주기</Link>
                   <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/tasks`}>재배 일정</Link>
-                  <Link className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/layout`}>작물 배치</Link>
+                  {linkedSpace?.type === "garden" && <Link className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/layout`}>작물 배치</Link>}
                 </div>
               </div>
             </li>

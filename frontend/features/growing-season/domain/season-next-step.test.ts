@@ -16,26 +16,45 @@ const emptyLayout: GardenLayout = {
   updatedAt: "2026-08-13T00:00:00.000Z",
 };
 
-test("새 시즌은 공간 유형과 관계없이 작물 배치를 다음 단계로 안내한다", () => {
-  const nextStep = getSeasonNextStep("season-1", undefined);
+const season = {
+  id: "season-1",
+  featuredCropId: undefined,
+};
+
+test("새 텃밭 시즌은 작물 배치를 다음 단계로 안내한다", () => {
+  const nextStep = getSeasonNextStep(season, "garden", undefined);
 
   assert.equal(nextStep.href, "/seasons/season-1/layout");
   assert.equal(nextStep.label, "작물 배치 시작하기");
 });
 
 test("빈 격자는 작물 배치를 이어서 하도록 안내한다", () => {
-  const nextStep = getSeasonNextStep("season-1", emptyLayout);
+  const nextStep = getSeasonNextStep(season, "garden", emptyLayout);
 
   assert.equal(nextStep.href, "/seasons/season-1/layout");
   assert.equal(nextStep.label, "작물 배치 이어가기");
 });
 
 test("작물 배치가 있으면 재배 일정 생성을 안내한다", () => {
-  const nextStep = getSeasonNextStep("season-1", {
+  const nextStep = getSeasonNextStep(season, "garden", {
     ...emptyLayout,
     placements: [{ cellIndex: 0, cropId: "lettuce" }],
   });
 
   assert.equal(nextStep.href, "/seasons/season-1/tasks");
   assert.equal(nextStep.label, "재배 일정 만들기");
+});
+
+test("작물을 선택한 베란다 시즌은 격자 없이 재배 일정으로 안내한다", () => {
+  const nextStep = getSeasonNextStep({ ...season, featuredCropId: "lettuce" }, "balcony", undefined);
+
+  assert.equal(nextStep.href, "/seasons/season-1/tasks");
+  assert.equal(nextStep.label, "재배 일정 만들기");
+});
+
+test("작물을 선택하지 않은 화분 시즌은 시즌 수정으로 안내한다", () => {
+  const nextStep = getSeasonNextStep(season, "indoor", undefined);
+
+  assert.equal(nextStep.href, "/seasons/season-1/edit");
+  assert.equal(nextStep.label, "작물 선택하기");
 });

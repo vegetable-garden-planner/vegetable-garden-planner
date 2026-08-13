@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1\Seasons;
 
 use App\Http\Requests\Api\V1\StrictJsonRequest;
+use App\Models\Crop;
 use App\Models\GrowingSeason;
+use App\Models\GrowingSpace;
 use Carbon\CarbonImmutable;
 use Illuminate\Validation\Validator;
 
@@ -55,7 +57,7 @@ abstract class GrowingSeasonRequest extends StrictJsonRequest
             'startDate' => [$presence, 'string', 'date_format:Y-m-d'],
             'endDate' => [$presence, 'string', 'date_format:Y-m-d'],
             'notes' => [$required ? 'present' : 'sometimes', 'string', 'max:1000'],
-            'featuredCropId' => ['sometimes', 'nullable', 'string', 'max:100', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/'],
+            'featuredCropId' => ['sometimes', 'nullable', 'string', 'max:100', 'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', 'exists:crops,id'],
         ];
     }
 
@@ -91,6 +93,36 @@ abstract class GrowingSeasonRequest extends StrictJsonRequest
 
                 if ($start->diffInDays($end) > 730) {
                     $validator->errors()->add('endDate', '재배 기간은 730일을 넘을 수 없습니다.');
+                }
+            },
+            function (Validator $validator): void {
+                if ($validator->errors()->hasAny(['spaceId', 'featuredCropId'])) {
+                    return;
+                }
+
+                $season = $this->route('growingSeason');
+                $existingSeason = $season instanceof GrowingSeason ? $season : null;
+                $spaceId = $this->input('spaceId', $existingSeason?->growing_space_id);
+                $cropId = $this->input('featuredCropId', $existingSeason?->featured_crop_id);
+                if (! is_string($spaceId)) {
+                    return;
+                }
+
+                $space = GrowingSpace::query()->find($spaceId);
+                if ($space !== null && $space->type->value !== 'garden' && (! is_string($cropId) || $cropId === '')) {
+                    $validator->errors()->add('featuredCropId', '화분·베란다 시즌에서 키울 작물을 선택해 주세요.');
+
+                    return;
+                }
+                if (! is_string($cropId) || $cropId === '') {
+                    return;
+                }
+
+                $crop = Crop::query()->find($cropId);
+                if ($space !== null
+                    && $crop !== null
+                    && ! in_array($space->type->value, $crop->supported_spaces, true)) {
+                    $validator->errors()->add('featuredCropId', '선택한 재배 공간에서 키울 수 없는 작물입니다.');
                 }
             },
         ];

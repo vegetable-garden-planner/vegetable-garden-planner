@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Api\V1\Seasons;
 
 use App\Enums\GrowingSeasonStatus;
+use App\Enums\GrowingSpaceType;
 use App\Models\GrowingSeason;
 use App\Models\GrowingSpace;
 use App\Models\User;
@@ -101,6 +102,37 @@ class GrowingSeasonApiTest extends TestCase
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['endDate'], 'error.fields');
+    }
+
+    public function test_container_season_requires_a_crop_supported_by_its_space(): void
+    {
+        $user = User::factory()->create();
+        $space = GrowingSpace::factory()->for($user, 'owner')->create([
+            'type' => GrowingSpaceType::Indoor,
+        ]);
+
+        $this->actingAs($user)
+            ->postJson('/api/v1/seasons', $this->validPayload($space))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['featuredCropId'], 'error.fields');
+
+        $this->actingAs($user)
+            ->postJson('/api/v1/seasons', [
+                ...$this->validPayload($space),
+                'featuredCropId' => 'lettuce',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['featuredCropId'], 'error.fields');
+
+        $this->actingAs($user)
+            ->postJson('/api/v1/seasons', [
+                ...$this->validPayload($space),
+                'featuredCropId' => 'african-violet',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.featuredCropId', 'african-violet');
+
+        $this->assertDatabaseCount('growing_seasons', 1);
     }
 
     public function test_user_cannot_create_season_in_another_users_space(): void
