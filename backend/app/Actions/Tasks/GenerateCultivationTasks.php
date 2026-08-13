@@ -30,7 +30,7 @@ final class GenerateCultivationTasks
             if ($layout === null) {
                 throw new ApiConflictException(
                     'SEASON_LAYOUT_REQUIRED',
-                    '먼저 텃밭 격자를 만들고 작물을 배치해 주세요.',
+                    '먼저 재배 공간 격자를 만들고 작물을 배치해 주세요.',
                 );
             }
             if ($layout->version !== $expectedLayoutVersion) {

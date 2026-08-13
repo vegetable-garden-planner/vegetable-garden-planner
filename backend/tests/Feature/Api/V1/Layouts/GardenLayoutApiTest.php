@@ -162,16 +162,40 @@ class GardenLayoutApiTest extends TestCase
         $this->assertDatabaseCount('garden_layouts', 0);
     }
 
-    public function test_non_garden_space_and_stale_dimensions_are_conflicts(): void
+    public function test_balcony_space_accepts_only_balcony_compatible_crops(): void
     {
         [$owner, $space, $season] = $this->ownedSeason(['type' => GrowingSpaceType::Balcony]);
 
         $this->actingAs($owner)
             ->putJson("/api/v1/seasons/{$season->id}/layout", $this->validPayload($space))
-            ->assertConflict()
-            ->assertJsonPath('error.code', 'LAYOUT_REQUIRES_GARDEN');
+            ->assertCreated()
+            ->assertJsonPath('data.placements.0.cropId', 'lettuce')
+            ->assertJsonPath('data.placements.1.cropId', 'carrot');
 
-        $space->forceFill(['type' => GrowingSpaceType::Garden])->save();
+        $this->assertDatabaseCount('garden_layouts', 1);
+        $this->assertDatabaseCount('garden_layout_placements', 2);
+    }
+
+    public function test_indoor_space_rejects_a_crop_that_is_not_indoor_compatible(): void
+    {
+        [$owner, $space, $season] = $this->ownedSeason(['type' => GrowingSpaceType::Indoor]);
+
+        $this->actingAs($owner)
+            ->putJson("/api/v1/seasons/{$season->id}/layout", [
+                ...$this->validPayload($space),
+                'placements' => [['cellIndex' => 0, 'cropId' => 'lettuce']],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['placements.0.cropId'], 'error.fields');
+
+        $this->assertDatabaseCount('garden_layouts', 0);
+        $this->assertDatabaseCount('garden_layout_placements', 0);
+    }
+
+    public function test_stale_space_dimensions_are_a_conflict(): void
+    {
+        [$owner, $space, $season] = $this->ownedSeason();
+
         $payload = $this->validPayload($space);
         $payload['spaceWidthCm'] = $space->width_cm - 10;
 

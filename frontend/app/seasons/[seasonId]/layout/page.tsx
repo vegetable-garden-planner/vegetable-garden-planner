@@ -4,8 +4,8 @@ import { AuthGate } from "@/features/auth/components/auth-gate";
 import { GardenLayoutEditor } from "@/features/garden-layout/components/garden-layout-editor";
 
 export const metadata: Metadata = {
-  title: "텃밭 작물 배치 | 심어봄",
-  description: "재배 시즌의 텃밭 격자를 만들고 작물을 배치하세요.",
+  title: "재배 공간 작물 배치 | 심어봄",
+  description: "재배 시즌의 공간 격자를 만들고 작물을 배치하세요.",
 };
 
 export default async function SeasonLayoutPage({
@@ -22,7 +22,7 @@ export default async function SeasonLayoutPage({
         backHref="/seasons"
         backLabel="시즌 목록"
         description="격자 칸에 작물을 배치하면 포기 수와 간격, 연작 위험을 바로 확인할 수 있습니다."
-        eyebrow="텃밭 격자 배치"
+        eyebrow="재배 공간 작물 배치"
         title="어디에 무엇을 심을까요?"
         width="full"
       >
