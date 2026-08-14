@@ -23,6 +23,7 @@ export default async function SeasonLayoutPage({
         backLabel="시즌 목록"
         description="작물을 선택하고 텃밭 칸을 눌러 원하는 위치에 배치해 보세요. 포기 수와 계절 적합도를 바로 확인할 수 있습니다."
         eyebrow="작물 배치 작업대"
+        heroSize="compact"
         title="텃밭 배치 조정"
         width="full"
       >

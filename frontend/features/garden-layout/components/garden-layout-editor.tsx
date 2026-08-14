@@ -58,18 +58,37 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   const layout = layoutsState.layouts.find((item) => item.seasonId === seasonId);
   return (
     <div className="min-w-0 max-w-full">
-      <section className="planner-context" aria-label="현재 텃밭 정보">
-        <div><span>현재 텃밭</span><strong>{space.name}</strong></div>
-        <dl>
-          <div><dt>재배 시즌</dt><dd>{season.name}</dd></div>
-          <div><dt>공간 크기</dt><dd>{space.widthCm} × {space.lengthCm}cm</dd></div>
-          <div><dt>일조 환경</dt><dd>{sunlightLabel(space)}</dd></div>
-        </dl>
-      </section>
       {layout
         ? <GardenGrid crops={compatibleCrops} layout={layout} reload={layoutsState.reload} season={season} space={space} />
-        : <GardenGridSetup reload={layoutsState.reload} seasonId={season.id} space={space} />}
+        : (
+            <>
+              <PlannerContext season={season} space={space} />
+              <GardenGridSetup reload={layoutsState.reload} seasonId={season.id} space={space} />
+            </>
+          )}
     </div>
+  );
+}
+
+function PlannerContext({
+  season,
+  sidebar = false,
+  space,
+}: {
+  season: GrowingSeason;
+  sidebar?: boolean;
+  space: GrowingSpace;
+}) {
+  return (
+    <section className={`planner-context ${sidebar ? "planner-context-sidebar" : ""}`} aria-label="현재 텃밭 정보">
+      <div><span>현재 텃밭</span><strong>{space.name}</strong></div>
+      <dl>
+        <div><dt>재배 시즌</dt><dd>{season.name}</dd></div>
+        <div><dt>공간 크기</dt><dd>{space.widthCm} × {space.lengthCm}cm</dd></div>
+        <div><dt>일조 환경</dt><dd>{sunlightLabel(space)}</dd></div>
+      </dl>
+      {sidebar && <Link href={`/spaces/${space.id}/edit`}>공간 정보 수정 <span aria-hidden="true">→</span></Link>}
+    </section>
   );
 }
 
@@ -229,25 +248,32 @@ function GardenGrid({
   return (
     <div className="min-w-0 max-w-full">
       {outdated && <p className="mb-5 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800" role="alert">공간 크기가 격자를 만든 이후 변경되었습니다. 정확한 배치를 위해 격자를 다시 만들어 주세요.</p>}
+      <section className="planner-workspace-tip" aria-label="배치 안내">
+        <span aria-hidden="true">✦</span>
+        <div><strong>햇빛 방향을 기준으로 배치하세요</strong><p>작물을 고른 다음 텃밭 칸을 누르면 바로 저장됩니다.</p></div>
+      </section>
       <div className="planner-workspace">
-        <aside className="planner-crop-panel" aria-labelledby="crop-selector-title">
-          <div className="planner-panel-heading">
-            <div><p>재배할 작물</p><h2 id="crop-selector-title">작물을 선택하세요</h2></div>
-            <span>{crops.length}종</span>
-          </div>
-          <div className="planner-crop-list" role="radiogroup" aria-labelledby="crop-selector-title">
-            {crops.map((crop) => {
-              const recommended = isCompleteSeasonFit(cropFits.get(crop.id));
-              return (
-                <label className={`planner-crop-choice ${cropChoiceClass(selectedCropId === crop.id, recommended)}`} key={crop.id}>
-                  <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
-                  <CropVisual crop={crop} />
-                  <span><strong>{crop.name}</strong><small>{recommended ? "현재 시즌 추천" : `${crop.plantingPeriod.label} 권장`}</small></span>
-                </label>
-              );
-            })}
-          </div>
-        </aside>
+        <div className="planner-left-rail">
+          <PlannerContext season={season} sidebar space={space} />
+          <aside className="planner-crop-panel" aria-labelledby="crop-selector-title">
+            <div className="planner-panel-heading">
+              <div><p>재배할 작물</p><h2 id="crop-selector-title">작물을 선택하세요</h2></div>
+              <span>{crops.length}종</span>
+            </div>
+            <div className="planner-crop-list" role="radiogroup" aria-labelledby="crop-selector-title">
+              {crops.map((crop) => {
+                const recommended = isCompleteSeasonFit(cropFits.get(crop.id));
+                return (
+                  <label className={`planner-crop-choice ${cropChoiceClass(selectedCropId === crop.id, recommended)}`} key={crop.id}>
+                    <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
+                    <CropVisual crop={crop} />
+                    <span><strong>{crop.name}</strong><small>{recommended ? "현재 시즌 추천" : `${crop.plantingPeriod.label} 권장`}</small></span>
+                  </label>
+                );
+              })}
+            </div>
+          </aside>
+        </div>
 
         <section className="planner-board-panel" aria-labelledby="planner-board-title">
           <div className="planner-board-heading">
@@ -293,6 +319,19 @@ function GardenGrid({
         </section>
 
         <aside className="planner-inspector">
+          {selectedCrop && (
+            <section className="planner-selected-crop" aria-labelledby="selected-crop-title">
+              <p>선택한 작물</p>
+              <div>
+                <CropVisual crop={selectedCrop} />
+                <span><strong id="selected-crop-title">{selectedCrop.name}</strong><small>{selectedCrop.plantingPeriod.label} 심기 권장</small></span>
+              </div>
+              <dl>
+                <div><dt>권장 간격</dt><dd>{selectedCrop.plantSpacingCm}cm</dd></div>
+                <div><dt>난이도</dt><dd>{difficultyLabel(selectedCrop.difficulty)}</dd></div>
+              </dl>
+            </section>
+          )}
           <PlantCountSummary summary={plantCount} />
           <section className="planner-guide-card">
             <p>배치 가이드</p>
@@ -415,4 +454,10 @@ function sunlightLabel(space: GrowingSpace): string {
   if (space.sunlight === "full") return "햇빛 6시간 이상";
   if (space.sunlight === "partial") return "햇빛 2~5시간";
   return "햇빛 2시간 미만";
+}
+
+function difficultyLabel(difficulty: CropReference["difficulty"]): string {
+  if (difficulty === "easy") return "쉬움";
+  if (difficulty === "normal") return "보통";
+  return "도전";
 }
