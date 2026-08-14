@@ -818,8 +818,8 @@ body {
 .dashboard-stats {
   position: relative;
   z-index: 4;
-  width: min(58%, 680px);
-  margin: -104px 30px 34px auto;
+  width: min(56%, 680px);
+  margin: -182px 30px 34px auto;
   border: 1px solid rgba(255, 255, 255, 0.26);
   border-radius: 22px;
   background: rgba(18, 42, 31, 0.82);
@@ -916,7 +916,29 @@ body {
 
   .dashboard-stats {
     width: calc(100% - 32px);
-    margin: -82px auto 28px;
+    margin: -160px auto 28px;
+  }
+}
+
+@media (max-width: 639px) {
+  .dashboard-stats {
+    width: 100%;
+    margin: 0 0 22px;
+    border-color: var(--color-border);
+    background: white;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .dashboard-stats > div {
+    color: var(--color-ink);
+  }
+
+  .dashboard-stats > div p:first-child {
+    color: var(--color-muted);
+  }
+
+  .dashboard-stats > div p:last-child {
+    color: var(--color-primary-hover);
   }
 }
 
@@ -963,23 +985,4 @@ body {
     border-bottom: 0;
   }
 
-  .dashboard-stats {
-    width: 100%;
-    margin: 0 0 22px;
-    border-color: var(--color-border);
-    background: white;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .dashboard-stats > div {
-    color: var(--color-ink);
-  }
-
-  .dashboard-stats > div p:first-child {
-    color: var(--color-muted);
-  }
-
-  .dashboard-stats > div p:last-child {
-    color: var(--color-primary-hover);
-  }
 }
