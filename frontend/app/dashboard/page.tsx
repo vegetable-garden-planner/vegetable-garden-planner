@@ -16,7 +16,8 @@ export default function DashboardPage() {
         action={<Link className="primary-action px-4 py-2.5 text-sm" href="/spaces/new">공간 추가</Link>}
         description="공간과 시즌, 오늘의 일정과 식물 기록을 한곳에서 이어서 관리하세요."
         eyebrow="나의 재배 홈"
-        title="오늘의 텃밭을 살펴봐요"
+        heroImage="/figma/planner-hero.png"
+        title="나의 배치와 재배 계획"
         width="full"
       >
         <DashboardOverview />

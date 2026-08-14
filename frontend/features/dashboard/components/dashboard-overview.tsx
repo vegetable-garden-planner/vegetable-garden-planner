@@ -87,8 +87,15 @@ export function DashboardOverview() {
   }
 
   return (
-    <div>
-      <section className="rounded-[2rem] bg-[linear-gradient(135deg,var(--color-ink-strong),var(--color-primary-hover))] p-6 text-white shadow-[var(--shadow-md)] sm:p-8">
+    <div className="dashboard-overview">
+      <section className="dashboard-stats grid grid-cols-2 gap-1 sm:grid-cols-4" aria-label="재배 현황 요약">
+        <SummaryCard label="재배 공간" value={`${summary.spaceCount}개`} />
+        <SummaryCard label="전체 시즌" value={`${summary.seasonCount}개`} />
+        <SummaryCard label="진행 중" value={`${summary.activeSeasonCount}개`} />
+        <SummaryCard label="작물 배치" value={`${summary.layoutCount}개`} />
+      </section>
+
+      <section className="dashboard-next-action rounded-[1.5rem] bg-[linear-gradient(135deg,var(--color-ink-strong),var(--color-primary-hover))] p-6 text-white shadow-[var(--shadow-md)] sm:p-8">
         <p className="text-sm font-bold text-[var(--color-accent)]">{auth.state.user.nickname}님의 다음 할 일</p>
         <div className="mt-3 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
@@ -99,13 +106,6 @@ export function DashboardOverview() {
             {summary.nextAction.label} <span className="ml-2" aria-hidden="true">→</span>
           </Link>
         </div>
-      </section>
-
-      <section className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="재배 현황 요약">
-        <SummaryCard label="재배 공간" value={`${summary.spaceCount}개`} />
-        <SummaryCard label="전체 시즌" value={`${summary.seasonCount}개`} />
-        <SummaryCard label="진행 중" value={`${summary.activeSeasonCount}개`} />
-        <SummaryCard label="작물 배치" value={`${summary.layoutCount}개`} />
       </section>
 
       <DashboardAlertList summary={alerts} />
