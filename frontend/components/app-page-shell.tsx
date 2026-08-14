@@ -19,6 +19,7 @@ interface AppPageShellProps {
   eyebrow: string;
   homeHref?: string;
   heroImage?: string;
+  heroSize?: "default" | "compact";
   title: string;
   width?: keyof typeof widthClasses;
 }
@@ -32,6 +33,7 @@ export function AppPageShell({
   eyebrow,
   homeHref,
   heroImage,
+  heroSize = "default",
   title,
   width = "wide",
 }: AppPageShellProps) {
@@ -40,7 +42,7 @@ export function AppPageShell({
       <AppHeader action={action} homeHref={homeHref} />
       <div className={`app-page-content mx-auto w-full min-w-0 ${widthClasses[width]}`}>
         {backHref && backLabel && <Link className="back-link" href={backHref}>← {backLabel}</Link>}
-        <header className={`page-hero ${heroImage ? "page-hero-photo" : ""}`}>
+        <header className={`page-hero ${heroImage ? "page-hero-photo" : ""} ${heroSize === "compact" ? "page-hero-compact" : ""}`}>
           {heroImage && <Image alt="" className="page-hero-image" fill priority sizes="100vw" src={heroImage} />}
           {heroImage && <span className="page-hero-shade" aria-hidden="true" />}
           <div className="page-hero-copy">
