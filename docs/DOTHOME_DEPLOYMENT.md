@@ -2,6 +2,17 @@
 
 이 문서는 `backend` Laravel API를 닷홈 계열 PHP 호스팅에 배포하기 전에 확인할 기준입니다. 실제 메뉴와 제공 기능은 이용 중인 상품에 따라 다르므로 상품 사양을 먼저 확인합니다.
 
+현재 팀 공용 배포 주소는 다음과 같습니다.
+
+```text
+Frontend: https://vegetable-garden-planner.vercel.app
+Laravel API: https://yjwest9.dothome.co.kr
+Health check: https://yjwest9.dothome.co.kr/api/v1/health
+DB admin: https://yjwest9.dothome.co.kr/myadmin
+```
+
+DB 관리 주소는 운영자용이며 프론트엔드 환경변수나 API 주소로 사용하지 않습니다.
+
 ## 1. 호스팅에서 반드시 확인할 항목
 
 - PHP 8.2 이상

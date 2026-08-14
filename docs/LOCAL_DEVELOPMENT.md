@@ -2,6 +2,22 @@
 
 이 문서는 저장소를 처음 받은 팀원이 Next.js와 Laravel을 실행하는 정확한 절차입니다. 컴퓨터마다 최초 한 번 설정합니다.
 
+## 0. 팀 공용 API와 데이터베이스 사용 원칙
+
+팀 기능 개발에서는 각자 로컬 Laravel 데이터베이스를 사용하지 않습니다. 모든 조원의 Next.js 프론트엔드는 아래 공용 Laravel API를 거쳐 하나의 닷홈 데이터베이스를 공유합니다.
+
+```text
+로컬 또는 Vercel Next.js
+  -> https://yjwest9.dothome.co.kr/api/v1
+  -> 닷홈 공용 데이터베이스
+```
+
+- 공용 Laravel 주소: `https://yjwest9.dothome.co.kr`
+- 공용 웹 주소: `https://vegetable-garden-planner.vercel.app`
+- `https://yjwest9.dothome.co.kr/myadmin`은 DB 관리 화면이며 프론트엔드 연결 주소로 사용하지 않습니다.
+- 프론트엔드는 DB에 직접 연결하지 않고 반드시 Laravel API만 호출합니다.
+- 아래 로컬 Laravel·DB 절차는 백엔드 격리 테스트나 마이그레이션 작성이 필요한 경우에만 사용하며, 팀 공용 기능 데이터는 닷홈에서 확인합니다.
+
 ## 1. 준비 프로그램
 
 - Git
@@ -79,7 +95,7 @@ npm.cmd install
 npm.cmd run dev
 ```
 
-브라우저에서 `http://localhost:3000`을 엽니다. `frontend/.env.local`의 `BACKEND_URL` 기본값은 `http://127.0.0.1:8000`이며 Next.js가 `/api/v1`과 `/sanctum` 요청을 Laravel로 전달합니다. `SITE_URL`은 페이지 메타데이터와 공유 이미지의 기준 주소이며 로컬 기본값은 `http://localhost:3000`입니다.
+브라우저에서 `http://localhost:3000`을 엽니다. `frontend/.env.local`의 `BACKEND_URL` 기본값은 `https://yjwest9.dothome.co.kr`이며 Next.js가 `/api/v1`과 `/sanctum` 요청을 공용 Laravel로 전달합니다. `SITE_URL`은 페이지 메타데이터와 공유 이미지의 기준 주소이며 로컬 기본값은 `http://localhost:3000`입니다.
 
 ## 7. 다른 팀원의 변경을 받은 뒤
 
