@@ -39,17 +39,23 @@ export function DashboardOverview() {
   const wateringState = useAllWateringSchedules();
   const cropCatalog = useCropCatalog();
 
-  if (auth.state.status === "error") return <ErrorMessage message={auth.state.message} />;
-  if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
-  if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
-  if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
-  if (layoutsState.status === "loading") return <p className="text-muted">작물 배치를 불러오고 있습니다.</p>;
-  if (tasksState.status === "error") return <ErrorMessage message={tasksState.message} />;
-  if (tasksState.status === "loading") return <p className="text-muted">재배 일정을 불러오고 있습니다.</p>;
-  if (wateringState.status === "error") return <ErrorMessage message={wateringState.message} />;
-  if (wateringState.status === "loading") return <p className="text-muted">물주기 일정을 불러오고 있습니다.</p>;
-  if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
-  if (cropCatalog.status === "loading") return null;
+  if (auth.state.status === "error") return <DashboardLoadError detail={auth.state.message} />;
+  if (spacesState.status === "error") return <DashboardLoadError detail={spacesState.message} />;
+  if (seasonsState.status === "error") return <DashboardLoadError detail={seasonsState.message} />;
+  if (layoutsState.status === "error") return <DashboardLoadError detail={layoutsState.message} />;
+  if (tasksState.status === "error") return <DashboardLoadError detail={tasksState.message} />;
+  if (wateringState.status === "error") return <DashboardLoadError detail={wateringState.message} />;
+  if (cropCatalog.status === "error") return <DashboardLoadError detail={cropCatalog.message} />;
+  if (
+    spacesState.status === "loading"
+    || seasonsState.status === "loading"
+    || layoutsState.status === "loading"
+    || tasksState.status === "loading"
+    || wateringState.status === "loading"
+    || cropCatalog.status === "loading"
+  ) {
+    return <DashboardLoading />;
+  }
   if (auth.state.status !== "authenticated") return null;
 
   const today = formatLocalDateOnly(new Date());
@@ -68,13 +74,17 @@ export function DashboardOverview() {
       crops: cropCatalog.crops,
     }, today);
   } catch (error) {
-    return <ErrorMessage message={error instanceof Error ? error.message : "대시보드 알림을 계산하지 못했습니다."} />;
+    return <DashboardLoadError detail={error instanceof Error ? error.message : "대시보드 알림을 계산하지 못했습니다."} />;
   }
   const registeredPlants = createRegisteredPlantSummaries(
     seasonsState.seasons,
     cropCatalog.crops,
     today,
   );
+
+  if (summary.spaceCount === 0 || summary.seasonCount === 0) {
+    return <DashboardGettingStarted hasSpace={summary.spaceCount > 0} nextAction={summary.nextAction} />;
+  }
 
   return (
     <div>
@@ -173,6 +183,80 @@ function QuickLink({
   );
 }
 
-function ErrorMessage({ message }: { message: string }) {
-  return <p className="mt-8 rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{message}</p>;
+function DashboardLoading() {
+  return (
+    <div className="surface-panel p-6" role="status">
+      <p className="font-bold">재배 홈을 준비하고 있어요</p>
+      <p className="mt-2 text-sm text-muted">공간과 시즌, 오늘 할 일을 차례로 불러오고 있습니다.</p>
+    </div>
+  );
+}
+
+function DashboardGettingStarted({
+  hasSpace,
+  nextAction,
+}: {
+  hasSpace: boolean;
+  nextAction: { title: string; description: string; href: string; label: string };
+}) {
+  const steps = [
+    {
+      title: "재배 공간 등록",
+      description: "화분, 베란다, 마당·텃밭 중 실제로 키울 장소를 등록해요.",
+      status: hasSpace ? "완료" : "지금 할 일",
+    },
+    {
+      title: "첫 시즌 만들기",
+      description: "공간을 고르고 재배 기간과 대표 작물을 정해요.",
+      status: hasSpace ? "지금 할 일" : "다음 단계",
+    },
+    {
+      title: "재배 계획 관리",
+      description: "안내에 따라 작물을 배치하거나 일정을 만들어 관리해요.",
+      status: "그 다음",
+    },
+  ];
+
+  return (
+    <section className="surface-panel overflow-hidden" aria-labelledby="getting-started-title">
+      <div className="bg-[var(--color-surface-warm)] p-6 sm:p-8">
+        <p className="text-sm font-bold text-leaf">처음이어도 괜찮아요</p>
+        <h2 className="mt-2 text-2xl font-bold" id="getting-started-title">{nextAction.title}</h2>
+        <p className="mt-3 max-w-2xl leading-7 text-muted">{nextAction.description}</p>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Link className="primary-action px-5 py-3" href={nextAction.href}>{nextAction.label}</Link>
+          <Link className="inline-flex items-center px-3 py-3 text-sm font-bold text-leaf underline" href="/crops">작물 정보 먼저 둘러보기</Link>
+        </div>
+      </div>
+      <ol className="grid gap-px bg-[var(--color-border)] sm:grid-cols-3">
+        {steps.map((step, index) => (
+          <li className="bg-white p-6" key={step.title}>
+            <div className="flex items-center justify-between gap-3">
+              <span className="flex size-8 items-center justify-center rounded-full bg-leaf-soft text-sm font-bold text-leaf-dark" aria-hidden="true">{index + 1}</span>
+              <span className="text-xs font-bold text-leaf">{step.status}</span>
+            </div>
+            <h3 className="mt-4 font-bold">{step.title}</h3>
+            <p className="mt-2 text-sm leading-6 text-muted">{step.description}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function DashboardLoadError({ detail }: { detail: string }) {
+  return (
+    <section className="surface-panel border-red-200 p-6 sm:p-8" aria-labelledby="dashboard-error-title" role="alert">
+      <p className="text-sm font-bold text-red-700">재배 정보를 불러오지 못했어요</p>
+      <h2 className="mt-2 text-xl font-bold" id="dashboard-error-title">연결 상태를 다시 확인해 주세요</h2>
+      <p className="mt-3 leading-7 text-muted">
+        로그인 정보가 만료됐거나 연결이 잠시 불안정할 수 있어요. 다시 불러온 뒤에도 계속되면 로그인 화면에서 계정을 확인해 주세요.
+      </p>
+      <p className="mt-3 text-sm text-red-700">확인 내용: {detail}</p>
+      <div className="mt-6 flex flex-wrap gap-3">
+        <button className="primary-action px-5 py-3" onClick={() => window.location.reload()} type="button">다시 불러오기</button>
+        <Link className="inline-flex items-center rounded-full border border-[var(--color-border)] px-5 py-3 font-bold" href="/login?next=%2Fdashboard">로그인 화면으로 이동</Link>
+      </div>
+    </section>
+  );
 }

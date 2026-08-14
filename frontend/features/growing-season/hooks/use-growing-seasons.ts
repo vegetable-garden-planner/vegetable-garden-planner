@@ -5,13 +5,15 @@ import type { PersistedGrowingSeason } from "@/features/growing-season/domain/gr
 import { fetchGrowingSeasons } from "@/features/growing-season/infrastructure/season-api";
 
 export type GrowingSeasonsState =
+  | { status: "loading"; seasons: readonly [] }
   | { status: "ready"; seasons: PersistedGrowingSeason[] }
   | { status: "error"; message: string };
 
 export function useGrowingSeasons(): GrowingSeasonsState & { reload: () => Promise<void> } {
-  const [state, setState] = useState<GrowingSeasonsState>({ status: "ready", seasons: [] });
+  const [state, setState] = useState<GrowingSeasonsState>({ status: "loading", seasons: [] });
 
   const reload = useCallback(async () => {
+    setState({ status: "loading", seasons: [] });
     try {
       setState({ status: "ready", seasons: await fetchGrowingSeasons() });
     } catch (error) {

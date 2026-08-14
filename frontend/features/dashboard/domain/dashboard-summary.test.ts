@@ -63,6 +63,8 @@ test("빈 사용자에게 공간 등록을 첫 작업으로 안내한다", () =>
 
   assert.equal(summary.spaceCount, 0);
   assert.equal(summary.nextAction.href, "/spaces/new");
+  assert.equal(summary.nextAction.title, "첫 재배 공간을 등록해 보세요");
+  assert.equal(summary.nextAction.label, "공간 등록하기");
   assert.deepEqual(summary.recentSeasons, []);
 });
 
@@ -70,6 +72,8 @@ test("공간만 있으면 시즌 등록을 안내한다", () => {
   const summary = createDashboardSummary([garden], [], [], [], "2026-08-06");
 
   assert.equal(summary.nextAction.href, "/seasons/new");
+  assert.equal(summary.nextAction.title, "재배 시즌을 만들어 보세요");
+  assert.equal(summary.nextAction.label, "시즌 등록하기");
 });
 
 test("격자가 없는 텃밭 시즌을 작물 배치로 연결한다", () => {

@@ -5,13 +5,15 @@ import type { GrowingSpace } from "@/features/growing-space/domain/growing-space
 import { fetchGrowingSpaces } from "@/features/growing-space/infrastructure/space-api";
 
 export type GrowingSpacesState =
+  | { status: "loading"; spaces: readonly [] }
   | { status: "ready"; spaces: GrowingSpace[] }
   | { status: "error"; message: string };
 
 export function useGrowingSpaces(): GrowingSpacesState & { reload: () => Promise<void> } {
-  const [state, setState] = useState<GrowingSpacesState>({ status: "ready", spaces: [] });
+  const [state, setState] = useState<GrowingSpacesState>({ status: "loading", spaces: [] });
 
   const reload = useCallback(async () => {
+    setState({ status: "loading", spaces: [] });
     try {
       setState({ status: "ready", spaces: await fetchGrowingSpaces() });
     } catch (error) {
