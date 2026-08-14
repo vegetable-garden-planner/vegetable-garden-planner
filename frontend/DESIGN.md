@@ -64,6 +64,8 @@ Figma `홈 (전체)`, `화분 배치·재배 계획`, `화분 배치 조정` 프
 - Recommendation card: 사진 상단, 정보 하단, radius 16px, border 1px. 링크 전체가 클릭되며 hover 시 translateY(-4px), active 시 translateY(0).
 - Empty/loading/error: empty는 surface 배경과 설명+CTA, loading은 surface/primary-soft skeleton, error는 danger 텍스트와 재시도 CTA.
 
+- Schedule workspace: 재배 일정 화면은 데스크톱에서 일정 타임라인과 진행·빠른 작업 사이드바를 2열로 구성하고, 모바일에서는 한 열로 쌓는다. 시즌·공간·기간과 전체/완료/남은 일정은 상단 요약에서 먼저 보여 주며, 선행 작업이 없을 때는 비어 있는 화면 대신 다음 이동 경로와 CTA를 명확히 안내한다.
+
 ## 6. Motion
 
 - `--motion-fast: 160ms`, `--motion-base: 220ms`, `--motion-slow: 360ms`.
