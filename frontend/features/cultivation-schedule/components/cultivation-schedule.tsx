@@ -18,6 +18,7 @@ import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-s
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 import type { GrowingSpaceType } from "@/shared/domain/growing-environment";
 import { ApiError } from "@/shared/infrastructure/api-client";
+import styles from "./cultivation-schedule.module.css";
 
 const TASK_TYPE_LABELS: Record<CultivationTaskType, string> = {
   watering: "물주기",
@@ -77,6 +78,11 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
     layout?.placements.length,
     seasonId,
   );
+  const completedCount = tasks.filter((task) => task.status === "completed").length;
+  const pendingCount = tasks.length - completedCount;
+  const cropCount = space.type === "garden"
+    ? new Set(layout?.placements.map((item) => item.cropId)).size
+    : season.featuredCropId ? 1 : 0;
 
   async function runAction(action: () => Promise<void>): Promise<void> {
     setActionError("");
@@ -126,87 +132,170 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   }
 
   return (
-    <div>
-      <section className="rounded-3xl bg-leaf-soft/60 p-5" aria-labelledby="schedule-season-title">
-        <p className="text-sm font-bold text-leaf">재배 기간</p>
-        <h2 className="mt-1 text-xl font-bold" id="schedule-season-title">{season.name}</h2>
-        <p className="mt-2 text-sm text-muted">{season.startDate} ~ {season.endDate}</p>
+    <ScheduleView
+      actionError={actionError}
+      actionErrorCode={actionErrorCode}
+      completedCount={completedCount}
+      cropCount={cropCount}
+      emptyState={emptyState}
+      isSaving={isSaving}
+      onDeleteTask={removeTask}
+      onGenerate={generate}
+      onRemoveSchedule={removeSchedule}
+      onToggleTask={toggleTask}
+      pendingCount={pendingCount}
+      scheduleIsOutdated={scheduleIsOutdated}
+      seasonEndDate={season.endDate}
+      seasonId={seasonId}
+      seasonName={season.name}
+      seasonStartDate={season.startDate}
+      spaceName={space.name}
+      spaceType={space.type}
+      tasks={tasks}
+    />
+  );
+}
+
+interface ScheduleEmptyState {
+  description: string;
+  href: string;
+  label: string;
+  title: string;
+}
+
+interface ScheduleViewProps {
+  actionError: string;
+  actionErrorCode: string;
+  completedCount: number;
+  cropCount: number;
+  emptyState: ScheduleEmptyState | null;
+  isSaving: boolean;
+  onDeleteTask: (task: CultivationTask) => Promise<void>;
+  onGenerate: () => Promise<void>;
+  onRemoveSchedule: () => Promise<void>;
+  onToggleTask: (task: CultivationTask) => Promise<void>;
+  pendingCount: number;
+  scheduleIsOutdated: boolean;
+  seasonEndDate: string;
+  seasonId: string;
+  seasonName: string;
+  seasonStartDate: string;
+  spaceName: string;
+  spaceType: GrowingSpaceType;
+  tasks: readonly CultivationTask[];
+}
+
+function ScheduleView(props: ScheduleViewProps) {
+  const cropDescription = props.cropCount > 0
+    ? `${props.cropCount}종 작물을 기준으로 일정을 관리해요.`
+    : "일정을 만들 작물을 먼저 준비해 주세요.";
+
+  return (
+    <div className={styles.page}>
+      <section className={styles.overview} aria-labelledby="schedule-season-title">
+        <div className={styles.overviewCopy}>
+          <p>현재 재배 계획</p>
+          <h2 id="schedule-season-title">{props.seasonName}</h2>
+          <span>{props.spaceName} · {props.seasonStartDate} ~ {props.seasonEndDate}</span>
+          <strong>{cropDescription}</strong>
+        </div>
+        <dl className={styles.overviewStats} aria-label="일정 진행 현황">
+          <ScheduleStat label="전체 일정" value={`${props.tasks.length}개`} />
+          <ScheduleStat label="완료" value={`${props.completedCount}개`} />
+          <ScheduleStat label="남은 일정" value={`${props.pendingCount}개`} />
+        </dl>
       </section>
 
-      {emptyState ? <EmptySchedule {...emptyState} /> : (
-        <>
-          <div className="surface-panel mt-5 flex flex-wrap items-center justify-between gap-3 p-5">
-            <div>
-              <p className="font-bold">
-                {space.type === "garden"
-                  ? `배치 작물 ${new Set(layout?.placements.map((item) => item.cropId)).size}종`
-                  : "선택한 작물로 일정 준비"}
-              </p>
-              <p className="mt-1 text-sm text-muted">심기와 수확 시작 일정을 시즌 안에서 계산합니다.</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {tasks.length > 0 && (
-                <button
-                  className="rounded-full border border-red-200 px-5 py-3 text-sm font-bold text-red-700 disabled:opacity-50"
-                  disabled={isSaving}
-                  onClick={() => { void removeSchedule(); }}
-                  type="button"
-                >
-                  일정 모두 삭제
-                </button>
-              )}
-              <button
-                className="rounded-full bg-leaf px-5 py-3 text-sm font-bold text-white disabled:opacity-50"
-                disabled={isSaving}
-                onClick={() => { void generate(); }}
-                type="button"
-              >
-                {isSaving ? "처리 중..." : tasks.length > 0 ? "일정 다시 만들기" : "일정 자동 만들기"}
+      {props.emptyState
+        ? <EmptySchedule {...props.emptyState} />
+        : <ScheduleReadyContent {...props} />}
+
+      <p className={styles.note}>날짜는 작물 기준 데이터의 월 단위 권장 시기와 시즌 기간이 처음 겹치는 날입니다. 지역·품종·날씨와 실제 생육 상태에 따라 조정해 주세요.</p>
+    </div>
+  );
+}
+
+function ScheduleReadyContent(props: ScheduleViewProps) {
+  const hasTasks = props.tasks.length > 0;
+  const sourceTitle = props.spaceType === "garden"
+    ? `배치 작물 ${props.cropCount}종`
+    : "선택한 작물로 일정 준비";
+  const planHref = props.spaceType === "garden"
+    ? `/seasons/${props.seasonId}/layout`
+    : `/seasons/${props.seasonId}/edit`;
+
+  return (
+    <div className={styles.scheduleLayout}>
+      <main className={styles.mainColumn}>
+        <section className={styles.commandCard} aria-labelledby="schedule-command-title">
+          <div className={styles.commandHeader}>
+            <div><p>일정 만들기</p><h2 id="schedule-command-title">{sourceTitle}</h2><span>작물별 권장 심기와 수확 시기를 시즌 안에서 계산합니다.</span></div>
+            <div className={styles.actionButtons}>
+              {hasTasks && <button className={styles.dangerButton} disabled={props.isSaving} onClick={() => { void props.onRemoveSchedule(); }} type="button">일정 모두 삭제</button>}
+              <button className={styles.primaryButton} disabled={props.isSaving} onClick={() => { void props.onGenerate(); }} type="button">
+                {props.isSaving ? "처리 중..." : hasTasks ? "일정 다시 만들기" : "일정 자동 만들기"}
               </button>
             </div>
           </div>
+        </section>
 
-          {actionError && (
-            <div className="mt-4 rounded-2xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">
-              <p>{actionError}</p>
-              {actionErrorCode === "CROP_PERIOD_OUTSIDE_SEASON" && (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <Link className="rounded-full bg-red-700 px-4 py-2 text-white" href={`/seasons/${seasonId}/edit`}>시즌 기간 수정하기</Link>
-                  <Link
-                    className="rounded-full border border-red-300 bg-white px-4 py-2 text-red-800"
-                    href={space.type === "garden" ? `/seasons/${seasonId}/layout` : `/seasons/${seasonId}/edit`}
-                  >
-                    작물 다시 선택하기
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-          {scheduleIsOutdated && (
-            <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800" role="alert">
-              일정을 만든 뒤 작물 선택 또는 배치가 변경되었습니다. 현재 계획으로 일정을 다시 만들어 주세요.
-            </p>
-          )}
-          {tasks.length > 0 ? (
-            <TaskList
-              disabled={isSaving}
-              onDelete={removeTask}
-              onToggle={toggleTask}
-              tasks={tasks}
-            />
-          ) : (
-            <EmptySchedule
-              description="버튼을 누르면 선택한 작물별 심기와 수확 시작 일정을 만듭니다."
-              title="아직 만든 일정이 없어요"
-            />
-          )}
-        </>
-      )}
+        {props.actionError && (
+          <div className={styles.error} role="alert">
+            <p>{props.actionError}</p>
+            {props.actionErrorCode === "CROP_PERIOD_OUTSIDE_SEASON" && (
+              <div className={styles.actionButtons}>
+                <Link href={`/seasons/${props.seasonId}/edit`}>시즌 기간 수정하기</Link>
+                <Link href={planHref}>작물 다시 선택하기</Link>
+              </div>
+            )}
+          </div>
+        )}
+        {props.scheduleIsOutdated && <p className={styles.outdated} role="alert">일정을 만든 뒤 작물 선택 또는 배치가 변경되었습니다. 현재 계획으로 일정을 다시 만들어 주세요.</p>}
+        {hasTasks
+          ? <TaskList disabled={props.isSaving} onDelete={props.onDeleteTask} onToggle={props.onToggleTask} tasks={props.tasks} />
+          : <EmptySchedule description="버튼을 누르면 선택한 작물별 심기와 수확 시작 일정을 만듭니다." title="아직 만든 일정이 없어요" />}
+      </main>
 
-      <p className="mt-5 text-sm leading-6 text-muted">
-        날짜는 작물 기준 데이터의 월 단위 권장 시기와 시즌 기간이 처음 겹치는 날입니다. 지역·품종·날씨와 실제 생육 상태에 따라 조정해 주세요.
-      </p>
+      <aside className={styles.sideColumn} aria-label="일정 관리 보조 정보">
+        <ScheduleProgress completed={props.completedCount} total={props.tasks.length} />
+        <section className={styles.sideCard}>
+          <p>함께 관리하기</p>
+          <h2>재배 기록과 물주기</h2>
+          <nav className={styles.sideLinks}>
+            <Link href={`/seasons/${props.seasonId}/watering`}><span>물주기 일정</span><strong>관리하기 →</strong></Link>
+            <Link href={`/seasons/${props.seasonId}/records`}><span>재배 기록</span><strong>기록하기 →</strong></Link>
+            <Link href={planHref}><span>작물 계획</span><strong>수정하기 →</strong></Link>
+          </nav>
+        </section>
+        <section className={styles.sideCard}>
+          <p>일정 계산 기준</p>
+          <h2>추천 시기를 참고해요</h2>
+          <ul className={styles.basisList}>
+            <li>시즌 기간과 작물별 권장 월을 겹쳐 계산합니다.</li>
+            <li>지역·품종·날씨에 따라 실제 날짜는 달라질 수 있습니다.</li>
+            <li>생육 상태를 확인해 완료 여부를 직접 관리하세요.</li>
+          </ul>
+        </section>
+      </aside>
     </div>
+  );
+}
+
+function ScheduleStat({ label, value }: { label: string; value: string }) {
+  return <div><dt>{label}</dt><dd>{value}</dd></div>;
+}
+
+function ScheduleProgress({ completed, total }: { completed: number; total: number }) {
+  const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+  return (
+    <section className={styles.sideCard}>
+      <div className={styles.progressHeader}><div><p>진행 현황</p><h2>이번 시즌 일정</h2></div><strong>{percentage}%</strong></div>
+      <div className={styles.progressTrack} aria-label={`일정 ${percentage}% 완료`} role="progressbar" aria-valuemax={100} aria-valuemin={0} aria-valuenow={percentage}>
+        <span style={{ width: `${percentage}%` }} />
+      </div>
+      <span>{total === 0 ? "일정을 만들면 진행률을 확인할 수 있어요." : `${total}개 중 ${completed}개를 완료했어요.`}</span>
+    </section>
   );
 }
 
@@ -215,7 +304,7 @@ function getScheduleEmptyState(
   hasFeaturedCrop: boolean,
   placementCount: number | undefined,
   seasonId: string,
-): { description: string; href: string; label: string; title: string } | null {
+): ScheduleEmptyState | null {
   if (spaceType !== "garden") {
     return hasFeaturedCrop ? null : {
       description: "화분·베란다는 격자를 만들지 않습니다. 이번 시즌에 키울 작물을 선택하면 바로 일정을 만들 수 있어요.",
@@ -255,40 +344,32 @@ function TaskList({
   tasks: readonly CultivationTask[];
 }) {
   return (
-    <ol className="mt-5 space-y-3">
-      {tasks.map((task) => (
-        <li className={`surface-panel p-5 transition hover:shadow-[var(--shadow-md)] ${task.status === "completed" ? "opacity-60" : ""}`} key={task.id}>
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-sm font-bold text-leaf">{task.dueDate}</p>
-              <h3 className={`mt-1 text-lg font-bold ${task.status === "completed" ? "line-through" : ""}`}>{task.title}</h3>
-            </div>
-            <span className={`rounded-full px-3 py-1 text-xs font-bold ${TASK_TYPE_STYLES[task.type]}`}>
-              {TASK_TYPE_LABELS[task.type]}
-            </span>
-          </div>
-          <p className="mt-3 text-sm leading-6 text-muted">{task.notes}</p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <button
-              className="rounded-full bg-leaf-soft px-4 py-2 text-xs font-bold text-leaf-dark disabled:opacity-50"
-              disabled={disabled}
-              onClick={() => { void onToggle(task); }}
-              type="button"
-            >
-              {task.status === "completed" ? "미완료로 되돌리기" : "완료하기"}
-            </button>
-            <button
-              className="rounded-full border border-red-200 px-4 py-2 text-xs font-bold text-red-700 disabled:opacity-50"
-              disabled={disabled}
-              onClick={() => { void onDelete(task); }}
-              type="button"
-            >
-              삭제
-            </button>
-          </div>
-        </li>
-      ))}
-    </ol>
+    <section className={styles.timeline} aria-labelledby="schedule-timeline-title">
+      <div className={styles.timelineHeader}>
+        <div><p>재배 타임라인</p><h2 id="schedule-timeline-title">해야 할 일</h2></div>
+        <span>{tasks.length}개 일정</span>
+      </div>
+      <ol className={styles.timelineList}>
+        {tasks.map((task) => (
+          <li className={task.status === "completed" ? styles.completed : ""} key={task.id}>
+            <span className={styles.taskNode} aria-hidden="true">{TASK_TYPE_LABELS[task.type].slice(0, 1)}</span>
+            <article className={styles.taskCard}>
+              <div className={styles.taskCardHeader}>
+                <div><time dateTime={task.dueDate}>{task.dueDate}</time><h3>{task.title}</h3></div>
+                <span className={TASK_TYPE_STYLES[task.type]}>{TASK_TYPE_LABELS[task.type]}</span>
+              </div>
+              <p className={styles.taskNotes}>{task.notes}</p>
+              <div className={styles.taskActions}>
+                <button className={styles.completeButton} disabled={disabled} onClick={() => { void onToggle(task); }} type="button">
+                  {task.status === "completed" ? "미완료로 되돌리기" : "완료하기"}
+                </button>
+                <button className={styles.deleteButton} disabled={disabled} onClick={() => { void onDelete(task); }} type="button">삭제</button>
+              </div>
+            </article>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
@@ -304,10 +385,10 @@ function EmptySchedule({
   title: string;
 }) {
   return (
-    <section className="surface-panel mt-5 border-dashed p-7 text-center">
+    <section className={styles.empty}>
       <h2 className="text-xl font-bold">{title}</h2>
       <p className="mt-3 text-sm leading-6 text-muted">{description}</p>
-      {href && label && <Link className="mt-5 inline-flex rounded-full bg-leaf-soft px-5 py-3 text-sm font-bold text-leaf-dark" href={href}>{label}</Link>}
+      {href && label && <Link href={href}>{label}</Link>}
     </section>
   );
 }
