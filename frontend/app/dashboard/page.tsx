@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AppPageShell } from "@/components/app-page-shell";
+import { AppFooter } from "@/components/app-footer";
+import { AppHeader } from "@/components/app-header";
 import { AuthGate } from "@/features/auth/components/auth-gate";
 import { DashboardOverview } from "@/features/dashboard/components/dashboard-overview";
 
@@ -12,16 +13,14 @@ export const metadata: Metadata = {
 export default function DashboardPage() {
   return (
     <AuthGate loginHref="/login?next=%2Fdashboard">
-      <AppPageShell
-        action={<Link className="primary-action px-4 py-2.5 text-sm" href="/spaces/new">공간 추가</Link>}
-        description="공간과 시즌, 오늘의 일정과 식물 기록을 한곳에서 이어서 관리하세요."
-        eyebrow="나의 재배 홈"
-        heroImage="/figma/planner-hero.png"
-        title="나의 배치와 재배 계획"
-        width="full"
-      >
+      <main className="app-page dashboard-page">
+        <AppHeader
+          action={<Link className="primary-action px-4 py-2.5 text-sm" href="/spaces/new">공간 추가</Link>}
+          variant="overlay"
+        />
         <DashboardOverview />
-      </AppPageShell>
+        <AppFooter />
+      </main>
     </AuthGate>
   );
 }
