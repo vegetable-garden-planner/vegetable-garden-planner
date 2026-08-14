@@ -6,6 +6,7 @@ import { AuthHeaderMenu } from "@/features/auth/components/auth-header-menu";
 interface AppHeaderProps {
   action?: ReactNode;
   homeHref?: string;
+  variant?: "default" | "overlay";
 }
 
 const navigation = [
@@ -15,9 +16,9 @@ const navigation = [
   { label: "가이드", href: "/start" },
 ];
 
-export function AppHeader({ action, homeHref = "/" }: AppHeaderProps) {
+export function AppHeader({ action, homeHref = "/", variant = "default" }: AppHeaderProps) {
   return (
-    <header className="app-header">
+    <header className={`app-header ${variant === "overlay" ? "app-header-overlay" : ""}`}>
       <div className="app-header-inner">
         <Link className="app-brand" href={homeHref} aria-label="심어봄 홈">
           <BrandMark />

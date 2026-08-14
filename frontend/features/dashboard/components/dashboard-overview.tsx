@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
 import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
@@ -12,7 +13,11 @@ import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layo
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
-import { createDashboardSummary } from "@/features/dashboard/domain/dashboard-summary";
+import {
+  createDashboardSummary,
+  type DashboardSeason,
+  type DashboardSummary,
+} from "@/features/dashboard/domain/dashboard-summary";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { RegisteredPlantList } from "@/features/dashboard/components/registered-plant-list";
 import { createRegisteredPlantSummaries } from "@/features/dashboard/domain/registered-plant-summary";
@@ -83,109 +88,224 @@ export function DashboardOverview() {
   );
 
   if (summary.spaceCount === 0 || summary.seasonCount === 0) {
-    return <DashboardGettingStarted hasSpace={summary.spaceCount > 0} nextAction={summary.nextAction} />;
+    return (
+      <>
+        <DashboardHero alertCount={alerts.totalCount} plantCount={registeredPlants.length} summary={summary} />
+        <div className="dashboard-content">
+          <DashboardGettingStarted hasSpace={summary.spaceCount > 0} nextAction={summary.nextAction} />
+        </div>
+      </>
+    );
   }
 
   return (
-    <div className="dashboard-overview">
-      <section className="dashboard-stats grid grid-cols-2 gap-1 sm:grid-cols-4" aria-label="재배 현황 요약">
-        <SummaryCard label="재배 공간" value={`${summary.spaceCount}개`} />
-        <SummaryCard label="전체 시즌" value={`${summary.seasonCount}개`} />
-        <SummaryCard label="진행 중" value={`${summary.activeSeasonCount}개`} />
-        <SummaryCard label="작물 배치" value={`${summary.layoutCount}개`} />
-      </section>
-
-      <section className="dashboard-next-action rounded-[1.5rem] bg-[linear-gradient(135deg,var(--color-ink-strong),var(--color-primary-hover))] p-6 text-white shadow-[var(--shadow-md)] sm:p-8">
-        <p className="text-sm font-bold text-[var(--color-accent)]">{auth.state.user.nickname}님의 다음 할 일</p>
-        <div className="mt-3 flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-          <div>
-            <h2 className="text-2xl font-bold">{summary.nextAction.title}</h2>
-            <p className="mt-3 max-w-2xl leading-7 text-white/75">{summary.nextAction.description}</p>
+    <>
+      <DashboardHero alertCount={alerts.totalCount} plantCount={registeredPlants.length} summary={summary} />
+      <div className="dashboard-content">
+        <section className="dashboard-plan-section" aria-labelledby="dashboard-plan-title">
+          <div className="dashboard-section-heading">
+            <div>
+              <p>나의 재배 현황</p>
+              <h2 id="dashboard-plan-title">공간별 재배 계획</h2>
+            </div>
+            <Link href="/seasons">전체 계획 보기 <span aria-hidden="true">→</span></Link>
           </div>
-          <Link className="inline-flex shrink-0 items-center justify-center rounded-full bg-white px-5 py-3 font-bold text-leaf" href={summary.nextAction.href}>
-            {summary.nextAction.label} <span className="ml-2" aria-hidden="true">→</span>
-          </Link>
-        </div>
-      </section>
 
-      <DashboardAlertList summary={alerts} />
+          <div className="dashboard-plan-layout">
+            <section className="dashboard-season-board" aria-label="최근 재배 시즌">
+              <div className="dashboard-season-board-header">
+                <div>
+                  <p>현재 연결된 공간과 시즌</p>
+                  <strong>{summary.spaceCount}개 공간 · {summary.seasonCount}개 시즌</strong>
+                </div>
+                <span>{summary.activeSeasonCount > 0 ? `${summary.activeSeasonCount}개 진행 중` : "준비 중"}</span>
+              </div>
+              <ul className="dashboard-season-list">
+                {summary.recentSeasons.map((season) => <SeasonPlanCard key={season.id} season={season} />)}
+              </ul>
+            </section>
 
-      <RegisteredPlantList plants={registeredPlants} />
-
-      <div className="mt-10 grid gap-6 lg:grid-cols-[1.4fr_0.6fr]">
-        <section className="surface-panel p-6">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-bold">내 재배 시즌</h2>
-            <Link className="text-sm font-bold text-leaf" href="/seasons">전체 보기</Link>
-          </div>
-          {summary.recentSeasons.length === 0 ? (
-            <p className="mt-6 rounded-2xl bg-cream p-5 text-sm leading-6 text-muted">
-              아직 등록한 시즌이 없습니다. 공간을 등록한 다음 첫 시즌을 만들어 보세요.
-            </p>
-          ) : (
-            <ul className="mt-4 divide-y divide-ink/10">
-              {summary.recentSeasons.map((season) => (
-                <li className="flex flex-col gap-3 py-4 first:pt-2 sm:flex-row sm:items-center" key={season.id}>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="truncate font-bold">{season.name}</h3>
-                      <span className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${STATUS_STYLES[season.status]}`}>
-                        {STATUS_LABELS[season.status]}
-                      </span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted">{season.spaceName} · {season.startDate} ~ {season.endDate}</p>
-                  </div>
-                  <Link className="text-sm font-bold text-leaf" href={season.layoutHref ?? season.scheduleHref ?? "/seasons"}>
-                    {season.layoutHref ? "작물 배치" : season.scheduleHref ? "재배 일정" : "관리하기"}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="surface-panel bg-[var(--color-surface-warm)] p-6">
-          <h2 className="text-xl font-bold">빠른 작업</h2>
-          <div className="mt-5 grid gap-3">
-            <QuickLink href="/spaces/new" label="새 공간 등록" description="화분·베란다·텃밭 추가" />
-            <QuickLink href="/seasons/new" label="새 시즌 만들기" description="재배 기간과 공간 연결" />
-            <QuickLink href="/crops" label="작물 정보 보기" description="대표 작물의 시기와 간격 확인" />
+            <aside className="dashboard-plan-aside" aria-label="재배 계획 보조 정보">
+              <DashboardInfoCard
+                rows={[
+                  ["등록 공간", `${summary.spaceCount}개`],
+                  ["작물 배치", `${summary.layoutCount}개`],
+                  ["관리할 식물", `${registeredPlants.length}종`],
+                ]}
+                title="계획 현황"
+              />
+              <section className="dashboard-guide-card">
+                <p>다음 추천 단계</p>
+                <h3>{summary.nextAction.title}</h3>
+                <span>{summary.nextAction.description}</span>
+                <Link href={summary.nextAction.href}>{summary.nextAction.label} <span aria-hidden="true">→</span></Link>
+              </section>
+              <DashboardInfoCard
+                rows={[
+                  ["기한 지난 일", `${alerts.overdueCount}개`],
+                  ["오늘 할 일", `${alerts.todayCount}개`],
+                  ["7일 이내", `${alerts.upcomingCount}개`],
+                ]}
+                title="일정 적합도"
+              />
+            </aside>
           </div>
         </section>
+
+        <DashboardJourney />
+
+        <DashboardAlertList summary={alerts} />
+
+        <RegisteredPlantList plants={registeredPlants} />
+
+        <DashboardStartBanner nextAction={summary.nextAction} />
       </div>
-    </div>
+    </>
   );
 }
 
-function SummaryCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="surface-panel p-5">
-      <p className="text-sm text-muted">{label}</p>
-      <p className="mt-2 text-2xl font-bold">{value}</p>
-    </div>
-  );
-}
-
-function QuickLink({
-  href,
-  label,
-  description,
+function DashboardHero({
+  alertCount,
+  plantCount,
+  summary,
 }: {
-  href: string;
-  label: string;
-  description: string;
+  alertCount: number;
+  plantCount: number;
+  summary: DashboardSummary;
 }) {
   return (
-    <Link className="rounded-2xl border border-[var(--color-border)] bg-white p-4 transition hover:-translate-y-0.5 hover:border-leaf/30 hover:shadow-[var(--shadow-sm)]" href={href}>
-      <p className="font-bold">{label} <span className="text-leaf" aria-hidden="true">→</span></p>
-      <p className="mt-1 text-sm text-muted">{description}</p>
-    </Link>
+    <section className="dashboard-hero">
+      <Image alt="햇살이 드는 창가의 허브와 화분" className="dashboard-hero-image" fill priority sizes="100vw" src="/figma/planner-hero.png" />
+      <span className="dashboard-hero-shade" aria-hidden="true" />
+      <div className="dashboard-hero-inner">
+        <div className="dashboard-hero-copy">
+          <p>나의 재배 홈</p>
+          <h1>배치·재배 계획</h1>
+          <span>내 공간에 무엇을 심고, 오늘 무엇을 관리할지 한눈에 확인해 보세요.</span>
+        </div>
+        <div className="dashboard-hero-summary" aria-label="재배 현황 요약">
+          <HeroStat label="재배 공간" value={`${summary.spaceCount}개`} />
+          <HeroStat label="관리 식물" value={`${plantCount}종`} />
+          <HeroStat label="해야 할 일" value={`${alertCount}`} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HeroStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function SeasonPlanCard({ season }: { season: DashboardSeason }) {
+  const href = season.layoutHref ?? season.scheduleHref ?? "/seasons";
+  const actionLabel = season.layoutHref ? "작물 배치" : season.scheduleHref ? "재배 일정" : "계획 관리";
+
+  return (
+    <li className="dashboard-season-card">
+      <div className="dashboard-season-card-heading">
+        <div>
+          <h3>{season.name}</h3>
+          <p>{season.spaceName} · {season.startDate} ~ {season.endDate}</p>
+        </div>
+        <span className={STATUS_STYLES[season.status]}>{STATUS_LABELS[season.status]}</span>
+      </div>
+      <div className="dashboard-season-bed" aria-hidden="true">
+        <span>공간</span>
+        <span className={season.layoutHref ? "is-next" : "is-done"}>배치</span>
+        <span className={season.scheduleHref ? "is-next" : ""}>일정</span>
+      </div>
+      <div className="dashboard-season-card-footer">
+        <p>{season.layoutHref ? "텃밭에 작물을 놓을 차례예요." : season.scheduleHref ? "배치에 맞는 재배 일정을 준비해요." : "저장된 계획을 이어서 관리해요."}</p>
+        <Link href={href}>{actionLabel} <span aria-hidden="true">→</span></Link>
+      </div>
+    </li>
+  );
+}
+
+function DashboardInfoCard({
+  rows,
+  title,
+}: {
+  rows: readonly (readonly [string, string])[];
+  title: string;
+}) {
+  return (
+    <section className="dashboard-info-card">
+      <h3>{title}</h3>
+      <dl>
+        {rows.map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+  );
+}
+
+function DashboardJourney() {
+  const steps = [
+    ["1. 공간 준비", "재배 장소와 햇빛 조건 확인", "공간 등록"],
+    ["2. 작물 계획", "공간에 맞는 작물과 배치 결정", "배치 만들기"],
+    ["3. 재배 관리", "심기부터 수확까지 일정 관리", "오늘 할 일"],
+  ] as const;
+
+  return (
+    <section className="dashboard-journey" aria-labelledby="dashboard-journey-title">
+      <div className="dashboard-section-heading">
+        <div>
+          <p>재배 계획 요약</p>
+          <h2 id="dashboard-journey-title">공간에서 수확까지</h2>
+        </div>
+      </div>
+      <ol>
+        {steps.map(([title, description, caption], index) => (
+          <li key={title}>
+            <span aria-hidden="true">{index + 1}</span>
+            <div>
+              <h3>{title}</h3>
+              <p>{description}</p>
+              <strong>{caption}</strong>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function DashboardStartBanner({
+  nextAction,
+}: {
+  nextAction: DashboardSummary["nextAction"];
+}) {
+  return (
+    <section className="dashboard-start-banner">
+      <div className="dashboard-start-image">
+        <Image alt="창가에서 자라는 여러 화분" fill sizes="(max-width: 720px) 100vw, 34vw" src="/figma/planner-hero.png" />
+      </div>
+      <div className="dashboard-start-copy">
+        <p>이 계획을 이어갈까요?</p>
+        <span>{nextAction.description}</span>
+      </div>
+      <div className="dashboard-start-actions">
+        <Link href="/seasons">계획 둘러보기</Link>
+        <Link href={nextAction.href}>{nextAction.label}</Link>
+      </div>
+    </section>
   );
 }
 
 function DashboardLoading() {
   return (
-    <div className="surface-panel p-6" role="status">
+    <div className="dashboard-state surface-panel p-6" role="status">
       <p className="font-bold">재배 홈을 준비하고 있어요</p>
       <p className="mt-2 text-sm text-muted">공간과 시즌, 오늘 할 일을 차례로 불러오고 있습니다.</p>
     </div>
@@ -246,7 +366,7 @@ function DashboardGettingStarted({
 
 function DashboardLoadError({ detail }: { detail: string }) {
   return (
-    <section className="surface-panel border-red-200 p-6 sm:p-8" aria-labelledby="dashboard-error-title" role="alert">
+    <section className="dashboard-state surface-panel border-red-200 p-6 sm:p-8" aria-labelledby="dashboard-error-title" role="alert">
       <p className="text-sm font-bold text-red-700">재배 정보를 불러오지 못했어요</p>
       <h2 className="mt-2 text-xl font-bold" id="dashboard-error-title">연결 상태를 다시 확인해 주세요</h2>
       <p className="mt-3 leading-7 text-muted">
