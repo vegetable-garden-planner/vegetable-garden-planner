@@ -2,22 +2,22 @@
 
 ## 1. Atmosphere / signature
 
-Figma `홈 (전체)` 프레임의 온실 아침 풍경을 기준으로 한다. 짙은 숲색 사진 위에 맑은 흰색 타이포를 얹고, 본문은 따뜻한 흰색 바탕과 선명한 에메랄드 한 색으로 연결한다. 둥근 카드와 세로형 날짜 캡슐을 반복 모티프로 사용하되, 화면 전체가 카드 목록처럼 보이지 않게 사진과 여백이 리듬을 만든다.
+Figma `홈 (전체)`, `화분 배치·재배 계획`, `화분 배치 조정` 프레임의 온실 아침 풍경과 정돈된 작업대를 기준으로 한다. 짙은 숲색 사진 위에 맑은 흰색 타이포를 얹고, 관리 화면은 따뜻한 흰색 바탕·얇은 회색 경계·선명한 에메랄드로 연결한다. 사진이 주인공인 요약 화면과 정보 밀도가 높은 작업 화면을 구분하며, 기능을 실제 데이터 구조보다 과장해 표현하지 않는다.
 
 ## 2. Color
 
 - `--color-page: #FFFFFF`: 기본 페이지와 카드 배경.
-- `--color-surface: #F8F9F4`: 흐린 정보 영역 배경.
-- `--color-surface-warm: #FFF8EF`: 다음 단계 안내 영역 배경.
-- `--color-ink: #173A30`: 제목과 본문 전경색. 순수 검정 대신 사용한다.
-- `--color-ink-strong: #102A22`: 사진 위를 제외한 가장 강한 제목색.
-- `--color-muted: #6C7973`: 보조 본문과 메타데이터.
-- `--color-primary: #0C9769`: Figma 주조색, CTA와 강조 텍스트.
-- `--color-primary-hover: #087D57`: primary hover/active.
-- `--color-primary-soft: #E4F3ED`: 아이콘 원형, 선택 배경.
+- `--color-surface: #F7F5EF`: 흐린 정보 영역과 페이지 그라디언트 배경.
+- `--color-surface-warm: #FBF6ED`: 다음 단계 안내 영역 배경.
+- `--color-ink: #1C3029`: 제목과 본문 전경색. 순수 검정 대신 사용한다.
+- `--color-ink-strong: #17251F`: 사진 위를 제외한 가장 강한 제목색.
+- `--color-muted: #6F7772`: 보조 본문과 메타데이터.
+- `--color-primary: #079568`: Figma 주조색, CTA와 강조 텍스트.
+- `--color-primary-hover: #087653`: primary hover/active.
+- `--color-primary-soft: #E9F5F0`: 아이콘 원형, 선택 배경.
 - `--color-secondary: #46B18D`: 진행 상태와 보조 강조.
 - `--color-accent: #FFC283`: 햇빛/작업 아이콘과 작은 포인트.
-- `--color-border: #E3E8E4`: 카드·내비게이션 경계.
+- `--color-border: #E8E4DC`: 카드·내비게이션 경계.
 - `--color-on-photo: #FFFFFF`: 어두운 사진 위 텍스트.
 - `--color-overlay: #0B2118`: 사진 가독성 오버레이의 기준색.
 - `--color-danger: #B84C42`: 오류 상태.
@@ -45,14 +45,15 @@ Figma `홈 (전체)` 프레임의 온실 아침 풍경을 기준으로 한다. �
 - `--space-5: 20px`, `--space-6: 24px`, `--space-8: 32px`, `--space-10: 40px`.
 - `--space-12: 48px`, `--space-16: 64px`, `--space-20: 80px`, `--space-24: 96px`.
 - `--space-30: 120px`, `--space-36: 144px`.
-- 콘텐츠 최대 폭 `--layout-max: 1160px`, 본문 거터 `--layout-gutter: 24px`.
+- 콘텐츠 최대 폭 `--layout-max: 1320px`, 본문 거터 `--layout-gutter: 24px`.
 
 ## 5. Components
 
 - Header: 높이 72px, 사진 위에서는 투명, 스크롤 이후에도 텍스트 대비를 유지한다. 링크는 14px/600. hover는 opacity와 primary-soft 밑줄, focus는 2px ring과 4px offset.
-- App header: 내부 화면에서는 흰색 반투명 surface, 24px 안팎의 radius와 `--shadow-sm`을 사용한다. 모바일 내비게이션은 한 줄 스크롤을 유지하되 스크롤바는 노출하지 않는다.
-- App page: `AppPageShell`을 단일 기준으로 사용한다. 상단에 앱 헤더, primary 색 세로선이 있는 kicker/title/description hero, 이후 실제 기능 콘텐츠 순서로 배치한다.
-- Surface panel: 검색, 폼, 요약처럼 여러 입력을 묶는 영역은 흰색 배경, border 1px, radius 24px, `--shadow-sm`을 사용한다. 기능 컴포넌트가 각자 별도 페이지 배경을 만들지 않는다.
+- App header: 내부 화면에서는 화면 폭 전체의 흰색 반투명 상단 바와 얇은 하단 경계를 사용한다. 브랜드는 에메랄드, 중앙 메뉴는 짙은 회색, 검색과 계정 작업은 오른쪽에 둔다. 모바일 내비게이션은 한 줄 스크롤을 유지하되 스크롤바는 노출하지 않는다.
+- App page: `AppPageShell`을 단일 기준으로 사용한다. 일반 관리 화면은 넉넉한 제목 여백 뒤에 기능 콘텐츠를 배치하고, 핵심 요약 화면은 `heroImage`로 사진 히어로를 사용할 수 있다.
+- Surface panel: 검색, 폼, 요약처럼 여러 입력을 묶는 영역은 흰색 배경, border 1px, radius 20px, `--shadow-sm`을 사용한다. 기능 컴포넌트가 각자 별도 페이지 배경을 만들지 않는다.
+- Planner workspace: 마당·텃밭 배치는 데스크톱에서 작물 선택 / 흙 격자 보드 / 수량·가이드의 3열 구조를 사용한다. 태블릿 이하에서는 작물 선택을 가로 목록으로 바꾸고 보드와 정보를 세로로 쌓는다. 화분·베란다는 이 격자를 재사용하지 않고 대표 작물 선택과 일정 흐름을 같은 시각 언어로 표시한다.
 - Form control: 높이 48px 이상, 16px 안팎 radius, 흰색 배경과 border를 기본으로 하며 focus는 primary ring으로 표시한다.
 - Auth page: 데스크톱에서는 온실 사진과 폼을 1:1로 나눈 패널, 모바일에서는 폼을 우선 노출한다. 이미지 위 문구에는 overlay를 둔다.
 - Primary button: primary 배경, 흰색 텍스트, 16px/700, 수평 24px, 수직 14px, radius 999px. hover는 primary-hover, active는 scale 0.98, disabled는 opacity 0.45.
@@ -81,6 +82,7 @@ Figma `홈 (전체)` 프레임의 온실 아침 풍경을 기준으로 한다. �
 ## Do / Don't
 
 - Figma의 에메랄드, 둥근 날짜 캡슐, 온실 사진을 화면의 서명으로 유지한다.
+- 작물 실사 자산은 `public/figma`의 기존 사진을 우선 재사용하고, 없는 작물은 카테고리 색과 한글 첫 글자로 일관되게 대체한다.
 - 사진 위 텍스트는 항상 충분한 오버레이 대비를 확보한다.
 - 아이콘에 이모지를 쓰거나 임의의 SVG path를 만들지 않는다.
 - 대칭 3열 기능 카드, 보라색 글로우, 베이지+황동 조합, 장식성 상태 점을 추가하지 않는다.

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
-import type { CropCategory, CropReference } from "@/features/crop-catalog/domain/crop-reference";
+import { CropVisual } from "@/features/crop-catalog/components/crop-visual";
+import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { calculatePlantCount } from "@/features/garden-layout/application/calculate-plant-count";
 import { PlantCountSummary } from "@/features/garden-layout/components/plant-count-summary";
@@ -25,15 +26,6 @@ import type { GrowingSeason } from "@/features/growing-season/domain/growing-sea
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 
-const CROP_TONES: Record<CropCategory, string> = {
-  leaf: "bg-[#75a960] text-white",
-  fruit: "bg-[#d66551] text-white",
-  root: "bg-[#e59b47] text-white",
-  legume: "bg-[#8b7bb8] text-white",
-  tuber: "bg-[#a87a55] text-white",
-  flower: "bg-[#c56b91] text-white",
-};
-
 export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
@@ -43,9 +35,15 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
   if (spacesState.status === "error") return <Message message={spacesState.message} />;
   if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
-  if (layoutsState.status === "loading") return <p className="text-muted">작물 배치를 불러오고 있습니다.</p>;
   if (cropCatalog.status === "error") return <Message message={cropCatalog.message} />;
-  if (cropCatalog.status === "loading") return <p className="text-muted">작물 정보를 불러오고 있습니다.</p>;
+  if (
+    seasonsState.status === "loading"
+    || spacesState.status === "loading"
+    || layoutsState.status === "loading"
+    || cropCatalog.status === "loading"
+  ) {
+    return <p className="surface-panel p-5 text-muted" role="status">배치 작업대를 준비하고 있습니다.</p>;
+  }
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
   if (!season) return <Message message="작물 배치를 만들 시즌을 찾을 수 없습니다." />;
@@ -60,10 +58,14 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   const layout = layoutsState.layouts.find((item) => item.seasonId === seasonId);
   return (
     <div className="min-w-0 max-w-full">
-      <div className="mb-6 rounded-2xl bg-leaf-soft/60 p-5">
-        <p className="text-sm font-bold text-leaf">{space.name} · {season.name}</p>
-        <p className="mt-2 text-sm text-muted">공간 크기 {space.widthCm} × {space.lengthCm}cm</p>
-      </div>
+      <section className="planner-context" aria-label="현재 텃밭 정보">
+        <div><span>현재 텃밭</span><strong>{space.name}</strong></div>
+        <dl>
+          <div><dt>재배 시즌</dt><dd>{season.name}</dd></div>
+          <div><dt>공간 크기</dt><dd>{space.widthCm} × {space.lengthCm}cm</dd></div>
+          <div><dt>일조 환경</dt><dd>{sunlightLabel(space)}</dd></div>
+        </dl>
+      </section>
       {layout
         ? <GardenGrid crops={compatibleCrops} layout={layout} reload={layoutsState.reload} season={season} space={space} />
         : <GardenGridSetup reload={layoutsState.reload} seasonId={season.id} space={space} />}
@@ -227,58 +229,82 @@ function GardenGrid({
   return (
     <div className="min-w-0 max-w-full">
       {outdated && <p className="mb-5 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800" role="alert">공간 크기가 격자를 만든 이후 변경되었습니다. 정확한 배치를 위해 격자를 다시 만들어 주세요.</p>}
-      <section className="surface-panel min-w-0 max-w-full overflow-hidden p-5" aria-labelledby="crop-selector-title">
-        <h2 className="text-lg font-bold" id="crop-selector-title">배치할 작물</h2>
-        <div className="mt-4 flex max-w-full gap-2 overflow-x-auto overscroll-x-contain pb-1" role="radiogroup" aria-labelledby="crop-selector-title">
-          {crops.map((crop) => (
-            <label className={`shrink-0 cursor-pointer rounded-2xl border px-4 py-2 text-sm font-bold ${cropChoiceClass(selectedCropId === crop.id, isCompleteSeasonFit(cropFits.get(crop.id)))}`} key={crop.id}>
-              <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
-              <span className="block">{crop.name}</span>
-              <span className="mt-0.5 block text-[0.68rem] font-semibold opacity-75">{isCompleteSeasonFit(cropFits.get(crop.id)) ? "현재 시즌 추천" : "다른 시기 권장"} · 심기 {crop.plantingPeriod.label}</span>
-            </label>
-          ))}
-        </div>
-        {selectedCrop && selectedCropFit && (
-          <p className={`mt-4 rounded-xl px-4 py-3 text-sm font-bold ${isCompleteSeasonFit(selectedCropFit) ? "bg-leaf-soft/60 text-leaf-dark" : "bg-amber-50 text-amber-900"}`} role="status">
-            {cropSeasonMessage(selectedCrop, selectedCropFit)}
-          </p>
-        )}
-      </section>
+      <div className="planner-workspace">
+        <aside className="planner-crop-panel" aria-labelledby="crop-selector-title">
+          <div className="planner-panel-heading">
+            <div><p>재배할 작물</p><h2 id="crop-selector-title">작물을 선택하세요</h2></div>
+            <span>{crops.length}종</span>
+          </div>
+          <div className="planner-crop-list" role="radiogroup" aria-labelledby="crop-selector-title">
+            {crops.map((crop) => {
+              const recommended = isCompleteSeasonFit(cropFits.get(crop.id));
+              return (
+                <label className={`planner-crop-choice ${cropChoiceClass(selectedCropId === crop.id, recommended)}`} key={crop.id}>
+                  <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
+                  <CropVisual crop={crop} />
+                  <span><strong>{crop.name}</strong><small>{recommended ? "현재 시즌 추천" : `${crop.plantingPeriod.label} 권장`}</small></span>
+                </label>
+              );
+            })}
+          </div>
+        </aside>
 
-      <div className="mt-5 max-w-full overflow-x-auto overscroll-x-contain rounded-3xl border-4 border-[#8a684a] bg-[#d6c39c] p-3">
-        <div
-          className="grid w-max gap-1"
-          style={{ gridTemplateColumns: `repeat(${layout.columns}, 2.75rem)` }}
-        >
-          {Array.from({ length: layout.columns * layout.rows }, (_, cellIndex) => {
-            const placement = placementsByCell.get(cellIndex);
-            const crop = placement ? cropsById.get(placement.cropId) : undefined;
-            const row = Math.floor(cellIndex / layout.columns) + 1;
-            const column = (cellIndex % layout.columns) + 1;
-            const label = crop ? crop.name : "비어 있음";
-            return (
-              <button
-                aria-label={`${row}행 ${column}열, ${label}`}
-                className={`grid size-11 place-items-center rounded-md border border-white/50 text-xs font-bold ${crop ? CROP_TONES[crop.category] : "bg-white/55 text-[#70573f]"}`}
-                disabled={isSaving}
-                key={cellIndex}
-                onClick={() => void updateCell(cellIndex)}
-                title={`${row}행 ${column}열 · ${label}`}
-                type="button"
-              >
-                {crop ? crop.name.slice(0, 1) : "·"}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+        <section className="planner-board-panel" aria-labelledby="planner-board-title">
+          <div className="planner-board-heading">
+            <div><p>배치 보드</p><h2 id="planner-board-title">{space.name}</h2></div>
+            <span>{layout.columns} × {layout.rows}칸</span>
+          </div>
+          {selectedCrop && selectedCropFit && (
+            <p className={`planner-fit-message ${isCompleteSeasonFit(selectedCropFit) ? "planner-fit-good" : "planner-fit-warning"}`} role="status">
+              {cropSeasonMessage(selectedCrop, selectedCropFit)}
+            </p>
+          )}
+          <div className="planner-direction"><span />햇빛이 드는 방향<span /></div>
+          <div className="planner-grid-scroll">
+            <div className="planner-soil-frame">
+              <div className="planner-grid" style={{ gridTemplateColumns: `repeat(${layout.columns}, 3rem)` }}>
+                {Array.from({ length: layout.columns * layout.rows }, (_, cellIndex) => {
+                  const placement = placementsByCell.get(cellIndex);
+                  const crop = placement ? cropsById.get(placement.cropId) : undefined;
+                  const row = Math.floor(cellIndex / layout.columns) + 1;
+                  const column = (cellIndex % layout.columns) + 1;
+                  const label = crop ? crop.name : "비어 있음";
+                  return (
+                    <button
+                      aria-label={`${row}행 ${column}열, ${label}`}
+                      className={`planner-cell ${crop ? "planner-cell-filled" : ""}`}
+                      disabled={isSaving}
+                      key={cellIndex}
+                      onClick={() => void updateCell(cellIndex)}
+                      title={`${row}행 ${column}열 · ${label}`}
+                      type="button"
+                    >
+                      {crop ? <CropVisual compact crop={crop} /> : <span aria-hidden="true">+</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+          <div className="planner-board-footer">
+            <p>한 칸 {layout.cellSizeCm}cm · 작물이 있는 칸을 다시 누르면 비워집니다.</p>
+            <button disabled={isSaving} onClick={() => void recreateGrid()} type="button">격자 초기화</button>
+          </div>
+        </section>
 
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm">
-        <p className="font-bold text-muted">{layout.columns}열 × {layout.rows}행 · 한 칸 {layout.cellSizeCm}cm</p>
-        <button className="rounded-full border border-red-200 px-4 py-2 font-bold text-red-700 disabled:opacity-60" disabled={isSaving} onClick={() => void recreateGrid()} type="button">격자 다시 만들기</button>
+        <aside className="planner-inspector">
+          <PlantCountSummary summary={plantCount} />
+          <section className="planner-guide-card">
+            <p>배치 가이드</p>
+            <h2>{selectedCrop?.name ?? "작물"}을 심을 위치</h2>
+            <ul>
+              <li>햇빛 방향과 권장 시기를 먼저 확인하세요.</li>
+              <li>각 칸은 한 포기로 계산됩니다.</li>
+              <li>저장할 때 간격과 연작 위험을 함께 확인해요.</li>
+            </ul>
+          </section>
+        </aside>
       </div>
-      <PlantCountSummary summary={plantCount} />
-      <p className="mt-3 text-sm text-muted">선택한 작물을 빈 칸에 배치하세요. 같은 작물이 있는 칸을 다시 누르면 제거됩니다.</p>
       {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{error}</p>}
       <LayoutNextStep crops={crops} layout={layout} season={season} />
     </div>
@@ -293,11 +319,11 @@ function isCompleteSeasonFit(
 
 function cropChoiceClass(selected: boolean, recommended: boolean) {
   if (recommended) {
-    return selected ? "border-leaf bg-leaf-soft text-leaf-dark" : "border-ink/10";
+    return selected ? "planner-crop-selected" : "planner-crop-recommended";
   }
   return selected
-    ? "border-amber-500 bg-amber-100 text-amber-950 ring-2 ring-amber-200"
-    : "border-amber-300 bg-amber-50 text-amber-900";
+    ? "planner-crop-selected planner-crop-offseason"
+    : "planner-crop-offseason";
 }
 
 function cropSeasonMessage(
@@ -382,4 +408,11 @@ function Message({ message }: { message: string }) {
       <Link className="mt-4 inline-flex font-bold underline" href="/seasons">시즌 목록으로 돌아가기</Link>
     </div>
   );
+}
+
+function sunlightLabel(space: GrowingSpace): string {
+  if (space.estimatedSunlightHours !== null) return `하루 약 ${space.estimatedSunlightHours}시간`;
+  if (space.sunlight === "full") return "햇빛 6시간 이상";
+  if (space.sunlight === "partial") return "햇빛 2~5시간";
+  return "햇빛 2시간 미만";
 }
