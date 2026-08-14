@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState, type PointerEvent } from "react";
 import { SessionAwareLink } from "@/components/session-aware-link";
 import {
   CARE_TIME_OPTIONS,
-  GOAL_OPTIONS,
   SPACE_OPTIONS,
   SUNLIGHT_OPTIONS,
 } from "@/features/start-diagnosis/data/questions";
@@ -13,209 +12,400 @@ import {
   getRecommendation,
   isCompleteDiagnosis,
   type DiagnosisAnswers,
+  type GrowingGoal,
 } from "@/features/start-diagnosis/domain/diagnosis";
-import { OptionList } from "./option-list";
 import styles from "./diagnosis-form.module.css";
 
-const STEP_TITLES = [
-  "사용할 화분과 공간의 크기를 알려주세요",
-  "어떤 공간에서 시작할 수 있나요?",
-  "햇빛은 하루에 얼마나 드나요?",
-  "식물을 얼마나 자주 돌볼 수 있나요?",
-  "식물을 키우는 가장 큰 목적은 무엇인가요?",
+const STAGES = ["화분 크기", "작물 선택", "공간 조건", "추천 계산", "배치 결과"] as const;
+
+const CROP_OPTIONS: readonly CropOption[] = [
+  { id: "lettuce", label: "잎채소", detail: "상추 · 루꼴라", goal: "easy", image: "/figma/image3.png" },
+  { id: "tomato", label: "방울토마토", detail: "햇빛이 좋은 공간", goal: "edible", image: "/figma/image7.png" },
+  { id: "basil", label: "바질", detail: "향긋한 첫 수확", goal: "edible", image: "/figma/image5.png" },
+  { id: "strawberry", label: "딸기", detail: "달콤한 열매", goal: "edible", image: "/figma/image6.png" },
+  { id: "mixed", label: "모둠 채소", detail: "여러 작물을 조금씩", goal: "easy", image: "/figma/image1.png" },
+  { id: "flowers", label: "꽃과 허브", detail: "보고 향을 즐기는 밭", goal: "flowers", image: "/figma/image4.png" },
+];
+
+const SCENE_IMAGES = [
+  "/figma/diagnosis-greenhouse.png",
+  "/figma/image2.png",
+  "/figma/image1.png",
+  "/figma/image1.png",
+  "/figma/layout-greenhouse.png",
 ] as const;
 
-const LAST_QUESTION_INDEX = STEP_TITLES.length - 1;
+type Measurements = { width: number; length: number; height: number; count: number };
+type CropOption = { id: string; label: string; detail: string; goal: GrowingGoal; image: string };
+type PlanVariant = "balanced" | "simple";
 
 export function DiagnosisForm() {
   const [step, setStep] = useState(0);
+  const [maxVisitedStep, setMaxVisitedStep] = useState(0);
   const [answers, setAnswers] = useState<Partial<DiagnosisAnswers>>({});
-  const [measurements, setMeasurements] = useState({ width: 60, length: 25, height: 20, count: 2 });
-  const isResultStep = step === STEP_TITLES.length;
-  const questionStep = step - 1;
-  const currentAnswer = step === 0 ? "measurements" : getCurrentAnswer(questionStep, answers);
-  const recommendation = isCompleteDiagnosis(answers)
-    ? getRecommendation(answers)
-    : null;
+  const [cropId, setCropId] = useState<string>();
+  const [measurements, setMeasurements] = useState<Measurements>({ width: 60, length: 25, height: 20, count: 2 });
+  const [selectedPlan, setSelectedPlan] = useState<PlanVariant>("balanced");
+  const recommendation = isCompleteDiagnosis(answers) ? getRecommendation(answers) : null;
 
-  function updateAnswer<K extends keyof DiagnosisAnswers>(
-    key: K,
-    value: DiagnosisAnswers[K],
-  ) {
-    setAnswers((current) => ({ ...current, [key]: value }));
-  }
+  useEffect(() => {
+    if (step !== 3 || !isCompleteDiagnosis(answers)) return;
+    const timer = window.setTimeout(() => {
+      setStep(4);
+      setMaxVisitedStep(4);
+    }, 2200);
+    return () => window.clearTimeout(timer);
+  }, [answers, step]);
 
-  function goNext() {
-    if (!currentAnswer || step > LAST_QUESTION_INDEX) {
-      return;
-    }
-
-    setStep((current) => current + 1);
-  }
-
-  function goBack() {
-    setStep((current) => Math.max(0, current - 1));
-  }
-
-  function restart() {
-    setAnswers({});
-    setMeasurements({ width: 60, length: 25, height: 20, count: 2 });
-    setStep(0);
-  }
-
-  function changeMeasurement(key: keyof typeof measurements, amount: number) {
+  function changeMeasurement(key: keyof Measurements, amount: number) {
     setMeasurements((current) => ({
       ...current,
       [key]: Math.max(key === "count" ? 1 : 10, current[key] + amount),
     }));
   }
 
-  if (isResultStep && recommendation) {
-    const spacePath = `/spaces/new?type=${recommendation.spaceTypeKey}&width=${measurements.width}&length=${measurements.length}&sunlight=${answers.sunlight}`;
-    return (
-      <section aria-live="polite" className={`${styles.stage} ${styles.resultStage}`}>
-        <div className={styles.resultHeading}>
-          <p>분석이 끝났어요</p>
-          <h1>이렇게 심어보세요</h1>
-          <span>{recommendation.spaceType} / {measurements.width} × {measurements.length}cm</span>
-        </div>
+  function selectCrop(option: CropOption) {
+    setCropId(option.id);
+    setAnswers((current) => ({ ...current, goal: option.goal }));
+  }
 
-        <div className={styles.planGrid}>
-          <article className={styles.planCard}>
-            <div className={styles.planImage}>
-              <Image alt="초록 잎채소가 자라는 화분" fill loading="eager" sizes="(max-width: 768px) 82vw, 360px" src="/figma/image3.png" />
-            </div>
-            <div>
-              <span>추천안 1</span>
-              <h2>{recommendation.title}</h2>
-              <p>{recommendation.plants.join(", ")}</p>
-            </div>
-          </article>
-          <article className={styles.planCard}>
-            <div className={styles.planImage}>
-              <Image alt="싱그러운 허브가 자라는 화분" fill loading="eager" sizes="(max-width: 768px) 82vw, 360px" src="/figma/image5.png" />
-            </div>
-            <div>
-              <span>추천안 2</span>
-              <h2>관리하기 쉬운 구성</h2>
-              <p>{recommendation.preparation.slice(0, 2).join(", ")}</p>
-            </div>
-          </article>
-        </div>
+  function updateAnswer<K extends keyof DiagnosisAnswers>(key: K, value: DiagnosisAnswers[K]) {
+    setAnswers((current) => ({ ...current, [key]: value }));
+  }
 
-        <p className={styles.resultDescription}>{recommendation.description}</p>
-        <div className={styles.resultActions}>
-          <button className={styles.secondaryButton} onClick={restart} type="button">다시 진단하기</button>
-          <SessionAwareLink
-            anonymousHref={`/login?next=${encodeURIComponent(spacePath)}`}
-            anonymousLabel="로그인하고 공간 등록하기"
-            authenticatedHref={spacePath}
-            authenticatedLabel="이 공간 등록하기"
-            className={styles.primaryButton}
-          />
-        </div>
-      </section>
-    );
+  function advance(nextStep = step + 1) {
+    setStep(nextStep);
+    setMaxVisitedStep((current) => Math.max(current, nextStep));
+  }
+
+  function restart() {
+    setAnswers({});
+    setCropId(undefined);
+    setMeasurements({ width: 60, length: 25, height: 20, count: 2 });
+    setSelectedPlan("balanced");
+    setStep(0);
+    setMaxVisitedStep(0);
+  }
+
+  function handleScenePointer(event: PointerEvent<HTMLElement>) {
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
+    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
+    event.currentTarget.style.setProperty("--scene-x", `${x * 10}px`);
+    event.currentTarget.style.setProperty("--scene-y", `${y * 8}px`);
+    event.currentTarget.style.setProperty("--guide-x", `${x * -16}px`);
+    event.currentTarget.style.setProperty("--guide-y", `${y * -12}px`);
+  }
+
+  function resetScenePointer(event: PointerEvent<HTMLElement>) {
+    event.currentTarget.style.setProperty("--scene-x", "0px");
+    event.currentTarget.style.setProperty("--scene-y", "0px");
+    event.currentTarget.style.setProperty("--guide-x", "0px");
+    event.currentTarget.style.setProperty("--guide-y", "0px");
   }
 
   return (
-    <section className={styles.stage}>
-      <div className={`${styles.questionPanel} ${step === 0 ? styles.lightPanel : styles.darkPanel}`} key={step}>
-        <div className={styles.questionMeta}>
-          <p>시작 진단</p>
-          <span>{String(step + 1).padStart(2, "0")} / {String(STEP_TITLES.length).padStart(2, "0")}</span>
-        </div>
-        <h1>{STEP_TITLES[step]}</h1>
-        <p className={styles.questionLead}>{getStepDescription(step)}</p>
-
-        {step === 0 ? (
-          <div className={styles.measurementGrid}>
-            {(Object.keys(measurements) as (keyof typeof measurements)[]).map((key) => (
-              <div className={styles.measurement} key={key}>
-                <span>{getMeasurementLabel(key)}</span>
-                <div>
-                  <button onClick={() => changeMeasurement(key, key === "count" ? -1 : -5)} type="button" aria-label={`${getMeasurementLabel(key)} 줄이기`}>−</button>
-                  <strong>{measurements[key]}</strong>
-                  <small>{key === "count" ? "개" : "cm"}</small>
-                  <button onClick={() => changeMeasurement(key, key === "count" ? 1 : 5)} type="button" aria-label={`${getMeasurementLabel(key)} 늘리기`}>+</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          renderQuestion(questionStep, answers, updateAnswer)
-        )}
-
-        <div className={styles.navigation}>
-          <button className={styles.backButton} disabled={step === 0} onClick={goBack} type="button">이전</button>
-          <button className={styles.nextButton} disabled={!currentAnswer} onClick={goNext} type="button">
-            {step === LAST_QUESTION_INDEX ? "결과 보기" : "다음"}
-            <span aria-hidden="true">→</span>
-          </button>
-        </div>
+    <section
+      aria-label="맞춤 재배 시작 진단"
+      className={`${styles.diagnosis} ${styles[`stage${step}`]}`}
+      onPointerLeave={resetScenePointer}
+      onPointerMove={handleScenePointer}
+    >
+      <div className={styles.sceneBackdrop} aria-hidden="true">
+        <Image alt="" className={styles.sceneImage} fill key={SCENE_IMAGES[step]} priority={step === 0} sizes="100vw" src={SCENE_IMAGES[step]} />
       </div>
+      <div className={styles.sceneShade} aria-hidden="true" />
+      <div className={styles.sceneTexture} aria-hidden="true" />
+
+      {step === 0 && (
+        <DimensionStage measurements={measurements} onAdvance={() => advance(1)} onChange={changeMeasurement} />
+      )}
+      {step === 1 && (
+        <CropStage cropId={cropId} onAdvance={() => advance(2)} onBack={() => setStep(0)} onSelect={selectCrop} />
+      )}
+      {step === 2 && (
+        <ConditionStage answers={answers} onAdvance={() => advance(3)} onBack={() => setStep(1)} onUpdate={updateAnswer} />
+      )}
+      {step === 3 && <AnalysisStage />}
+      {step === 4 && recommendation && (
+        <ResultStage
+          answers={answers}
+          measurements={measurements}
+          onRestart={restart}
+          onSelectPlan={setSelectedPlan}
+          recommendation={recommendation}
+          selectedPlan={selectedPlan}
+        />
+      )}
+
       <ol className={styles.stepRail} aria-label="진단 진행 단계">
-        {STEP_TITLES.map((title, index) => (
-          <li className={index === step ? styles.activeStep : index < step ? styles.completeStep : undefined} key={title}>
-            <span>{index + 1}</span>
-            <small>{title}</small>
+        {STAGES.map((label, index) => (
+          <li className={index === step ? styles.activeStep : index < step ? styles.completeStep : ""} key={label}>
+            <button
+              aria-current={index === step ? "step" : undefined}
+              aria-label={`${index + 1}단계, ${label}`}
+              disabled={index > maxVisitedStep || index === 3}
+              onClick={() => setStep(index)}
+              type="button"
+            >
+              <small>{label}</small>
+              <span>{index + 1}</span>
+            </button>
           </li>
         ))}
       </ol>
-      <div className={styles.planterAccent} aria-hidden="true">
-        <span style={{ width: `${Math.min(100, measurements.width)}%` }} />
-      </div>
     </section>
   );
 }
 
-function getCurrentAnswer(
-  step: number,
-  answers: Partial<DiagnosisAnswers>,
-): string | undefined {
-  if (step === 0) return answers.space;
-  if (step === 1) return answers.sunlight;
-  if (step === 2) return answers.careTime;
-  if (step === 3) return answers.goal;
-  return undefined;
+function DimensionStage({
+  measurements,
+  onAdvance,
+  onChange,
+}: {
+  measurements: Measurements;
+  onAdvance: () => void;
+  onChange: (key: keyof Measurements, amount: number) => void;
+}) {
+  return (
+    <div className={styles.dimensionStage}>
+      <header className={styles.dimensionHeading}>
+        <p>내 공간에 맞춘 첫 텃밭</p>
+        <h1>사용할 화분의<br />크기를 알려주세요</h1>
+        <span>입력한 크기로 심을 수 있는 작물 수와 간격을 계산해요.</span>
+      </header>
+      <div className={styles.whiteSweep}>
+        <div className={styles.measurementGrid}>
+          {(Object.keys(measurements) as (keyof Measurements)[]).map((key) => {
+            const increment = key === "count" ? 1 : 5;
+            return (
+              <div className={styles.measurement} key={key}>
+                <span>{getMeasurementLabel(key)}</span>
+                <div>
+                  <button aria-label={`${getMeasurementLabel(key)} 줄이기`} onClick={() => onChange(key, -increment)} type="button">−</button>
+                  <strong>{measurements[key]}</strong>
+                  <small>{key === "count" ? "개" : "cm"}</small>
+                  <button aria-label={`${getMeasurementLabel(key)} 늘리기`} onClick={() => onChange(key, increment)} type="button">+</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <button className={styles.primaryButton} onClick={onAdvance} type="button">다음 <span aria-hidden="true">→</span></button>
+      </div>
+      <div className={styles.dimensionGuide} aria-hidden="true">
+        <span className={styles.widthLine}><b>{measurements.width} cm</b></span>
+        <span className={styles.depthLine}><b>{measurements.length} cm</b></span>
+        <span className={styles.heightLine}><b>{measurements.height} cm</b></span>
+        <div className={styles.planterTag}><small>예상 구성</small><strong>{measurements.count}개 화분</strong></div>
+      </div>
+    </div>
+  );
 }
 
-function getStepDescription(step: number) {
-  if (step === 0) return "실제로 등록할 공간 크기를 기준으로 추천 구성을 계산해요.";
-  if (step === 1) return "화분 하나부터 마당 텃밭까지, 지금 사용할 수 있는 곳을 골라주세요.";
-  if (step === 2) return "창가나 베란다에서 식물이 받는 직접 햇빛 시간을 기준으로 선택해 주세요.";
-  if (step === 3) return "생활 리듬에 맞는 관리 계획을 만들 수 있도록 알려주세요.";
-  return "가장 기대하는 장면을 고르면 첫 작물 구성을 추천해 드려요.";
+function CropStage({
+  cropId,
+  onAdvance,
+  onBack,
+  onSelect,
+}: {
+  cropId?: string;
+  onAdvance: () => void;
+  onBack: () => void;
+  onSelect: (option: CropOption) => void;
+}) {
+  return (
+    <div className={styles.cropStage}>
+      <div className={styles.cropPanel}>
+        <header>
+          <p>첫 수확을 상상해 보세요</p>
+          <h1>처음 키울 작물을<br />골라주세요</h1>
+          <span>마음이 가는 작물 하나를 고르면 비슷한 관리 난이도로 묶어드려요.</span>
+        </header>
+        <div className={styles.cropGrid} role="radiogroup" aria-label="선호 작물">
+          {CROP_OPTIONS.map((option) => {
+            const selected = cropId === option.id;
+            return (
+              <button
+                aria-checked={selected}
+                className={`${styles.cropCard} ${selected ? styles.cropSelected : ""}`}
+                key={option.id}
+                onClick={() => onSelect(option)}
+                role="radio"
+                type="button"
+              >
+                <Image alt="" fill sizes="(max-width: 768px) 42vw, 180px" src={option.image} />
+                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
+                <b aria-hidden="true">{selected ? "✓" : ""}</b>
+              </button>
+            );
+          })}
+        </div>
+        <Navigation backLabel="이전" disabled={!cropId} nextLabel="공간 조건 보기" onBack={onBack} onNext={onAdvance} />
+      </div>
+      <div className={styles.cropSceneLabel} aria-hidden="true">
+        <span>선택한 작물</span>
+        <strong>{CROP_OPTIONS.find((option) => option.id === cropId)?.label ?? "아직 고르는 중"}</strong>
+        <small>화분 배치를 실시간으로 준비하고 있어요</small>
+      </div>
+    </div>
+  );
 }
 
-function getMeasurementLabel(key: "width" | "length" | "height" | "count") {
+function ConditionStage({
+  answers,
+  onAdvance,
+  onBack,
+  onUpdate,
+}: {
+  answers: Partial<DiagnosisAnswers>;
+  onAdvance: () => void;
+  onBack: () => void;
+  onUpdate: <K extends keyof DiagnosisAnswers>(key: K, value: DiagnosisAnswers[K]) => void;
+}) {
+  const complete = Boolean(answers.space && answers.sunlight && answers.careTime);
+  return (
+    <div className={styles.conditionStage}>
+      <header>
+        <p>마지막으로 한 가지만 더</p>
+        <h1>이 공간의 빛과 돌봄 조건을 알려주세요</h1>
+        <span>완벽한 환경보다 실제 생활에 맞는 조건이 더 중요해요.</span>
+      </header>
+      <div className={styles.conditionSummary}>
+        <ConditionGroup label="공간" options={SPACE_OPTIONS} selected={answers.space} onSelect={(value) => onUpdate("space", value)} />
+        <ConditionGroup label="햇빛" options={SUNLIGHT_OPTIONS} selected={answers.sunlight} onSelect={(value) => onUpdate("sunlight", value)} />
+        <ConditionGroup label="돌봄" options={CARE_TIME_OPTIONS} selected={answers.careTime} onSelect={(value) => onUpdate("careTime", value)} />
+      </div>
+      <Navigation backLabel="이전" disabled={!complete} nextLabel="추천 계산하기" onBack={onBack} onNext={onAdvance} />
+    </div>
+  );
+}
+
+function ConditionGroup<T extends string>({
+  label,
+  onSelect,
+  options,
+  selected,
+}: {
+  label: string;
+  onSelect: (value: T) => void;
+  options: readonly { value: T; label: string; description: string }[];
+  selected?: T;
+}) {
+  return (
+    <fieldset className={styles.conditionGroup}>
+      <legend>{label}</legend>
+      <div>
+        {options.map((option) => (
+          <label className={selected === option.value ? styles.conditionSelected : ""} key={option.value}>
+            <input checked={selected === option.value} name={label} onChange={() => onSelect(option.value)} type="radio" value={option.value} />
+            <strong>{shortenOptionLabel(option.label)}</strong>
+            <small>{option.description}</small>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+function AnalysisStage() {
+  return (
+    <div className={styles.analysisStage} aria-live="polite">
+      <p>공간을 분석하고 있어요</p>
+      <div className={styles.analysisPanel}>
+        <span className={styles.scanLine} aria-hidden="true" />
+        <span className={styles.analysisLeaf} aria-hidden="true">⌁</span>
+        <strong>빛, 공간, 돌봄 시간을<br />한데 맞추는 중이에요</strong>
+        <small>잠시만 기다려 주세요</small>
+      </div>
+      <div className={styles.loadingTrack} aria-hidden="true"><span /></div>
+    </div>
+  );
+}
+
+function ResultStage({
+  answers,
+  measurements,
+  onRestart,
+  onSelectPlan,
+  recommendation,
+  selectedPlan,
+}: {
+  answers: Partial<DiagnosisAnswers>;
+  measurements: Measurements;
+  onRestart: () => void;
+  onSelectPlan: (variant: PlanVariant) => void;
+  recommendation: ReturnType<typeof getRecommendation>;
+  selectedPlan: PlanVariant;
+}) {
+  const spacePath = `/spaces/new?type=${recommendation.spaceTypeKey}&width=${measurements.width}&length=${measurements.length}&sunlight=${answers.sunlight}&preset=${selectedPlan}`;
+  const plans = [
+    { value: "balanced" as const, label: "추천 배치", title: recommendation.plants.join(" · "), detail: recommendation.title, image: "/figma/image3.png" },
+    { value: "simple" as const, label: "간편 배치", title: recommendation.plants.slice(0, 1).join(" · "), detail: "작물 수를 줄여 관리에 여유를 둬요", image: "/figma/image5.png" },
+  ];
+  return (
+    <div className={styles.resultStage} aria-live="polite">
+      <header>
+        <p>공간에 맞는 두 가지 방법</p>
+        <h1>이렇게 심어보세요</h1>
+        <span>{recommendation.spaceType} · {measurements.width} × {measurements.length}cm</span>
+      </header>
+      <div className={styles.planGrid}>
+        {plans.map((plan) => {
+          const selected = selectedPlan === plan.value;
+          return (
+            <button aria-pressed={selected} className={`${styles.planCard} ${selected ? styles.planSelected : ""}`} key={plan.value} onClick={() => onSelectPlan(plan.value)} type="button">
+              <span className={styles.planPlants}><Image alt="" fill sizes="(max-width: 768px) 70vw, 360px" src={plan.image} /></span>
+              <span className={styles.planterModel}><i /><b /></span>
+              <span className={styles.planCopy}><small>{plan.label}</small><strong>{plan.title}</strong><span>{plan.detail}</span></span>
+              <em aria-hidden="true">{selected ? "✓" : ""}</em>
+            </button>
+          );
+        })}
+      </div>
+      <p className={styles.resultDescription}>{recommendation.description}</p>
+      <div className={styles.resultActions}>
+        <button className={styles.secondaryButton} onClick={onRestart} type="button">처음부터 다시</button>
+        <SessionAwareLink
+          anonymousHref={`/login?next=${encodeURIComponent(spacePath)}`}
+          anonymousLabel="로그인하고 이 배치로 시작하기"
+          authenticatedHref={spacePath}
+          authenticatedLabel="이 배치로 시작하기"
+          className={styles.primaryButton}
+        />
+      </div>
+    </div>
+  );
+}
+
+function Navigation({
+  backLabel,
+  disabled,
+  nextLabel,
+  onBack,
+  onNext,
+}: {
+  backLabel: string;
+  disabled: boolean;
+  nextLabel: string;
+  onBack: () => void;
+  onNext: () => void;
+}) {
+  return (
+    <div className={styles.navigation}>
+      <button className={styles.backButton} onClick={onBack} type="button">{backLabel}</button>
+      <button className={styles.primaryButton} disabled={disabled} onClick={onNext} type="button">{nextLabel} <span aria-hidden="true">→</span></button>
+    </div>
+  );
+}
+
+function getMeasurementLabel(key: keyof Measurements) {
   if (key === "width") return "가로";
   if (key === "length") return "세로";
   if (key === "height") return "높이";
   return "화분 수";
 }
 
-function renderQuestion(
-  step: number,
-  answers: Partial<DiagnosisAnswers>,
-  updateAnswer: <K extends keyof DiagnosisAnswers>(key: K, value: DiagnosisAnswers[K]) => void,
-) {
-  if (step === 0) {
-    return <OptionList name="space" onSelect={(value) => updateAnswer("space", value)} options={SPACE_OPTIONS} selected={answers.space} />;
-  }
-  if (step === 1) {
-    return <OptionList name="sunlight" onSelect={(value) => updateAnswer("sunlight", value)} options={SUNLIGHT_OPTIONS} selected={answers.sunlight} />;
-  }
-  if (step === 2) {
-    return <OptionList name="care-time" onSelect={(value) => updateAnswer("careTime", value)} options={CARE_TIME_OPTIONS} selected={answers.careTime} />;
-  }
-  return (
-    <OptionList
-      imageByValue={{ easy: "/figma/image3.png", edible: "/figma/image7.png", flowers: "/figma/image6.png" }}
-      name="goal"
-      onSelect={(value) => updateAnswer("goal", value)}
-      options={GOAL_OPTIONS}
-      selected={answers.goal}
-    />
-  );
+function shortenOptionLabel(label: string) {
+  return label.replace("이 있어요", "").replace("가 있어요", "").replace("아직 ", "").replace(" 정도", "");
 }

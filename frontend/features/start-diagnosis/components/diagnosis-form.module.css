@@ -1,77 +1,145 @@
-.stage {
+.diagnosis {
+  --scene-x: 0px;
+  --scene-y: 0px;
+  --guide-x: 0px;
+  --guide-y: 0px;
   position: relative;
-  display: grid;
-  width: min(100%, var(--layout-editor-max));
-  min-height: calc(100svh - var(--space-20));
-  margin: 0 auto;
-  place-items: center;
-  padding: var(--space-8) var(--space-16) var(--space-6) 0;
-}
-
-.questionPanel {
-  width: min(100%, 540px);
-  margin-right: auto;
-  border-radius: var(--radius-xl);
-  padding: var(--space-10);
-  animation: panel-in var(--motion-slow) var(--ease-out) both;
-}
-
-.lightPanel {
-  background: color-mix(in srgb, var(--color-panel) 96%, transparent);
-  color: var(--color-ink-strong);
-  box-shadow: var(--shadow-md);
-}
-
-.darkPanel {
-  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 14%, transparent);
-  background: color-mix(in srgb, var(--color-forest-panel) 92%, transparent);
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--color-forest-night);
   color: var(--color-on-photo);
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(var(--space-3));
+  perspective: var(--perspective-scene);
 }
 
-.questionMeta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  font-size: var(--type-caption-size);
+.sceneBackdrop,
+.sceneShade,
+.sceneTexture {
+  position: absolute;
+  inset: 0;
+}
+
+.sceneBackdrop {
+  z-index: -4;
+  inset: calc(var(--space-3) * -1);
+  transform: translate3d(var(--scene-x), var(--scene-y), 0) scale(1.025);
+  transition: transform var(--motion-slow) var(--ease-out);
+}
+
+.sceneImage {
+  object-fit: cover;
+  object-position: center;
+  animation: scene-in var(--motion-scene) var(--ease-scene) both;
+}
+
+.sceneShade {
+  z-index: -3;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-forest-night) 84%, transparent), color-mix(in srgb, var(--color-forest-night) 18%, transparent) 60%),
+    linear-gradient(0deg, color-mix(in srgb, var(--color-forest-night) 56%, transparent), transparent 54%);
+}
+
+.sceneTexture {
+  z-index: -2;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-on-photo) 7%, transparent) var(--line-thin), transparent var(--line-thin)),
+    linear-gradient(color-mix(in srgb, var(--color-on-photo) 5%, transparent) var(--line-thin), transparent var(--line-thin));
+  background-size: var(--space-20) var(--space-20);
+  mask-image: linear-gradient(90deg, transparent, var(--color-forest-night), transparent);
+}
+
+.dimensionStage,
+.cropStage,
+.conditionStage,
+.analysisStage,
+.resultStage {
+  width: min(100%, var(--layout-diagnosis-max));
+  min-height: 100svh;
+  margin: 0 auto;
+  animation: stage-in var(--motion-scene) var(--ease-scene) both;
+}
+
+.dimensionStage {
+  position: relative;
+  padding: var(--space-28) var(--space-18) var(--space-12);
+}
+
+.dimensionHeading {
+  position: relative;
+  z-index: 4;
+  width: min(38%, var(--layout-question-max));
+}
+
+.dimensionHeading p,
+.cropPanel header p,
+.conditionStage > header p,
+.analysisStage > p,
+.resultStage > header p {
+  margin: 0;
+  color: var(--color-leaf-bright);
+  font-size: var(--type-kicker-size);
   font-weight: 700;
+  letter-spacing: 0.08em;
 }
 
-.questionMeta p {
-  color: var(--color-primary);
+.dimensionHeading h1,
+.cropPanel h1 {
+  margin: var(--space-4) 0 0;
+  font-size: var(--type-display-compact-size);
+  line-height: 1.14;
+  letter-spacing: -0.04em;
 }
 
-.questionMeta span {
-  opacity: 0.64;
-}
-
-.questionPanel h1 {
-  max-width: 440px;
-  margin: var(--space-5) 0 0;
-  font-size: var(--type-h2-compact-size);
-  line-height: 1.24;
-  letter-spacing: -0.035em;
-}
-
-.questionLead {
-  margin: var(--space-3) 0 0;
-  font-size: var(--type-body-sm-size);
+.dimensionHeading > span,
+.cropPanel header > span,
+.conditionStage > header > span {
+  display: block;
+  margin-top: var(--space-3);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
   line-height: 1.55;
-  opacity: 0.68;
+}
+
+.whiteSweep {
+  position: absolute;
+  z-index: 3;
+  bottom: 0;
+  left: calc(var(--space-18) * -1);
+  display: grid;
+  width: 46%;
+  min-height: 57%;
+  align-content: end;
+  justify-items: end;
+  border-radius: 0 var(--radius-portal) 0 0;
+  padding: var(--space-10) var(--space-18) var(--space-12) calc(var(--space-18) * 2);
+  background: var(--color-panel);
+  color: var(--color-ink-strong);
+  box-shadow: var(--shadow-panel);
+}
+
+.whiteSweep::after {
+  position: absolute;
+  z-index: -1;
+  top: calc(var(--space-18) * -1);
+  right: calc(var(--space-18) * -1);
+  width: calc(var(--space-36) * 2);
+  height: var(--space-36);
+  border-radius: var(--radius-pill);
+  background: var(--color-panel);
+  content: "";
+  transform: rotate(34deg);
 }
 
 .measurementGrid {
   display: grid;
+  width: min(100%, calc(var(--layout-question-max) - var(--space-12)));
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-8);
+  gap: var(--space-4) var(--space-6);
 }
 
 .measurement {
-  border-bottom: var(--line-thin) solid color-mix(in srgb, var(--color-ink-strong) 12%, transparent);
-  padding: 0 0 var(--space-3);
+  border-bottom: var(--line-thin) solid var(--color-border);
+  padding-bottom: var(--space-3);
 }
 
 .measurement > span {
@@ -82,7 +150,7 @@
 
 .measurement > div {
   display: grid;
-  grid-template-columns: var(--control-sm) 1fr auto var(--control-sm);
+  grid-template-columns: var(--control-sm) minmax(0, 1fr) auto var(--control-sm);
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-2);
@@ -92,28 +160,18 @@
   display: grid;
   width: var(--control-sm);
   height: var(--control-sm);
+  cursor: pointer;
   place-items: center;
   border: var(--line-thin) solid var(--color-border);
   border-radius: var(--radius-pill);
   background: var(--color-page);
   color: var(--color-primary);
-  cursor: pointer;
   font: inherit;
-  transition: transform var(--motion-fast) var(--ease-out), opacity var(--motion-fast) var(--ease-out);
-}
-
-.measurement button:hover {
-  opacity: 0.74;
-  transform: translateY(-1px);
-}
-
-.measurement button:active {
-  transform: scale(0.98);
 }
 
 .measurement strong {
-  text-align: center;
-  font-size: var(--type-body-lg-size);
+  text-align: right;
+  font-size: var(--type-title-sm-size);
 }
 
 .measurement small {
@@ -121,99 +179,629 @@
   font-size: var(--type-caption-size);
 }
 
-.optionGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-  margin-top: var(--space-8);
-  border: 0;
-  padding: 0;
+.whiteSweep > .primaryButton {
+  margin-top: var(--space-6);
 }
 
-.optionCard {
-  position: relative;
-  display: grid;
-  min-height: 104px;
-  cursor: pointer;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: var(--space-3);
-  overflow: hidden;
-  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 18%, transparent);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-  background: color-mix(in srgb, var(--color-on-photo) 6%, transparent);
-  transition: transform var(--motion-base) var(--ease-out), opacity var(--motion-base) var(--ease-out);
-}
-
-.lightPanel .optionCard {
-  border-color: var(--color-border);
-  background: var(--color-page);
-}
-
-.optionCard:hover {
-  transform: translateY(-2px);
-}
-
-.optionSelected {
-  border-color: var(--color-primary);
-  background: color-mix(in srgb, var(--color-primary) 20%, transparent);
-}
-
-.optionInput {
+.dimensionGuide {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
+  right: 4%;
+  bottom: 10%;
+  width: 54%;
+  height: 48%;
+  color: var(--color-sunbeam);
+  transform: translate3d(var(--guide-x), var(--guide-y), 0);
+  transition: transform var(--motion-slow) var(--ease-out);
 }
 
-.optionInput:focus-visible + .optionImage,
-.optionInput:focus-visible + .optionCopy {
-  outline: 2px solid var(--color-focus);
-  outline-offset: var(--space-1);
+.widthLine,
+.depthLine,
+.heightLine {
+  position: absolute;
+  font-size: var(--type-caption-size);
+  filter: drop-shadow(0 var(--line-thin) var(--line-thin) var(--color-forest-night));
 }
 
-.optionImage {
+.widthLine {
+  right: 9%;
+  bottom: 4%;
+  left: 4%;
+  border-top: var(--line-thin) dashed currentColor;
+}
+
+.depthLine {
+  right: 5%;
+  bottom: 13%;
+  width: 40%;
+  border-top: var(--line-thin) dashed currentColor;
+  transform: rotate(-12deg);
+  transform-origin: right;
+}
+
+.heightLine {
+  top: 0;
+  right: 3%;
+  bottom: 10%;
+  border-left: var(--line-thin) dashed currentColor;
+}
+
+.widthLine::before,
+.widthLine::after,
+.depthLine::before,
+.depthLine::after,
+.heightLine::before,
+.heightLine::after {
+  position: absolute;
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  content: "";
+}
+
+.widthLine::before,
+.depthLine::before {
+  top: calc(var(--space-1) * -1);
+  left: 0;
+}
+
+.widthLine::after,
+.depthLine::after {
+  top: calc(var(--space-1) * -1);
+  right: 0;
+}
+
+.heightLine::before {
+  top: 0;
+  left: calc(var(--space-1) * -1);
+}
+
+.heightLine::after {
+  bottom: 0;
+  left: calc(var(--space-1) * -1);
+}
+
+.widthLine b,
+.depthLine b,
+.heightLine b {
+  position: absolute;
+  white-space: nowrap;
+}
+
+.widthLine b {
+  top: var(--space-2);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.depthLine b {
+  right: 50%;
+  bottom: var(--space-2);
+  transform: translateX(50%);
+}
+
+.heightLine b {
+  top: 50%;
+  right: var(--space-3);
+  transform: translateY(-50%);
+}
+
+.planterTag {
+  position: absolute;
+  top: 0;
+  left: 12%;
+  display: grid;
+  gap: var(--space-1);
+  border-left: var(--line-thin) solid currentColor;
+  padding-left: var(--space-3);
+}
+
+.planterTag small {
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.planterTag strong {
+  color: var(--color-on-photo);
+  font-size: var(--type-body-size);
+}
+
+.cropStage {
+  display: grid;
+  grid-template-columns: 49% 51%;
+  align-items: center;
+  padding: var(--space-28) var(--space-18) var(--space-12);
+}
+
+.cropPanel {
+  width: min(100%, calc(var(--layout-question-max) + var(--space-16)));
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 12%, transparent);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  background: color-mix(in srgb, var(--color-forest-panel) 90%, transparent);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(var(--blur-panel));
+}
+
+.cropGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.cropCard {
   position: relative;
-  width: var(--control-lg);
-  height: var(--control-lg);
+  min-height: var(--space-28);
+  cursor: pointer;
   overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
   border-radius: var(--radius-md);
+  padding: 0;
+  background: var(--color-forest-panel);
+  color: var(--color-on-photo);
+  text-align: left;
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
 }
 
-.optionImage img {
+.cropCard::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--color-forest-night), transparent 76%);
+  content: "";
+}
+
+.cropCard img {
   object-fit: cover;
+  transition: transform var(--motion-slow) var(--ease-out), filter var(--motion-slow) var(--ease-out);
 }
 
-.optionCopy {
-  min-width: 0;
+.cropCard:hover {
+  transform: translateY(calc(var(--space-1) * -1));
 }
 
-.optionCopy strong,
-.optionCopy small {
+.cropCard:hover img {
+  transform: scale(1.025);
+}
+
+.cropSelected {
+  border-color: var(--color-leaf-bright);
+}
+
+.cropSelected img {
+  filter: saturate(1.12);
+}
+
+.cropCard > span {
+  position: absolute;
+  z-index: 2;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  left: var(--space-3);
+}
+
+.cropCard strong,
+.cropCard small {
   display: block;
 }
 
-.optionCopy strong {
+.cropCard strong {
   font-size: var(--type-label-size);
 }
 
-.optionCopy small {
+.cropCard small {
   margin-top: var(--space-1);
-  font-size: var(--type-caption-size);
-  line-height: 1.45;
-  opacity: 0.66;
+  color: var(--color-forest-mist);
+  font-size: var(--type-micro-size);
 }
 
-.optionCheck {
+.cropCard > b {
+  position: absolute;
+  z-index: 3;
+  top: var(--space-2);
+  right: var(--space-2);
   display: grid;
   width: var(--space-6);
   height: var(--space-6);
   place-items: center;
-  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 24%, transparent);
+  border: var(--line-thin) solid var(--color-on-photo);
   border-radius: var(--radius-pill);
-  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-forest-night) 62%, transparent);
+  color: var(--color-leaf-bright);
   font-size: var(--type-caption-size);
+}
+
+.cropSceneLabel {
+  display: grid;
+  justify-self: end;
+  width: 48%;
+  gap: var(--space-1);
+  border-left: var(--line-thin) solid var(--color-sunbeam);
+  padding-left: var(--space-4);
+  transform: translate3d(var(--guide-x), var(--guide-y), 0);
+  transition: transform var(--motion-slow) var(--ease-out);
+}
+
+.cropSceneLabel span {
+  color: var(--color-sunbeam);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.cropSceneLabel strong {
+  font-size: var(--type-title-sm-size);
+}
+
+.cropSceneLabel small {
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.conditionStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-28) var(--space-18) var(--space-16);
+}
+
+.conditionStage > header {
+  text-align: center;
+}
+
+.conditionStage > header h1,
+.resultStage > header h1 {
+  margin: var(--space-3) 0 0;
+  font-size: var(--type-h2-size);
+  letter-spacing: -0.035em;
+}
+
+.conditionSummary {
+  display: grid;
+  width: min(100%, var(--layout-result-max));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin-top: var(--space-10);
+}
+
+.conditionGroup {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.conditionGroup legend {
+  width: 100%;
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.conditionGroup > div {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.conditionGroup label {
+  display: grid;
+  min-height: var(--space-16);
+  cursor: pointer;
+  place-content: center;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  background: color-mix(in srgb, var(--color-forest-panel) 70%, transparent);
+  backdrop-filter: blur(var(--blur-panel));
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+}
+
+.conditionGroup label:hover {
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
+.conditionGroup .conditionSelected {
+  border-color: var(--color-leaf-bright);
+  background: color-mix(in srgb, var(--color-primary) 28%, var(--color-forest-panel));
+}
+
+.conditionGroup input {
+  position: absolute;
+  width: var(--line-thin);
+  height: var(--line-thin);
+  opacity: 0;
+}
+
+.conditionGroup strong,
+.conditionGroup small {
+  display: block;
+}
+
+.conditionGroup strong {
+  font-size: var(--type-body-size);
+}
+
+.conditionGroup small {
+  margin-top: var(--space-1);
+  color: var(--color-forest-mist);
+  font-size: var(--type-micro-size);
+  line-height: 1.4;
+}
+
+.conditionStage > .navigation {
+  width: min(100%, var(--layout-result-max));
+  margin-top: var(--space-8);
+}
+
+.analysisStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-28) var(--layout-gutter) var(--space-16);
+  text-align: center;
+}
+
+.analysisPanel {
+  position: relative;
+  display: grid;
+  width: min(100%, calc(var(--layout-question-max) + var(--space-10)));
+  min-height: calc(var(--space-36) + var(--space-12));
+  margin-top: var(--space-5);
+  place-content: center;
+  overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 12%, transparent);
+  border-radius: var(--radius-2xl);
+  background: color-mix(in srgb, var(--color-forest-panel) 92%, transparent);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(var(--blur-panel));
+}
+
+.analysisPanel::before,
+.analysisPanel::after {
+  position: absolute;
+  width: var(--space-24);
+  height: var(--space-36);
+  border-radius: var(--radius-pill) 0 var(--radius-pill) 0;
+  background: color-mix(in srgb, var(--color-leaf-bright) 10%, transparent);
+  content: "";
+  transform: rotate(32deg);
+}
+
+.analysisPanel::before {
+  top: calc(var(--space-20) * -1);
+  left: var(--space-6);
+}
+
+.analysisPanel::after {
+  right: var(--space-6);
+  bottom: calc(var(--space-24) * -1);
+}
+
+.scanLine {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--line-thin);
+  background: var(--color-leaf-bright);
+  box-shadow: 0 0 var(--space-6) var(--color-leaf-bright);
+  animation: scan 1200ms var(--ease-scene) infinite;
+}
+
+.analysisLeaf {
+  display: none;
+}
+
+.analysisPanel strong {
+  position: relative;
+  z-index: 3;
+  font-size: var(--type-title-sm-size);
+  line-height: 1.45;
+}
+
+.analysisPanel small {
+  position: relative;
+  z-index: 3;
+  margin-top: var(--space-3);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.loadingTrack {
+  width: min(62%, calc(var(--space-36) * 2));
+  height: var(--space-1);
+  margin-top: var(--space-6);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-on-photo) 14%, transparent);
+}
+
+.loadingTrack span {
+  display: block;
+  width: 44%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+  animation: loading 900ms var(--ease-scene) infinite alternate;
+}
+
+.resultStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-24) var(--space-18) var(--space-12);
+}
+
+.resultStage > header {
+  text-align: center;
+}
+
+.resultStage > header > span {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.planGrid {
+  display: grid;
+  width: min(100%, var(--layout-result-max));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.planCard {
+  position: relative;
+  display: grid;
+  min-height: calc(var(--space-36) * 2);
+  cursor: pointer;
+  grid-template-rows: var(--space-36) var(--space-18) auto;
+  overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  border-radius: var(--radius-2xl);
+  padding: 0;
+  background: color-mix(in srgb, var(--color-forest-panel) 92%, transparent);
+  color: var(--color-on-photo);
+  text-align: left;
+  box-shadow: var(--shadow-planter);
+  transform: rotateY(3deg);
+  transform-style: preserve-3d;
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+}
+
+.planCard:nth-child(2) {
+  transform: rotateY(-3deg);
+}
+
+.planCard:hover {
+  transform: rotateY(0) translateY(calc(var(--space-1) * -1));
+}
+
+.planSelected {
+  border-color: var(--color-leaf-bright);
+}
+
+.planPlants {
+  position: relative;
+  grid-column: 1;
+  grid-row: 1 / 3;
+  overflow: hidden;
+}
+
+.planPlants::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--color-forest-panel), transparent 68%);
+  content: "";
+}
+
+.planPlants img {
+  object-fit: cover;
+  transition: transform var(--motion-slow) var(--ease-out);
+}
+
+.planCard:hover .planPlants img {
+  transform: scale(1.025);
+}
+
+.planterModel {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 2;
+  width: 76%;
+  margin: 0 auto;
+  transform: translateY(var(--space-4));
+}
+
+.planterModel i,
+.planterModel b {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: block;
+}
+
+.planterModel i {
+  top: 0;
+  height: var(--space-5);
+  border: var(--line-thin) solid var(--color-planter-edge);
+  border-radius: var(--radius-pill);
+  background: var(--color-forest-night);
+  transform: rotateX(62deg);
+}
+
+.planterModel b {
+  top: var(--space-2);
+  height: var(--space-16);
+  border: var(--line-thin) solid var(--color-planter-edge);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: linear-gradient(90deg, var(--color-planter-face), var(--color-planter-edge), var(--color-planter-face));
+}
+
+.planCopy {
+  position: relative;
+  z-index: 3;
+  display: block;
+  grid-column: 1;
+  grid-row: 3;
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  background: var(--color-forest-panel);
+}
+
+.planCopy small,
+.planCopy strong,
+.planCopy span {
+  display: block;
+}
+
+.planCopy small {
+  color: var(--color-leaf-bright);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.planCopy strong {
+  margin-top: var(--space-2);
+  font-size: var(--type-body-size);
+}
+
+.planCopy span {
+  margin-top: var(--space-2);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.planCard > em {
+  position: absolute;
+  z-index: 4;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  display: grid;
+  width: var(--space-7);
+  height: var(--space-7);
+  place-items: center;
+  border: var(--line-thin) solid var(--color-leaf-bright);
+  border-radius: var(--radius-pill);
+  background: var(--color-forest-panel);
+  color: var(--color-leaf-bright);
+  font-size: var(--type-caption-size);
+  font-style: normal;
+}
+
+.planSelected > em {
+  background: var(--color-leaf-bright);
+  color: var(--color-forest-night);
+}
+
+.resultDescription {
+  max-width: calc(var(--layout-result-max) - var(--space-30));
+  margin: var(--space-5) auto 0;
+  color: var(--color-forest-mist);
+  text-align: center;
+  font-size: var(--type-body-sm-size);
 }
 
 .navigation,
@@ -222,79 +810,104 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-top: var(--space-8);
+  margin-top: var(--space-6);
 }
 
-.backButton,
-.nextButton,
+.resultActions {
+  justify-content: center;
+}
+
 .primaryButton,
-.secondaryButton {
+.secondaryButton,
+.backButton {
   display: inline-flex;
   min-height: var(--control-md);
+  cursor: pointer;
   align-items: center;
   justify-content: center;
   gap: var(--space-4);
   border-radius: var(--radius-pill);
   padding: 0 var(--space-6);
-  cursor: pointer;
   font: inherit;
   font-size: var(--type-label-size);
   font-weight: 700;
   transition: transform var(--motion-fast) var(--ease-out), opacity var(--motion-fast) var(--ease-out);
 }
 
-.backButton,
-.secondaryButton {
-  border: var(--line-thin) solid color-mix(in srgb, currentColor 24%, transparent);
-  background: transparent;
-  color: inherit;
-}
-
-.nextButton,
 .primaryButton {
   border: var(--line-thin) solid var(--color-primary-hover);
   background: var(--color-primary-hover);
   color: var(--color-on-photo);
 }
 
-.nextButton:hover,
-.primaryButton:hover,
-.secondaryButton:hover {
-  opacity: 0.84;
-  transform: translateY(-2px);
+.secondaryButton,
+.backButton {
+  border: var(--line-thin) solid color-mix(in srgb, currentColor 28%, transparent);
+  background: transparent;
+  color: inherit;
 }
 
-.nextButton:active,
+.primaryButton:hover,
+.secondaryButton:hover,
+.backButton:hover {
+  opacity: 0.84;
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
 .primaryButton:active,
-.secondaryButton:active {
+.secondaryButton:active,
+.backButton:active,
+.cropCard:active,
+.planCard:active {
   transform: scale(0.98);
 }
 
-.backButton:disabled,
-.nextButton:disabled {
+.primaryButton:disabled {
   cursor: not-allowed;
-  opacity: 0.32;
+  opacity: 0.36;
   transform: none;
+}
+
+.measurement button:focus-visible,
+.cropCard:focus-visible,
+.conditionGroup input:focus-visible + strong,
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible,
+.backButton:focus-visible,
+.planCard:focus-visible,
+.stepRail button:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
 }
 
 .stepRail {
   position: absolute;
+  z-index: 12;
   top: 50%;
-  right: 0;
+  right: var(--space-6);
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-4);
   margin: 0;
   padding: 0;
   list-style: none;
   transform: translateY(-50%);
 }
 
-.stepRail li {
+.stepRail button {
   display: flex;
+  cursor: pointer;
   align-items: center;
   justify-content: flex-end;
   gap: var(--space-3);
+  border: 0;
+  background: transparent;
   color: color-mix(in srgb, var(--color-on-photo) 46%, transparent);
+  font: inherit;
+}
+
+.stepRail button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
 }
 
 .stepRail span {
@@ -308,209 +921,302 @@
 }
 
 .stepRail small {
-  width: 152px;
+  overflow: hidden;
+  width: 0;
   text-align: right;
   font-size: var(--type-micro-size);
   opacity: 0;
-  transform: translateX(var(--space-2));
-  transition: transform var(--motion-base) var(--ease-out), opacity var(--motion-base) var(--ease-out);
+  transition: width var(--motion-base) var(--ease-out), opacity var(--motion-base) var(--ease-out);
+  white-space: nowrap;
 }
 
 .stepRail li:hover small,
 .stepRail .activeStep small {
+  width: var(--space-24);
   opacity: 1;
-  transform: translateX(0);
 }
 
-.stepRail .activeStep,
-.stepRail .completeStep {
+.stepRail .activeStep button,
+.stepRail .completeStep button {
   color: var(--color-on-photo);
 }
 
 .stepRail .activeStep span {
-  border-color: var(--color-primary-hover);
-  background: var(--color-primary-hover);
-}
-
-.planterAccent {
-  position: absolute;
-  right: 16%;
-  bottom: var(--space-10);
-  width: 32%;
-  height: var(--space-1);
-  overflow: hidden;
-  border-radius: var(--radius-pill);
-  background: color-mix(in srgb, var(--color-on-photo) 16%, transparent);
-}
-
-.planterAccent span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
+  border-color: var(--color-primary);
   background: var(--color-primary);
-  transition: width var(--motion-slow) var(--ease-out);
 }
 
-.resultStage {
-  align-content: center;
-  padding-inline: 0;
+.stepRail .completeStep span {
+  border-color: var(--color-leaf-bright);
 }
 
-.resultHeading {
-  text-align: center;
+@keyframes scene-in {
+  from { opacity: 0; transform: scale(1.025); filter: blur(var(--space-1)); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
 }
 
-.resultHeading p,
-.planCard span {
-  color: var(--color-primary);
-  font-size: var(--type-caption-size);
-  font-weight: 700;
+@keyframes stage-in {
+  from { opacity: 0; transform: translate3d(0, var(--space-3), 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-.resultHeading h1 {
-  margin: var(--space-2) 0 0;
-  font-size: var(--type-h2-size);
-  letter-spacing: -0.035em;
+@keyframes scan {
+  from { opacity: 0; transform: translateY(0); }
+  20% { opacity: 1; }
+  to { opacity: 0; transform: translateY(calc(var(--space-36) + var(--space-12))); }
 }
 
-.resultHeading > span {
-  display: block;
-  margin-top: var(--space-2);
-  color: color-mix(in srgb, var(--color-on-photo) 68%, transparent);
-  font-size: var(--type-caption-size);
+@keyframes loading {
+  from { transform: translateX(-80%); }
+  to { transform: translateX(210%); }
 }
 
-.planGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4);
-  width: min(100%, 760px);
-  margin-top: var(--space-8);
-}
+@media (max-width: 1024px) {
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .resultStage {
+    padding-inline: var(--space-8) var(--space-16);
+  }
 
-.planCard {
-  overflow: hidden;
-  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--color-forest-panel) 92%, transparent);
-}
+  .whiteSweep {
+    width: 52%;
+    padding-right: var(--space-10);
+  }
 
-.planImage {
-  position: relative;
-  height: 180px;
-}
+  .cropStage {
+    grid-template-columns: 58% 42%;
+  }
 
-.planImage img {
-  object-fit: cover;
-  transition: transform var(--motion-slow) var(--ease-out);
-}
+  .cropGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 
-.planCard:hover .planImage img {
-  transform: scale(1.025);
-}
+  .cropSceneLabel {
+    width: 70%;
+  }
 
-.planCard > div:last-child {
-  padding: var(--space-4);
-}
+  .stepRail {
+    right: var(--space-4);
+  }
 
-.planCard h2 {
-  margin: var(--space-2) 0 0;
-  font-size: var(--type-body-size);
-}
-
-.planCard p {
-  margin: var(--space-2) 0 0;
-  color: color-mix(in srgb, var(--color-on-photo) 66%, transparent);
-  font-size: var(--type-caption-size);
-}
-
-.resultDescription {
-  width: min(100%, 760px);
-  margin: var(--space-5) 0 0;
-  text-align: center;
-  color: color-mix(in srgb, var(--color-on-photo) 72%, transparent);
-  font-size: var(--type-body-sm-size);
-}
-
-.resultActions {
-  justify-content: center;
-  margin-top: var(--space-5);
-}
-
-@keyframes panel-in {
-  from { opacity: 0; transform: translateY(var(--space-4)); }
-  to { opacity: 1; transform: translateY(0); }
+  .stepRail small {
+    display: none;
+  }
 }
 
 @media (max-width: 768px) {
-  .stage {
-    min-height: calc(100svh - var(--space-16));
-    padding: var(--space-6) 0 var(--space-20);
+  .diagnosis {
+    overflow-y: auto;
   }
 
-  .questionPanel {
-    width: 100%;
-    margin: auto 0 0;
-    border-radius: var(--radius-xl);
-    padding: var(--space-6);
+  .sceneBackdrop,
+  .sceneShade,
+  .sceneTexture {
+    position: fixed;
   }
 
-  .questionPanel h1 {
+  .sceneImage {
+    object-position: 64% center;
+  }
+
+  .sceneShade {
+    background: linear-gradient(0deg, var(--color-forest-night) 10%, color-mix(in srgb, var(--color-forest-night) 10%, transparent) 58%, color-mix(in srgb, var(--color-forest-night) 48%, transparent));
+  }
+
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage {
+    min-height: 100svh;
+    padding: var(--space-24) var(--space-4) var(--space-20);
+  }
+
+  .dimensionHeading {
+    width: 86%;
+  }
+
+  .dimensionHeading h1,
+  .cropPanel h1 {
     font-size: var(--type-h3-size);
   }
 
-  .measurementGrid,
-  .optionGrid,
+  .dimensionHeading > span {
+    max-width: 72%;
+  }
+
+  .whiteSweep {
+    position: absolute;
+    right: var(--space-3);
+    bottom: var(--space-16);
+    left: var(--space-3);
+    width: auto;
+    min-height: 42%;
+    border-radius: var(--radius-2xl);
+    padding: var(--space-6);
+  }
+
+  .whiteSweep::after {
+    display: none;
+  }
+
+  .measurementGrid {
+    width: 100%;
+  }
+
+  .dimensionGuide {
+    top: 27%;
+    right: var(--space-4);
+    bottom: auto;
+    width: 72%;
+    height: 27%;
+  }
+
+  .cropStage {
+    display: block;
+  }
+
+  .cropPanel {
+    margin-top: 22svh;
+    padding: var(--space-5);
+  }
+
+  .cropGrid {
+    margin-top: var(--space-4);
+  }
+
+  .cropCard {
+    min-height: var(--space-20);
+  }
+
+  .cropSceneLabel {
+    position: absolute;
+    top: var(--space-20);
+    right: var(--space-4);
+    width: 48%;
+  }
+
+  .conditionStage {
+    align-content: end;
+  }
+
+  .conditionStage > header h1,
+  .resultStage > header h1 {
+    font-size: var(--type-h3-size);
+  }
+
+  .conditionSummary {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  .conditionGroup > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .conditionGroup label {
+    min-height: var(--control-xl);
+    padding: var(--space-2);
+  }
+
+  .conditionGroup small {
+    display: none;
+  }
+
+  .analysisPanel {
+    min-height: calc(var(--space-36) + var(--space-6));
+  }
+
   .planGrid {
     grid-template-columns: 1fr;
   }
 
-  .optionCard {
-    min-height: 84px;
+  .planCard {
+    min-height: calc(var(--space-36) + var(--space-30));
+    grid-template-rows: var(--space-24) var(--space-14) auto;
+    transform: none;
+  }
+
+  .planCard:nth-child(2) {
+    transform: none;
+  }
+
+  .planterModel b {
+    height: var(--space-12);
+  }
+
+  .resultActions {
+    width: 100%;
+    flex-direction: column-reverse;
+  }
+
+  .resultActions .primaryButton,
+  .resultActions .secondaryButton {
+    width: 100%;
   }
 
   .stepRail {
+    position: fixed;
     top: auto;
     right: 0;
-    bottom: var(--space-5);
+    bottom: var(--space-4);
     left: 0;
     display: flex;
     justify-content: center;
     transform: none;
   }
 
-  .stepRail small,
-  .planterAccent {
-    display: none;
-  }
-
   .stepRail span {
     width: var(--space-8);
     height: var(--space-8);
   }
+}
 
-  .planImage {
-    height: 144px;
+@media (max-width: 420px) {
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage {
+    padding-inline: var(--space-3);
   }
 
-  .resultActions {
-    flex-direction: column-reverse;
+  .whiteSweep,
+  .cropPanel {
+    padding: var(--space-5);
   }
 
-  .primaryButton,
-  .secondaryButton {
-    width: 100%;
+  .measurementGrid {
+    gap: var(--space-3);
+  }
+
+  .measurement > div {
+    gap: var(--space-1);
+  }
+
+  .cropCard strong,
+  .conditionGroup strong {
+    font-size: var(--type-caption-size);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .questionPanel {
+  .sceneBackdrop,
+  .sceneImage,
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage,
+  .dimensionGuide,
+  .cropSceneLabel,
+  .scanLine,
+  .loadingTrack span,
+  .cropCard img,
+  .planPlants img {
     animation: none;
-  }
-
-  .stepRail small,
-  .planterAccent span,
-  .planImage img {
     transition: none;
   }
 }
