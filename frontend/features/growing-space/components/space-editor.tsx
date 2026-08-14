@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { SpaceForm } from "@/features/growing-space/components/space-form";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import styles from "@/features/growing-space/components/growing-space.module.css";
 
 export function SpaceEditor({ spaceId }: { spaceId: string }) {
   const spacesState = useGrowingSpaces();
@@ -21,9 +22,9 @@ export function SpaceEditor({ spaceId }: { spaceId: string }) {
 
 function Message({ message }: { message: string }) {
   return (
-    <div className="rounded-2xl bg-red-50 p-5 text-red-700" role="alert">
-      <p className="font-semibold">{message}</p>
-      <Link className="mt-4 inline-flex font-bold underline" href="/spaces">공간 목록으로 돌아가기</Link>
+    <div className={styles.errorMessage} role="alert">
+      <p>{message}</p>
+      <Link href="/spaces">공간 목록으로 돌아가기 →</Link>
     </div>
   );
 }
