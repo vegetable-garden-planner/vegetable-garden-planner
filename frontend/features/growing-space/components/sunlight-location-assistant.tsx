@@ -13,6 +13,7 @@ import {
 } from "@/features/growing-space/domain/postcode-address";
 import { geocodeAddress } from "@/features/growing-space/infrastructure/location-api";
 import type { SunlightExposure } from "@/shared/domain/growing-environment";
+import styles from "@/features/growing-space/components/growing-space.module.css";
 
 export interface SunlightLocationValue {
   address: string;
@@ -128,47 +129,46 @@ export function SunlightLocationAssistant({ onApply, value }: SunlightLocationAs
     : null;
 
   return (
-    <section className="rounded-3xl border border-leaf/20 bg-leaf-soft/35 p-5" aria-labelledby="sunlight-helper-title">
+    <section className={styles.locationAssistant} aria-labelledby="sunlight-helper-title">
       <Script
         onError={() => setMessage("주소 검색창을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.")}
         onReady={() => setPostcodeReady(true)}
         src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
         strategy="lazyOnload"
       />
-      <h2 className="text-lg font-bold" id="sunlight-helper-title">햇빛 자동 추정</h2>
-      <p className="mt-2 text-sm leading-6 text-muted">주소 또는 현재 위치 중 한 가지 방법으로 장소를 정한 뒤, 창·베란다가 바라보는 방향을 선택하면 예상 일조 시간을 계산합니다.</p>
+      <div className={styles.locationHeading}><span aria-hidden="true">+</span><div><h2 id="sunlight-helper-title">햇빛 자동 추정</h2><p>주소 또는 현재 위치를 정하고 공간 방향을 선택하면 예상 일조 시간을 계산합니다.</p></div></div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-        <label className="font-bold sm:col-span-2" htmlFor="space-address-search">주소로 찾기</label>
-        <input className="form-input bg-white" id="space-address-search" placeholder="주소 검색 버튼을 눌러 선택해 주세요" readOnly value={addressInput} />
-        <button className="rounded-full border border-leaf px-5 py-3 font-bold text-leaf disabled:opacity-50" disabled={busy} onClick={openPostcodeSearch} type="button">주소 검색창 열기</button>
+      <div className={styles.locationSearch}>
+        <label htmlFor="space-address-search">주소로 찾기</label>
+        <input className={styles.input} id="space-address-search" placeholder="주소 검색 버튼을 눌러 선택해 주세요" readOnly value={addressInput} />
+        <button disabled={busy} onClick={openPostcodeSearch} type="button">주소 검색</button>
       </div>
 
-      <div className="my-4 flex items-center gap-3 text-xs text-muted" aria-hidden="true"><span className="h-px flex-1 bg-ink/10" />또는<span className="h-px flex-1 bg-ink/10" /></div>
-      <button className="w-full rounded-full bg-leaf px-5 py-3 font-bold text-white disabled:opacity-50" disabled={busy} onClick={useCurrentLocation} type="button">이 기기의 현재 위치 사용</button>
+      <div className={styles.locationDivider} aria-hidden="true"><span />또는<span /></div>
+      <button className={styles.locationButton} disabled={busy} onClick={useCurrentLocation} type="button">이 기기의 현재 위치 사용</button>
 
       {value.latitude && value.longitude && (
-        <p className="mt-3 rounded-2xl bg-white/80 px-4 py-3 text-sm"><strong>선택된 위치:</strong> {value.address}</p>
+        <p className={styles.locationValue}><strong>선택된 위치</strong><span>{value.address}</span></p>
       )}
 
-      <label className="mt-4 block font-bold" htmlFor="space-orientation">공간 방향</label>
-      <select className="form-input mt-2" id="space-orientation" onChange={(event) => selectOrientation(event.target.value as SpaceOrientation)} value={value.orientation ?? ""}>
+      <label className={styles.locationLabel} htmlFor="space-orientation">공간 방향</label>
+      <select className={styles.input} id="space-orientation" onChange={(event) => selectOrientation(event.target.value as SpaceOrientation)} value={value.orientation ?? ""}>
         <option value="">방향 선택</option>
         {ORIENTATION_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
       </select>
 
-      {message && <p className="mt-3 text-sm font-semibold text-leaf-dark" role="status">{message}</p>}
-      {mapUrl && <a className="mt-3 inline-flex font-bold text-leaf underline" href={mapUrl} rel="noreferrer" target="_blank">카카오맵에서 위치와 건물 방향 확인하기 ↗</a>}
+      {message && <p className={styles.locationMessage} role="status">{message}</p>}
+      {mapUrl && <a className={styles.mapLink} href={mapUrl} rel="noreferrer" target="_blank">카카오맵에서 위치와 건물 방향 확인하기 ↗</a>}
 
-      <details className="mt-4 rounded-2xl border border-ink/10 bg-white/80 p-4 text-sm leading-6">
-        <summary className="cursor-pointer font-bold">지도에서 공간 방향 확인하는 방법</summary>
-        <ol className="mt-3 list-decimal space-y-1 pl-5 text-muted">
+      <details className={styles.locationGuide}>
+        <summary>지도에서 공간 방향 확인하는 방법</summary>
+        <ol>
           <li>카카오맵 링크를 열고 지도를 회전하지 않은 기본 상태로 둡니다. 화면 위쪽이 북쪽입니다.</li>
           <li>집 안에서 창문이나 베란다 바깥을 정면으로 바라봅니다.</li>
           <li>바라보는 쪽이 지도 위면 북향, 오른쪽이면 동향, 아래면 남향, 왼쪽이면 서향입니다.</li>
           <li>두 방향 사이를 바라보면 북동·남동·남서·북서향을 선택합니다. 옥상이나 야외 텃밭은 ‘사방이 트인 야외’를 선택합니다.</li>
         </ol>
-        <p className="mt-2 text-muted">건물·나무·차양의 그림자는 지도만으로 정확히 알 수 없으므로 계산 후 하루 일조 시간을 직접 보정할 수 있습니다.</p>
+        <p>건물·나무·차양의 그림자는 지도만으로 정확히 알 수 없으므로 계산 후 하루 일조 시간을 직접 보정할 수 있습니다.</p>
       </details>
     </section>
   );

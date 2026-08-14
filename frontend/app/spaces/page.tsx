@@ -16,7 +16,9 @@ export default function SpacesPage() {
         action={<Link className="primary-action px-4 py-2.5 text-sm" href="/spaces/new">공간 추가</Link>}
         description="실내 화분부터 베란다와 텃밭까지, 식물이 자라는 환경을 한눈에 관리하세요."
         eyebrow="나의 재배 공간"
+        heroSize="compact"
         title="어디에서 식물을 키우고 있나요?"
+        width="full"
       >
         <SpaceList />
       </AppPageShell>

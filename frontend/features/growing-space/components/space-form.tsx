@@ -23,6 +23,7 @@ import {
   type GrowingSpaceType,
 } from "@/shared/domain/growing-environment";
 import { ApiError } from "@/shared/infrastructure/api-client";
+import styles from "@/features/growing-space/components/growing-space.module.css";
 
 interface SpaceFormProps {
   initialType: GrowingSpaceType;
@@ -73,63 +74,70 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
   }
 
   return (
-    <form className="space-y-8" noValidate onSubmit={submit}>
-      <fieldset>
-        <legend className="text-lg font-bold">공간 유형</legend>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+    <form className={styles.formLayout} noValidate onSubmit={submit}>
+      <div className={styles.formMain}>
+      <fieldset className={styles.formSection}>
+        <legend><span>01</span><strong>공간 유형</strong></legend>
+        <p className={styles.sectionDescription}>실제 재배 방식과 가장 가까운 환경을 선택해 주세요.</p>
+        <div className={styles.optionGrid}>
           {SPACE_TYPE_OPTIONS.map((option) => (
-            <label className={`cursor-pointer rounded-2xl border p-4 ${values.type === option.value ? "border-leaf bg-leaf-soft/60" : "border-ink/10 bg-white"}`} key={option.value}>
-              <input checked={values.type === option.value} className="accent-leaf" name="space-type" onChange={() => update("type", option.value)} type="radio" />
-              <span className="ml-2 font-bold">{option.label}</span>
-              <span className="mt-2 block text-sm leading-6 text-muted">{option.description}</span>
+            <label className={`${styles.optionCard} ${values.type === option.value ? styles.optionCardSelected : ""}`} key={option.value}>
+              <input checked={values.type === option.value} name="space-type" onChange={() => update("type", option.value)} type="radio" />
+              <span className={styles.optionIndex}>{option.value === "indoor" ? "A" : option.value === "balcony" ? "B" : "C"}</span>
+              <strong>{option.label}</strong>
+              <span>{option.description}</span>
             </label>
           ))}
         </div>
       </fieldset>
 
-      <Field label="공간 이름" error={errors.name} id="space-name">
-        <input aria-describedby={errors.name ? "space-name-error" : undefined} aria-invalid={Boolean(errors.name)} className="form-input" id="space-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 거실 창가, 우리집 베란다" value={values.name} />
-      </Field>
+      <section className={styles.formSection}>
+        <div className={styles.sectionHeading}><span>02</span><div><h2>이름과 크기</h2><p>목록에서 바로 알아볼 수 있는 이름과 실제 사용할 면적을 적어주세요.</p></div></div>
+        <Field label="공간 이름" error={errors.name} id="space-name">
+          <input aria-describedby={errors.name ? "space-name-error" : undefined} aria-invalid={Boolean(errors.name)} className={styles.input} id="space-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 거실 창가, 우리집 베란다" value={values.name} />
+        </Field>
 
-      <fieldset>
-        <legend className="text-lg font-bold">공간 크기</legend>
-        <p className="mt-1 text-sm leading-6 text-muted">정확히 재지 않아도 됩니다. 가장 비슷한 크기를 고른 뒤 필요하면 숫자만 조절하세요.</p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <fieldset className={styles.sizeFieldset}>
+        <legend>빠른 크기 선택</legend>
+        <p>정확히 재지 않아도 됩니다. 가장 비슷한 크기를 고른 뒤 숫자를 조절하세요.</p>
+        <div className={styles.presetGrid}>
           {SPACE_SIZE_PRESETS.map((preset) => {
             const selected = values.widthCm === String(preset.widthCm) && values.lengthCm === String(preset.lengthCm);
             return (
-              <button className={`rounded-2xl border p-4 text-left ${selected ? "border-leaf bg-leaf-soft/60" : "border-ink/10 bg-white"}`} key={preset.label} onClick={() => {
+              <button className={`${styles.presetButton} ${selected ? styles.presetButtonSelected : ""}`} key={preset.label} onClick={() => {
                 update("widthCm", String(preset.widthCm));
                 update("lengthCm", String(preset.lengthCm));
               }} type="button">
-                <strong className="block">{preset.label}</strong>
-                <span className="mt-1 block text-sm text-muted">{preset.widthCm} × {preset.lengthCm}cm · {preset.description}</span>
+                <strong>{preset.label}</strong>
+                <span>{preset.widthCm} × {preset.lengthCm}cm</span>
+                <small>{preset.description}</small>
               </button>
             );
           })}
         </div>
-        <details className="mt-3 rounded-2xl border border-ink/10 bg-white p-4 text-sm leading-6">
-          <summary className="cursor-pointer font-bold">줄자 없이 대략 재는 방법</summary>
-          <p className="mt-2 text-muted">A4 용지는 약 21 × 30cm, 스마트폰 긴 쪽은 약 15cm입니다. A4 용지나 스마트폰을 몇 번 놓을 수 있는지 세면 충분합니다. 바닥 타일 한 장 크기를 알고 있다면 타일 개수로 계산해도 됩니다.</p>
+        <details className={styles.measureGuide}>
+          <summary>줄자 없이 대략 재는 방법</summary>
+          <p>A4 용지는 약 21 × 30cm, 스마트폰 긴 쪽은 약 15cm입니다. A4 용지나 스마트폰을 몇 번 놓을 수 있는지 세면 충분합니다. 바닥 타일 한 장 크기를 알고 있다면 타일 개수로 계산해도 됩니다.</p>
         </details>
       </fieldset>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className={styles.fieldGrid}>
         <Field label="가로 크기 (cm)" error={errors.widthCm} id="width">
-          <input aria-describedby={errors.widthCm ? "width-error" : undefined} aria-invalid={Boolean(errors.widthCm)} className="form-input" id="width" inputMode="decimal" min="10" onChange={(event) => update("widthCm", event.target.value)} placeholder="예: 400" type="number" value={values.widthCm} />
+          <input aria-describedby={errors.widthCm ? "width-error" : undefined} aria-invalid={Boolean(errors.widthCm)} className={styles.input} id="width" inputMode="decimal" min="10" onChange={(event) => update("widthCm", event.target.value)} placeholder="예: 400" type="number" value={values.widthCm} />
         </Field>
         <Field label="세로 크기 (cm)" error={errors.lengthCm} id="length">
-          <input aria-describedby={errors.lengthCm ? "length-error" : undefined} aria-invalid={Boolean(errors.lengthCm)} className="form-input" id="length" inputMode="decimal" min="10" onChange={(event) => update("lengthCm", event.target.value)} placeholder="예: 300" type="number" value={values.lengthCm} />
+          <input aria-describedby={errors.lengthCm ? "length-error" : undefined} aria-invalid={Boolean(errors.lengthCm)} className={styles.input} id="length" inputMode="decimal" min="10" onChange={(event) => update("lengthCm", event.target.value)} placeholder="예: 300" type="number" value={values.lengthCm} />
         </Field>
       </div>
+      </section>
 
-      <div>
+      <section className={styles.formSection}>
+        <div className={styles.sectionHeading}><span>03</span><div><h2>햇빛과 위치</h2><p>직접 선택하거나 주소·현재 위치로 예상 일조 시간을 계산할 수 있어요.</p></div></div>
         <Field label="하루 일조 시간" id="sunlight">
-          <select className="form-input" id="sunlight" onChange={(event) => updateSunlight(event.target.value)} value={values.sunlight}>
+          <select className={styles.input} id="sunlight" onChange={(event) => updateSunlight(event.target.value)} value={values.sunlight}>
             {SUNLIGHT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </Field>
-      </div>
 
       <SunlightLocationAssistant
         onApply={(location, sunlight) => {
@@ -144,14 +152,34 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
           orientation: values.orientation,
         }}
       />
+      </section>
 
-      <Field label="메모 (선택)" id="notes">
-        <textarea className="form-input min-h-28 resize-y" id="notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="바람, 배수, 주변 환경 등을 기록해 보세요." value={values.notes} />
-      </Field>
+      <section className={styles.formSection}>
+        <div className={styles.sectionHeading}><span>04</span><div><h2>환경 메모</h2><p>배수, 바람, 그늘처럼 다음 작물 선택에 참고할 내용을 남겨두세요.</p></div></div>
+        <Field label="메모 (선택)" id="notes">
+          <textarea className={`${styles.input} ${styles.textarea}`} id="notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="바람, 배수, 주변 환경 등을 기록해 보세요." value={values.notes} />
+        </Field>
+      </section>
 
-      {formError && <p className="rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{formError}</p>}
+      {formError && <p className={styles.errorMessage} role="alert">{formError}</p>}
 
-      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">{space ? "변경 내용 저장" : "공간 등록하기"}</button>
+      <button className={styles.submitButton} type="submit">{space ? "변경 내용 저장" : "공간 등록하기"} <span>→</span></button>
+      </div>
+
+      <aside className={styles.formAside} aria-label="입력 중인 공간 요약">
+        <p>등록 미리보기</p>
+        <h2>{values.name.trim() || "공간 이름을 입력해 주세요"}</h2>
+        <span>{SPACE_TYPE_OPTIONS.find((option) => option.value === values.type)?.label}</span>
+        <dl>
+          <div><dt>크기</dt><dd>{values.widthCm && values.lengthCm ? `${values.widthCm} × ${values.lengthCm}cm` : "입력 전"}</dd></div>
+          <div><dt>햇빛</dt><dd>{values.estimatedSunlightHours === null ? SUNLIGHT_OPTIONS.find((option) => option.value === values.sunlight)?.label : `하루 약 ${values.estimatedSunlightHours}시간`}</dd></div>
+          <div><dt>위치</dt><dd>{values.address || "선택 사항"}</dd></div>
+        </dl>
+        <div className={styles.asideGuide}>
+          <strong>등록 후 다음 단계</strong>
+          <p>공간에 맞는 시즌을 만들고, 화분·베란다는 대표 작물을 선택합니다. 마당·텃밭은 격자에 작물을 배치해요.</p>
+        </div>
+      </aside>
     </form>
   );
 }
@@ -231,10 +259,10 @@ interface FieldProps {
 
 function Field({ children, error, id, label }: FieldProps) {
   return (
-    <div>
-      <label className="mb-2 block font-bold" htmlFor={id}>{label}</label>
+    <div className={styles.field}>
+      <label htmlFor={id}>{label}</label>
       {children}
-      {error && <p className="mt-2 text-sm font-semibold text-red-700" id={`${id}-error`}>{error}</p>}
+      {error && <p id={`${id}-error`}>{error}</p>}
     </div>
   );
 }
