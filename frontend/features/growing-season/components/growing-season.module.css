@@ -1,0 +1,795 @@
+.listPage {
+  display: grid;
+  gap: 38px;
+}
+
+.listOverview {
+  display: grid;
+  min-height: 190px;
+  padding: 32px 36px;
+  align-items: center;
+  gap: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 78% 10%, rgba(72, 167, 119, 0.34), transparent 22rem),
+    linear-gradient(120deg, #0d3025, #0b6549);
+  color: white;
+  box-shadow: var(--shadow-md);
+  grid-template-columns: minmax(0, 1.2fr) minmax(430px, 0.8fr);
+}
+
+.listOverview > div > p,
+.listHeading p,
+.formAside > p,
+.cropNotice > div > p {
+  color: #78dfb7;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.listOverview h2 {
+  margin-top: 7px;
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.listOverview > div > span {
+  display: block;
+  max-width: 580px;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+.listOverview dl {
+  display: grid;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  background: rgba(5, 29, 20, 0.45);
+  backdrop-filter: blur(14px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.listOverview dl > div {
+  padding: 13px 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+  text-align: center;
+}
+
+.listOverview dl > div:first-child {
+  border-left: 0;
+}
+
+.listOverview dt {
+  color: rgba(255, 255, 255, 0.67);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.listOverview dd {
+  margin-top: 8px;
+  color: #7ae1ba;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.filterNotice {
+  display: flex;
+  margin-bottom: -18px;
+  padding: 15px 18px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 22%, var(--color-border));
+  border-radius: 16px;
+  background: var(--color-primary-soft);
+  gap: 20px;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.filterNotice a {
+  flex: 0 0 auto;
+  color: var(--color-primary-hover);
+  font-size: 12px;
+}
+
+.listHeading {
+  display: flex;
+  margin-bottom: -18px;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.listHeading p {
+  color: var(--color-primary);
+}
+
+.listHeading h2 {
+  margin-top: 5px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.listHeading > a {
+  color: var(--color-primary-hover);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.seasonGrid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.seasonCard {
+  display: flex;
+  min-width: 0;
+  padding: 28px;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--motion-base), transform var(--motion-base), box-shadow var(--motion-base);
+}
+
+.seasonCard:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.cardHeader p {
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cardHeader h3 {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.cardHeader > span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 7px 11px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.cardHeader > span[data-status="active"] {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.cardHeader > span[data-status="planned"] {
+  background: #eef6fb;
+  color: #327497;
+}
+
+.cardHeader > span[data-status="completed"] {
+  background: #f1f0ed;
+  color: #696d69;
+}
+
+.cardFacts {
+  margin-top: 22px;
+}
+
+.cardFacts > div {
+  display: flex;
+  padding: 14px 0;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-border);
+  gap: 20px;
+}
+
+.cardFacts dt {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.cardFacts dd {
+  font-size: 13px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.cardFacts dd span {
+  padding: 0 7px;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.cropLink {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 3px;
+  border-radius: 999px;
+  background: var(--color-surface-warm);
+  padding: 8px 11px;
+  color: var(--color-primary-hover);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.cardNotes {
+  margin-top: 15px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.nextStep {
+  display: grid;
+  margin-top: 20px;
+  padding: 20px;
+  align-items: center;
+  gap: 18px;
+  border-radius: 17px;
+  background: linear-gradient(135deg, var(--color-primary-soft), #f7fbf9);
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.nextStep p {
+  color: var(--color-primary);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.nextStep h4 {
+  margin-top: 5px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.nextStep span {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-muted);
+  font-size: 11px;
+  line-height: 1.55;
+  word-break: keep-all;
+}
+
+.nextStep > a {
+  display: inline-flex;
+  min-height: 40px;
+  padding: 0 14px;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.cardLinks {
+  display: flex;
+  margin-top: 18px;
+  padding-top: 17px;
+  flex-wrap: wrap;
+  border-top: 1px dashed #d9d4ca;
+  gap: 8px;
+}
+
+.cardLinks a {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 8px 11px;
+  color: var(--color-primary-hover);
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.cardActions {
+  display: flex;
+  margin-top: 18px;
+  justify-content: flex-end;
+  gap: 14px;
+}
+
+.cardActions a,
+.cardActions button {
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.cardActions button {
+  color: var(--color-danger);
+}
+
+.emptyState {
+  display: grid;
+  min-height: 390px;
+  padding: 48px 24px;
+  place-items: center;
+  align-content: center;
+  border: 1px dashed color-mix(in srgb, var(--color-primary) 34%, var(--color-border));
+  border-radius: 24px;
+  background: linear-gradient(135deg, white, var(--color-surface-warm));
+  text-align: center;
+}
+
+.emptyState > span {
+  display: grid;
+  width: 64px;
+  height: 64px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.emptyState > p {
+  margin-top: 18px;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.emptyState h2 {
+  margin-top: 8px;
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.emptyState > strong {
+  max-width: 470px;
+  margin-top: 12px;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.emptyState > div {
+  display: flex;
+  margin-top: 22px;
+  align-items: center;
+  gap: 14px;
+}
+
+.emptyState > div a:first-child,
+.submitButton {
+  display: inline-flex;
+  min-height: 50px;
+  padding: 0 23px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 800;
+}
+
+.emptyState > div a:not(:first-child) {
+  color: var(--color-muted);
+  font-size: 12px;
+  font-weight: 750;
+  text-decoration: underline;
+}
+
+.errorMessage {
+  border: 1px solid #efcbc6;
+  border-radius: 18px;
+  background: #fff4f2;
+  padding: 18px 20px;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.errorMessage a {
+  display: inline-flex;
+  margin-top: 10px;
+  text-decoration: underline;
+}
+
+.loading {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.loading > div,
+.formLoading {
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: linear-gradient(100deg, #f3f0ea 20%, #faf9f6 45%, #f3f0ea 70%);
+  background-size: 220% 100%;
+  animation: loading-sweep 1.4s ease-in-out infinite;
+}
+
+.loading > div {
+  min-height: 460px;
+}
+
+.formLoading {
+  min-height: 220px;
+  padding: 28px;
+  color: var(--color-muted);
+}
+
+.formLayout {
+  display: grid;
+  align-items: start;
+  gap: 22px;
+  grid-template-columns: minmax(0, 1fr) 330px;
+}
+
+.formMain {
+  display: grid;
+  gap: 18px;
+}
+
+.formSection,
+.formAside,
+.cropNotice {
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-sm);
+}
+
+.formSection {
+  padding: 28px;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.sectionHeading > span {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.sectionHeading h2 {
+  padding-top: 6px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.sectionHeading p {
+  margin-top: 5px;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.field {
+  margin-top: 24px;
+}
+
+.field > label {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.field > p:not(.fieldHelp) {
+  margin-top: 8px;
+  color: var(--color-danger);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.fieldHelp {
+  margin-top: 8px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.input {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: white;
+  padding: 13px 15px;
+  color: var(--color-ink);
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 14%, transparent);
+  outline-offset: 1px;
+}
+
+.input:disabled {
+  background: var(--color-surface);
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.fieldGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.textarea {
+  min-height: 118px;
+  resize: vertical;
+}
+
+.cropNotice {
+  display: grid;
+  padding: 24px 26px;
+  align-items: center;
+  gap: 24px;
+  background: linear-gradient(135deg, #0d3428, #0b684a);
+  color: white;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.7fr);
+}
+
+.cropNotice h2 {
+  margin-top: 6px;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.cropNotice > div > span {
+  display: block;
+  margin-top: 7px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.cropNotice dl {
+  display: grid;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 15px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cropNotice dl > div {
+  padding: 13px 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.cropNotice dl > div:first-child {
+  border-left: 0;
+}
+
+.cropNotice dt {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 10px;
+}
+
+.cropNotice dd {
+  margin-top: 5px;
+  color: #78dfb7;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.submitButton {
+  width: 100%;
+  cursor: pointer;
+  gap: 14px;
+  font-size: 15px;
+}
+
+.submitButton:hover,
+.nextStep > a:hover,
+.emptyState > div a:first-child:hover {
+  background: var(--color-primary-hover);
+}
+
+.submitButton:active,
+.nextStep > a:active,
+.emptyState > div a:first-child:active {
+  transform: scale(0.98);
+}
+
+.submitButton:focus-visible,
+.nextStep > a:focus-visible,
+.emptyState a:focus-visible,
+.cardLinks a:focus-visible,
+.cardActions a:focus-visible,
+.cardActions button:focus-visible,
+.listHeading > a:focus-visible,
+.filterNotice a:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+.formAside {
+  position: sticky;
+  top: 100px;
+  padding: 25px;
+}
+
+.formAside > p {
+  color: var(--color-primary);
+}
+
+.formAside > h2 {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.formAside > span {
+  display: inline-flex;
+  margin-top: 11px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  padding: 7px 10px;
+  color: var(--color-primary-hover);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.formAside dl {
+  margin-top: 20px;
+}
+
+.formAside dl > div {
+  display: flex;
+  padding: 13px 0;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-border);
+  gap: 18px;
+}
+
+.formAside dt {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.formAside dd {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.asideGuide {
+  margin-top: 20px;
+  border-radius: 16px;
+  background: var(--color-surface-warm);
+  padding: 16px;
+}
+
+.asideGuide strong {
+  color: #d87524;
+  font-size: 11px;
+}
+
+.asideGuide p {
+  margin-top: 7px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+@keyframes loading-sweep {
+  to { background-position: -120% 0; }
+}
+
+@media (max-width: 1000px) {
+  .listOverview,
+  .formLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .formAside {
+    position: static;
+  }
+}
+
+@media (max-width: 700px) {
+  .listOverview {
+    padding: 26px 22px;
+    gap: 24px;
+  }
+
+  .listOverview dl {
+    padding: 7px;
+  }
+
+  .listOverview dl > div {
+    padding: 10px 7px;
+  }
+
+  .listOverview dd {
+    font-size: 20px;
+  }
+
+  .seasonGrid,
+  .loading,
+  .cropNotice {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .listHeading,
+  .filterNotice {
+    align-items: flex-start;
+  }
+
+  .listHeading h2 {
+    font-size: 24px;
+  }
+
+  .listHeading > a {
+    padding-top: 5px;
+  }
+
+  .seasonCard,
+  .formSection,
+  .formAside {
+    padding: 22px 19px;
+  }
+
+  .nextStep,
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .nextStep > a {
+    justify-self: start;
+  }
+
+  .cardFacts dd {
+    font-size: 12px;
+  }
+
+  .emptyState > div {
+    flex-direction: column;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading > div,
+  .formLoading {
+    animation: none;
+  }
+}

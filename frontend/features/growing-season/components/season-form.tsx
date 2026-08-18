@@ -26,6 +26,7 @@ import {
   type GrowingSpacesState,
 } from "@/features/growing-space/hooks/use-growing-spaces";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
+import styles from "@/features/growing-season/components/growing-season.module.css";
 
 interface SeasonFormProps {
   initialSpaceId: string;
@@ -106,10 +107,11 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
 
   if (spaces.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-leaf/30 p-7 text-center">
+      <div className={styles.emptyState}>
+        <span aria-hidden="true">01</span>
         <h2 className="text-xl font-bold">먼저 재배 공간을 등록해 주세요</h2>
-        <p className="mt-3 leading-7 text-muted">시즌은 텃밭, 베란다 또는 실내 화분 공간에 연결해서 관리합니다.</p>
-        <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href="/spaces/new">재배 공간 등록</Link>
+        <strong>시즌은 텃밭, 베란다 또는 실내 화분 공간에 연결해서 관리합니다.</strong>
+        <div><Link href="/spaces/new">재배 공간 등록 →</Link></div>
       </div>
     );
   }
@@ -119,67 +121,252 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
     : spaces;
   const selectedSpace = spaces.find((space) => space.id === values.spaceId);
   const compatibleCrops = cropsForSpace(cropCatalog.crops, selectedSpace);
+  const selectedCrop = compatibleCrops.find((crop) => crop.id === featuredCropId);
 
   if (initialCrop && compatibleSpaces.length === 0) {
     const recommendedType = initialCrop.supportedSpaces[0] ?? "indoor";
     return (
-      <div className="rounded-2xl border border-dashed border-leaf/30 p-7 text-center">
+      <div className={styles.emptyState}>
+        <span aria-hidden="true">01</span>
         <h2 className="text-xl font-bold">{initialCrop.name}에 맞는 공간이 없어요</h2>
-        <p className="mt-3 leading-7 text-muted">{GROWING_SPACE_LABELS[recommendedType]} 공간을 먼저 등록한 뒤 재배를 시작해 주세요.</p>
-        <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href={`/spaces/new?type=${recommendedType}`}>알맞은 공간 등록하기</Link>
+        <strong>{GROWING_SPACE_LABELS[recommendedType]} 공간을 먼저 등록한 뒤 재배를 시작해 주세요.</strong>
+        <div><Link href={`/spaces/new?type=${recommendedType}`}>알맞은 공간 등록하기 →</Link></div>
       </div>
     );
   }
 
   return (
-    <form className="space-y-6" noValidate onSubmit={submit}>
-      {initialCrop && (
-        <div className="rounded-2xl bg-leaf-soft/60 p-5">
-          <p className="text-sm font-bold text-leaf">선택한 식물</p>
-          <p className="mt-1 text-xl font-bold">{initialCrop.name}</p>
-          <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-            <div className="rounded-xl bg-white/70 px-4 py-3">
-              <dt className="text-muted">권장 심기</dt>
-              <dd className="mt-1 font-bold">{initialCrop.plantingPeriod.label}</dd>
+    <SeasonFormView
+      compatibleCrops={compatibleCrops}
+      compatibleSpaces={compatibleSpaces}
+      errors={errors}
+      featuredCropId={featuredCropId}
+      formError={formError}
+      initialCrop={initialCrop}
+      onCropChange={setFeaturedCropId}
+      onSubmit={submit}
+      onUpdate={update}
+      season={season}
+      selectedCrop={selectedCrop}
+      selectedSpace={selectedSpace}
+      values={values}
+    />
+  );
+}
+
+interface SeasonFormViewProps {
+  compatibleCrops: readonly CropReference[];
+  compatibleSpaces: readonly GrowingSpace[];
+  errors: GrowingSeasonErrors;
+  featuredCropId: string;
+  formError: string;
+  initialCrop: CropReference | undefined;
+  onCropChange: (cropId: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
+  onUpdate: <K extends keyof GrowingSeasonFormValues>(key: K, value: GrowingSeasonFormValues[K]) => void;
+  season: PersistedGrowingSeason | undefined;
+  selectedCrop: CropReference | undefined;
+  selectedSpace: GrowingSpace | undefined;
+  values: GrowingSeasonFormValues;
+}
+
+function SeasonFormView(props: SeasonFormViewProps) {
+  function updateSpace(spaceId: string) {
+    props.onUpdate("spaceId", spaceId);
+    props.onCropChange("");
+  }
+
+  return (
+    <form className={styles.formLayout} noValidate onSubmit={props.onSubmit}>
+      <div className={styles.formMain}>
+        {props.initialCrop && (
+          <div className={styles.cropNotice}>
+            <div>
+              <p>선택한 식물</p>
+              <h2>{props.initialCrop.name}</h2>
+              <span>권장 시기를 포함하도록 시즌 기간을 정하면 자동 일정을 만들 수 있어요.</span>
             </div>
-            <div className="rounded-xl bg-white/70 px-4 py-3">
-              <dt className="text-muted">권장 수확</dt>
-              <dd className="mt-1 font-bold">{initialCrop.harvestPeriod.label}</dd>
-            </div>
-          </dl>
-          <p className="mt-3 text-sm leading-6 text-muted">위 심기와 수확 시기가 모두 포함되도록 아래 시즌 기간을 정하면 자동 일정을 만들 수 있습니다.</p>
-        </div>
-      )}
-      <SeasonField error={errors.spaceId} id="season-space" label="재배 공간">
-        <select aria-describedby={errors.spaceId ? "season-space-error" : undefined} aria-invalid={Boolean(errors.spaceId)} className="form-input" id="season-space" onChange={(event) => update("spaceId", event.target.value)} value={values.spaceId}>
-          <option value="">공간 선택</option>
-          {compatibleSpaces.map((space) => <option key={space.id} value={space.id}>{space.name}</option>)}
-        </select>
-      </SeasonField>
-      <SeasonCropField
-        crops={compatibleCrops}
-        onChange={setFeaturedCropId}
-        selectedCropId={featuredCropId}
-        space={selectedSpace}
-      />
-      <SeasonField error={errors.name} id="season-name" label="시즌 이름">
-        <input aria-describedby={errors.name ? "season-name-error" : undefined} aria-invalid={Boolean(errors.name)} className="form-input" id="season-name" maxLength={30} onChange={(event) => update("name", event.target.value)} placeholder="예: 2026년 봄 시즌" value={values.name} />
-      </SeasonField>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <SeasonField error={errors.startDate} id="season-start" label={initialCrop ? `시작일 · 권장 심기 ${initialCrop.plantingPeriod.label}` : "시작일"}>
-          <input aria-describedby={errors.startDate ? "season-start-error" : undefined} aria-invalid={Boolean(errors.startDate)} className="form-input" id="season-start" onChange={(event) => update("startDate", event.target.value)} type="date" value={values.startDate} />
-        </SeasonField>
-        <SeasonField error={errors.endDate} id="season-end" label={initialCrop ? `종료일 · 권장 수확 ${initialCrop.harvestPeriod.label}` : "종료일"}>
-          <input aria-describedby={errors.endDate ? "season-end-error" : undefined} aria-invalid={Boolean(errors.endDate)} className="form-input" id="season-end" min={values.startDate || undefined} onChange={(event) => update("endDate", event.target.value)} type="date" value={values.endDate} />
-        </SeasonField>
+            <dl>
+              <div><dt>권장 심기</dt><dd>{props.initialCrop.plantingPeriod.label}</dd></div>
+              <div><dt>권장 수확</dt><dd>{props.initialCrop.harvestPeriod.label}</dd></div>
+            </dl>
+          </div>
+        )}
+        <section className={styles.formSection}>
+          <SeasonSectionHeading
+            description="이번 시즌을 연결할 공간을 고르면 가능한 작물만 안내합니다."
+            number="01"
+            title="공간과 작물"
+          />
+          <SeasonField error={props.errors.spaceId} id="season-space" label="재배 공간">
+            <select
+              aria-describedby={props.errors.spaceId ? "season-space-error" : undefined}
+              aria-invalid={Boolean(props.errors.spaceId)}
+              className={styles.input}
+              id="season-space"
+              onChange={(event) => updateSpace(event.target.value)}
+              value={props.values.spaceId}
+            >
+              <option value="">공간 선택</option>
+              {props.compatibleSpaces.map((space) => (
+                <option key={space.id} value={space.id}>{space.name}</option>
+              ))}
+            </select>
+          </SeasonField>
+          <SeasonCropField
+            crops={props.compatibleCrops}
+            onChange={props.onCropChange}
+            selectedCropId={props.featuredCropId}
+            space={props.selectedSpace}
+          />
+        </section>
+        <section className={styles.formSection}>
+          <SeasonSectionHeading
+            description="목록에서 알아보기 쉬운 이름과 실제 관리할 날짜를 정해 주세요."
+            number="02"
+            title="이름과 재배 기간"
+          />
+          <SeasonField error={props.errors.name} id="season-name" label="시즌 이름">
+            <input
+              aria-describedby={props.errors.name ? "season-name-error" : undefined}
+              aria-invalid={Boolean(props.errors.name)}
+              className={styles.input}
+              id="season-name"
+              maxLength={30}
+              onChange={(event) => props.onUpdate("name", event.target.value)}
+              placeholder="예: 2026년 봄 시즌"
+              value={props.values.name}
+            />
+          </SeasonField>
+          <div className={styles.fieldGrid}>
+            <SeasonField error={props.errors.startDate} id="season-start" label={getStartDateLabel(props.initialCrop)}>
+              <input
+                aria-describedby={props.errors.startDate ? "season-start-error" : undefined}
+                aria-invalid={Boolean(props.errors.startDate)}
+                className={styles.input}
+                id="season-start"
+                onChange={(event) => props.onUpdate("startDate", event.target.value)}
+                type="date"
+                value={props.values.startDate}
+              />
+            </SeasonField>
+            <SeasonField error={props.errors.endDate} id="season-end" label={getEndDateLabel(props.initialCrop)}>
+              <input
+                aria-describedby={props.errors.endDate ? "season-end-error" : undefined}
+                aria-invalid={Boolean(props.errors.endDate)}
+                className={styles.input}
+                id="season-end"
+                min={props.values.startDate || undefined}
+                onChange={(event) => props.onUpdate("endDate", event.target.value)}
+                type="date"
+                value={props.values.endDate}
+              />
+            </SeasonField>
+          </div>
+        </section>
+        <section className={styles.formSection}>
+          <SeasonSectionHeading
+            description="이번 시즌의 목표나 확인할 환경 변화를 남겨두세요."
+            number="03"
+            title="시즌 메모"
+          />
+          <SeasonField id="season-notes" label="메모 (선택)">
+            <textarea
+              className={`${styles.input} ${styles.textarea}`}
+              id="season-notes"
+              maxLength={300}
+              onChange={(event) => props.onUpdate("notes", event.target.value)}
+              placeholder="이번 시즌의 목표나 키우고 싶은 작물을 기록해 보세요."
+              value={props.values.notes}
+            />
+          </SeasonField>
+        </section>
+        {props.formError && <p className={styles.errorMessage} role="alert">{props.formError}</p>}
+        <button className={styles.submitButton} type="submit">
+          {props.season ? "변경 내용 저장" : "시즌 등록하기"} <span>→</span>
+        </button>
       </div>
-      <SeasonField id="season-notes" label="메모 (선택)">
-        <textarea className="form-input min-h-28 resize-y" id="season-notes" maxLength={300} onChange={(event) => update("notes", event.target.value)} placeholder="이번 시즌의 목표나 키우고 싶은 작물을 기록해 보세요." value={values.notes} />
-      </SeasonField>
-      {formError && <p className="rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{formError}</p>}
-      <button className="w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white hover:bg-leaf-dark" type="submit">{season ? "변경 내용 저장" : "시즌 등록하기"}</button>
+      <SeasonFormSummary
+        cropName={props.selectedCrop?.name}
+        endDate={props.values.endDate}
+        seasonName={props.values.name}
+        space={props.selectedSpace}
+        startDate={props.values.startDate}
+      />
     </form>
   );
+}
+
+function SeasonSectionHeading({
+  description,
+  number,
+  title,
+}: {
+  description: string;
+  number: string;
+  title: string;
+}) {
+  return (
+    <div className={styles.sectionHeading}>
+      <span>{number}</span>
+      <div>
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+    </div>
+  );
+}
+
+function SeasonFormSummary({
+  cropName,
+  endDate,
+  seasonName,
+  space,
+  startDate,
+}: {
+  cropName: string | undefined;
+  endDate: string;
+  seasonName: string;
+  space: GrowingSpace | undefined;
+  startDate: string;
+}) {
+  return (
+    <aside className={styles.formAside} aria-label="입력 중인 시즌 요약">
+      <p>시즌 미리보기</p>
+      <h2>{seasonName.trim() || "시즌 이름을 입력해 주세요"}</h2>
+      <span>{space?.name ?? "공간 선택 전"}</span>
+      <dl>
+        <div><dt>작물</dt><dd>{getSummaryCropName(space, cropName)}</dd></div>
+        <div><dt>시작일</dt><dd>{startDate || "입력 전"}</dd></div>
+        <div><dt>종료일</dt><dd>{endDate || "입력 전"}</dd></div>
+      </dl>
+      <div className={styles.asideGuide}>
+        <strong>등록 후 다음 단계</strong>
+        <p>{getNextStepGuide(space)}</p>
+      </div>
+    </aside>
+  );
+}
+
+function getSummaryCropName(space: GrowingSpace | undefined, cropName: string | undefined) {
+  if (cropName) return cropName;
+  if (! space) return "공간 선택 전";
+  return space.type === "garden" ? "배치 단계에서 선택" : "선택 전";
+}
+
+function getNextStepGuide(space: GrowingSpace | undefined) {
+  if (! space) return "공간을 선택하면 유형에 맞는 다음 재배 단계를 안내합니다.";
+  return space.type === "garden"
+    ? "격자를 만들고 여러 작물을 배치한 뒤 재배 일정을 준비합니다."
+    : "선택한 대표 작물로 격자 없이 재배 일정을 준비합니다.";
+}
+
+function getStartDateLabel(crop: CropReference | undefined) {
+  return crop ? `시작일 · 권장 심기 ${crop.plantingPeriod.label}` : "시작일";
+}
+
+function getEndDateLabel(crop: CropReference | undefined) {
+  return crop ? `종료일 · 권장 수확 ${crop.harvestPeriod.label}` : "종료일";
 }
 
 type SeasonFormStatusInput = {
@@ -205,14 +392,15 @@ function getSeasonFormStatus(input: SeasonFormStatusInput) {
   if (input.seasonState.status === "error") {
     return { isError: true, message: input.seasonState.message ?? "시즌 정보를 불러오지 못했습니다." };
   }
+  if (input.spaceState.status === "loading" || input.seasonState.status === "loading") {
+    return { isError: false, message: "시즌 입력 정보를 불러오고 있습니다." };
+  }
 
   return null;
 }
 
 function SeasonFormStatus({ status }: { status: { isError: boolean; message: string } }) {
-  const className = status.isError
-    ? "rounded-2xl bg-red-50 p-5 font-semibold text-red-700"
-    : "text-muted";
+  const className = status.isError ? styles.errorMessage : styles.formLoading;
 
   return <p className={className} role={status.isError ? "alert" : undefined}>{status.message}</p>;
 }
@@ -250,22 +438,34 @@ function SeasonCropField({
   space: GrowingSpace | undefined;
 }) {
   const selectedValue = crops.some((crop) => crop.id === selectedCropId) ? selectedCropId : "";
+  const hasSpace = Boolean(space);
   const isGarden = space?.type === "garden";
   return (
     <SeasonField id="season-crop" label={isGarden ? "대표 작물 (선택)" : "키울 작물"}>
-      <select className="form-input" id="season-crop" onChange={(event) => onChange(event.target.value)} value={selectedValue}>
-        <option value="">작물 선택</option>
-        {crops.map((crop) => (
+      <select
+        className={styles.input}
+        disabled={! hasSpace}
+        id="season-crop"
+        onChange={(event) => onChange(event.target.value)}
+        value={selectedValue}
+      >
+        <option value="">{hasSpace ? "작물 선택" : "공간을 먼저 선택해 주세요"}</option>
+        {hasSpace && crops.map((crop) => (
           <option key={crop.id} value={crop.id}>{crop.name} · 권장 심기 {crop.plantingPeriod.label}</option>
         ))}
       </select>
-      <p className="mt-2 text-sm text-muted">
-        {isGarden
-          ? "텃밭은 다음 단계의 격자에서 여러 작물을 배치할 수 있습니다."
-          : "화분·베란다는 격자 없이 선택한 작물로 재배 일정을 만듭니다."}
+      <p className={styles.fieldHelp}>
+        {getCropFieldHelp(space)}
       </p>
     </SeasonField>
   );
+}
+
+function getCropFieldHelp(space: GrowingSpace | undefined) {
+  if (! space) return "공간을 선택하면 해당 환경에서 키울 수 있는 작물만 보여 드립니다.";
+  return space.type === "garden"
+    ? "텃밭은 다음 단계의 격자에서 여러 작물을 배치할 수 있습니다."
+    : "화분·베란다는 격자 없이 선택한 작물로 재배 일정을 만듭니다.";
 }
 
 function cropsForSpace(crops: readonly CropReference[], space: GrowingSpace | undefined) {

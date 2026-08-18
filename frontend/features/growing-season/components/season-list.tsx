@@ -12,17 +12,12 @@ import { getSeasonNextStep } from "@/features/growing-season/domain/season-next-
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { deleteGrowingSeason } from "@/features/growing-season/infrastructure/season-api";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import styles from "@/features/growing-season/components/growing-season.module.css";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   planned: "예정",
   active: "진행 중",
   completed: "종료",
-};
-
-const STATUS_STYLES: Record<GrowingSeasonStatus, string> = {
-  planned: "bg-sky-50 text-sky-700",
-  active: "bg-leaf-soft text-leaf-dark",
-  completed: "bg-stone-100 text-stone-600",
 };
 
 export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string }) {
@@ -36,7 +31,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
   if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
-  if (layoutsState.status === "loading") return <p className="text-muted">시즌의 다음 단계를 확인하고 있습니다.</p>;
+  if (seasonsState.status === "loading" || spacesState.status === "loading" || cropCatalog.status === "loading" || layoutsState.status === "loading") return <SeasonListLoading />;
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
   const cropsById = new Map(cropCatalog.crops.map((crop) => [crop.id, crop]));
   const layoutsBySeasonId = new Map(
@@ -53,6 +48,8 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   if (visibleSeasons.length === 0) {
     return <EmptySeasonList selectedSpaceId={selectedSpaceId} spaceName={selectedSpace?.name} />;
   }
+  const activeCount = visibleSeasons.filter((season) => season.status === "active").length;
+  const plannedCount = visibleSeasons.filter((season) => season.status === "planned").length;
 
   async function removeSeason(season: PersistedGrowingSeason) {
     setActionError("");
@@ -67,15 +64,20 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   }
 
   return (
-    <div>
+    <div className={styles.listPage}>
+      <section className={styles.listOverview} aria-label="재배 시즌 현황">
+        <div><p>현재 계획</p><h2>{visibleSeasons.length}개의 재배 시즌이 있어요</h2><span>기간과 공간을 기준으로 작물 배치부터 재배 일정과 기록까지 이어서 관리합니다.</span></div>
+        <dl><SeasonStat label="전체 시즌" value={`${visibleSeasons.length}개`} /><SeasonStat label="진행 중" value={`${activeCount}개`} /><SeasonStat label="예정" value={`${plannedCount}개`} /></dl>
+      </section>
       {selectedSpace && (
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-leaf-soft/60 p-4">
-          <p className="font-bold">‘{selectedSpace.name}’에서 키우는 시즌 {visibleSeasons.length}개</p>
-          <Link className="text-sm font-bold text-leaf underline" href="/seasons">전체 시즌 보기</Link>
+        <div className={styles.filterNotice}>
+          <p>‘{selectedSpace.name}’에서 키우는 시즌만 보고 있어요.</p>
+          <Link href="/seasons">전체 시즌 보기 →</Link>
         </div>
       )}
       {actionError && <ErrorMessage message={actionError} />}
-      <ul className={`grid gap-4 sm:grid-cols-2 ${actionError ? "mt-4" : ""}`}>
+      <div className={styles.listHeading}><div><p>재배 흐름</p><h2>시즌별 계획</h2></div><Link href={selectedSpaceId ? `/seasons/new?spaceId=${encodeURIComponent(selectedSpaceId)}` : "/seasons/new"}>새 시즌 만들기 →</Link></div>
+      <ul className={styles.seasonGrid}>
         {visibleSeasons.map((season) => {
           const status = season.status;
           const linkedSpace = spacesById.get(season.spaceId);
@@ -88,33 +90,30 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
             layoutsBySeasonId.get(season.id),
           );
           return (
-            <li className="surface-panel relative overflow-hidden p-6 transition hover:-translate-y-1 hover:shadow-[var(--shadow-md)]" key={season.id}>
-              <span className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,var(--color-primary),var(--color-secondary))]" aria-hidden="true" />
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-bold text-leaf">{linkedSpace?.name ?? "연결된 공간을 찾을 수 없음"}</p>
-                <span className={`rounded-full px-3 py-1 text-xs font-bold ${STATUS_STYLES[status]}`}>{STATUS_LABELS[status]}</span>
+            <li className={styles.seasonCard} key={season.id}>
+              <div className={styles.cardHeader}>
+                <div><p>{linkedSpace?.name ?? "연결된 공간을 찾을 수 없음"}</p><h3>{season.name}</h3></div>
+                <span data-status={status}>{STATUS_LABELS[status]}</span>
               </div>
-              <h2 className="mt-2 text-xl font-bold">{season.name}</h2>
-              {featuredCrop && <Link className="mt-2 inline-flex text-sm font-bold text-leaf underline" href={`/crops/${featuredCrop.id}`}>선택 식물 · {featuredCrop.name}</Link>}
-              <dl className="mt-5 text-sm">
-                <dt className="text-muted">재배 기간</dt>
-                <dd className="mt-1 font-bold">{season.startDate} ~ {season.endDate}</dd>
+              <dl className={styles.cardFacts}>
+                <div><dt>재배 기간</dt><dd>{season.startDate}<span>~</span>{season.endDate}</dd></div>
+                <div><dt>재배 방식</dt><dd>{linkedSpace?.type === "garden" ? "격자 작물 배치" : "대표 작물 관리"}</dd></div>
               </dl>
-              {season.notes && <p className="mt-4 border-t border-ink/10 pt-4 text-sm leading-6 text-muted">{season.notes}</p>}
-              <section className="mt-5 rounded-2xl bg-leaf-soft/70 p-4" aria-label={`${season.name} 다음 단계`}>
-                <p className="text-sm font-bold text-leaf-dark">{nextStep.title}</p>
-                <p className="mt-1 text-sm leading-6 text-muted">{nextStep.description}</p>
-                <Link className="mt-3 inline-flex rounded-full bg-leaf px-4 py-2.5 text-sm font-bold text-white hover:bg-leaf-dark" href={nextStep.href}>{nextStep.label} →</Link>
+              {featuredCrop && <Link className={styles.cropLink} href={`/crops/${featuredCrop.id}`}>선택 식물 · {featuredCrop.name} →</Link>}
+              {season.notes && <p className={styles.cardNotes}>{season.notes}</p>}
+              <section className={styles.nextStep} aria-label={`${season.name} 다음 단계`}>
+                <div><p>다음 추천 단계</p><h4>{nextStep.title}</h4><span>{nextStep.description}</span></div>
+                <Link href={nextStep.href}>{nextStep.label} →</Link>
               </section>
-              <div className="mt-6 flex flex-wrap gap-2 border-t border-ink/10 pt-4">
-                <Link className="rounded-full border border-ink/15 px-4 py-2 text-sm font-bold" href={`/seasons/${season.id}/edit`}>수정</Link>
-                <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/records`}>시즌 기록</Link>
-                <button className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-700" onClick={() => void removeSeason(season)} type="button">삭제</button>
-                <div className="ml-auto flex flex-wrap gap-2">
-                  <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/watering`}>물주기</Link>
-                  <Link className="rounded-full border border-leaf/20 px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/tasks`}>재배 일정</Link>
-                  {linkedSpace?.type === "garden" && <Link className="rounded-full bg-leaf-soft px-4 py-2 text-sm font-bold text-leaf-dark" href={`/seasons/${season.id}/layout`}>작물 배치</Link>}
-                </div>
+              <div className={styles.cardLinks}>
+                {linkedSpace?.type === "garden" && <Link href={`/seasons/${season.id}/layout`}>작물 배치</Link>}
+                <Link href={`/seasons/${season.id}/tasks`}>재배 일정</Link>
+                <Link href={`/seasons/${season.id}/watering`}>물주기</Link>
+                <Link href={`/seasons/${season.id}/records`}>시즌 기록</Link>
+              </div>
+              <div className={styles.cardActions}>
+                <Link href={`/seasons/${season.id}/edit`}>시즌 수정</Link>
+                <button onClick={() => void removeSeason(season)} type="button">삭제</button>
               </div>
             </li>
           );
@@ -135,25 +134,34 @@ function EmptySeasonList({
     ? `/seasons/new?spaceId=${encodeURIComponent(selectedSpaceId)}`
     : "/seasons/new";
   return (
-    <div className="surface-panel border-dashed p-8 text-center">
+    <div className={styles.emptyState}>
+      <span aria-hidden="true">02</span>
+      <p>공간 다음에 이어지는 단계</p>
       <h2 className="text-xl font-bold">{spaceName ? `‘${spaceName}’에 등록한 시즌이 없어요` : "아직 등록한 시즌이 없어요"}</h2>
-      <p className="mt-3 text-muted">재배 기간을 등록하면 식물 배치와 일정 관리의 기준이 됩니다.</p>
-      <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href={newSeasonHref}>첫 시즌 등록하기</Link>
-      {selectedSpaceId && <Link className="ml-3 mt-6 inline-flex px-3 py-3 text-sm font-bold text-muted underline" href="/seasons">전체 시즌 보기</Link>}
+      <strong>재배 기간을 등록하면 식물 배치와 일정 관리의 기준이 됩니다.</strong>
+      <div><Link href={newSeasonHref}>첫 시즌 등록하기 →</Link>{selectedSpaceId && <Link href="/seasons">전체 시즌 보기</Link>}</div>
     </div>
   );
 }
 
 function InvalidSpaceFilter() {
   return (
-    <div className="surface-panel border-dashed border-red-200 p-8 text-center">
+    <div className={styles.emptyState}>
       <h2 className="text-xl font-bold">선택한 공간을 찾을 수 없어요</h2>
-      <p className="mt-3 text-muted">공간이 삭제되었거나 주소가 올바르지 않습니다.</p>
-      <Link className="mt-6 inline-flex rounded-full bg-leaf px-5 py-3 font-bold text-white" href="/spaces">내 공간으로 돌아가기</Link>
+      <strong>공간이 삭제되었거나 주소가 올바르지 않습니다.</strong>
+      <div><Link href="/spaces">내 공간으로 돌아가기 →</Link></div>
     </div>
   );
 }
 
 function ErrorMessage({ message }: { message: string }) {
-  return <p className="rounded-2xl bg-red-50 p-5 font-semibold text-red-700" role="alert">{message}</p>;
+  return <p className={styles.errorMessage} role="alert">{message}</p>;
+}
+
+function SeasonStat({ label, value }: { label: string; value: string }) {
+  return <div><dt>{label}</dt><dd>{value}</dd></div>;
+}
+
+function SeasonListLoading() {
+  return <div className={styles.loading} aria-label="재배 시즌을 불러오는 중" aria-live="polite"><div /><div /></div>;
 }

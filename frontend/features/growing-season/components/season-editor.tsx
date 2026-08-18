@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { SeasonForm } from "@/features/growing-season/components/season-form";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
+import styles from "@/features/growing-season/components/growing-season.module.css";
 
 export function SeasonEditor({ seasonId }: { seasonId: string }) {
   const seasonsState = useGrowingSeasons();
@@ -21,9 +22,9 @@ export function SeasonEditor({ seasonId }: { seasonId: string }) {
 
 function Message({ message }: { message: string }) {
   return (
-    <div className="rounded-2xl bg-red-50 p-5 text-red-700" role="alert">
-      <p className="font-semibold">{message}</p>
-      <Link className="mt-4 inline-flex font-bold underline" href="/seasons">시즌 목록으로 돌아가기</Link>
+    <div className={styles.errorMessage} role="alert">
+      <p>{message}</p>
+      <Link href="/seasons">시즌 목록으로 돌아가기 →</Link>
     </div>
   );
 }

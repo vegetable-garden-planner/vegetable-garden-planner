@@ -23,10 +23,11 @@ export default async function EditSeasonPage({
         backLabel="시즌 목록"
         description="기간과 연결 공간을 바꾸면 이후 일정과 기록의 기준도 함께 달라집니다."
         eyebrow="재배 시즌 관리"
+        heroSize="compact"
         title="시즌 정보를 수정해요"
-        width="medium"
+        width="full"
       >
-        <section className="surface-panel p-6 sm:p-9"><SeasonEditor seasonId={seasonId} /></section>
+        <SeasonEditor seasonId={seasonId} />
       </AppPageShell>
     </AuthGate>
   );

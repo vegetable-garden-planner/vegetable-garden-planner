@@ -87,13 +87,14 @@ Swagger는 `develop` 반영과 로컬 검증까지 끝났지만 닷홈에는 아
 
 디자인 기준은 [프론트 디자인 시스템](../frontend/DESIGN.md)입니다. 원본 시안의 핵심은 짙은 온실 사진, 에메랄드 포인트, 따뜻한 흰색 배경, 얇은 경계, 둥근 카드, 긴 세로 스크롤 구성입니다.
 
-| 영역 | 상태 | develop 병합 커밋 |
+| 영역 | 상태 | 관련 커밋 |
 | --- | --- | --- |
 | 대시보드 재배 계획 구조 | 완료 | `41f84fb` |
 | 단일 시즌 대시보드 여백 보정 | 완료 | `70fc5ac` |
 | 작물 배치 상세 작업 화면 | 완료 | `d8a6e5e` |
 | 재배 일정 화면 | 완료 | `1f6cda2` |
 | 재배 공간 목록·등록·수정 | 완료 | `f5fec07` |
+| 시즌 목록·등록·수정 | 완료 | `b1081dc` |
 
 완료 화면은 기존 API 기능을 유지하면서 데스크톱과 모바일 레이아웃을 모두 확인했습니다. Swagger 작업까지 포함한 현재 전체 검증 결과는 다음과 같습니다.
 
@@ -104,42 +105,11 @@ Swagger는 `develop` 반영과 로컬 검증까지 끝났지만 닷홈에는 아
 - Pint 통과
 - Next.js 프로덕션 빌드 통과
 
-## 5. 현재 진행 중인 작업
+## 5. 현재 진행 상태
 
-작업 브랜치: `feature/codex-growing-season-design-refresh`
+시즌 목록·등록·수정 디자인 개편은 `b1081dc`에서 완료했습니다. 시즌 목록의 현황 요약·2열 계획 카드·공간 유형별 다음 단계와 등록·수정 폼의 단계형 입력·반응형 요약을 실제 인증 데이터로 데스크톱 1440px과 모바일 390px에서 확인했습니다. 공간을 고르기 전 작물 선택을 비활성화하고, 공간 유형을 바꿀 때 호환되지 않는 대표 작물이 남지 않도록 처리했습니다.
 
-목표: 시즌 목록·등록·수정 화면을 공간 관리 화면과 같은 디자인 언어로 통일합니다.
-
-현재 로컬 변경 대상:
-
-- `frontend/app/seasons/page.tsx`
-- `frontend/app/seasons/new/page.tsx`
-- `frontend/app/seasons/[seasonId]/edit/page.tsx`
-- `frontend/features/growing-season/components/season-list.tsx`
-- `frontend/features/growing-season/components/season-form.tsx`
-- `frontend/features/growing-season/components/season-field.tsx`
-- `frontend/features/growing-season/components/season-editor.tsx`
-- `frontend/features/growing-season/components/growing-season.module.css` 신규
-
-현재까지 구현한 내용:
-
-- 시즌 목록 상단 현황 요약과 진행 중·예정 수치
-- 시즌별 2열 계획 카드와 공간·기간·재배 방식 표시
-- 공간 유형에 맞는 다음 단계 CTA와 배치·일정·물주기·기록 바로가기
-- 단계 번호가 있는 시즌 등록·수정 폼
-- 데스크톱 입력 요약 사이드바와 모바일 단일 열 구조
-- 공간·시즌 데이터 로딩 상태를 명시적으로 처리
-- `SeasonForm`의 데이터 처리와 렌더링을 분리해 ESLint 복잡도 한도 준수
-
-현재 확인된 검증:
-
-- `npm.cmd run typecheck` 통과
-- `npm.cmd run lint` 통과
-- `git diff --check` 통과
-
-남은 체크리스트와 완료 상태는 [작업 목록](TASKS.md)의 진행 중 항목에서 관리합니다. 시즌 작업의 즉시 실행 순서는 이 문서 11절을 따릅니다.
-
-중요: 이 인계 문서를 `develop`에 반영하는 동안 위 시즌 변경은 stash로 임시 보관했다가 같은 브랜치에 복원합니다. 작업을 이어받을 때 먼저 `git status --short --branch`와 `git stash list`를 확인하고, 변경이 이미 작업 폴더에 복원되어 있으면 다시 `stash pop`하지 않습니다.
+현재 로컬에서 이어받아야 할 미완성 디자인 변경은 없습니다. 진행 중이거나 막힌 작업과 다음 우선순위는 [작업 목록](TASKS.md)만 기준으로 확인합니다. 다음 디자인 영역은 물주기 일정과 완료·미루기·이력 화면이며 아직 브랜치를 만들거나 구현을 시작하지 않았습니다.
 
 ## 6. 디자인 작업 순서 관리
 
@@ -202,8 +172,8 @@ git status --short --branch
 
 1. `docs/README.md`, `docs/TASKS.md`, 이 문서, `frontend/AGENTS.md`, `frontend/DESIGN.md`를 끝까지 읽습니다.
 2. `git status --short --branch`, `git log -5 --oneline`, `git stash list`를 확인합니다.
-3. 시즌 변경이 작업 폴더에 있으면 그대로 이어가고, stash에만 있으면 정확한 메시지를 확인한 뒤 한 번만 복원합니다.
-4. 시즌 컴포넌트와 CSS의 현재 diff를 읽고 API 동작이 유지되는지 확인합니다.
-5. 임시 preview route로 데스크톱 1440px과 모바일 390px을 확인하되 커밋 전에 삭제합니다.
-6. 전체 검증 후 한글 커밋과 병합 커밋으로 `develop`에 반영합니다.
-7. 시즌 브랜치를 삭제하고 다음 디자인 영역을 새 고유 브랜치에서 시작합니다.
+3. [작업 목록](TASKS.md)의 첫 번째 `[ ]` 항목을 선택하고 기존 구현·테스트·디자인 공통 컴포넌트를 먼저 확인합니다.
+4. `develop`에서 해당 작업만을 위한 새 `feature/*` 브랜치를 만들고, 시작 즉시 작업 목록을 `[-]`로 갱신합니다.
+5. 기능 계약을 유지하면서 데스크톱 1440px과 모바일 390px을 실제 브라우저로 확인합니다. 임시 QA 파일과 라우트는 커밋 전에 삭제합니다.
+6. 전체 검증 후 완료 항목을 즉시 `[x]`로 옮기거나 제거하고, 한글 기능·문서·병합 커밋으로 `develop`에 반영합니다.
+7. 병합된 기능 브랜치는 삭제하되 `feature/yj-work`는 건드리지 않습니다.

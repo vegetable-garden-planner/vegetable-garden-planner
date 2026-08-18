@@ -22,7 +22,9 @@ export default async function SeasonsPage(props: PageProps<"/seasons">) {
         action={<Link className="primary-action px-4 py-2.5 text-sm" href="/seasons/new">시즌 추가</Link>}
         description="재배 기간을 정하면 작물 배치와 관리 일정, 성장 기록이 하나의 흐름으로 이어집니다."
         eyebrow="나의 재배 시즌"
+        heroSize="compact"
         title="언제 무엇을 키울지 준비해요"
+        width="full"
       >
         <SeasonList selectedSpaceId={selectedSpaceId} />
       </AppPageShell>
