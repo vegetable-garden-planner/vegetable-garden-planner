@@ -6,8 +6,8 @@
 
 - 운영 백엔드: https://yjwest9.dothome.co.kr
 - 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
-- Swagger UI 예정 주소: https://yjwest9.dothome.co.kr/api-docs
-- 현재 Swagger 상태: 코드 구현 완료, FileZilla 수동 업로드 전이라 운영 주소는 404
+- Swagger UI: https://yjwest9.dothome.co.kr/api-docs
+- 현재 Swagger 상태: 닷홈 업로드 완료, `/api-docs`와 `/api-docs/openapi.yaml` 모두 정상 응답
 - 현재 상품은 SSH 자동 배포를 사용하지 않습니다.
 - 백엔드 변경은 로컬 전체 테스트를 먼저 통과한 뒤 FileZilla로 변경 파일만 직접 업로드합니다.
 - 프론트만 변경한 작업은 닷홈에 아무 파일도 올리지 않습니다.
@@ -16,7 +16,7 @@
 
 현재 운영 절차와 다음 작업 상태는 [작업 인계서](HANDOFF.md)를 함께 확인합니다.
 
-Swagger 기능을 배포할 때는 다음 파일을 서버의 같은 상대 경로에 업로드합니다.
+Swagger 배포는 2026-08-18에 완료했습니다. 당시 업로드한 파일은 다음과 같습니다.
 
 - `app/Http/Controllers/Documentation/ShowApiDocumentationController.php`
 - `app/Http/Controllers/Documentation/ShowOpenApiSpecificationController.php`
@@ -113,6 +113,8 @@ KAKAO_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/kakao/callba
 - `app/Http/Controllers/Auth/KakaoCallbackController.php`
 - `config/services.php`
 - `routes/web.php`
+
+위 11개 파일은 한 번에 올립니다. 카카오 변경은 Google과 카카오가 함께 쓰는 `ResolveSocialUser` 경계를 도입했기 때문에, Google 관련 파일을 빼고 카카오 파일만 올리면 운영에서 기존 Google 로그인이 깨집니다. `routes/web.php`는 Swagger 배포 때 올린 것보다 최신 버전이므로 반드시 다시 올립니다.
 
 운영 `.env`에는 `KAKAO_REST_API_KEY`, `KAKAO_CLIENT_SECRET`, `KAKAO_REDIRECT_URI`를 직접 추가합니다. 업로드 뒤 `config:clear`와 `route:clear`를 실행하고, Kakao Developers 설정을 마친 다음 Vercel 로그인 화면에서 카카오 인증·신규 가입·기존 이메일 연결·로그아웃을 확인합니다. DB 마이그레이션은 없습니다.
 

@@ -121,7 +121,7 @@ Google 로그인은 Laravel Socialite, 카카오 로그인은 Kakao REST OAuth�
 - 요청 규칙: `backend/app/Http/Requests/Api/V1`
 - 응답 필드: `backend/app/Http/Resources/Api/V1`
 - 기계 판독 명세: [openapi.yaml](../backend/resources/openapi.yaml)
-- 사람이 탐색하는 Swagger UI: 로컬 `http://localhost:8000/api-docs`, 닷홈 배포 완료 후 운영 `https://yjwest9.dothome.co.kr/api-docs`
+- 사람이 탐색하는 Swagger UI: 로컬 `http://localhost:8000/api-docs`, 운영 `https://yjwest9.dothome.co.kr/api-docs`
 - 실제 행동 보장: `backend/tests/Feature/Api/V1`
 
 새 API를 추가하거나 변경할 때 위 네 곳과 프론트 API 테스트를 함께 갱신합니다.
