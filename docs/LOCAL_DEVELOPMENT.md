@@ -39,13 +39,15 @@ DB_USERNAME=root
 DB_PASSWORD=
 
 KAKAO_REST_API_KEY=선택_카카오_REST_API_키
+KAKAO_CLIENT_SECRET=선택_카카오_클라이언트_시크릿
+KAKAO_REDIRECT_URI=http://localhost:3000/auth/kakao/callback
 FRONTEND_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=선택_Google_OAuth_클라이언트_ID
 GOOGLE_CLIENT_SECRET=선택_Google_OAuth_클라이언트_비밀키
 GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 ```
 
-외부 키가 없어도 기본 이메일 로그인과 수동 일조 시간 선택은 동작합니다. 주소 검색과 Google 로그인은 각각의 키를 설정해야 실제 외부 서비스까지 완료됩니다.
+외부 키가 없어도 기본 이메일 로그인과 수동 일조 시간 선택은 동작합니다. 주소 검색은 카카오 REST API 키, Google 로그인은 Google OAuth 키, 카카오 로그인은 카카오 REST API 키·클라이언트 시크릿·등록된 리디렉션 URI가 있어야 실제 외부 서비스까지 완료됩니다. 카카오 로그인은 Kakao Developers의 동의 항목에서 닉네임과 이메일을 제공하도록 설정합니다.
 
 ## 4. 빈 데이터베이스 만들기
 

@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleCallbackController;
 use App\Http\Controllers\Auth\GoogleRedirectController;
+use App\Http\Controllers\Auth\KakaoCallbackController;
+use App\Http\Controllers\Auth\KakaoRedirectController;
 use App\Http\Controllers\Documentation\ShowApiDocumentationController;
 use App\Http\Controllers\Documentation\ShowOpenApiSpecificationController;
 use Illuminate\Support\Facades\Route;
@@ -33,4 +35,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
 Route::get('/auth/google/redirect', GoogleRedirectController::class)
     ->middleware('throttle:20,1');
 Route::get('/auth/google/callback', GoogleCallbackController::class)
+    ->middleware('throttle:20,1');
+Route::get('/auth/kakao/redirect', KakaoRedirectController::class)
+    ->middleware('throttle:20,1');
+Route::get('/auth/kakao/callback', KakaoCallbackController::class)
     ->middleware('throttle:20,1');

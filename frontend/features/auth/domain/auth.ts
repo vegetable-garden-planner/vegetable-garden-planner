@@ -116,6 +116,14 @@ export function getSafeReturnPath(
   return requestedPath;
 }
 
+export function getSocialLoginErrorMessage(error: string | string[] | undefined): string {
+  if (error === "google-config") return "Google 로그인이 아직 서버에 설정되지 않았습니다. 관리자에게 알려 주세요.";
+  if (error === "google") return "Google 로그인을 완료하지 못했습니다. 다시 시도해 주세요.";
+  if (error === "kakao-config") return "카카오 로그인이 아직 서버에 설정되지 않았습니다. 관리자에게 알려 주세요.";
+  if (error === "kakao") return "카카오 로그인을 완료하지 못했습니다. 이메일 제공 동의 후 다시 시도해 주세요.";
+  return "";
+}
+
 function validateEmail(
   email: string,
   errors: Pick<LoginErrors, "email">,

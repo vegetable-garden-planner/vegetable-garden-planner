@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   getSafeReturnPath,
+  getSocialLoginErrorMessage,
   getPasswordRequirements,
   isValidEmailAddress,
   passwordsMatch,
@@ -75,4 +76,13 @@ test("내부 복귀 경로만 허용한다", () => {
   assert.equal(getSafeReturnPath("//example.com"), "/dashboard");
   assert.equal(getSafeReturnPath("javascript:alert(1)"), "/dashboard");
   assert.equal(getSafeReturnPath("/\\example.com"), "/dashboard");
+});
+
+test("소셜 로그인 제공자별 실패 원인을 안내한다", () => {
+  assert.match(getSocialLoginErrorMessage("google-config"), /설정/);
+  assert.match(getSocialLoginErrorMessage("google"), /Google 로그인/);
+  assert.match(getSocialLoginErrorMessage("kakao-config"), /설정/);
+  assert.match(getSocialLoginErrorMessage("kakao"), /이메일 제공 동의/);
+  assert.equal(getSocialLoginErrorMessage(["kakao"]), "");
+  assert.equal(getSocialLoginErrorMessage(undefined), "");
 });
