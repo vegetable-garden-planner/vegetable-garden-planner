@@ -11,7 +11,8 @@
 - 프론트 운영: https://vegetable-garden-planner.vercel.app
 - 백엔드 운영: https://yjwest9.dothome.co.kr
 - 운영 API 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
-- Swagger UI: 백엔드 배포 후 https://yjwest9.dothome.co.kr/api-docs
+- Swagger UI: 코드 구현 완료, 닷홈 수동 배포 전이라 현재 운영 주소는 404
+- Swagger 운영 예정 주소: https://yjwest9.dothome.co.kr/api-docs
 - 프론트 Production 브랜치: `develop`
 - 프론트 Root Directory: `frontend`
 - 백엔드 배포: 닷홈에 FileZilla로 변경 파일을 직접 업로드하는 수동 방식
@@ -20,6 +21,8 @@
 현재 기능은 회원가입부터 공간·시즌·작물 배치·재배 일정·물주기·재배 기록까지 Laravel API와 MySQL에 연결되어 있습니다. 최근 작업의 중심은 새 기능 추가가 아니라 디자인 시안에 맞춘 기존 화면의 구조·스타일·반응형 통일입니다.
 
 진행 중 작업과 다음 순서는 [작업 목록](TASKS.md)이 단일 기준입니다. 작업을 완료하면 같은 작업 안에서 즉시 완료 표시하거나 목록에서 제거합니다.
+
+Swagger는 `develop` 반영과 로컬 검증까지 끝났지만 닷홈에는 아직 새 백엔드 파일을 올리지 않았습니다. 따라서 운영 `/api-docs`의 404는 현재 배포 상태와 일치합니다. FileZilla 업로드와 운영 확인이 끝나기 전까지 배포 작업을 완료 처리하지 않습니다.
 
 ## 2. 반드시 지킬 Git 규칙
 
