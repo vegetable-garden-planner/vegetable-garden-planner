@@ -20,10 +20,11 @@ export default function CropsPage() {
           className="primary-action px-4 py-2.5 text-sm"
         />
       )}
-      description="텃밭 작물뿐 아니라 선물 받은 꽃과 실내 화분 꽃의 관리 방법도 확인할 수 있습니다. 품종과 환경에 따라 달라질 수 있으니 시작 기준으로 활용해 주세요."
-      eyebrow="채소와 꽃 13종"
+      description="심을 시기부터 필요한 공간, 관리 난이도까지 비교하고 나에게 맞는 작물과 꽃을 찾아보세요."
+      eyebrow="작물 관리 가이드 · 13종"
       homeHref="/"
-      title="어떤 식물을 돌볼지 살펴보세요"
+      heroImage="/figma/planner-hero.png"
+      title="무엇을 심고 어떻게 돌볼지 한눈에"
       width="full"
     >
       <CropCatalog />

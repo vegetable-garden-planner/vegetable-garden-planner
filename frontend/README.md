@@ -34,6 +34,6 @@ npm.cmd run lint
 npm.cmd run build
 ```
 
-현재 디자인 개편은 대시보드, 작물 배치 상세, 재배 일정, 재배 공간 목록·등록·수정까지 `develop`에 반영되었습니다. 시즌 관리 화면은 별도 기능 브랜치에서 진행 중이며 정확한 파일과 남은 검증은 `docs/HANDOFF.md`를 기준으로 확인합니다.
+현재 디자인 개편은 대시보드, 작물 배치 상세, 재배 일정, 재배 공간·시즌·물주기·시즌 기록, 작물 목록·검색·필터·상세 화면까지 `develop`에 반영되었습니다. 정확한 완료 범위와 다음 작업은 `docs/HANDOFF.md`와 `docs/TASKS.md`를 기준으로 확인합니다.
 
 Next.js 코드를 수정하기 전에 `AGENTS.md`와 설치된 `node_modules/next/dist/docs`의 해당 버전 문서를 확인합니다.
