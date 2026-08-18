@@ -23,15 +23,17 @@ npm.cmd run dev
 - `features/<domain>/components`: 사용자 인터페이스
 - `shared`: 여러 도메인이 실제로 공유하는 코드
 
-도메인 구조와 서버 계약은 [현재 아키텍처](../docs/ARCHITECTURE.md)를 따릅니다. 디자인 변경은 `DESIGN.md`와 `app/globals.css`를 함께 확인합니다.
+도메인 구조와 서버 계약은 [현재 아키텍처](../docs/ARCHITECTURE.md)를 따릅니다. 디자인 변경은 `DESIGN.md`, `app/globals.css`, [현재 작업 인계서](../docs/HANDOFF.md)를 함께 확인합니다.
 
 ## 검증
 
 ```powershell
 npm.cmd test
-npx.cmd tsc --noEmit
+npm.cmd run typecheck
 npm.cmd run lint
 npm.cmd run build
 ```
+
+현재 디자인 개편은 대시보드, 작물 배치 상세, 재배 일정, 재배 공간 목록·등록·수정까지 `develop`에 반영되었습니다. 시즌 관리 화면은 별도 기능 브랜치에서 진행 중이며 정확한 파일과 남은 검증은 `docs/HANDOFF.md`를 기준으로 확인합니다.
 
 Next.js 코드를 수정하기 전에 `AGENTS.md`와 설치된 `node_modules/next/dist/docs`의 해당 버전 문서를 확인합니다.

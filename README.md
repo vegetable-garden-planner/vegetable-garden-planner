@@ -4,7 +4,7 @@
 
 ## 작업 시작
 
-사람과 AI 모두 작업 전에 반드시 [프로젝트 작업 가이드](docs/README.md)를 먼저 읽습니다. 최초 설치는 [로컬 개발환경 설정](docs/LOCAL_DEVELOPMENT.md)을 따릅니다.
+사람과 AI 모두 작업 전에 반드시 [프로젝트 작업 가이드](docs/README.md)를 먼저 읽습니다. 이전 작업을 이어갈 때는 [현재 작업 인계서](docs/HANDOFF.md)를 이어서 확인하고, 최초 설치는 [로컬 개발환경 설정](docs/LOCAL_DEVELOPMENT.md)을 따릅니다.
 
 ```text
 Next.js 16 frontend → Laravel 12 API → MySQL/MariaDB
@@ -27,7 +27,15 @@ vendor\bin\pint --test
 
 cd ..\frontend
 npm.cmd test
-npx.cmd tsc --noEmit
+npm.cmd run typecheck
 npm.cmd run lint
 npm.cmd run build
 ```
+
+## 운영 주소
+
+- 프론트엔드: https://vegetable-garden-planner.vercel.app
+- 백엔드 API: https://yjwest9.dothome.co.kr
+- API 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
+
+프론트는 `develop` push 후 Vercel에서 자동 배포됩니다. 닷홈 백엔드는 자동 배포가 아니므로 백엔드 변경 파일만 FileZilla로 수동 업로드합니다.
