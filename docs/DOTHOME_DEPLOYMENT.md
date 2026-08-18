@@ -6,7 +6,8 @@
 
 - 운영 백엔드: https://yjwest9.dothome.co.kr
 - 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
-- Swagger UI: https://yjwest9.dothome.co.kr/api-docs
+- Swagger UI 예정 주소: https://yjwest9.dothome.co.kr/api-docs
+- 현재 Swagger 상태: 코드 구현 완료, FileZilla 수동 업로드 전이라 운영 주소는 404
 - 현재 상품은 SSH 자동 배포를 사용하지 않습니다.
 - 백엔드 변경은 로컬 전체 테스트를 먼저 통과한 뒤 FileZilla로 변경 파일만 직접 업로드합니다.
 - 프론트만 변경한 작업은 닷홈에 아무 파일도 올리지 않습니다.
@@ -15,7 +16,15 @@
 
 현재 운영 절차와 다음 작업 상태는 [작업 인계서](HANDOFF.md)를 함께 확인합니다.
 
-Swagger 기능을 배포할 때는 `app/Http/Controllers/Documentation`, `resources/views/api-docs.blade.php`, `resources/openapi.yaml`, `routes/web.php`를 업로드합니다. DB 변경과 마이그레이션은 없습니다. 기존 라우트 캐시를 사용 중이면 업로드 후 `route:clear` 또는 배포 절차의 캐시 정리를 실행하고, `/api-docs`와 `/api-docs/openapi.yaml`을 각각 확인합니다.
+Swagger 기능을 배포할 때는 다음 파일을 서버의 같은 상대 경로에 업로드합니다.
+
+- `app/Http/Controllers/Documentation/ShowApiDocumentationController.php`
+- `app/Http/Controllers/Documentation/ShowOpenApiSpecificationController.php`
+- `resources/views/api-docs.blade.php`
+- `resources/openapi.yaml`
+- `routes/web.php`
+
+DB 변경과 마이그레이션은 없습니다. 기존 라우트 캐시를 사용 중이면 업로드 후 `route:clear` 또는 배포 절차의 캐시 정리를 실행합니다. `/api-docs/openapi.yaml`이 YAML을 반환하는지 먼저 확인한 다음 `/api-docs`에서 Swagger UI를 확인하고, 두 주소가 모두 정상일 때만 [작업 목록](TASKS.md)의 배포 항목을 완료 처리합니다.
 
 ## 1. 호스팅에서 반드시 확인할 항목
 
