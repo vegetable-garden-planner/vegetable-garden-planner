@@ -6,6 +6,7 @@
 
 - 운영 백엔드: https://yjwest9.dothome.co.kr
 - 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
+- Swagger UI: https://yjwest9.dothome.co.kr/api-docs
 - 현재 상품은 SSH 자동 배포를 사용하지 않습니다.
 - 백엔드 변경은 로컬 전체 테스트를 먼저 통과한 뒤 FileZilla로 변경 파일만 직접 업로드합니다.
 - 프론트만 변경한 작업은 닷홈에 아무 파일도 올리지 않습니다.
@@ -13,6 +14,8 @@
 - 마이그레이션이나 설정 캐시 정리가 필요할 때만 일회용 실행 파일을 올리고, 실행 직후 서버에서 삭제합니다.
 
 현재 운영 절차와 다음 작업 상태는 [작업 인계서](HANDOFF.md)를 함께 확인합니다.
+
+Swagger 기능을 배포할 때는 `app/Http/Controllers/Documentation`, `resources/views/api-docs.blade.php`, `resources/openapi.yaml`, `routes/web.php`를 업로드합니다. DB 변경과 마이그레이션은 없습니다. 기존 라우트 캐시를 사용 중이면 업로드 후 `route:clear` 또는 배포 절차의 캐시 정리를 실행하고, `/api-docs`와 `/api-docs/openapi.yaml`을 각각 확인합니다.
 
 ## 1. 호스팅에서 반드시 확인할 항목
 
