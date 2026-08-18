@@ -4,6 +4,8 @@ return [
 
     'kakao' => [
         'rest_api_key' => env('KAKAO_REST_API_KEY'),
+        'client_secret' => env('KAKAO_CLIENT_SECRET'),
+        'redirect' => env('KAKAO_REDIRECT_URI', 'http://localhost:3000/auth/kakao/callback'),
     ],
 
     'frontend' => [

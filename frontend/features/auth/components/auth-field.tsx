@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import styles from "./auth.module.css";
 
 interface AuthFieldProps {
   children: ReactNode;
@@ -9,10 +10,10 @@ interface AuthFieldProps {
 
 export function AuthField({ children, error, id, label }: AuthFieldProps) {
   return (
-    <div>
-      <label className="mb-2 block font-bold" htmlFor={id}>{label}</label>
+    <div className={styles.field}>
+      <label htmlFor={id}>{label}</label>
       {children}
-      {error && <p className="mt-2 text-sm font-semibold text-red-700" id={`${id}-error`}>{error}</p>}
+      {error && <p className={styles.fieldError} id={`${id}-error`}>{error}</p>}
     </div>
   );
 }

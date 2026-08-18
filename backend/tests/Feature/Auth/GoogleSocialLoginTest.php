@@ -33,6 +33,7 @@ class GoogleSocialLoginTest extends TestCase
             'email' => 'garden.google@example.com',
             'nickname' => '새싹 집사',
         ]);
+        $this->assertNotNull(User::query()->where('email', 'garden.google@example.com')->value('email_verified_at'));
         $this->assertDatabaseHas('social_accounts', [
             'provider' => 'google',
             'provider_user_id' => 'google-123',

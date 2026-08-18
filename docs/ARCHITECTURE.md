@@ -90,12 +90,15 @@ Laravel Sanctum SPA 세션 인증을 사용합니다.
 
 ```text
 GET /sanctum/csrf-cookie
-→ POST /api/v1/auth/login 또는 register, 또는 GET /auth/google/redirect
+→ POST /api/v1/auth/login 또는 register
+  또는 GET /auth/google/redirect, GET /auth/kakao/redirect
 → HttpOnly 세션 쿠키
 → 보호 API 요청에 쿠키와 X-XSRF-TOKEN 전송
 ```
 
-Google 로그인은 Laravel Socialite의 OAuth state 검증을 거쳐 이메일이 확인된 계정을 `social_accounts`에 연결하고 동일한 Laravel 세션을 발급합니다. OAuth 비밀키나 액세스 토큰은 프론트엔드와 DB에 노출·저장하지 않습니다.
+Google 로그인은 Laravel Socialite, 카카오 로그인은 Kakao REST OAuth의 state 검증을 거쳐 이메일이 확인된 계정을 공통 `ResolveSocialUser` 경계에서 `social_accounts`에 연결하고 동일한 Laravel 세션을 발급합니다. 기존 이메일 회원은 제공자 계정만 연결하며 새 비밀번호를 만들지 않습니다. OAuth 비밀키나 액세스 토큰은 프론트엔드와 DB에 노출·저장하지 않습니다.
+
+카카오 콜백은 토큰 교환 직후 사용자 정보를 조회하는 동안만 액세스 토큰을 메모리에서 사용합니다. 유효하고 검증된 이메일 제공 동의가 없거나, OAuth state가 다르거나, 기존 회원이 비활성 상태이면 로그인하지 않고 로그인 화면의 제공자별 오류 안내로 돌아갑니다.
 
 프론트엔드의 `api-client.ts`가 CSRF 준비와 공통 오류 변환을 담당합니다. 토큰이나 DB 비밀번호를 `localStorage` 또는 `NEXT_PUBLIC_*` 비밀값으로 저장하지 않습니다.
 

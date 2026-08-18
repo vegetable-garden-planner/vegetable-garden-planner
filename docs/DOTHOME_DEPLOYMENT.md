@@ -61,6 +61,8 @@ APP_URL=https://api.example.com
 FRONTEND_URL=https://example.com
 
 KAKAO_REST_API_KEY=카카오_REST_API_키
+KAKAO_CLIENT_SECRET=카카오_클라이언트_시크릿
+KAKAO_REDIRECT_URI=https://example.com/auth/kakao/callback
 GOOGLE_CLIENT_ID=Google_OAuth_클라이언트_ID
 GOOGLE_CLIENT_SECRET=Google_OAuth_클라이언트_비밀키
 GOOGLE_REDIRECT_URI=https://example.com/auth/google/callback
@@ -78,7 +80,7 @@ SANCTUM_STATEFUL_DOMAINS=example.com,www.example.com
 CORS_ALLOWED_ORIGINS=https://example.com,https://www.example.com
 ```
 
-Google Cloud Console의 승인된 리디렉션 URI에도 `GOOGLE_REDIRECT_URI`와 정확히 같은 HTTPS 주소를 등록합니다. 카카오 REST API 키와 Google 비밀키는 프론트엔드 환경 변수에 넣지 않습니다.
+Google Cloud Console의 승인된 리디렉션 URI에도 `GOOGLE_REDIRECT_URI`와 정확히 같은 HTTPS 주소를 등록합니다. Kakao Developers의 카카오 로그인 리디렉션 URI에는 `KAKAO_REDIRECT_URI`와 정확히 같은 HTTPS 주소를 등록하고 동의 항목에서 닉네임과 이메일 제공을 활성화합니다. 카카오 REST API 키·클라이언트 시크릿과 Google 비밀키는 프론트엔드 환경 변수에 넣지 않습니다.
 
 현재 심어봄은 브라우저가 Vercel의 같은 출처 `/api`, `/sanctum`, `/auth`로 요청하고 Next.js가 닷홈 Laravel로 프록시합니다. 따라서 운영 설정은 다음 계약을 사용합니다.
 
@@ -91,9 +93,28 @@ SESSION_SAME_SITE=none
 SANCTUM_STATEFUL_DOMAINS=vegetable-garden-planner.vercel.app
 CORS_ALLOWED_ORIGINS=https://vegetable-garden-planner.vercel.app
 GOOGLE_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/google/callback
+KAKAO_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/kakao/callback
 ```
 
-`SESSION_DOMAIN`을 닷홈 도메인으로 고정하면 Vercel을 통해 전달된 `XSRF-TOKEN`과 세션 쿠키를 브라우저가 저장하지 못합니다. Google OAuth 콜백도 브라우저가 시작한 Vercel 출처로 돌아와야 로그인 전 세션의 state를 이어갈 수 있습니다.
+`SESSION_DOMAIN`을 닷홈 도메인으로 고정하면 Vercel을 통해 전달된 `XSRF-TOKEN`과 세션 쿠키를 브라우저가 저장하지 못합니다. Google·카카오 OAuth 콜백도 브라우저가 시작한 Vercel 출처로 돌아와야 로그인 전 세션의 state를 이어갈 수 있습니다.
+
+### 카카오 로그인 변경 파일 수동 업로드
+
+카카오 로그인 기능을 운영에 활성화할 때는 기존 운영 `.env`와 `public/index.php`를 덮어쓰지 말고 다음 변경 파일만 같은 상대 경로로 업로드합니다.
+
+- `app/Actions/Auth/ResolveSocialUser.php`
+- `app/Actions/Auth/ResolveGoogleUser.php`
+- `app/Actions/Auth/ResolveKakaoUser.php`
+- `app/Services/Auth/SocialLoginRedirector.php`
+- `app/Services/Auth/KakaoLoginClient.php`
+- `app/Http/Controllers/Auth/GoogleRedirectController.php`
+- `app/Http/Controllers/Auth/GoogleCallbackController.php`
+- `app/Http/Controllers/Auth/KakaoRedirectController.php`
+- `app/Http/Controllers/Auth/KakaoCallbackController.php`
+- `config/services.php`
+- `routes/web.php`
+
+운영 `.env`에는 `KAKAO_REST_API_KEY`, `KAKAO_CLIENT_SECRET`, `KAKAO_REDIRECT_URI`를 직접 추가합니다. 업로드 뒤 `config:clear`와 `route:clear`를 실행하고, Kakao Developers 설정을 마친 다음 Vercel 로그인 화면에서 카카오 인증·신규 가입·기존 이메일 연결·로그아웃을 확인합니다. DB 마이그레이션은 없습니다.
 
 `APP_KEY`는 `php artisan key:generate`로 한 번 생성하고 이후 임의로 바꾸지 않습니다. 키를 바꾸면 기존 암호화 데이터와 세션을 읽을 수 없습니다.
 

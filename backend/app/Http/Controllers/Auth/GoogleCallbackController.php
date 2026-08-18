@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\ResolveGoogleUser;
 use App\Http\Controllers\Controller;
+use App\Services\Auth\SocialLoginRedirector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,7 @@ use Throwable;
 
 class GoogleCallbackController extends Controller
 {
-    public function __invoke(Request $request, ResolveGoogleUser $resolveGoogleUser): RedirectResponse
+    public function __invoke(Request $request, ResolveGoogleUser $resolveGoogleUser, SocialLoginRedirector $redirector): RedirectResponse
     {
         $nextPath = (string) $request->session()->pull('social_login_next', '/dashboard');
 
@@ -23,17 +24,12 @@ class GoogleCallbackController extends Controller
         } catch (Throwable $exception) {
             report($exception);
 
-            return redirect()->away($this->frontendUrl('/login?socialError=google'));
+            return redirect()->away($redirector->frontendUrl('/login?socialError=google'));
         }
 
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->away($this->frontendUrl($nextPath));
-    }
-
-    private function frontendUrl(string $path): string
-    {
-        return rtrim((string) config('services.frontend.url'), '/').$path;
+        return redirect()->away($redirector->frontendUrl($nextPath));
     }
 }
