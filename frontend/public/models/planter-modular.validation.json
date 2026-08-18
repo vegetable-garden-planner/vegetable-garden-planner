@@ -1,0 +1,24 @@
+{
+  "blender_version": "5.2.0 LTS",
+  "glb_path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\planter-modular.glb",
+  "glb_bytes": 1660936,
+  "compression": "uncompressed (self-contained runtime)",
+  "mesh_count": 94,
+  "triangle_count": 19016,
+  "materials": [
+    "MAT_Plastic_Cavity",
+    "MAT_Plastic_ForestGreen"
+  ],
+  "bounding_box_m": [
+    0.6,
+    0.2,
+    0.25
+  ],
+  "dimension_errors_cm_sorted": [
+    0.0,
+    0.0,
+    0.0
+  ],
+  "within_half_centimeter": true,
+  "required_nodes_present": true
+}

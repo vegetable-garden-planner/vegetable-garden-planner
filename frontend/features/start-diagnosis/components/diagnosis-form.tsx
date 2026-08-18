@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type PointerEvent } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import { SessionAwareLink } from "@/components/session-aware-link";
 import {
   CARE_TIME_OPTIONS,
@@ -14,9 +15,10 @@ import {
   type DiagnosisAnswers,
   type GrowingGoal,
 } from "@/features/start-diagnosis/domain/diagnosis";
+import { PlanterViewport } from "./planter-viewport";
 import styles from "./diagnosis-form.module.css";
 
-const STAGES = ["화분 크기", "작물 선택", "공간 조건", "추천 계산", "배치 결과"] as const;
+const STAGES = ["화분 크기", "작물 선택", "공간 조건"] as const;
 
 const CROP_OPTIONS: readonly CropOption[] = [
   { id: "lettuce", label: "잎채소", detail: "상추 · 루꼴라", goal: "easy", image: "/figma/image3.png" },
@@ -28,7 +30,7 @@ const CROP_OPTIONS: readonly CropOption[] = [
 ];
 
 const SCENE_IMAGES = [
-  "/figma/diagnosis-greenhouse.png",
+  "/figma/diagnosis-greenhouse-reference-empty.png",
   "/figma/image2.png",
   "/figma/image1.png",
   "/figma/image1.png",
@@ -39,6 +41,13 @@ type Measurements = { width: number; length: number; height: number; count: numb
 type CropOption = { id: string; label: string; detail: string; goal: GrowingGoal; image: string };
 type PlanVariant = "balanced" | "simple";
 
+const MEASUREMENT_LIMITS: Record<keyof Measurements, { min: number; max: number; step: number }> = {
+  width: { min: 10, max: 120, step: 5 },
+  length: { min: 10, max: 60, step: 5 },
+  height: { min: 10, max: 60, step: 5 },
+  count: { min: 1, max: 12, step: 1 },
+};
+
 export function DiagnosisForm() {
   const [step, setStep] = useState(0);
   const [maxVisitedStep, setMaxVisitedStep] = useState(0);
@@ -47,6 +56,8 @@ export function DiagnosisForm() {
   const [measurements, setMeasurements] = useState<Measurements>({ width: 60, length: 25, height: 20, count: 2 });
   const [selectedPlan, setSelectedPlan] = useState<PlanVariant>("balanced");
   const recommendation = isCompleteDiagnosis(answers) ? getRecommendation(answers) : null;
+  const railStep = Math.min(step, STAGES.length - 1);
+  const isFollowUpState = step >= STAGES.length;
 
   useEffect(() => {
     if (step !== 3 || !isCompleteDiagnosis(answers)) return;
@@ -58,9 +69,10 @@ export function DiagnosisForm() {
   }, [answers, step]);
 
   function changeMeasurement(key: keyof Measurements, amount: number) {
+    const { max, min } = MEASUREMENT_LIMITS[key];
     setMeasurements((current) => ({
       ...current,
-      [key]: Math.max(key === "count" ? 1 : 10, current[key] + amount),
+      [key]: Math.min(max, Math.max(min, current[key] + amount)),
     }));
   }
 
@@ -87,29 +99,10 @@ export function DiagnosisForm() {
     setMaxVisitedStep(0);
   }
 
-  function handleScenePointer(event: PointerEvent<HTMLElement>) {
-    const bounds = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - bounds.left) / bounds.width - 0.5;
-    const y = (event.clientY - bounds.top) / bounds.height - 0.5;
-    event.currentTarget.style.setProperty("--scene-x", `${x * 10}px`);
-    event.currentTarget.style.setProperty("--scene-y", `${y * 8}px`);
-    event.currentTarget.style.setProperty("--guide-x", `${x * -16}px`);
-    event.currentTarget.style.setProperty("--guide-y", `${y * -12}px`);
-  }
-
-  function resetScenePointer(event: PointerEvent<HTMLElement>) {
-    event.currentTarget.style.setProperty("--scene-x", "0px");
-    event.currentTarget.style.setProperty("--scene-y", "0px");
-    event.currentTarget.style.setProperty("--guide-x", "0px");
-    event.currentTarget.style.setProperty("--guide-y", "0px");
-  }
-
   return (
     <section
       aria-label="맞춤 재배 시작 진단"
       className={`${styles.diagnosis} ${styles[`stage${step}`]}`}
-      onPointerLeave={resetScenePointer}
-      onPointerMove={handleScenePointer}
     >
       <div className={styles.sceneBackdrop} aria-hidden="true">
         <Image alt="" className={styles.sceneImage} fill key={SCENE_IMAGES[step]} priority={step === 0} sizes="100vw" src={SCENE_IMAGES[step]} />
@@ -140,11 +133,14 @@ export function DiagnosisForm() {
 
       <ol className={styles.stepRail} aria-label="진단 진행 단계">
         {STAGES.map((label, index) => (
-          <li className={index === step ? styles.activeStep : index < step ? styles.completeStep : ""} key={label}>
+          <li
+            className={!isFollowUpState && index === railStep ? styles.activeStep : index < railStep || isFollowUpState ? styles.completeStep : ""}
+            key={label}
+          >
             <button
-              aria-current={index === step ? "step" : undefined}
+              aria-current={!isFollowUpState && index === railStep ? "step" : undefined}
               aria-label={`${index + 1}단계, ${label}`}
-              disabled={index > maxVisitedStep || index === 3}
+              disabled={index > Math.min(maxVisitedStep, STAGES.length - 1)}
               onClick={() => setStep(index)}
               type="button"
             >
@@ -169,36 +165,40 @@ function DimensionStage({
 }) {
   return (
     <div className={styles.dimensionStage}>
+      <svg aria-hidden="true" className={styles.clipDefs} focusable="false">
+        <defs>
+          <clipPath clipPathUnits="objectBoundingBox" id="dimension-sweep-clip">
+            <path d="M 0 0.24 C 0.22 0.06 0.5 -0.04 0.7 0.08 C 0.89 0.2 0.91 0.62 1 1 L 0 1 Z" />
+          </clipPath>
+        </defs>
+      </svg>
       <header className={styles.dimensionHeading}>
-        <p>내 공간에 맞춘 첫 텃밭</p>
         <h1>사용할 화분의<br />크기를 알려주세요</h1>
-        <span>입력한 크기로 심을 수 있는 작물 수와 간격을 계산해요.</span>
+        <span>가로, 세로, 깊이와 화분 개수를 입력하면<br />맞춤 재배 계획을 계산해드려요.</span>
       </header>
       <div className={styles.whiteSweep}>
         <div className={styles.measurementGrid}>
           {(Object.keys(measurements) as (keyof Measurements)[]).map((key) => {
-            const increment = key === "count" ? 1 : 5;
+            const { max, min, step } = MEASUREMENT_LIMITS[key];
+            const label = getMeasurementLabel(key);
             return (
               <div className={styles.measurement} key={key}>
-                <span>{getMeasurementLabel(key)}</span>
-                <div>
-                  <button aria-label={`${getMeasurementLabel(key)} 줄이기`} onClick={() => onChange(key, -increment)} type="button">−</button>
-                  <strong>{measurements[key]}</strong>
-                  <small>{key === "count" ? "개" : "cm"}</small>
-                  <button aria-label={`${getMeasurementLabel(key)} 늘리기`} onClick={() => onChange(key, increment)} type="button">+</button>
-                </div>
+                <span aria-hidden="true" className={styles.measurementIcon} data-kind={key}><i /></span>
+                <span className={styles.measurementLabel}>{label}</span>
+                <small>{key === "count" ? "(개)" : "(cm)"}</small>
+                <button aria-label={`${label} 값 줄이기`} disabled={measurements[key] <= min} onClick={() => onChange(key, -step)} type="button">−</button>
+                <strong aria-live="polite">{measurements[key]}</strong>
+                <button aria-label={`${label} 값 늘리기`} disabled={measurements[key] >= max} onClick={() => onChange(key, step)} type="button">+</button>
               </div>
             );
           })}
         </div>
-        <button className={styles.primaryButton} onClick={onAdvance} type="button">다음 <span aria-hidden="true">→</span></button>
+        <div className={styles.dimensionActions}>
+          <Link className={styles.backButton} href="/"><span aria-hidden="true">←</span> 이전</Link>
+          <button className={styles.primaryButton} onClick={onAdvance} type="button">다음 <span aria-hidden="true">→</span></button>
+        </div>
       </div>
-      <div className={styles.dimensionGuide} aria-hidden="true">
-        <span className={styles.widthLine}><b>{measurements.width} cm</b></span>
-        <span className={styles.depthLine}><b>{measurements.length} cm</b></span>
-        <span className={styles.heightLine}><b>{measurements.height} cm</b></span>
-        <div className={styles.planterTag}><small>예상 구성</small><strong>{measurements.count}개 화분</strong></div>
-      </div>
+      <PlanterViewport measurements={measurements} />
     </div>
   );
 }
@@ -402,8 +402,8 @@ function Navigation({
 function getMeasurementLabel(key: keyof Measurements) {
   if (key === "width") return "가로";
   if (key === "length") return "세로";
-  if (key === "height") return "높이";
-  return "화분 수";
+  if (key === "height") return "깊이";
+  return "화분 개수";
 }
 
 function shortenOptionLabel(label: string) {

@@ -41,6 +41,12 @@
   --color-sunbeam: #f1cf83;
   --color-planter-face: #26332e;
   --color-planter-edge: #53645c;
+  --color-planter-dark: #182b24;
+  --color-planter-deep: #0b1b16;
+  --color-planter-mid: #3f544b;
+  --color-planter-rib: #1d3128;
+  --color-planter-rib-shadow: #0f211a;
+  --color-planter-highlight: #8b9b92;
   --font-garden: "Pretendard", "SUIT", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
   --type-display-size: 48px;
   --type-h1-mobile-size: 40px;

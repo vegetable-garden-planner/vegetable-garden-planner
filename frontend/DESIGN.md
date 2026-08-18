@@ -2,7 +2,11 @@
 
 ## 1. Atmosphere / signature
 
-Figma `홈 (전체)` 프레임과 시작 진단 레퍼런스의 야간 온실 풍경을 함께 기준으로 한다. 짙은 숲색 사진 위에 맑은 흰색 타이포를 얹고, 본문은 따뜻한 흰색 바탕과 선명한 에메랄드 한 색으로 연결한다. 시작 진단에서는 실제 화분 사진, 치수 가이드, 반투명 잎 그림자, 카메라 원근 반응을 한 장면처럼 겹친다. 둥근 카드와 세로형 캡슐을 반복 모티프로 사용하되, 화면 전체가 카드 목록처럼 보이지 않게 사진과 비대칭 여백이 리듬을 만든다.
+- `DESIGN_VARIANCE: 7`
+- `MOTION_INTENSITY: 2`
+- `VISUAL_DENSITY: 5`
+
+Figma `홈 (전체)` 프레임과 시작 진단 레퍼런스의 야간 온실 풍경을 함께 기준으로 한다. 짙은 숲색 사진 위에 맑은 흰색 타이포를 얹고, 본문은 따뜻한 흰색 바탕과 선명한 에메랄드 한 색으로 연결한다. 시작 진단에서는 빈 받침대가 있는 실제 온실 사진, 입력값에 반응하는 WebGL 화분, 3D 치수 가이드와 전경 잎을 한 장면처럼 겹친다. 둥근 카드와 세로형 캡슐을 반복 모티프로 사용하되, 화면 전체가 카드 목록처럼 보이지 않게 사진과 비대칭 여백이 리듬을 만든다.
 
 ## 2. Color
 
@@ -37,8 +41,11 @@ Figma `홈 (전체)` 프레임과 시작 진단 레퍼런스의 야간 온실 �
 - `--color-forest-mist: #B8D8C7`: 어두운 화면의 보조 설명과 치수선.
 - `--color-leaf-bright: #73D6A2`: 선택 표시와 살아 있는 잎의 밝은 포인트.
 - `--color-sunbeam: #F1CF83`: 온실 조명, 햇빛 수치, 작은 광원 포인트.
-- `--color-planter-face: #26332E`: CSS 화분 모형의 전면.
-- `--color-planter-edge: #53645C`: CSS 화분 모형의 상단과 모서리.
+- `--color-planter-face: #26332E`: 화분의 기본 숲색 표면.
+- `--color-planter-edge: #53645C`: WebGL 림과 모서리 하이라이트.
+- `--color-planter-dark: #182B24`, `--color-planter-deep: #0B1B16`: WebGL 화분의 깊은 음영과 측면.
+- `--color-planter-mid: #3F544B`, `--color-planter-highlight: #8B9B92`: PBR 림 베벨과 조명 면.
+- `--color-planter-rib: #1D3128`, `--color-planter-rib-shadow: #0F211A`: 실제 반복 geometry로 만든 세로 골의 팔레트.
 
 본문/배경과 primary/흰색 조합은 일반 텍스트 4.5:1, 큰 텍스트와 UI 3:1을 기준으로 사용한다. `#46B18D`와 `#FFC283`은 큰 텍스트 또는 장식에만 쓴다.
 
@@ -87,9 +94,10 @@ Figma `홈 (전체)` 프레임과 시작 진단 레퍼런스의 야간 온실 �
 - Task row: 최소 높이 56px, 아이콘 원형 40px, 행 사이 구분선. hover는 surface, focus-within은 ring.
 - Recommendation card: 사진 상단, 정보 하단, radius 16px, border 1px. 링크 전체가 클릭되며 hover 시 translateY(-4px), active 시 translateY(0).
 - Empty/loading/error: empty는 surface 배경과 설명+CTA, loading은 surface/primary-soft skeleton, error는 danger 텍스트와 재시도 CTA.
-- Diagnosis stage: 화면 전체를 어두운 온실 사진으로 채우고 왼쪽의 한 패널만 입력 영역으로 사용한다. 첫 단계 패널은 밝은 종이 면, 이후 단계는 짙은 반투명 면이다. 오른쪽 화분은 치수선과 상태 HUD가 겹쳐진 실제 사진을 사용하며 포인터에 따라 배경과 가이드가 서로 다른 속도로 움직인다. 단계 이동 시 패널과 장면은 opacity, transform, filter로만 전환한다.
+- Diagnosis stage: 화면 전체를 어두운 온실 사진으로 채우고 왼쪽의 한 패널만 입력 영역으로 사용한다. 첫 단계 패널은 밝은 종이 면이며 화면 왼쪽과 하단을 감싸는 비대칭 타원 곡선을 사용한다. 이후 단계는 짙은 반투명 면이다. 첫 단계 배경 사진에는 화분을 포함하지 않고, 오른쪽에 React Three Fiber `Canvas`를 투명하게 겹친다. 배경, 패널, 카메라와 제품은 포인터 위치에 반응하지 않으며 제품 중심과 카메라 target을 고정한다. drag, tilt, orbit, pan, wheel zoom을 모두 허용하지 않는다. 카메라 거리는 화분 개수별 고정 프리셋만 사용하며 가로·세로·깊이 입력에는 반응하지 않는다. 제품 조명은 별도 스튜디오처럼 밝게 분리하지 않고 온실 배경의 짙은 녹색 주변광, 낮은 노출, 부드러운 접촉 그림자에 맞춘다.
+- Diagnosis dimension planter: Blender에서 기준 크기 `0.60 × 0.20 × 0.25m`로 제작하고 내보낸 `planter-modular.glb`의 모듈을 React Three Fiber에서 조립한다. 고정 모서리, 림 모서리, 리브 폭과 벽 두께는 유지하고 중앙 벽·림 직선·바닥만 치수에 맞게 연장한다. 리브는 16~20mm 간격으로 개수와 위치를 다시 계산하며 옆으로 늘리지 않는다. 가로·세로·깊이 입력은 300ms ease-out 동안 실제 Mesh 위치와 모듈 치수를 보간한다. `MeshPhysicalMaterial`, ACES Filmic tone mapping, sRGB output, 환경 조명, key/fill/rim light, cast/receive shadow와 `ContactShadows`를 사용한다. 화분 수는 실제 Mesh 그룹을 최대 3개 생성하고 대표 화분만 3D 치수 가이드를 가진다. 제품 Canvas의 중심은 데스크톱 화면 너비의 70% 지점에 있는 받침대 광학 중심에 맞추며, 대표 화분의 투영 Bounding Box 중심을 Canvas 중앙에 고정한다. 개수별 임의 좌우 보정은 사용하지 않고 가로 치수와 개수가 달라져도 첫 화분은 같은 기준점에서 커진다. 화분과 치수 가이드는 항상 같은 그룹 안에서 함께 이동한다. 카메라 거리 프리셋은 1개 `1.55`, 2개 `1.75`, 3개 `1.80`으로 고정한다. 1개는 큰 단독 제품샷, 2개는 고정된 앞 화분과 뒤쪽 보조 화분의 대각 배치, 3개는 고정된 앞 1개와 뒤 2개의 삼각 배치를 사용한다. 3개 배치의 뒤쪽 간격은 화면축 `0.40m`를 상한으로 두어 최대 가로에서도 Canvas 밖으로 잘리지 않게 한다. 이 간격과 카메라 거리는 입력 가로값에 따라 연속 축소하지 않는 개수별 고정 프리셋이다.
 - Diagnosis option: 사진 선택지는 실제 작물 사진을 쓰며 2열 비대칭 그리드로 배치한다. 텍스트 선택지는 번호, 제목, 설명, 원형 체크를 한 행에 놓는다. hover는 `translateY(-4px)`, active는 `scale(0.98)`, focus는 `--color-focus`의 2px 링, disabled는 opacity 0.38이다.
-- Diagnosis rail: 오른쪽에 세로 원형 단계 내비게이션을 둔다. 완료 단계만 다시 열 수 있고 미완료 단계는 disabled 상태다. 모바일에서는 화면 아래 가로 레일로 전환한다.
+- Diagnosis rail: 오른쪽에 1, 2, 3 세 개의 원형 단계 내비게이션만 두고 가는 진행선으로 연결한다. 분석과 결과는 3단계 이후의 후속 상태이며 별도 단계 원을 만들지 않는다. 완료 단계만 다시 열 수 있고 미완료 단계는 disabled 상태다. 모바일에서는 화면 아래 가로 레일로 전환한다.
 - Planter model: 결과 카드 안에서는 실제 작물 사진 아래에 `--color-planter-face` 전면과 `--color-planter-edge` 상단을 겹쳐 화분 깊이를 만든다. 모형은 장식이며 텍스트나 입력을 흉내 내지 않는다.
 - Garden bed: 흙색의 두꺼운 테두리 안에 작물 원형 또는 사진을 배치한다. 모바일은 요약 배치, 데스크톱은 왼쪽 작물 목록·중앙 격자·오른쪽 속성 패널의 3영역 편집기로 전환한다.
 - App footer: primary 배경, 사진형 CTA 다음에 붙이며 네 열 정보 구조를 유지한다.

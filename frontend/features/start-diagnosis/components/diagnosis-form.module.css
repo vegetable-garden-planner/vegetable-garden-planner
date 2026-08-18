@@ -1,8 +1,4 @@
 .diagnosis {
-  --scene-x: 0px;
-  --scene-y: 0px;
-  --guide-x: 0px;
-  --guide-y: 0px;
   position: relative;
   min-height: 100svh;
   overflow: hidden;
@@ -20,9 +16,6 @@
 
 .sceneBackdrop {
   z-index: -4;
-  inset: calc(var(--space-3) * -1);
-  transform: translate3d(var(--scene-x), var(--scene-y), 0) scale(1.025);
-  transition: transform var(--motion-slow) var(--ease-out);
 }
 
 .sceneImage {
@@ -34,18 +27,13 @@
 .sceneShade {
   z-index: -3;
   background:
-    linear-gradient(90deg, color-mix(in srgb, var(--color-forest-night) 84%, transparent), color-mix(in srgb, var(--color-forest-night) 18%, transparent) 60%),
-    linear-gradient(0deg, color-mix(in srgb, var(--color-forest-night) 56%, transparent), transparent 54%);
+    linear-gradient(90deg, color-mix(in srgb, var(--color-forest-night) 72%, transparent), transparent 58%),
+    linear-gradient(0deg, color-mix(in srgb, var(--color-forest-night) 36%, transparent), transparent 52%);
 }
 
 .sceneTexture {
   z-index: -2;
-  opacity: 0.2;
-  background-image:
-    linear-gradient(90deg, color-mix(in srgb, var(--color-on-photo) 7%, transparent) var(--line-thin), transparent var(--line-thin)),
-    linear-gradient(color-mix(in srgb, var(--color-on-photo) 5%, transparent) var(--line-thin), transparent var(--line-thin));
-  background-size: var(--space-20) var(--space-20);
-  mask-image: linear-gradient(90deg, transparent, var(--color-forest-night), transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-forest-night) 18%, transparent), transparent 44%);
 }
 
 .dimensionStage,
@@ -61,16 +49,21 @@
 
 .dimensionStage {
   position: relative;
-  padding: var(--space-28) var(--space-18) var(--space-12);
+  padding: var(--space-20) var(--space-16) var(--space-12);
 }
 
 .dimensionHeading {
   position: relative;
-  z-index: 4;
+  z-index: 6;
   width: min(38%, var(--layout-question-max));
 }
 
-.dimensionHeading p,
+.clipDefs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
 .cropPanel header p,
 .conditionStage > header p,
 .analysisStage > p,
@@ -84,10 +77,15 @@
 
 .dimensionHeading h1,
 .cropPanel h1 {
-  margin: var(--space-4) 0 0;
+  margin: 0;
   font-size: var(--type-display-compact-size);
+  font-weight: 700;
   line-height: 1.14;
   letter-spacing: -0.04em;
+}
+
+.cropPanel h1 {
+  margin-top: var(--space-4);
 }
 
 .dimensionHeading > span,
@@ -102,58 +100,89 @@
 
 .whiteSweep {
   position: absolute;
-  z-index: 3;
+  z-index: 5;
+  top: 28%;
+  right: auto;
   bottom: 0;
-  left: calc(var(--space-18) * -1);
-  display: grid;
-  width: 46%;
-  min-height: 57%;
-  align-content: end;
-  justify-items: end;
-  border-radius: 0 var(--radius-portal) 0 0;
-  padding: var(--space-10) var(--space-18) var(--space-12) calc(var(--space-18) * 2);
-  background: var(--color-panel);
+  left: 0;
+  width: 44.5%;
+  height: 72%;
+  background: var(--cream);
   color: var(--color-ink-strong);
   box-shadow: var(--shadow-panel);
-}
-
-.whiteSweep::after {
-  position: absolute;
-  z-index: -1;
-  top: calc(var(--space-18) * -1);
-  right: calc(var(--space-18) * -1);
-  width: calc(var(--space-36) * 2);
-  height: var(--space-36);
-  border-radius: var(--radius-pill);
-  background: var(--color-panel);
-  content: "";
-  transform: rotate(34deg);
+  clip-path: url("#dimension-sweep-clip");
 }
 
 .measurementGrid {
+  position: absolute;
+  bottom: calc(var(--space-24) + var(--control-xl) + var(--space-10) + var(--space-3));
+  left: var(--space-16);
   display: grid;
-  width: min(100%, calc(var(--layout-question-max) - var(--space-12)));
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-4) var(--space-6);
+  width: min(calc(100% - (var(--space-16) * 2)), calc(var(--space-36) * 2 + var(--space-18)));
 }
 
 .measurement {
+  display: grid;
+  min-height: var(--space-20);
+  grid-template-columns: var(--control-sm) var(--space-12) var(--space-10) var(--control-sm) var(--space-14) var(--control-sm);
+  align-items: center;
+  column-gap: var(--space-2);
   border-bottom: var(--line-thin) solid var(--color-border);
-  padding-bottom: var(--space-3);
 }
 
-.measurement > span {
-  color: var(--color-muted);
+.measurementIcon {
+  position: relative;
+  display: grid;
+  width: var(--control-sm);
+  height: var(--control-sm);
+  place-items: center;
+  border: var(--line-thin) solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  font-size: var(--type-body-lg-size);
+}
+
+.measurementIcon[data-kind="width"]::before {
+  content: "↔";
+}
+
+.measurementIcon[data-kind="length"]::before {
+  content: "↕";
+  transform: rotate(-24deg);
+}
+
+.measurementIcon[data-kind="height"]::before {
+  content: "↕";
+}
+
+.measurementIcon[data-kind="count"] i {
+  position: relative;
+  display: block;
+  width: var(--space-4);
+  height: var(--space-3);
+  border: var(--line-thin) solid currentColor;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.measurementIcon[data-kind="count"] i::before {
+  position: absolute;
+  top: calc(var(--space-1) * -1);
+  left: calc(var(--line-thin) * -1);
+  width: var(--space-4);
+  border-top: var(--line-thin) solid currentColor;
+  content: "";
+}
+
+.measurementLabel {
   font-size: var(--type-caption-size);
   font-weight: 700;
+  white-space: nowrap;
 }
 
-.measurement > div {
-  display: grid;
-  grid-template-columns: var(--control-sm) minmax(0, 1fr) auto var(--control-sm);
-  align-items: center;
-  gap: var(--space-2);
-  margin-top: var(--space-2);
+.measurement small {
+  color: var(--color-muted);
+  font-size: var(--type-micro-size);
+  white-space: nowrap;
 }
 
 .measurement button {
@@ -163,147 +192,124 @@
   cursor: pointer;
   place-items: center;
   border: var(--line-thin) solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-page);
-  color: var(--color-primary);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-ink-strong);
   font: inherit;
 }
 
+.measurement button:first-of-type {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.measurement button:last-of-type {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.measurement button:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.measurement button:disabled {
+  cursor: not-allowed;
+  opacity: 0.32;
+}
+
 .measurement strong {
-  text-align: right;
-  font-size: var(--type-title-sm-size);
-}
-
-.measurement small {
-  color: var(--color-muted);
-  font-size: var(--type-caption-size);
-}
-
-.whiteSweep > .primaryButton {
-  margin-top: var(--space-6);
-}
-
-.dimensionGuide {
-  position: absolute;
-  right: 4%;
-  bottom: 10%;
-  width: 54%;
-  height: 48%;
-  color: var(--color-sunbeam);
-  transform: translate3d(var(--guide-x), var(--guide-y), 0);
-  transition: transform var(--motion-slow) var(--ease-out);
-}
-
-.widthLine,
-.depthLine,
-.heightLine {
-  position: absolute;
-  font-size: var(--type-caption-size);
-  filter: drop-shadow(0 var(--line-thin) var(--line-thin) var(--color-forest-night));
-}
-
-.widthLine {
-  right: 9%;
-  bottom: 4%;
-  left: 4%;
-  border-top: var(--line-thin) dashed currentColor;
-}
-
-.depthLine {
-  right: 5%;
-  bottom: 13%;
-  width: 40%;
-  border-top: var(--line-thin) dashed currentColor;
-  transform: rotate(-12deg);
-  transform-origin: right;
-}
-
-.heightLine {
-  top: 0;
-  right: 3%;
-  bottom: 10%;
-  border-left: var(--line-thin) dashed currentColor;
-}
-
-.widthLine::before,
-.widthLine::after,
-.depthLine::before,
-.depthLine::after,
-.heightLine::before,
-.heightLine::after {
-  position: absolute;
-  width: var(--space-2);
-  height: var(--space-2);
-  border-radius: var(--radius-pill);
-  background: currentColor;
-  content: "";
-}
-
-.widthLine::before,
-.depthLine::before {
-  top: calc(var(--space-1) * -1);
-  left: 0;
-}
-
-.widthLine::after,
-.depthLine::after {
-  top: calc(var(--space-1) * -1);
-  right: 0;
-}
-
-.heightLine::before {
-  top: 0;
-  left: calc(var(--space-1) * -1);
-}
-
-.heightLine::after {
-  bottom: 0;
-  left: calc(var(--space-1) * -1);
-}
-
-.widthLine b,
-.depthLine b,
-.heightLine b {
-  position: absolute;
-  white-space: nowrap;
-}
-
-.widthLine b {
-  top: var(--space-2);
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.depthLine b {
-  right: 50%;
-  bottom: var(--space-2);
-  transform: translateX(50%);
-}
-
-.heightLine b {
-  top: 50%;
-  right: var(--space-3);
-  transform: translateY(-50%);
-}
-
-.planterTag {
-  position: absolute;
-  top: 0;
-  left: 12%;
   display: grid;
-  gap: var(--space-1);
-  border-left: var(--line-thin) solid currentColor;
-  padding-left: var(--space-3);
+  height: var(--control-sm);
+  place-items: center;
+  border-block: var(--line-thin) solid var(--color-border);
+  color: var(--color-primary);
+  font-size: var(--type-title-sm-size);
+  line-height: 1;
 }
 
-.planterTag small {
-  color: var(--color-forest-mist);
-  font-size: var(--type-caption-size);
+.dimensionActions {
+  position: absolute;
+  bottom: var(--space-24);
+  left: var(--space-16);
+  display: grid;
+  width: min(calc(100% - (var(--space-16) * 2)), calc(var(--space-36) * 2 + var(--space-18)));
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--space-3);
 }
 
-.planterTag strong {
+.dimensionActions .primaryButton,
+.dimensionActions .backButton {
+  min-height: var(--control-xl);
+  border-radius: var(--radius-sm);
+}
+
+.planterViewport {
+  position: absolute;
+  z-index: 4;
+  right: calc(24.5% - 20vw);
+  bottom: var(--space-16);
+  width: 51%;
+  height: 58%;
+  min-height: calc((var(--space-36) * 3) - var(--space-3));
+  overflow: visible;
+  cursor: default;
+  pointer-events: none;
+  touch-action: auto;
+}
+
+.planterViewport::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-forest-deep) 6%, transparent),
+    color-mix(in srgb, var(--color-forest-deep) 16%, transparent)
+  );
+  pointer-events: none;
+}
+
+.planterViewport > div,
+.planterViewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+.planterViewport:focus-within {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+.planterStatus {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  padding: var(--space-2) var(--space-3);
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-white) 28%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-forest-deep) 78%, transparent);
   color: var(--color-on-photo);
-  font-size: var(--type-body-size);
+  font-size: var(--type-body-sm-size);
+  line-height: 1.55;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.planterStatus[data-status="error"] {
+  border-color: var(--color-sunbeam);
+}
+
+.srOnly {
+  position: absolute;
+  width: var(--line-thin);
+  height: var(--line-thin);
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .cropStage {
@@ -418,8 +424,6 @@
   gap: var(--space-1);
   border-left: var(--line-thin) solid var(--color-sunbeam);
   padding-left: var(--space-4);
-  transform: translate3d(var(--guide-x), var(--guide-y), 0);
-  transition: transform var(--motion-slow) var(--ease-out);
 }
 
 .cropSceneLabel span {
@@ -886,11 +890,21 @@
   top: 50%;
   right: var(--space-6);
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-12);
   margin: 0;
   padding: 0;
   list-style: none;
   transform: translateY(-50%);
+}
+
+.stepRail::before {
+  position: absolute;
+  z-index: -1;
+  top: calc(var(--control-xl) / 2);
+  right: calc((var(--control-xl) / 2) - var(--line-thin));
+  bottom: calc(var(--control-xl) / 2);
+  border-left: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 36%, transparent);
+  content: "";
 }
 
 .stepRail button {
@@ -898,7 +912,7 @@
   cursor: pointer;
   align-items: center;
   justify-content: flex-end;
-  gap: var(--space-3);
+  gap: 0;
   border: 0;
   background: transparent;
   color: color-mix(in srgb, var(--color-on-photo) 46%, transparent);
@@ -907,33 +921,22 @@
 
 .stepRail button:disabled {
   cursor: not-allowed;
-  opacity: 0.4;
+  opacity: 0.72;
 }
 
 .stepRail span {
   display: grid;
-  width: var(--control-sm);
-  height: var(--control-sm);
+  width: var(--control-xl);
+  height: var(--control-xl);
   place-items: center;
   border: var(--line-thin) solid currentColor;
   border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-forest-night) 72%, transparent);
   font-size: var(--type-caption-size);
 }
 
 .stepRail small {
-  overflow: hidden;
-  width: 0;
-  text-align: right;
-  font-size: var(--type-micro-size);
-  opacity: 0;
-  transition: width var(--motion-base) var(--ease-out), opacity var(--motion-base) var(--ease-out);
-  white-space: nowrap;
-}
-
-.stepRail li:hover small,
-.stepRail .activeStep small {
-  width: var(--space-24);
-  opacity: 1;
+  display: none;
 }
 
 .stepRail .activeStep button,
@@ -942,8 +945,9 @@
 }
 
 .stepRail .activeStep span {
-  border-color: var(--color-primary);
-  background: var(--color-primary);
+  border-color: var(--color-on-photo);
+  background: color-mix(in srgb, var(--color-forest-panel) 86%, transparent);
+  box-shadow: 0 0 0 var(--space-2) color-mix(in srgb, var(--color-on-photo) 24%, transparent), 0 0 var(--space-5) color-mix(in srgb, var(--color-accent) 42%, transparent);
 }
 
 .stepRail .completeStep span {
@@ -971,6 +975,13 @@
   to { transform: translateX(210%); }
 }
 
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .planterViewport {
+    right: calc(23.5% - 20vw);
+    width: 53%;
+  }
+}
+
 @media (max-width: 1024px) {
   .dimensionStage,
   .cropStage,
@@ -981,7 +992,11 @@
 
   .whiteSweep {
     width: 52%;
-    padding-right: var(--space-10);
+  }
+
+  .planterViewport {
+    right: calc(21% - 20vw);
+    width: 58%;
   }
 
   .cropStage {
@@ -1007,7 +1022,8 @@
 
 @media (max-width: 768px) {
   .diagnosis {
-    overflow-y: auto;
+    overflow-x: hidden;
+    overflow-y: visible;
   }
 
   .sceneBackdrop,
@@ -1033,44 +1049,58 @@
     padding: var(--space-24) var(--space-4) var(--space-20);
   }
 
+  .dimensionStage {
+    min-height: calc(100svh + var(--space-36));
+    padding-bottom: 0;
+  }
+
   .dimensionHeading {
-    width: 86%;
+    width: 92%;
   }
 
   .dimensionHeading h1,
   .cropPanel h1 {
-    font-size: var(--type-h3-size);
+    font-size: var(--type-h2-size);
   }
 
   .dimensionHeading > span {
-    max-width: 72%;
+    max-width: 92%;
   }
 
   .whiteSweep {
     position: absolute;
-    right: var(--space-3);
-    bottom: var(--space-16);
-    left: var(--space-3);
-    width: auto;
-    min-height: 42%;
-    border-radius: var(--radius-2xl);
-    padding: var(--space-6);
-  }
-
-  .whiteSweep::after {
-    display: none;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 46%;
+    min-height: 0;
+    border-radius: 50% 50% 0 0 / 12% 12% 0 0;
+    padding: 0;
+    clip-path: none;
   }
 
   .measurementGrid {
-    width: 100%;
+    bottom: calc(var(--space-16) + var(--control-xl) + var(--space-5));
+    left: var(--space-6);
+    width: calc(100% - (var(--space-6) * 2));
   }
 
-  .dimensionGuide {
-    top: 27%;
-    right: var(--space-4);
+  .dimensionActions {
+    bottom: var(--space-16);
+    left: var(--space-6);
+    width: calc(100% - (var(--space-6) * 2));
+  }
+
+  .planterViewport {
+    top: 18svh;
+    right: 0;
     bottom: auto;
-    width: 72%;
-    height: 27%;
+    left: 0;
+    width: 100%;
+    height: 48svh;
+    min-height: calc((var(--space-36) * 2) + var(--space-12));
   }
 
   .cropStage {
@@ -1158,14 +1188,24 @@
   }
 
   .stepRail {
-    position: fixed;
+    position: absolute;
     top: auto;
-    right: 0;
+    right: var(--space-4);
     bottom: var(--space-4);
-    left: 0;
+    left: var(--space-4);
     display: flex;
     justify-content: center;
+    gap: var(--space-10);
     transform: none;
+  }
+
+  .stepRail::before {
+    top: calc((var(--space-8) / 2) - var(--line-thin));
+    right: calc(50% - var(--space-16));
+    bottom: auto;
+    left: calc(50% - var(--space-16));
+    border-top: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 36%, transparent);
+    border-left: 0;
   }
 
   .stepRail span {
@@ -1183,17 +1223,22 @@
     padding-inline: var(--space-3);
   }
 
-  .whiteSweep,
   .cropPanel {
     padding: var(--space-5);
   }
 
-  .measurementGrid {
-    gap: var(--space-3);
+  .measurement {
+    grid-template-columns: var(--control-sm) var(--space-16) var(--space-8) var(--control-sm) var(--space-12) var(--control-sm);
+    column-gap: var(--space-1);
   }
 
-  .measurement > div {
-    gap: var(--space-1);
+  .planterViewport {
+    top: 19svh;
+    left: 0;
+    width: 100%;
+    height: 42svh;
+    min-height: calc(var(--space-36) * 2);
+    transform: none;
   }
 
   .cropCard strong,
@@ -1210,7 +1255,6 @@
   .conditionStage,
   .analysisStage,
   .resultStage,
-  .dimensionGuide,
   .cropSceneLabel,
   .scanLine,
   .loadingTrack span,
