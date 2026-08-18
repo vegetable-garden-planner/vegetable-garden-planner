@@ -19,8 +19,9 @@ export default async function SeasonRecordsPage({ params }: { params: Promise<{ 
         backLabel="시즌 목록"
         description="작업과 성장 관찰, 수확 기록을 남기고 한 시즌의 변화를 시간순으로 돌아보세요."
         eyebrow="시즌 기록"
+        heroSize="compact"
         title="한 일과 식물의 변화를 남겨요"
-        width="medium"
+        width="full"
       >
         <CultivationRecordManager seasonId={seasonId} />
       </AppPageShell>

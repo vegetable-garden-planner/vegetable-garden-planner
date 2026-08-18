@@ -12,6 +12,7 @@ import {
   type CultivationRecordDraftErrors,
   type CultivationRecordInput,
 } from "../domain/cultivation-record";
+import styles from "./cultivation-record.module.css";
 
 export function CultivationRecordForm({
   disabled,
@@ -42,30 +43,32 @@ export function CultivationRecordForm({
     if (saved && !record) setDraft(createRecordDraft(season));
   }
 
-  const inputClass = "mt-2 w-full rounded-xl border border-ink/15 bg-white px-4 py-3 disabled:opacity-60";
-
   return (
     <form
-      className={record ? "rounded-2xl bg-leaf-soft/35 p-4" : "mt-5 rounded-3xl border border-leaf/15 bg-leaf-soft/35 p-5 sm:p-6"}
+      className={record ? styles.editForm : styles.createForm}
       onSubmit={(event) => { void submit(event); }}
     >
-      <h2 className="text-lg font-bold">{record ? "기록 수정" : "새 기록 남기기"}</h2>
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
-        <Field error={errors.type} label="기록 종류">
-          <select
-            className={inputClass}
-            disabled={disabled}
-            onChange={(event) => setDraft({ ...draft, type: event.target.value })}
-            value={draft.type}
-          >
-            {CULTIVATION_RECORD_TYPES.map((type) => (
-              <option key={type} value={type}>{CULTIVATION_RECORD_TYPE_LABELS[type]}</option>
-            ))}
-          </select>
-        </Field>
+      <div className={styles.formHeading}>
+        <span aria-hidden="true">{record ? "수정" : "기록"}</span>
+        <div><p>{record ? "기록 다듬기" : "오늘의 재배 일지"}</p><h2>{record ? "기록 수정" : "새 기록 남기기"}</h2></div>
+      </div>
+      <fieldset className={styles.typeFieldset} disabled={disabled}>
+        <legend>기록 종류</legend>
+        <div className={styles.typeOptions}>
+          {CULTIVATION_RECORD_TYPES.map((type) => (
+            <label data-type={type} key={type}>
+              <input checked={draft.type === type} name={record ? `record-type-${record.id}` : "record-type-new"} onChange={() => setDraft({ ...draft, type })} type="radio" value={type} />
+              <span aria-hidden="true">{CULTIVATION_RECORD_TYPE_LABELS[type].slice(0, 1)}</span>
+              <strong>{CULTIVATION_RECORD_TYPE_LABELS[type]}</strong>
+            </label>
+          ))}
+        </div>
+        {errors.type && <span className={styles.fieldError} role="alert">{errors.type}</span>}
+      </fieldset>
+      <div className={styles.fieldGrid}>
         <Field error={errors.occurredAtLocal} label="기록 시각">
           <input
-            className={inputClass}
+            className={styles.input}
             disabled={disabled}
             max={`${season.endDate}T23:59`}
             min={`${season.startDate}T00:00`}
@@ -76,7 +79,7 @@ export function CultivationRecordForm({
         </Field>
         <Field error={errors.quantity} label="수량 (선택)">
           <input
-            className={inputClass}
+            className={styles.input}
             disabled={disabled}
             min="0.001"
             onChange={(event) => setDraft({ ...draft, quantity: event.target.value })}
@@ -88,7 +91,7 @@ export function CultivationRecordForm({
         </Field>
         <Field error={errors.unit} label="단위 (선택)">
           <input
-            className={inputClass}
+            className={styles.input}
             disabled={disabled}
             maxLength={20}
             onChange={(event) => setDraft({ ...draft, unit: event.target.value })}
@@ -99,7 +102,7 @@ export function CultivationRecordForm({
       </div>
       <Field error={errors.notes} label="메모">
         <textarea
-          className={`${inputClass} min-h-28 resize-y`}
+          className={`${styles.input} ${styles.textarea}`}
           disabled={disabled}
           maxLength={2000}
           onChange={(event) => setDraft({ ...draft, notes: event.target.value })}
@@ -107,13 +110,13 @@ export function CultivationRecordForm({
           value={draft.notes}
         />
       </Field>
-      <p className="mt-1 text-right text-xs text-muted">{draft.notes.length} / 2,000</p>
-      <div className="mt-4 flex flex-wrap gap-2">
-        <button className="rounded-full bg-leaf px-5 py-3 text-sm font-bold text-white disabled:opacity-50" disabled={disabled} type="submit">
+      <p className={styles.characterCount}>{draft.notes.length} / 2,000</p>
+      <div className={styles.formActions}>
+        <button className={styles.submitButton} disabled={disabled} type="submit">
           {disabled ? "저장 중..." : record ? "수정 저장" : "기록 추가"}
         </button>
         {onCancel && (
-          <button className="rounded-full border border-ink/15 px-5 py-3 text-sm font-bold disabled:opacity-50" disabled={disabled} onClick={onCancel} type="button">
+          <button className={styles.cancelButton} disabled={disabled} onClick={onCancel} type="button">
             취소
           </button>
         )}
@@ -124,10 +127,10 @@ export function CultivationRecordForm({
 
 function Field({ children, error, label }: { children: React.ReactNode; error?: string; label: string }) {
   return (
-    <label className="mt-4 block text-sm font-bold">
-      {label}
+    <label className={styles.field}>
+      <span>{label}</span>
       {children}
-      {error && <span className="mt-2 block text-xs text-red-700" role="alert">{error}</span>}
+      {error && <strong className={styles.fieldError} role="alert">{error}</strong>}
     </label>
   );
 }
