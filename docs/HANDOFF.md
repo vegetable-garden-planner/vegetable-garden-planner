@@ -7,16 +7,19 @@
 ## 1. 한눈에 보는 현재 상태
 
 - 안정 기준 브랜치: `develop`
-- 문서 작성 시점의 안정 커밋: `f5fec07 병합: 재배 공간 관리 화면 디자인 통일`
+- 정확한 안정 커밋은 작업 시작 시 `git log -1 --oneline develop`로 확인
 - 프론트 운영: https://vegetable-garden-planner.vercel.app
 - 백엔드 운영: https://yjwest9.dothome.co.kr
 - 운영 API 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
+- Swagger UI: 백엔드 배포 후 https://yjwest9.dothome.co.kr/api-docs
 - 프론트 Production 브랜치: `develop`
 - 프론트 Root Directory: `frontend`
 - 백엔드 배포: 닷홈에 FileZilla로 변경 파일을 직접 업로드하는 수동 방식
 - DB 스키마 단일 기준: `backend/database/migrations`
 
 현재 기능은 회원가입부터 공간·시즌·작물 배치·재배 일정·물주기·재배 기록까지 Laravel API와 MySQL에 연결되어 있습니다. 최근 작업의 중심은 새 기능 추가가 아니라 디자인 시안에 맞춘 기존 화면의 구조·스타일·반응형 통일입니다.
+
+진행 중 작업과 다음 순서는 [작업 목록](TASKS.md)이 단일 기준입니다. 작업을 완료하면 같은 작업 안에서 즉시 완료 표시하거나 목록에서 제거합니다.
 
 ## 2. 반드시 지킬 Git 규칙
 
@@ -70,6 +73,13 @@
 - 작업·성장 관찰·수확·물주기 시즌 기록 CRUD
 - 대시보드 일정 알림과 공간 유형에 맞는 다음 단계 안내
 
+### API 문서와 작업 관리
+
+- `backend/resources/openapi.yaml`을 단일 기준으로 사용하는 Swagger UI
+- 로컬 `/api-docs`, 운영 배포 후 `https://yjwest9.dothome.co.kr/api-docs`
+- Laravel이 제공하는 `/api-docs/openapi.yaml` 명세 응답과 회귀 테스트
+- 진행·대기·완료 상태를 즉시 갱신하는 [작업 목록](TASKS.md)
+
 ## 4. 완료된 디자인 개편
 
 디자인 기준은 [프론트 디자인 시스템](../frontend/DESIGN.md)입니다. 원본 시안의 핵심은 짙은 온실 사진, 에메랄드 포인트, 따뜻한 흰색 배경, 얇은 경계, 둥근 카드, 긴 세로 스크롤 구성입니다.
@@ -82,10 +92,10 @@
 | 재배 일정 화면 | 완료 | `1f6cda2` |
 | 재배 공간 목록·등록·수정 | 완료 | `f5fec07` |
 
-완료 화면은 기존 API 기능을 유지하면서 데스크톱과 모바일 레이아웃을 모두 확인했습니다. 공간 화면까지의 마지막 전체 검증 결과는 다음과 같습니다.
+완료 화면은 기존 API 기능을 유지하면서 데스크톱과 모바일 레이아웃을 모두 확인했습니다. Swagger 작업까지 포함한 현재 전체 검증 결과는 다음과 같습니다.
 
 - 프론트엔드 테스트: 122개 통과
-- 백엔드 테스트: 110개, 729 assertions 통과
+- 백엔드 테스트: 112개, 741 assertions 통과
 - TypeScript 타입 검사 통과
 - ESLint 통과
 - Pint 통과
@@ -124,29 +134,13 @@
 - `npm.cmd run lint` 통과
 - `git diff --check` 통과
 
-아직 하지 않은 일:
-
-1. 시즌 목록과 폼의 데스크톱·모바일 시각 QA 완료
-2. QA에서 발견한 간격·넘침·순서 문제 수정
-3. 임시 미리보기 라우트를 만들었다면 커밋 전에 삭제
-4. `frontend/DESIGN.md`에 Season management 규칙 추가
-5. 프론트 122개·백엔드 110개 전체 테스트, 타입 검사, ESLint, Pint, Next 빌드 재실행
-6. 한글 기능 커밋 후 `develop` 병합·push
-7. 병합된 시즌 기능 브랜치 삭제
+남은 체크리스트와 완료 상태는 [작업 목록](TASKS.md)의 진행 중 항목에서 관리합니다. 시즌 작업의 즉시 실행 순서는 이 문서 11절을 따릅니다.
 
 중요: 이 인계 문서를 `develop`에 반영하는 동안 위 시즌 변경은 stash로 임시 보관했다가 같은 브랜치에 복원합니다. 작업을 이어받을 때 먼저 `git status --short --branch`와 `git stash list`를 확인하고, 변경이 이미 작업 폴더에 복원되어 있으면 다시 `stash pop`하지 않습니다.
 
-## 6. 남은 디자인 작업 순서
+## 6. 디자인 작업 순서 관리
 
-시즌 화면을 끝낸 뒤 아래 순서로 기능별 별도 브랜치에서 진행합니다.
-
-1. 물주기 일정과 완료·미루기·이력 화면
-2. 시즌 재배 기록 목록·등록·수정 화면
-3. 작물 목록·검색·필터와 작물 상세 화면
-4. 로그인·회원가입 화면의 최종 시안 정렬
-5. 시작 진단과 요금제 화면
-6. 공통 빈 상태·오류·로딩·삭제 확인·모바일 내비게이션 최종 통일
-7. 회원가입 → 기록까지 실제 브라우저 E2E 점검
+현재 순서와 상태는 [작업 목록](TASKS.md)만 갱신합니다. 완료된 항목을 이 문서의 “남은 작업”으로 중복 유지하지 않습니다.
 
 작은 UI 작업을 DB나 API 변경으로 확대하지 않습니다. 화면에서 필요한 데이터가 이미 있으면 프론트 구조와 CSS만 수정합니다. 실제 서버 기능이 없는 알림·결제·사진 업로드를 디자인만으로 동작하는 기능처럼 표시하지 않습니다.
 
@@ -203,7 +197,7 @@ git status --short --branch
 
 ## 11. 다음 AI가 바로 실행할 순서
 
-1. `docs/README.md`, 이 문서, `frontend/AGENTS.md`, `frontend/DESIGN.md`를 끝까지 읽습니다.
+1. `docs/README.md`, `docs/TASKS.md`, 이 문서, `frontend/AGENTS.md`, `frontend/DESIGN.md`를 끝까지 읽습니다.
 2. `git status --short --branch`, `git log -5 --oneline`, `git stash list`를 확인합니다.
 3. 시즌 변경이 작업 폴더에 있으면 그대로 이어가고, stash에만 있으면 정확한 메시지를 확인한 뒤 한 번만 복원합니다.
 4. 시즌 컴포넌트와 CSS의 현재 diff를 읽고 API 동작이 유지되는지 확인합니다.

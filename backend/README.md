@@ -27,6 +27,14 @@ API 상태 확인:
 GET http://127.0.0.1:8000/api/v1/health
 ```
 
+Swagger API 문서:
+
+```text
+http://127.0.0.1:8000/api-docs
+```
+
+Swagger UI와 `/api-docs/openapi.yaml`은 [OpenAPI 명세](resources/openapi.yaml) 한 파일을 함께 사용합니다.
+
 ## 환경 파일
 
 `.env`는 개인·운영 비밀번호와 키를 포함하므로 Git에 올리지 않습니다. 팀에는 `.env.example`만 공유합니다. 운영 설정은 [닷홈 배포 가이드](../docs/DOTHOME_DEPLOYMENT.md)를 따릅니다.
@@ -46,4 +54,4 @@ Laravel의 `database/migrations`가 유일한 데이터베이스 스키마 기�
 - 시즌 활동 기록
 - 시즌·작물별 물주기 일정, 완료·미루기 이력과 최신 완료 취소
 
-변경 API는 응답의 `ETag`를 다음 요청의 `If-Match`로 보내 동시 수정 충돌을 방지합니다. 전체 계약은 [OpenAPI 명세](../docs/openapi.yaml)를 기준으로 확인합니다.
+변경 API는 응답의 `ETag`를 다음 요청의 `If-Match`로 보내 동시 수정 충돌을 방지합니다. 전체 계약은 [OpenAPI 명세](resources/openapi.yaml)를 기준으로 확인합니다.

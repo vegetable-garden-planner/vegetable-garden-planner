@@ -29,14 +29,15 @@
 | 제품 목표와 범위 | [PRODUCT_VISION.md](PRODUCT_VISION.md) |
 | 최초 설치·평소 실행 | [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) |
 | 계층·데이터·API 규칙 | [ARCHITECTURE.md](ARCHITECTURE.md) |
-| 완료 기능·남은 작업 | [PROJECT_STATUS.md](PROJECT_STATUS.md) |
-| 정확한 API 경로와 스키마 | [openapi.yaml](openapi.yaml) 및 `backend/routes/api.php` |
+| 안정 브랜치의 구현 상태 | [PROJECT_STATUS.md](PROJECT_STATUS.md) |
+| 진행 중·다음 작업과 완료 표시 | [TASKS.md](TASKS.md) |
+| 정확한 API 경로와 스키마 | [openapi.yaml](../backend/resources/openapi.yaml), `/api-docs` 및 `backend/routes/api.php` |
 | 닷홈 운영 준비 | [DOTHOME_DEPLOYMENT.md](DOTHOME_DEPLOYMENT.md) |
 | 화면 디자인 규칙 | `frontend/DESIGN.md`와 `frontend/app/globals.css` |
 
 API 명세와 Laravel 코드가 다르면 실제 라우트·요청 검증·리소스·테스트를 먼저 확인하고 OpenAPI를 같은 작업에서 수정합니다.
 
-디자인 개편이나 이전 작업을 이어받는 경우에는 이 문서를 읽은 직후 `HANDOFF.md`를 확인합니다. `PROJECT_STATUS.md`는 안정 브랜치의 기능 상태를, `HANDOFF.md`는 진행 중 브랜치와 다음 행동까지 포함한 인계 상태를 설명합니다.
+디자인 개편이나 이전 작업을 이어받는 경우에는 이 문서를 읽은 직후 `TASKS.md`와 `HANDOFF.md`를 확인합니다. `PROJECT_STATUS.md`는 안정 브랜치의 기능 상태를, `TASKS.md`는 현재 작업 순서를, `HANDOFF.md`는 진행 중 변경의 상세 인계를 설명합니다.
 
 ## 3. 절대 혼동하면 안 되는 규칙
 
@@ -70,13 +71,15 @@ backend/tests                인증·소유권·경계값·부작용 API 테스�
 
 1. `develop`이 원격과 일치하고 작업 폴더가 깨끗한지 확인합니다.
 2. `feature/<기능명>` 브랜치를 만듭니다.
-3. 새 타입·도우미를 만들기 전에 같은 역할의 코드가 있는지 검색합니다.
-4. 실패·빈 입력·경계값·다른 사용자 접근·버전 충돌 테스트를 먼저 고려합니다.
-5. 백엔드는 Request → Action → Resource 경계를, 프론트엔드는 domain → infrastructure/hooks → components 경계를 유지합니다.
-6. 문서·OpenAPI에 영향을 주면 코드와 같은 작업에서 갱신합니다.
-7. 관련 테스트 후 전체 테스트·정적 검사·빌드를 실행합니다.
-8. 기능을 설명할 수 있는 단위로 한글 커밋을 작성합니다.
-9. 검증된 기능 브랜치를 `develop`에 한글 병합 커밋으로 병합하고 푸시합니다.
+3. [TASKS.md](TASKS.md)의 대상 항목을 즉시 `[-]`로 바꾸고 브랜치 이름을 적습니다.
+4. 새 타입·도우미를 만들기 전에 같은 역할의 코드가 있는지 검색합니다.
+5. 실패·빈 입력·경계값·다른 사용자 접근·버전 충돌 테스트를 먼저 고려합니다.
+6. 백엔드는 Request → Action → Resource 경계를, 프론트엔드는 domain → infrastructure/hooks → components 경계를 유지합니다.
+7. 문서·OpenAPI에 영향을 주면 코드와 같은 작업에서 갱신합니다.
+8. 관련 테스트 후 전체 테스트·정적 검사·빌드를 실행합니다.
+9. 검증을 마치면 작업 항목을 같은 작업에서 즉시 `[x]`로 표시하거나 목록에서 제거합니다.
+10. 기능을 설명할 수 있는 단위로 한글 커밋을 작성합니다.
+11. 검증된 기능 브랜치를 `develop`에 한글 병합 커밋으로 병합하고 푸시합니다.
 
 사용자가 기존 변경을 남겨 둔 경우 임의로 되돌리거나 덮어쓰지 않습니다.
 
@@ -91,6 +94,7 @@ backend/tests                인증·소유권·경계값·부작용 API 테스�
 - 프론트엔드가 서버 오류를 숨기지 않음
 - 모바일 레이아웃과 접근 가능한 레이블을 확인함
 - 관련 문서와 OpenAPI가 현재 코드와 일치함
+- `TASKS.md`에서 완료 항목을 즉시 `[x]`로 표시하거나 제거함
 - 아래 검증 명령이 통과함
 
 ```powershell
@@ -107,13 +111,8 @@ npm.cmd run build
 
 PowerShell 실행 정책이 `npm.ps1`을 막으면 `npm.cmd`, `npx.cmd`를 사용합니다.
 
-## 7. 현재 다음 우선순위
+## 7. 작업 우선순위 확인
 
-1. 진행 중인 시즌 목록·등록·수정 디자인 개편 완료
-2. 물주기·시즌 기록·작물·인증·시작 진단 화면 디자인 통일
-3. 회원가입부터 기록까지 브라우저 기준 핵심 사용자 흐름 E2E 점검
-4. 닷홈 수동 배포의 백업·업로드·마이그레이션·롤백 리허설
-5. 사진 업로드와 시즌 마감 요약
-6. 스케줄러·큐·이메일 또는 푸시 알림
+진행 중 작업과 다음 순서는 [TASKS.md](TASKS.md) 한 곳에서 관리합니다. 작업을 끝낼 때는 해당 항목을 즉시 완료 표시하거나 제거해야 합니다.
 
-관리자 작물 편집, 공동 텃밭, 결제, 사진 분석은 핵심 재배 경험과 배포가 안정된 뒤 진행합니다. 안정 브랜치 상태는 [PROJECT_STATUS.md](PROJECT_STATUS.md), 진행 중 작업과 즉시 실행 순서는 [HANDOFF.md](HANDOFF.md)를 봅니다.
+관리자 작물 편집, 공동 텃밭, 결제, 사진 분석은 핵심 재배 경험과 배포가 안정된 뒤 진행합니다. 안정 브랜치 상태는 [PROJECT_STATUS.md](PROJECT_STATUS.md), 진행 중 변경의 상세 인계는 [HANDOFF.md](HANDOFF.md)를 봅니다.

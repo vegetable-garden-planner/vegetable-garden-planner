@@ -6,9 +6,15 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\Auth\GoogleCallbackController;
 use App\Http\Controllers\Auth\GoogleRedirectController;
+use App\Http\Controllers\Documentation\ShowApiDocumentationController;
+use App\Http\Controllers\Documentation\ShowOpenApiSpecificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/admin');
+
+Route::get('/api-docs', ShowApiDocumentationController::class)->name('api-docs');
+Route::get('/api-docs/openapi.yaml', ShowOpenApiSpecificationController::class)
+    ->name('api-docs.specification');
 
 Route::get('/admin/login', [AdminAuthController::class, 'create'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'store'])
