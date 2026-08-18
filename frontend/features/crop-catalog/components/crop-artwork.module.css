@@ -1,0 +1,74 @@
+.artwork {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: #fff;
+  background: var(--artwork-background);
+}
+
+.artwork img {
+  object-fit: cover;
+  transition: transform var(--motion-slow) var(--ease-out);
+}
+
+.artwork > span {
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  opacity: 0.78;
+}
+
+.artwork > p {
+  position: absolute;
+  z-index: 2;
+  right: 20px;
+  bottom: 16px;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.shade {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 42%, rgb(8 34 24 / 58%) 100%);
+}
+
+.card {
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+}
+
+.hero {
+  min-height: 360px;
+  border-radius: 22px;
+}
+
+.leaf { --artwork-background: linear-gradient(145deg, #7baa5d, #316443); }
+.fruit { --artwork-background: linear-gradient(145deg, #dc7453, #9f3d34); }
+.root { --artwork-background: linear-gradient(145deg, #e5a64e, #ae5c35); }
+.legume { --artwork-background: linear-gradient(145deg, #789a65, #44624a); }
+.tuber { --artwork-background: linear-gradient(145deg, #b58b62, #70523a); }
+.flower { --artwork-background: linear-gradient(145deg, #cb8399, #824f75); }
+
+@media (hover: hover) {
+  a:hover .card img {
+    transform: scale(1.025);
+  }
+}
+
+@media (max-width: 720px) {
+  .hero {
+    min-height: 280px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artwork img {
+    transition: none;
+  }
+}

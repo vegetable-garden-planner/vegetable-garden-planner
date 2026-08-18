@@ -1704,6 +1704,7 @@ body {
   }
 
   .page-hero-photo {
+    width: auto;
     min-height: 380px;
     margin-right: -18px;
     margin-left: -18px;

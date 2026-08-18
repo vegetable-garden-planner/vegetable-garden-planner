@@ -1,9 +1,8 @@
 import Image from "next/image";
 import type { CropCategory, CropReference } from "@/features/crop-catalog/domain/crop-reference";
 
-const CROP_IMAGES: Partial<Record<string, string>> = {
+export const CROP_IMAGES: Partial<Record<string, string>> = {
   lettuce: "/figma/image3.png",
-  spinach: "/figma/image5.png",
   tomato: "/figma/image7.png",
 };
 
