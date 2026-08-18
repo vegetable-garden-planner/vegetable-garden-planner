@@ -10,6 +10,7 @@ import {
   localDateTimeToOffsetIso,
   toLocalDateTimeInput,
 } from "../../../shared/domain/local-date-time";
+import styles from "./watering.module.css";
 
 export function WateringCompleteForm({
   disabled,
@@ -58,13 +59,13 @@ export function WateringCompleteForm({
   }
 
   return (
-    <form className="mt-4 rounded-2xl bg-sky-50 p-4" onSubmit={(event) => { void submit(event); }}>
-      <p className="text-sm font-bold text-sky-800">물주기 완료 기록</p>
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
-        <label className="text-xs font-bold text-sky-900">
-          완료 시각
+    <form className={`${styles.actionPanel} ${styles.completionPanel}`} onSubmit={(event) => { void submit(event); }}>
+      <div className={styles.actionPanelHeading}><span aria-hidden="true">완료</span><div><p>물주기 완료 기록</p><strong>실제로 물을 준 내용을 남겨 주세요</strong></div></div>
+      <div className={styles.actionFieldGrid}>
+        <label className={styles.actionField}>
+          <span>완료 시각</span>
           <input
-            className="mt-1.5 w-full rounded-xl border border-sky-200 bg-white px-3 py-2.5 text-sm text-ink"
+            className={styles.input}
             defaultValue={initialCompletionDateTime(season)}
             disabled={disabled}
             max={`${season.endDate}T23:59`}
@@ -73,10 +74,10 @@ export function WateringCompleteForm({
             type="datetime-local"
           />
         </label>
-        <label className="text-xs font-bold text-sky-900">
-          물의 양 (ml, 선택)
+        <label className={styles.actionField}>
+          <span>물의 양 (ml, 선택)</span>
           <input
-            className="mt-1.5 w-full rounded-xl border border-sky-200 bg-white px-3 py-2.5 text-sm text-ink"
+            className={styles.input}
             disabled={disabled}
             max="100000"
             min="1"
@@ -88,10 +89,10 @@ export function WateringCompleteForm({
           />
         </label>
       </div>
-      <label className="mt-3 block text-xs font-bold text-sky-900">
-        메모 (선택)
+      <label className={styles.actionField}>
+        <span>메모 (선택)</span>
         <input
-          className="mt-1.5 w-full rounded-xl border border-sky-200 bg-white px-3 py-2.5 text-sm text-ink"
+          className={styles.input}
           disabled={disabled}
           maxLength={500}
           name="memo"
@@ -100,8 +101,8 @@ export function WateringCompleteForm({
           value={memo}
         />
       </label>
-      {error && <p className="mt-3 text-xs font-bold text-red-700" role="alert">{error}</p>}
-      <button className="mt-3 rounded-full bg-sky-700 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50" disabled={disabled} type="submit">
+      {error && <p className={styles.inlineError} role="alert">{error}</p>}
+      <button className={styles.actionSubmit} disabled={disabled} type="submit">
         완료로 기록
       </button>
     </form>
@@ -115,7 +116,7 @@ export function WateringSnoozeForm({
   season,
 }: {
   disabled: boolean;
-  onSnooze: (snoozedUntil: string) => Promise<void>;
+  onSnooze: (snoozedUntil: string) => Promise<boolean>;
   schedule: WateringSchedule;
   season: PersistedGrowingSeason;
 }) {
@@ -147,13 +148,13 @@ export function WateringSnoozeForm({
   }
 
   return (
-    <form className="mt-4 rounded-2xl bg-amber-50 p-4" onSubmit={(event) => { void submit(event); }}>
-      <p className="text-sm font-bold text-amber-900">이번 물주기 미루기</p>
-      <div className="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
-        <label className="min-w-0 flex-1 text-xs font-bold text-amber-900">
-          변경할 예정 시각
+    <form className={`${styles.actionPanel} ${styles.snoozePanel}`} onSubmit={(event) => { void submit(event); }}>
+      <div className={styles.actionPanelHeading}><span aria-hidden="true">미룸</span><div><p>이번 물주기 미루기</p><strong>현재 예정 시각보다 늦게 선택해 주세요</strong></div></div>
+      <div className={styles.snoozeFields}>
+        <label className={styles.actionField}>
+          <span>변경할 예정 시각</span>
           <input
-            className="mt-1.5 w-full rounded-xl border border-amber-200 bg-white px-3 py-2.5 text-sm text-ink"
+            className={styles.input}
             defaultValue={initialSnoozeDateTime(schedule, season)}
             disabled={disabled}
             max={`${season.endDate}T23:59`}
@@ -162,11 +163,11 @@ export function WateringSnoozeForm({
             type="datetime-local"
           />
         </label>
-        <button className="rounded-full bg-amber-700 px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50" disabled={disabled} type="submit">
+        <button className={styles.snoozeSubmit} disabled={disabled} type="submit">
           이 시각으로 미루기
         </button>
       </div>
-      {error && <p className="mt-3 text-xs font-bold text-red-700" role="alert">{error}</p>}
+      {error && <p className={styles.inlineError} role="alert">{error}</p>}
     </form>
   );
 }

@@ -9,6 +9,7 @@ import {
   type WateringScheduleInput,
 } from "../domain/watering";
 import { toLocalDateTimeInput } from "../../../shared/domain/local-date-time";
+import styles from "./watering.module.css";
 
 export function WateringCreateForm({
   crops,
@@ -47,15 +48,16 @@ export function WateringCreateForm({
   }
 
   return (
-    <form className="mt-5 rounded-3xl border border-leaf/15 bg-leaf-soft/35 p-5 sm:p-6" onSubmit={(event) => { void submit(event); }}>
-      <div>
-        <p className="text-sm font-bold text-leaf">새 물주기 일정</p>
-        <h2 className="mt-1 text-xl font-bold">배치 작물에 반복 일정을 추가하세요</h2>
+    <form className={styles.createPanel} onSubmit={(event) => { void submit(event); }}>
+      <div className={styles.createHeading}>
+        <span aria-hidden="true">01</span>
+        <div><p>새 물주기 일정</p><h2>반복 기준을 정해 주세요</h2></div>
       </div>
-      <div className="mt-5 grid gap-4 sm:grid-cols-3">
+      <p className={styles.createDescription}>텃밭에 배치한 작물마다 하나의 반복 일정을 만들 수 있어요.</p>
+      <div className={styles.createFields}>
         <Field error={errors.cropId} label="작물">
           <select
-            className="mt-2 w-full rounded-xl border border-ink/15 bg-white px-4 py-3"
+            className={styles.input}
             disabled={disabled}
             name="cropId"
             onChange={(event) => setDraft({ ...draft, cropId: event.target.value })}
@@ -65,9 +67,9 @@ export function WateringCreateForm({
           </select>
         </Field>
         <Field error={errors.intervalDays} label="반복 간격">
-          <div className="relative mt-2">
+          <div className={styles.inputWithUnit}>
             <input
-              className="w-full rounded-xl border border-ink/15 bg-white px-4 py-3 pr-12"
+              className={styles.input}
               disabled={disabled}
               max="365"
               min="1"
@@ -76,22 +78,23 @@ export function WateringCreateForm({
               type="number"
               value={draft.intervalDays}
             />
-            <span className="pointer-events-none absolute right-4 top-3.5 text-sm text-muted">일</span>
+            <span>일</span>
           </div>
         </Field>
         <Field error={errors.nextWateringAtLocal} label="첫 물주기">
           <input
-            className="mt-2 w-full rounded-xl border border-ink/15 bg-white px-4 py-3"
-            defaultValue={draft.nextWateringAtLocal}
+            className={styles.input}
             disabled={disabled}
             max={`${season.endDate}T23:59`}
             min={`${season.startDate}T00:00`}
             name="nextWateringAtLocal"
+            onChange={(event) => setDraft({ ...draft, nextWateringAtLocal: event.target.value })}
             type="datetime-local"
+            value={draft.nextWateringAtLocal}
           />
         </Field>
       </div>
-      <button className="mt-5 rounded-full bg-leaf px-5 py-3 text-sm font-bold text-white disabled:opacity-50" disabled={disabled} type="submit">
+      <button className={styles.createButton} disabled={disabled} type="submit">
         {disabled ? "저장 중..." : "물주기 일정 추가"}
       </button>
     </form>
@@ -108,10 +111,10 @@ function Field({
   label: string;
 }) {
   return (
-    <label className="text-sm font-bold">
-      {label}
+    <label className={styles.field}>
+      <span>{label}</span>
       {children}
-      {error && <span className="mt-2 block text-xs text-red-700" role="alert">{error}</span>}
+      {error && <strong role="alert">{error}</strong>}
     </label>
   );
 }

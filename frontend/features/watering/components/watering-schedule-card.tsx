@@ -16,6 +16,7 @@ import {
   WateringHistoryPanel,
   type WateringHistoryState,
 } from "./watering-history";
+import styles from "./watering.module.css";
 
 const STATUS_LABELS = {
   disabled: "비활성",
@@ -24,17 +25,11 @@ const STATUS_LABELS = {
   upcoming: "예정",
 } as const;
 
-const STATUS_STYLES = {
-  disabled: "bg-stone-100 text-stone-600",
-  overdue: "bg-red-50 text-red-700",
-  today: "bg-amber-50 text-amber-800",
-  upcoming: "bg-leaf-soft text-leaf-dark",
-} as const;
-
 export function WateringScheduleCard({
   crop,
   disabled,
   historyState,
+  onCloseHistory,
   onComplete,
   onDelete,
   onLoadHistory,
@@ -47,12 +42,13 @@ export function WateringScheduleCard({
   crop: CropReference | undefined;
   disabled: boolean;
   historyState: WateringHistoryState;
+  onCloseHistory: () => void;
   onComplete: (input: CompleteWateringInput) => Promise<boolean>;
   onDelete: () => Promise<void>;
   onLoadHistory: () => Promise<void>;
   onReopen: (log: WateringLog) => Promise<void>;
-  onSnooze: (snoozedUntil: string) => Promise<void>;
-  onUpdate: (update: WateringScheduleUpdate) => Promise<void>;
+  onSnooze: (snoozedUntil: string) => Promise<boolean>;
+  onUpdate: (update: WateringScheduleUpdate) => Promise<boolean>;
   schedule: WateringSchedule;
   season: PersistedGrowingSeason;
 }) {
@@ -71,26 +67,45 @@ export function WateringScheduleCard({
     if (interval !== schedule.intervalDays) await onUpdate({ intervalDays: interval });
   }
 
+  async function complete(input: CompleteWateringInput): Promise<boolean> {
+    const completed = await onComplete(input);
+    if (completed) setOpenAction(null);
+    return completed;
+  }
+
+  async function snooze(snoozedUntil: string): Promise<boolean> {
+    const snoozed = await onSnooze(snoozedUntil);
+    if (snoozed) setOpenAction(null);
+    return snoozed;
+  }
+
   return (
-    <li className="surface-panel relative overflow-hidden p-5 transition hover:shadow-[var(--shadow-md)] sm:p-6">
-      <span className="absolute inset-y-0 left-0 w-1 bg-[linear-gradient(var(--color-primary),var(--color-secondary))]" aria-hidden="true" />
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-bold text-leaf">{crop?.familyName ?? "작물 정보 확인 필요"}</p>
-          <h2 className="mt-1 text-xl font-bold">{crop?.name ?? schedule.cropId}</h2>
-          <p className="mt-2 text-sm text-muted">다음 물주기 · {formatDateTime(schedule.nextWateringAt)}</p>
+    <li className={styles.scheduleCard}>
+      <div className={styles.cardHeader}>
+        <div className={styles.cropIdentity}>
+          <span aria-hidden="true">{(crop?.name ?? schedule.cropId).slice(0, 1)}</span>
+          <div>
+            <p>{crop?.familyName ?? "작물 정보 확인 필요"}</p>
+            <h3>{crop?.name ?? schedule.cropId}</h3>
+          </div>
         </div>
-        <span className={`rounded-full px-3 py-1.5 text-xs font-bold ${STATUS_STYLES[status]}`}>
+        <span className={styles.statusChip} data-status={status}>
           {STATUS_LABELS[status]}
         </span>
       </div>
 
-      <div className="mt-5 flex flex-wrap items-end gap-3 border-t border-ink/10 pt-4">
-        <label className="text-xs font-bold text-muted">
-          반복 간격
-          <span className="mt-1.5 flex items-center gap-2">
+      <div className={styles.nextWatering}>
+        <p>다음 물주기</p>
+        <time dateTime={schedule.nextWateringAt}>{formatDateTime(schedule.nextWateringAt)}</time>
+        <span>{schedule.enabled ? `${schedule.intervalDays}일마다 반복` : "현재 반복 알림을 쉬고 있어요"}</span>
+      </div>
+
+      <div className={styles.scheduleSettings}>
+        <label>
+          <span>반복 간격</span>
+          <span className={styles.compactInput}>
             <input
-              className="w-20 rounded-xl border border-ink/15 px-3 py-2 text-sm text-ink"
+              aria-label={`${crop?.name ?? schedule.cropId} 반복 간격`}
               disabled={disabled}
               max="365"
               min="1"
@@ -101,34 +116,39 @@ export function WateringScheduleCard({
             일
           </span>
         </label>
-        <button className="rounded-full border border-ink/15 px-4 py-2 text-xs font-bold disabled:opacity-50" disabled={disabled} onClick={() => { void saveInterval(); }} type="button">
+        <button className={styles.outlineButton} disabled={disabled} onClick={() => { void saveInterval(); }} type="button">
           간격 저장
         </button>
-        <button className="rounded-full bg-leaf-soft px-4 py-2 text-xs font-bold text-leaf-dark disabled:opacity-50" disabled={disabled} onClick={() => { void onUpdate({ enabled: !schedule.enabled }); }} type="button">
+        <button className={styles.softButton} disabled={disabled} onClick={() => { void onUpdate({ enabled: !schedule.enabled }); }} type="button">
           {schedule.enabled ? "일정 끄기" : "일정 켜기"}
         </button>
       </div>
-      {intervalError && <p className="mt-2 text-xs font-bold text-red-700" role="alert">{intervalError}</p>}
+      {intervalError && <p className={styles.inlineError} role="alert">{intervalError}</p>}
 
       {schedule.enabled && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button className="rounded-full bg-leaf px-4 py-2.5 text-xs font-bold text-white disabled:opacity-50" disabled={disabled} onClick={() => setOpenAction(openAction === "complete" ? null : "complete")} type="button">
+        <div className={styles.primaryActions}>
+          <button className={styles.primaryButton} disabled={disabled} onClick={() => setOpenAction(openAction === "complete" ? null : "complete")} type="button">
             물주기 완료
           </button>
-          <button className="rounded-full bg-amber-100 px-4 py-2.5 text-xs font-bold text-amber-900 disabled:opacity-50" disabled={disabled} onClick={() => setOpenAction(openAction === "snooze" ? null : "snooze")} type="button">
+          <button className={styles.snoozeButton} disabled={disabled} onClick={() => setOpenAction(openAction === "snooze" ? null : "snooze")} type="button">
             이번 일정 미루기
           </button>
         </div>
       )}
 
-      {schedule.enabled && openAction === "complete" && <WateringCompleteForm disabled={disabled} onComplete={onComplete} season={season} />}
-      {schedule.enabled && openAction === "snooze" && <WateringSnoozeForm disabled={disabled} onSnooze={onSnooze} schedule={schedule} season={season} />}
+      {schedule.enabled && openAction === "complete" && <WateringCompleteForm disabled={disabled} onComplete={complete} season={season} />}
+      {schedule.enabled && openAction === "snooze" && <WateringSnoozeForm disabled={disabled} onSnooze={snooze} schedule={schedule} season={season} />}
 
-      <div className="mt-5 flex flex-wrap gap-3 border-t border-ink/10 pt-4">
-        <button className="text-xs font-bold text-leaf underline disabled:opacity-50" disabled={disabled || historyState.status === "loading"} onClick={() => { void onLoadHistory(); }} type="button">
-          {historyState.status === "closed" ? "완료·미루기 이력 보기" : "이력 새로고침"}
-        </button>
-        <button className="ml-auto text-xs font-bold text-red-700 disabled:opacity-50" disabled={disabled} onClick={() => { void onDelete(); }} type="button">
+      <div className={styles.cardFooter}>
+        {historyState.status === "closed" ? (
+          <button disabled={disabled} onClick={() => { void onLoadHistory(); }} type="button">완료·미루기 이력 보기</button>
+        ) : (
+          <span>
+            <button disabled={disabled || historyState.status === "loading"} onClick={() => { void onLoadHistory(); }} type="button">이력 새로고침</button>
+            <button disabled={disabled} onClick={onCloseHistory} type="button">이력 닫기</button>
+          </span>
+        )}
+        <button className={styles.deleteButton} disabled={disabled} onClick={() => { void onDelete(); }} type="button">
           일정 삭제
         </button>
       </div>
