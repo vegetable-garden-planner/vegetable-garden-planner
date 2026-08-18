@@ -26,12 +26,11 @@ export default async function NewSeasonPage(props: PageProps<"/seasons/new">) {
         backLabel="시즌 목록"
         description="시즌은 작물 배치와 재배 일정, 성장 기록을 하나로 묶는 기준이 됩니다."
         eyebrow="재배 시즌 등록"
+        heroSize="compact"
         title="이번 재배 기간을 정해 주세요"
-        width="medium"
+        width="full"
       >
-        <section className="surface-panel p-6 sm:p-9">
-          <SeasonForm initialCropId={requestedCropId} initialSpaceId={initialSpaceId} />
-        </section>
+        <SeasonForm initialCropId={requestedCropId} initialSpaceId={initialSpaceId} />
       </AppPageShell>
     </AuthGate>
   );
