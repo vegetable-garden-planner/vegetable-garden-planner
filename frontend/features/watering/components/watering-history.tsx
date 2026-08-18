@@ -1,6 +1,7 @@
 "use client";
 
 import type { WateringHistory, WateringLog } from "../domain/watering";
+import styles from "./watering.module.css";
 
 export type WateringHistoryState =
   | { status: "closed" }
@@ -19,27 +20,27 @@ export function WateringHistoryPanel({
 }) {
   if (state.status === "closed") return null;
   if (state.status === "loading") {
-    return <p className="mt-4 rounded-2xl bg-cream p-4 text-sm text-muted">물주기 이력을 불러오고 있습니다.</p>;
+    return <p className={styles.historyLoading}>물주기 이력을 불러오고 있습니다.</p>;
   }
   if (state.status === "error") {
-    return <p className="mt-4 rounded-2xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{state.message}</p>;
+    return <p className={styles.historyError} role="alert">{state.message}</p>;
   }
 
   const { logs, snoozes } = state.history;
   return (
-    <section className="mt-4 rounded-2xl border border-ink/10 bg-cream/60 p-4" aria-label="물주기 변경 이력">
-      <h4 className="font-bold">완료 이력</h4>
+    <section className={styles.historyPanel} aria-label="물주기 변경 이력">
+      <div className={styles.historyHeading}><p>관리 이력</p><h4>완료와 미루기 기록</h4></div>
+      <h5>완료 이력 <span>{logs.length}건</span></h5>
       {logs.length === 0 ? (
-        <p className="mt-2 text-sm text-muted">아직 완료 기록이 없습니다.</p>
+        <p className={styles.historyEmpty}>아직 완료 기록이 없습니다.</p>
       ) : (
-        <ol className="mt-3 space-y-2">
+        <ol className={styles.historyList}>
           {logs.map((log, index) => (
-            <li className="rounded-xl bg-white p-3 text-sm" key={log.id}>
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <time className="font-bold" dateTime={log.wateredAt}>{formatDateTime(log.wateredAt)}</time>
+            <li key={log.id}>
+              <div>
+                <time dateTime={log.wateredAt}>{formatDateTime(log.wateredAt)}</time>
                 {index === 0 && (
                   <button
-                    className="text-xs font-bold text-leaf underline disabled:opacity-50"
                     disabled={disabled}
                     onClick={() => { void onReopen(log); }}
                     type="button"
@@ -48,7 +49,7 @@ export function WateringHistoryPanel({
                   </button>
                 )}
               </div>
-              <p className="mt-1 text-muted">
+              <p>
                 {log.amountMl === null ? "물의 양 미입력" : `${log.amountMl.toLocaleString("ko-KR")}ml`}
                 {log.memo ? ` · ${log.memo}` : ""}
               </p>
@@ -57,14 +58,14 @@ export function WateringHistoryPanel({
         </ol>
       )}
 
-      <h4 className="mt-5 font-bold">미루기 이력</h4>
+      <h5>미루기 이력 <span>{snoozes.length}건</span></h5>
       {snoozes.length === 0 ? (
-        <p className="mt-2 text-sm text-muted">아직 미룬 기록이 없습니다.</p>
+        <p className={styles.historyEmpty}>아직 미룬 기록이 없습니다.</p>
       ) : (
-        <ol className="mt-3 space-y-2">
+        <ol className={styles.historyList}>
           {snoozes.map((snooze) => (
-            <li className="rounded-xl bg-white p-3 text-sm text-muted" key={snooze.id}>
-              {formatDateTime(snooze.originalAt)} → <strong className="text-ink">{formatDateTime(snooze.snoozedUntil)}</strong>
+            <li className={styles.snoozeHistoryItem} key={snooze.id}>
+              <span>{formatDateTime(snooze.originalAt)}</span><b aria-hidden="true">→</b><strong>{formatDateTime(snooze.snoozedUntil)}</strong>
             </li>
           ))}
         </ol>

@@ -339,6 +339,7 @@ body {
   letter-spacing: -0.045em;
   line-height: 1.12;
   text-wrap: balance;
+  word-break: keep-all;
 }
 
 .page-lead {
@@ -347,6 +348,7 @@ body {
   color: var(--color-muted);
   font-size: 1.05rem;
   line-height: 1.75;
+  word-break: keep-all;
 }
 
 .back-link {
