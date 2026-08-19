@@ -46,8 +46,8 @@ const TASK_ICONS: Record<CultivationTaskType, string> = {
 };
 
 const CROP_IMAGES: Record<string, string> = {
-  lettuce: "/figma/image3.png",
-  tomato: "/figma/image7.png",
+  lettuce: "/figma/image3.webp",
+  tomato: "/figma/image7.webp",
 };
 
 export function createHomeDashboardModel(
@@ -138,7 +138,7 @@ function createRecommendations(
       id: crop.id,
       name: crop.name,
       description: crop.summary,
-      image: CROP_IMAGES[crop.id] ?? "/figma/image8.png",
+      image: CROP_IMAGES[crop.id] ?? "/figma/image8.webp",
       href: `/crops/${crop.id}`,
     }));
 }

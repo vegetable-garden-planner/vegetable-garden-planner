@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import type { WateringSchedule } from "../domain/watering";
 import { fetchWateringSchedules } from "../infrastructure/watering-api";
+import { useCachedResource } from "@/shared/hooks/use-cached-resource";
 
 export type AllWateringSchedulesState =
   | { status: "loading" }
@@ -10,22 +11,15 @@ export type AllWateringSchedulesState =
   | { status: "error"; message: string };
 
 export function useAllWateringSchedules(): AllWateringSchedulesState {
-  const [state, setState] = useState<AllWateringSchedulesState>({ status: "loading" });
+  const { state } = useCachedResource<WateringSchedule[]>(
+    "watering-schedules",
+    fetchWateringSchedules,
+    "물주기 일정을 불러오지 못했습니다.",
+  );
 
-  useEffect(() => {
-    let active = true;
-    void fetchWateringSchedules().then(
-      (schedules) => { if (active) setState({ status: "ready", schedules }); },
-      (error: unknown) => {
-        if (active) setState({ status: "error", message: toMessage(error) });
-      },
-    );
-    return () => { active = false; };
-  }, []);
-
-  return state;
-}
-
-function toMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "물주기 일정을 불러오지 못했습니다.";
+  return useMemo(() => {
+    if (state.status === "ready") return { status: "ready", schedules: state.data };
+    if (state.status === "error") return { status: "error", message: state.message };
+    return { status: "loading" };
+  }, [state]);
 }

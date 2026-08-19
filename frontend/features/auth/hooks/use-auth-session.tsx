@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { AuthUser } from "@/features/auth/domain/auth";
 import { fetchCurrentUser, logout as requestLogout } from "@/features/auth/infrastructure/auth-api";
+import { clearCachedResources } from "@/shared/hooks/use-cached-resource";
 
 export type AuthSessionState =
   | { status: "loading" }
@@ -46,9 +47,13 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthSessionContextValue>(() => ({
     state,
-    authenticate: (user) => setState({ status: "authenticated", user }),
+    authenticate: (user) => {
+      clearCachedResources();
+      setState({ status: "authenticated", user });
+    },
     logout: async () => {
       await requestLogout();
+      clearCachedResources();
       setState({ status: "anonymous" });
     },
     reload,
