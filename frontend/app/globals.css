@@ -423,8 +423,8 @@ body {
   display: grid;
   width: min(100%, var(--layout-max));
   margin: 0 auto;
-  padding: 46px 24px;
-  align-items: end;
+  padding: 28px 24px;
+  align-items: center;
   gap: 28px;
   grid-template-columns: 1.2fr 1fr auto;
 }
