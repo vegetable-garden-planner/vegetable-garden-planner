@@ -9,6 +9,7 @@ import {
   type CultivationRecordInput,
   type CultivationRecordType,
 } from "../domain/cultivation-record";
+import { SeasonSummaryPanel } from "../../growing-season/components/season-summary-panel";
 import { CultivationRecordCard } from "./cultivation-record-card";
 import { CultivationRecordForm } from "./cultivation-record-form";
 import styles from "./cultivation-record.module.css";
@@ -77,6 +78,7 @@ export function CultivationRecordWorkspace(props: CultivationRecordWorkspaceProp
         </main>
         <aside className={styles.sideColumn} id="record-create-form">
           <CultivationRecordForm disabled={props.busy} onSubmit={props.onCreate} season={props.season} />
+          <SeasonSummaryPanel seasonId={props.season.id} />
           <RecordGuide seasonId={props.season.id} space={props.space} />
         </aside>
       </div>

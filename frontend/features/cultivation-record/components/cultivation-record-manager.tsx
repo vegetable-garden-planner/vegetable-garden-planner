@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useGrowingSeasons } from "../../growing-season/hooks/use-growing-seasons";
+import { useSeasonSummary } from "../../growing-season/hooks/use-season-summary";
 import { useGrowingSpaces } from "../../growing-space/hooks/use-growing-spaces";
 import {
   type CultivationRecord,
@@ -24,6 +25,7 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
   const recordsState = useCultivationRecords(seasonId);
+  const seasonSummary = useSeasonSummary(seasonId);
   const [filter, setFilter] = useState<RecordFilter>("all");
   const [editingId, setEditingId] = useState("");
   const [deletingId, setDeletingId] = useState("");
@@ -47,7 +49,7 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
     setActionError("");
     try {
       await action();
-      await recordsState.reload();
+      await Promise.all([recordsState.reload(), seasonSummary.reload()]);
       return true;
     } catch (error) {
       setActionError(toMessage(error));
