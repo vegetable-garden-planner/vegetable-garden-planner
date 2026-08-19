@@ -1,5 +1,6 @@
 *.log
 .DS_Store
+/scripts/_deploy_clear.php
 .env
 .env.backup
 .env.production
