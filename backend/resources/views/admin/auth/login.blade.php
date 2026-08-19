@@ -17,7 +17,7 @@
         <small>회원과 재배 데이터, 기준정보의 상태를 한곳에서 확인합니다.</small>
     </section>
     <section class="login-form-wrap">
-        <div class="login-logo"><span>싹</span><strong>심어봄 관리자</strong></div>
+        <div class="login-logo"><span><img src="{{ asset('brand/logo.png') }}" alt="" width="26" height="26"></span><strong>심어봄 관리자</strong></div>
         <p class="eyebrow">ADMIN ACCESS</p>
         <h2>관리자 로그인</h2>
         <p class="description">관리자 권한이 부여된 계정만 접근할 수 있습니다.</p>

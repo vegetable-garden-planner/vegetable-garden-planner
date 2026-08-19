@@ -21,7 +21,7 @@ export function AppHeader({ action, homeHref = "/", variant = "default" }: AppHe
     <header className={`app-header ${variant === "overlay" ? "app-header-overlay" : ""}`}>
       <div className="app-header-inner">
         <Link className="app-brand" href={homeHref} aria-label="심어봄 홈">
-          <BrandMark />
+          <BrandMark variant={variant === "overlay" ? "white" : "color"} />
           <span>심어봄</span>
         </Link>
         <nav className="app-header-nav" aria-label="사용자 메뉴">

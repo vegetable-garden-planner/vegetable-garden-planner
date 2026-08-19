@@ -11,7 +11,7 @@
 <div class="admin-shell">
     <aside class="sidebar">
         <a class="brand" href="{{ route('admin.dashboard') }}" aria-label="심어봄 관리자 홈">
-            <span class="brand-mark">싹</span>
+            <span class="brand-mark"><img src="{{ asset('brand/logo.png') }}" alt="" width="26" height="26"></span>
             <span><strong>심어봄</strong><small>ADMIN CONSOLE</small></span>
         </a>
         <nav class="nav" aria-label="관리자 메뉴">
