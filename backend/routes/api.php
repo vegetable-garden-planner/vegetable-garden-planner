@@ -23,6 +23,7 @@ use App\Http\Controllers\Api\V1\Records\UpdateRecordController;
 use App\Http\Controllers\Api\V1\Seasons\DestroySeasonController;
 use App\Http\Controllers\Api\V1\Seasons\IndexSeasonController;
 use App\Http\Controllers\Api\V1\Seasons\ShowSeasonController;
+use App\Http\Controllers\Api\V1\Seasons\ShowSeasonSummaryController;
 use App\Http\Controllers\Api\V1\Seasons\StoreSeasonController;
 use App\Http\Controllers\Api\V1\Seasons\UpdateSeasonController;
 use App\Http\Controllers\Api\V1\Spaces\DestroySpaceController;
@@ -102,6 +103,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/seasons/{growingSeason}', ShowSeasonController::class);
         Route::patch('/seasons/{growingSeason}', UpdateSeasonController::class);
         Route::delete('/seasons/{growingSeason}', DestroySeasonController::class);
+        Route::get('/seasons/{growingSeason}/summary', ShowSeasonSummaryController::class);
         Route::get('/seasons/{growingSeason}/layout', ShowGardenLayoutController::class);
         Route::put('/seasons/{growingSeason}/layout', PutGardenLayoutController::class);
         Route::delete('/seasons/{growingSeason}/layout', DestroyGardenLayoutController::class);

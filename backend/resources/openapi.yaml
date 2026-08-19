@@ -639,6 +639,29 @@ paths:
           $ref: '#/components/responses/PreconditionFailed'
         '419':
           $ref: '#/components/responses/CsrfMismatch'
+  /seasons/{seasonId}/summary:
+    parameters:
+      - $ref: '#/components/parameters/SeasonId'
+    get:
+      tags: [Seasons]
+      summary: 시즌 요약 조회
+      description: |
+        시즌의 기록·일정을 즉시 집계한 요약입니다. 별도로 저장하지 않고 요청마다 다시 계산하므로
+        `generatedAt`은 계산 시각이며 이전 응답과 달라질 수 있습니다.
+      operationId: getSeasonSummary
+      responses:
+        '200':
+          description: 시즌 요약 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeasonSummaryResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /layouts:
     get:
@@ -1747,6 +1770,67 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/GrowingSeason'
+    SeasonSummary:
+      type: object
+      required: [seasonId, status, recordCounts, harvestTotals, taskCompletion, generatedAt]
+      properties:
+        seasonId:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/GrowingSeasonStatus'
+        recordCounts:
+          type: object
+          description: 종류별 시즌 기록 개수
+          required: [work, growth, harvest, watering]
+          properties:
+            work:
+              type: integer
+              minimum: 0
+            growth:
+              type: integer
+              minimum: 0
+            harvest:
+              type: integer
+              minimum: 0
+            watering:
+              type: integer
+              minimum: 0
+        harvestTotals:
+          type: array
+          description: 단위별 수확 기록 합계. 단위가 다르면 합산하지 않고 항목을 나눕니다.
+          items:
+            type: object
+            required: [unit, quantity]
+            properties:
+              unit:
+                type: string
+              quantity:
+                type: number
+        taskCompletion:
+          type: object
+          required: [total, completed, rate]
+          properties:
+            total:
+              type: integer
+              minimum: 0
+            completed:
+              type: integer
+              minimum: 0
+            rate:
+              type: number
+              nullable: true
+              description: completed/total. 일정이 없으면 null입니다.
+        generatedAt:
+          type: string
+          format: date-time
+          description: 저장된 값이 아니라 요청을 처리한 시각입니다. 매 요청 다시 계산합니다.
+    SeasonSummaryResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/SeasonSummary'
 
     CropCategory:
       type: string
