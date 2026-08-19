@@ -14,7 +14,7 @@ export function AuthHeaderMenu() {
           <span className="hidden sm:inline">{auth.state.user.nickname}님</span>
           <span className="text-muted transition group-open:rotate-180" aria-hidden="true">⌄</span>
         </summary>
-        <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-44 overflow-hidden rounded-2xl border border-ink/10 bg-white p-2 shadow-xl">
+        <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-44 overflow-hidden rounded-2xl border border-ink/10 bg-white p-2 text-ink shadow-xl">
           <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/dashboard">내 텃밭 홈</Link>
           <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/spaces">재배 공간</Link>
           <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/seasons">재배 시즌</Link>
