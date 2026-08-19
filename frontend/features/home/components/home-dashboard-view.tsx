@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import styles from "@/app/home.module.css";
+import { BrandMark } from "@/components/brand-mark";
 import type { HomeDashboardModel } from "@/features/home/domain/home-dashboard";
 
 const MONTH_DAY_FORMATTER = new Intl.DateTimeFormat("ko-KR", { month: "2-digit", day: "2-digit" });
@@ -234,7 +235,7 @@ function Header({ authenticated }: { authenticated: boolean }) {
 function Logo() {
   return (
     <span className={styles.logo} aria-hidden="true">
-      <span className={styles.logoMark}><span /></span>
+      <span className={styles.logoMark}><BrandMark size={22} /></span>
       <span>심어봄</span>
     </span>
   );
