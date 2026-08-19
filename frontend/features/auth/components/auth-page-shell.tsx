@@ -21,7 +21,7 @@ export function AuthPageShell({
     <main className={styles.page}>
       <div className={styles.shell}>
         <section className={styles.visual} aria-label="심어봄 재배 계획 소개">
-          <Image src="/figma/planner-hero.png" alt="햇살이 드는 창가의 화분과 허브" fill priority sizes="(max-width: 960px) 0px, 48vw" className={styles.visualImage} />
+          <Image src="/figma/planner-hero.webp" alt="햇살이 드는 창가의 화분과 허브" fill priority sizes="(max-width: 960px) 0px, 48vw" className={styles.visualImage} />
           <div className={styles.visualShade} />
           <div className={styles.visualCopy}>
             <p>작은 화분부터 천천히</p>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 import type { PersistedGrowingSeason } from "@/features/growing-season/domain/growing-season";
 import { fetchGrowingSeasons } from "@/features/growing-season/infrastructure/season-api";
+import { useCachedResource } from "@/shared/hooks/use-cached-resource";
 
 export type GrowingSeasonsState =
   | { status: "loading"; seasons: readonly [] }
@@ -10,25 +11,15 @@ export type GrowingSeasonsState =
   | { status: "error"; message: string };
 
 export function useGrowingSeasons(): GrowingSeasonsState & { reload: () => Promise<void> } {
-  const [state, setState] = useState<GrowingSeasonsState>({ status: "loading", seasons: [] });
+  const { state, reload } = useCachedResource<PersistedGrowingSeason[]>(
+    "seasons",
+    fetchGrowingSeasons,
+    "시즌 목록을 불러오지 못했습니다.",
+  );
 
-  const reload = useCallback(async () => {
-    setState({ status: "loading", seasons: [] });
-    try {
-      setState({ status: "ready", seasons: await fetchGrowingSeasons() });
-    } catch (error) {
-      setState({ status: "error", message: toMessage(error) });
-    }
-  }, []);
-
-  useEffect(() => { void fetchGrowingSeasons().then(
-    (seasons) => setState({ status: "ready", seasons }),
-    (error: unknown) => setState({ status: "error", message: toMessage(error) }),
-  ); }, []);
-
-  return { ...state, reload };
-}
-
-function toMessage(error: unknown): string {
-  return error instanceof Error ? error.message : "시즌 목록을 불러오지 못했습니다.";
+  return useMemo(() => {
+    if (state.status === "ready") return { status: "ready", seasons: state.data, reload };
+    if (state.status === "error") return { status: "error", message: state.message, reload };
+    return { status: "loading", seasons: [], reload };
+  }, [state, reload]);
 }

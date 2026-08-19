@@ -175,7 +175,7 @@ function DashboardHero({
 }) {
   return (
     <section className="dashboard-hero">
-      <Image alt="햇살이 드는 창가의 허브와 화분" className="dashboard-hero-image" fill priority sizes="100vw" src="/figma/planner-hero.png" />
+      <Image alt="햇살이 드는 창가의 허브와 화분" className="dashboard-hero-image" fill priority sizes="100vw" src="/figma/planner-hero.webp" />
       <span className="dashboard-hero-shade" aria-hidden="true" />
       <div className="dashboard-hero-inner">
         <div className="dashboard-hero-copy">
@@ -289,7 +289,7 @@ function DashboardStartBanner({
   return (
     <section className="dashboard-start-banner">
       <div className="dashboard-start-image">
-        <Image alt="창가에서 자라는 여러 화분" fill sizes="(max-width: 720px) 100vw, 34vw" src="/figma/planner-hero.png" />
+        <Image alt="창가에서 자라는 여러 화분" fill sizes="(max-width: 720px) 100vw, 34vw" src="/figma/planner-hero.webp" />
       </div>
       <div className="dashboard-start-copy">
         <p>이 계획을 이어갈까요?</p>
