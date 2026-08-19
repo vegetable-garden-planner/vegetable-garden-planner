@@ -1,6 +1,6 @@
 # 심어봄 작업 인계서
 
-기준일: 2026-08-18
+기준일: 2026-08-19
 
 이 문서는 새 팀원이나 AI가 이전 대화를 보지 않아도 현재 상태를 파악하고 바로 작업을 이어가기 위한 실행 중심 문서입니다. 작업을 시작할 때는 [프로젝트 작업 가이드](README.md)를 먼저 읽고, 그다음 이 문서를 읽습니다.
 
@@ -11,8 +11,8 @@
 - 프론트 운영: https://vegetable-garden-planner.vercel.app
 - 백엔드 운영: https://yjwest9.dothome.co.kr
 - 운영 API 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
-- Swagger UI: 닷홈 업로드 완료, 운영 https://yjwest9.dothome.co.kr/api-docs 와 /api-docs/openapi.yaml 정상 응답
-- 카카오 로그인: 코드·로컬 검증 완료, 닷홈 변경 파일 11개 업로드와 Kakao Developers 설정 전
+- Swagger UI: 닷홈 업로드 완료, 운영 https://yjwest9.dothome.co.kr/api-docs 와 /api-docs/openapi.yaml 정상 응답(이메일 중복 확인·소셜 로그인 리디렉션·콜백 명세 포함)
+- 카카오 로그인: 닷홈 변경 파일 11개 업로드와 Kakao Developers 설정을 마치고 운영에서 회원가입까지 정상 동작 확인
 - 프론트 Production 브랜치: `develop`
 - 프론트 Root Directory: `frontend`
 - 백엔드 배포: 닷홈에 FileZilla로 변경 파일을 직접 업로드하는 수동 방식
@@ -22,7 +22,7 @@
 
 진행 중 작업과 다음 순서는 [작업 목록](TASKS.md)이 단일 기준입니다. 작업을 완료하면 같은 작업 안에서 즉시 완료 표시하거나 목록에서 제거합니다.
 
-Swagger는 닷홈 업로드까지 끝나 운영 `/api-docs`와 `/api-docs/openapi.yaml`이 정상 응답합니다. 카카오 로그인은 로컬 코드와 테스트까지 완료했고, 닷홈 변경 파일 11개와 운영 `.env`의 카카오 키, Kakao Developers 리디렉션 URI·동의 항목은 아직 운영에 반영하지 않았습니다. 카카오 변경은 `ResolveSocialUser` 공통 경계를 함께 도입했으므로 Google 관련 파일을 빼고 일부만 올리면 기존 Google 로그인이 깨집니다. 목록의 11개 파일을 한 번에 올립니다. 운영 확인이 끝나기 전까지 배포 작업을 완료 처리하지 않습니다.
+Swagger는 닷홈 업로드까지 끝나 운영 `/api-docs`와 `/api-docs/openapi.yaml`이 정상 응답합니다. 카카오 로그인은 닷홈 변경 파일 11개 업로드와 운영 `.env`의 카카오 키, Kakao Developers 리디렉션 URI·동의 항목 설정까지 마쳤고, Vercel 로그인 화면에서 카카오 회원가입이 정상 동작함을 확인했습니다. 로고 전면 교체와 OpenAPI 갱신분(이메일 중복 확인·소셜 로그인 리디렉션·콜백 명세)도 닷홈에 반영했습니다.
 
 ## 2. 반드시 지킬 Git 규칙
 

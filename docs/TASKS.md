@@ -17,9 +17,6 @@
 
 ## 진행 중
 
-- [ ] 로고 교체·OpenAPI 갱신분 닷홈 업로드 — `resources/openapi.yaml`과 [닷홈 배포 가이드](DOTHOME_DEPLOYMENT.md)의 "로고 교체 변경 파일 수동 업로드" 4개 파일(`public/assets/admin.css`, `resources/views/layouts/admin.blade.php`, `resources/views/admin/auth/login.blade.php`, `public/brand/logo.png`)을 FileZilla로 올리고 운영 `/api-docs/openapi.yaml`과 `/admin/login` 로고를 확인한다
-- [ ] 카카오 로그인 변경 파일 11개 닷홈 업로드, 운영 `.env`에 카카오 키 추가, `config:clear`·`route:clear`, Kakao Developers 리디렉션 URI·동의 항목 설정, Vercel 로그인 화면에서 카카오 인증·신규 가입·기존 이메일 연결 확인 — 업로드 파일 목록은 [닷홈 배포 가이드](DOTHOME_DEPLOYMENT.md)의 "카카오 로그인 변경 파일 수동 업로드"를 그대로 따른다
-
 ## 다음 작업
 
 우선순위 순서입니다. 각 항목은 별도 `feature/*` 브랜치에서 진행합니다.
@@ -32,6 +29,7 @@
 
 ## 최근 완료
 
+- [x] 카카오 로그인 변경 파일 11개, 로고·OpenAPI 갱신분을 닷홈에 FileZilla로 업로드. 운영 `/api-docs/openapi.yaml`·`/admin/login` 로고 확인, Vercel 로그인 화면에서 카카오 회원가입 정상 동작 확인 — 2026-08-19
 - [x] CSS 도형 브랜드 마크를 새 로고 이미지로 전면 교체(프론트 헤더·푸터·랜딩·인증 화면과 관리자 콘솔 사이드바·로그인), 대시보드 사진 위 헤더는 대비를 위해 흰색 로고 변형 사용, 파비콘·오픈그래프 이미지 갱신 — 2026-08-19
 - [x] 이메일 중복 확인과 소셜 로그인 리디렉션·콜백 API를 OpenAPI 명세에 추가 — 2026-08-19
 - [x] 시작 진단·요금제 화면 구현 범위 확정, 추천을 작물 기준정보와 연결, 두 화면 CSS 모듈 전환과 미사용 요금제 제한 로직 제거 — 2026-08-18
@@ -41,4 +39,3 @@
 - [x] 시즌 재배 기록 목록·등록·수정 화면 디자인 통일과 데스크톱·모바일 기능·시각 QA — 2026-08-18 (`93c2835`)
 - [x] 물주기 일정·완료·미루기·이력 화면 디자인 통일과 데스크톱·모바일 시각 QA — 2026-08-18 (`9ad46af`)
 - [x] 시즌 목록·등록·수정 화면 디자인 통일과 데스크톱·모바일 시각 QA — 2026-08-18 (`b1081dc`)
-- [x] 기존 OpenAPI 명세를 단일 기준으로 정리하고 Laravel Swagger UI·명세 제공 경로·회귀 테스트 추가(코드 구현) — 2026-08-18
