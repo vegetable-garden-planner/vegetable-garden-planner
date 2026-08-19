@@ -7,7 +7,7 @@
 - 운영 백엔드: https://yjwest9.dothome.co.kr
 - 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
 - Swagger UI: https://yjwest9.dothome.co.kr/api-docs
-- 현재 Swagger 상태: 닷홈 업로드 완료, `/api-docs`와 `/api-docs/openapi.yaml` 모두 정상 응답. `resources/openapi.yaml`은 2026-08-19에 이메일 중복 확인·소셜 로그인 리디렉션·콜백 명세를 추가해 develop에는 반영했지만 이 파일만 아직 닷홈에 재업로드하지 않았습니다.
+- 현재 Swagger 상태: 닷홈 업로드 완료, `/api-docs`와 `/api-docs/openapi.yaml` 모두 정상 응답. 2026-08-19에 추가한 이메일 중복 확인·소셜 로그인 리디렉션·콜백 명세도 같은 날 재업로드해 반영했습니다.
 - 현재 상품은 SSH 자동 배포를 사용하지 않습니다.
 - 백엔드 변경은 로컬 전체 테스트를 먼저 통과한 뒤 FileZilla로 변경 파일만 직접 업로드합니다.
 - 프론트만 변경한 작업은 닷홈에 아무 파일도 올리지 않습니다.
@@ -100,6 +100,8 @@ KAKAO_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/kakao/callba
 
 ### 카카오 로그인 변경 파일 수동 업로드
 
+2026-08-19에 아래 11개 파일 업로드와 Kakao Developers 설정을 완료했고, Vercel 로그인 화면에서 카카오 회원가입까지 정상 동작을 확인했습니다. 아래는 그때 따른 절차이자 이후 재배포 시 참고할 기준입니다.
+
 카카오 로그인 기능을 운영에 활성화할 때는 기존 운영 `.env`와 `public/index.php`를 덮어쓰지 말고 다음 변경 파일만 같은 상대 경로로 업로드합니다.
 
 - `app/Actions/Auth/ResolveSocialUser.php`
@@ -121,6 +123,8 @@ KAKAO_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/kakao/callba
 `APP_KEY`는 `php artisan key:generate`로 한 번 생성하고 이후 임의로 바꾸지 않습니다. 키를 바꾸면 기존 암호화 데이터와 세션을 읽을 수 없습니다.
 
 ### 로고 교체 변경 파일 수동 업로드
+
+2026-08-19에 아래 파일을 업로드해 `/admin/login`과 `/admin`의 로고 표시를 확인했습니다.
 
 관리자 콘솔의 "싹" 텍스트 로고를 이미지 로고로 바꾸면서 바뀐 백엔드 파일은 다음과 같습니다.
 
