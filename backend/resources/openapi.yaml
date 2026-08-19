@@ -71,6 +71,34 @@ paths:
       responses:
         '204':
           description: CSRF 쿠키 발급 성공
+  /auth/email-availability:
+    post:
+      tags: [Auth]
+      summary: 회원가입 이메일 중복 확인
+      description: |
+        회원가입 화면에서 입력한 이메일을 이미 쓰고 있는 회원이 있는지 확인합니다.
+        이메일은 서버에서 소문자로 변환한 뒤 비교합니다. 분당 20회로 제한합니다.
+      operationId: checkEmailAvailability
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailAvailabilityRequest'
+      responses:
+        '200':
+          description: 중복 확인 성공
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailAvailabilityResponse'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '429':
+          description: 요청 횟수 제한 초과
+        '419':
+          $ref: '#/components/responses/CsrfMismatch'
   /auth/register:
     post:
       tags: [Auth]
@@ -133,6 +161,82 @@ paths:
           $ref: '#/components/responses/Unauthenticated'
         '419':
           $ref: '#/components/responses/CsrfMismatch'
+  /auth/{provider}/redirect:
+    get:
+      tags: [Auth]
+      summary: 소셜 로그인 시작
+      description: |
+        브라우저를 제공자 인증 화면으로 이동시키는 리디렉션 엔드포인트입니다. JSON을 반환하지 않습니다.
+        Laravel이 OAuth `state`와 로그인 후 돌아갈 내부 경로를 세션에 저장한 뒤 제공자로 302 응답합니다.
+        프론트에서 fetch로 호출하지 말고 브라우저를 이 주소로 이동시켜야 합니다.
+        제공자 키가 설정되지 않았으면 `/login?socialError={provider}-config`로 되돌립니다.
+      operationId: startSocialLogin
+      servers:
+        - url: https://yjwest9.dothome.co.kr
+          description: 닷홈 운영 서버 루트
+        - url: http://localhost:8000
+          description: Laravel 로컬 개발 서버 루트
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/SocialProvider'
+        - name: next
+          in: query
+          required: false
+          description: 로그인 후 돌아갈 프론트 내부 경로. `/`로 시작하지 않으면 `/dashboard`로 대체합니다.
+          schema:
+            type: string
+            example: /dashboard
+      responses:
+        '302':
+          description: 제공자 인증 화면 또는 로그인 실패 안내로 이동
+  /auth/{provider}/callback:
+    get:
+      tags: [Auth]
+      summary: 소셜 로그인 콜백
+      description: |
+        제공자가 브라우저를 되돌려 보내는 주소입니다. JSON을 반환하지 않습니다.
+        세션의 `state`와 대조하고 인가 코드를 액세스 토큰으로 교환한 뒤 제공자 프로필을 조회합니다.
+        검증된 이메일이 있으면 기존 회원에 제공자 계정을 연결하거나 새 회원을 만들고 Laravel 세션을 발급합니다.
+        성공하면 시작할 때 저장한 내부 경로(기본 `/dashboard`)로, 실패하면 `/login?socialError={provider}`로 이동합니다.
+        액세스 토큰은 프로필 조회 중에만 사용하고 저장하지 않습니다.
+      operationId: completeSocialLogin
+      servers:
+        - url: https://yjwest9.dothome.co.kr
+          description: 닷홈 운영 서버 루트
+        - url: http://localhost:8000
+          description: Laravel 로컬 개발 서버 루트
+      security: []
+      parameters:
+        - name: provider
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/SocialProvider'
+        - name: code
+          in: query
+          required: false
+          description: 제공자가 발급한 인가 코드
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          description: 로그인 시작 때 세션에 저장한 값과 같아야 합니다.
+          schema:
+            type: string
+        - name: error
+          in: query
+          required: false
+          description: 사용자가 동의를 취소했을 때 제공자가 전달하는 오류 코드
+          schema:
+            type: string
+      responses:
+        '302':
+          description: 로그인 성공 시 내부 경로로, 실패 시 로그인 화면 오류 안내로 이동
   /me:
     get:
       tags: [Auth]
@@ -1358,6 +1462,29 @@ components:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
   schemas:
+    EmailAvailabilityRequest:
+      type: object
+      additionalProperties: false
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 255
+    EmailAvailabilityResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [available]
+          properties:
+            available:
+              type: boolean
+              description: true면 사용할 수 있는 이메일입니다.
+    SocialProvider:
+      type: string
+      enum: [google, kakao]
     RegisterRequest:
       type: object
       additionalProperties: false
