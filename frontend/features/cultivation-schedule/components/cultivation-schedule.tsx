@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { InlineConfirm } from "@/components/inline-confirm";
 import type {
   CultivationTask,
   CultivationTaskType,
@@ -48,13 +49,16 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   const [actionError, setActionError] = useState("");
   const [actionErrorCode, setActionErrorCode] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmingGenerate, setConfirmingGenerate] = useState(false);
+  const [confirmingRemoveAll, setConfirmingRemoveAll] = useState(false);
+  const [deletingTaskId, setDeletingTaskId] = useState("");
 
-  if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
-  if (spacesState.status === "error") return <Message message={spacesState.message} />;
-  if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
-  if (tasksState.status === "error") return <Message message={tasksState.message} />;
+  if (seasonsState.status === "error") return <Message message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
+  if (spacesState.status === "error") return <Message message={spacesState.message} onRetry={() => void spacesState.reload()} />;
+  if (layoutsState.status === "error") return <Message message={layoutsState.message} onRetry={() => void layoutsState.reload()} />;
+  if (tasksState.status === "error") return <Message message={tasksState.message} onRetry={() => void tasksState.reload()} />;
   if (layoutsState.status === "loading" || tasksState.status === "loading") {
-    return <p className="text-muted">재배 일정을 불러오고 있습니다.</p>;
+    return <p className="surface-panel p-5 text-muted" role="status">재배 일정을 불러오고 있습니다.</p>;
   }
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
@@ -99,7 +103,9 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
     }
   }
 
-  async function generate(): Promise<void> {
+  function requestGenerate(): void {
+    setActionError("");
+    setActionErrorCode("");
     if (currentSpace.type === "garden" && !layout) {
       setActionError("먼저 텃밭 격자를 만들고 작물을 배치해 주세요.");
       return;
@@ -108,17 +114,23 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
       setActionError("먼저 이번 시즌에 키울 작물을 선택해 주세요.");
       return;
     }
-    if (tasks.length > 0 && !window.confirm("기존 일정을 현재 작물 선택 기준으로 다시 만들까요?")) {
+    if (tasks.length > 0) {
+      setConfirmingGenerate(true);
       return;
     }
+    void generate();
+  }
+
+  async function generate(): Promise<void> {
     const sourceVersion = currentSpace.type === "garden" ? layout?.version : currentSeason.version;
     if (sourceVersion === undefined) return;
     await runAction(async () => { await generateCultivationTasks(currentSeason.id, sourceVersion); });
+    setConfirmingGenerate(false);
   }
 
   async function removeSchedule(): Promise<void> {
-    if (!window.confirm("이 시즌의 재배 일정을 모두 삭제할까요?")) return;
     await runAction(async () => { await deleteSeasonCultivationTasks(seasonId, tasks); });
+    setConfirmingRemoveAll(false);
   }
 
   async function toggleTask(task: CultivationTask): Promise<void> {
@@ -127,8 +139,8 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   }
 
   async function removeTask(task: CultivationTask): Promise<void> {
-    if (!window.confirm(`'${task.title}' 일정을 삭제할까요?`)) return;
     await runAction(async () => { await deleteCultivationTask(task); });
+    setDeletingTaskId("");
   }
 
   return (
@@ -136,12 +148,21 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
       actionError={actionError}
       actionErrorCode={actionErrorCode}
       completedCount={completedCount}
+      confirmingGenerate={confirmingGenerate}
+      confirmingRemoveAll={confirmingRemoveAll}
       cropCount={cropCount}
+      deletingTaskId={deletingTaskId}
       emptyState={emptyState}
       isSaving={isSaving}
+      onCancelDeleteTask={() => setDeletingTaskId("")}
+      onCancelGenerate={() => setConfirmingGenerate(false)}
+      onCancelRemoveAll={() => setConfirmingRemoveAll(false)}
+      onConfirmGenerate={generate}
+      onConfirmRemoveAll={removeSchedule}
       onDeleteTask={removeTask}
-      onGenerate={generate}
-      onRemoveSchedule={removeSchedule}
+      onDeleteTaskRequest={setDeletingTaskId}
+      onGenerate={requestGenerate}
+      onRemoveSchedule={() => setConfirmingRemoveAll(true)}
       onToggleTask={toggleTask}
       pendingCount={pendingCount}
       scheduleIsOutdated={scheduleIsOutdated}
@@ -167,12 +188,21 @@ interface ScheduleViewProps {
   actionError: string;
   actionErrorCode: string;
   completedCount: number;
+  confirmingGenerate: boolean;
+  confirmingRemoveAll: boolean;
   cropCount: number;
+  deletingTaskId: string;
   emptyState: ScheduleEmptyState | null;
   isSaving: boolean;
+  onCancelDeleteTask: () => void;
+  onCancelGenerate: () => void;
+  onCancelRemoveAll: () => void;
+  onConfirmGenerate: () => Promise<void>;
+  onConfirmRemoveAll: () => Promise<void>;
   onDeleteTask: (task: CultivationTask) => Promise<void>;
-  onGenerate: () => Promise<void>;
-  onRemoveSchedule: () => Promise<void>;
+  onDeleteTaskRequest: (taskId: string) => void;
+  onGenerate: () => void;
+  onRemoveSchedule: () => void;
   onToggleTask: (task: CultivationTask) => Promise<void>;
   pendingCount: number;
   scheduleIsOutdated: boolean;
@@ -231,12 +261,32 @@ function ScheduleReadyContent(props: ScheduleViewProps) {
           <div className={styles.commandHeader}>
             <div><p>일정 만들기</p><h2 id="schedule-command-title">{sourceTitle}</h2><span>작물별 권장 심기와 수확 시기를 시즌 안에서 계산합니다.</span></div>
             <div className={styles.actionButtons}>
-              {hasTasks && <button className={styles.dangerButton} disabled={props.isSaving} onClick={() => { void props.onRemoveSchedule(); }} type="button">일정 모두 삭제</button>}
-              <button className={styles.primaryButton} disabled={props.isSaving} onClick={() => { void props.onGenerate(); }} type="button">
+              {hasTasks && <button className={styles.dangerButton} disabled={props.isSaving} onClick={props.onRemoveSchedule} type="button">일정 모두 삭제</button>}
+              <button className={styles.primaryButton} disabled={props.isSaving} onClick={props.onGenerate} type="button">
                 {props.isSaving ? "처리 중..." : hasTasks ? "일정 다시 만들기" : "일정 자동 만들기"}
               </button>
             </div>
           </div>
+          {props.confirmingRemoveAll && (
+            <InlineConfirm
+              confirmLabel="모두 삭제하기"
+              description="이 시즌의 재배 일정을 모두 삭제합니다. 되돌릴 수 없습니다."
+              disabled={props.isSaving}
+              onCancel={props.onCancelRemoveAll}
+              onConfirm={() => { void props.onConfirmRemoveAll(); }}
+              title="일정을 모두 삭제할까요?"
+            />
+          )}
+          {props.confirmingGenerate && (
+            <InlineConfirm
+              confirmLabel="다시 만들기"
+              description="현재 일정을 지우고 지금의 작물 선택 기준으로 새로 만듭니다."
+              disabled={props.isSaving}
+              onCancel={props.onCancelGenerate}
+              onConfirm={() => { void props.onConfirmGenerate(); }}
+              title="기존 일정을 다시 만들까요?"
+            />
+          )}
         </section>
 
         {props.actionError && (
@@ -252,7 +302,17 @@ function ScheduleReadyContent(props: ScheduleViewProps) {
         )}
         {props.scheduleIsOutdated && <p className={styles.outdated} role="alert">일정을 만든 뒤 작물 선택 또는 배치가 변경되었습니다. 현재 계획으로 일정을 다시 만들어 주세요.</p>}
         {hasTasks
-          ? <TaskList disabled={props.isSaving} onDelete={props.onDeleteTask} onToggle={props.onToggleTask} tasks={props.tasks} />
+          ? (
+              <TaskList
+                deletingTaskId={props.deletingTaskId}
+                disabled={props.isSaving}
+                onCancelDelete={props.onCancelDeleteTask}
+                onDelete={props.onDeleteTask}
+                onDeleteRequest={props.onDeleteTaskRequest}
+                onToggle={props.onToggleTask}
+                tasks={props.tasks}
+              />
+            )
           : <EmptySchedule description="버튼을 누르면 선택한 작물별 심기와 수확 시작 일정을 만듭니다." title="아직 만든 일정이 없어요" />}
       </main>
 
@@ -333,13 +393,19 @@ function getScheduleEmptyState(
 }
 
 function TaskList({
+  deletingTaskId,
   disabled,
+  onCancelDelete,
   onDelete,
+  onDeleteRequest,
   onToggle,
   tasks,
 }: {
+  deletingTaskId: string;
   disabled: boolean;
+  onCancelDelete: () => void;
   onDelete: (task: CultivationTask) => Promise<void>;
+  onDeleteRequest: (taskId: string) => void;
   onToggle: (task: CultivationTask) => Promise<void>;
   tasks: readonly CultivationTask[];
 }) {
@@ -359,12 +425,22 @@ function TaskList({
                 <span className={TASK_TYPE_STYLES[task.type]}>{TASK_TYPE_LABELS[task.type]}</span>
               </div>
               <p className={styles.taskNotes}>{task.notes}</p>
-              <div className={styles.taskActions}>
-                <button className={styles.completeButton} disabled={disabled} onClick={() => { void onToggle(task); }} type="button">
-                  {task.status === "completed" ? "미완료로 되돌리기" : "완료하기"}
-                </button>
-                <button className={styles.deleteButton} disabled={disabled} onClick={() => { void onDelete(task); }} type="button">삭제</button>
-              </div>
+              {deletingTaskId === task.id ? (
+                <InlineConfirm
+                  description="삭제하면 되돌릴 수 없습니다."
+                  disabled={disabled}
+                  onCancel={onCancelDelete}
+                  onConfirm={() => { void onDelete(task); }}
+                  title={`'${task.title}' 일정을 삭제할까요?`}
+                />
+              ) : (
+                <div className={styles.taskActions}>
+                  <button className={styles.completeButton} disabled={disabled} onClick={() => { void onToggle(task); }} type="button">
+                    {task.status === "completed" ? "미완료로 되돌리기" : "완료하기"}
+                  </button>
+                  <button className={styles.deleteButton} disabled={disabled} onClick={() => onDeleteRequest(task.id)} type="button">삭제</button>
+                </div>
+              )}
             </article>
           </li>
         ))}
@@ -393,11 +469,15 @@ function EmptySchedule({
   );
 }
 
-function Message({ message }: { message: string }) {
+function Message({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="rounded-2xl bg-red-50 p-5 text-red-700" role="alert">
+    <div className="rounded-2xl bg-[#fff4f2] p-5 text-[var(--color-danger)]" role="alert">
       <p className="font-semibold">{message}</p>
-      <Link className="mt-4 inline-flex font-bold underline" href="/seasons">시즌 목록으로 돌아가기</Link>
+      {onRetry ? (
+        <button className="mt-4 inline-flex font-bold underline" onClick={onRetry} type="button">다시 시도</button>
+      ) : (
+        <Link className="mt-4 inline-flex font-bold underline" href="/seasons">시즌 목록으로 돌아가기</Link>
+      )}
     </div>
   );
 }

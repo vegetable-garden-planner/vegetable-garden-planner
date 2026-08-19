@@ -365,6 +365,75 @@ body {
   transform: scale(0.98);
 }
 
+.inline-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 12px;
+  border: 1px solid #efcbc6;
+  border-radius: 14px;
+  background: #fff4f2;
+  padding: 14px 16px;
+}
+
+.inline-confirm-copy strong {
+  display: block;
+  color: var(--color-danger);
+  font-size: var(--type-label-size);
+}
+
+.inline-confirm-copy span {
+  display: block;
+  margin-top: 4px;
+  color: var(--color-muted);
+  font-size: var(--type-caption-size);
+}
+
+.inline-confirm-actions {
+  display: flex;
+  flex: 0 0 auto;
+  gap: 8px;
+}
+
+.inline-confirm-actions button {
+  min-height: 36px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: white;
+  padding: 0 14px;
+  color: var(--color-ink);
+  cursor: pointer;
+  font-size: var(--type-caption-size);
+  font-weight: 800;
+}
+
+.inline-confirm-actions button:last-child {
+  border-color: var(--color-danger);
+  background: var(--color-danger);
+  color: white;
+}
+
+.inline-confirm-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+}
+
+@media (max-width: 520px) {
+  .inline-confirm {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .inline-confirm-actions {
+    width: 100%;
+  }
+
+  .inline-confirm-actions button {
+    flex: 1;
+  }
+}
+
 :where(a, button).bg-leaf {
   color: var(--color-on-photo);
   transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);

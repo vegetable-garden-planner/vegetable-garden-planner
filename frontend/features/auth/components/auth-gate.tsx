@@ -19,7 +19,7 @@ export function AuthGate({ children, loginHref }: AuthGateProps) {
   if (auth.state.status === "error") {
     return (
       <main className="min-h-screen bg-cream px-5 py-16 text-center text-ink">
-        <p className="font-semibold text-red-700" role="alert">{auth.state.message}</p>
+        <p className="font-semibold text-[var(--color-danger)]" role="alert">{auth.state.message}</p>
         <button className="mt-5 rounded-full bg-leaf px-5 py-3 font-bold text-white" onClick={() => void auth.reload()} type="button">다시 시도</button>
       </main>
     );

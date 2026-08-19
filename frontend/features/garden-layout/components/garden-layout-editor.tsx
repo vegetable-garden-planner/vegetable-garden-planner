@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { InlineConfirm } from "@/components/inline-confirm";
 import { CropVisual } from "@/features/crop-catalog/components/crop-visual";
 import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
-import { calculatePlantCount } from "@/features/garden-layout/application/calculate-plant-count";
+import { calculatePlantCount, type PlantCountSummary as PlantCountSummaryValue } from "@/features/garden-layout/application/calculate-plant-count";
 import { PlantCountSummary } from "@/features/garden-layout/components/plant-count-summary";
 import {
   createGardenLayout,
@@ -15,7 +16,7 @@ import {
   type GardenLayout,
   type GridCellSizeCm,
 } from "@/features/garden-layout/domain/garden-layout";
-import { getCropSeasonFit } from "@/features/garden-layout/domain/garden-layout-rules";
+import { getCropSeasonFit, type CropSeasonFit } from "@/features/garden-layout/domain/garden-layout-rules";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
   deleteGardenLayout,
@@ -32,10 +33,10 @@ export function GardenLayoutEditor({ seasonId }: { seasonId: string }) {
   const layoutsState = useGardenLayouts();
   const cropCatalog = useCropCatalog();
 
-  if (seasonsState.status === "error") return <Message message={seasonsState.message} />;
-  if (spacesState.status === "error") return <Message message={spacesState.message} />;
-  if (layoutsState.status === "error") return <Message message={layoutsState.message} />;
-  if (cropCatalog.status === "error") return <Message message={cropCatalog.message} />;
+  if (seasonsState.status === "error") return <Message message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
+  if (spacesState.status === "error") return <Message message={spacesState.message} onRetry={() => void spacesState.reload()} />;
+  if (layoutsState.status === "error") return <Message message={layoutsState.message} onRetry={() => void layoutsState.reload()} />;
+  if (cropCatalog.status === "error") return <Message message={cropCatalog.message} onRetry={() => window.location.reload()} />;
   if (
     seasonsState.status === "loading"
     || spacesState.status === "loading"
@@ -174,7 +175,7 @@ function GardenGridSetup({
         </select>
       </label>
       <p className="mt-4 rounded-xl bg-cream p-4 text-sm font-bold">예상 격자: {columns}열 × {rows}행 · {columns * rows}칸</p>
-      {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{error}</p>}
+      {error && <p className="mt-4 rounded-xl bg-[#fff4f2] p-4 text-sm font-bold text-[var(--color-danger)]" role="alert">{error}</p>}
       <button className="mt-6 w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white disabled:opacity-60" disabled={isSaving} type="submit">{isSaving ? "저장 중" : "격자 만들기"}</button>
     </form>
   );
@@ -200,6 +201,7 @@ function GardenGrid({
   );
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmingReset, setConfirmingReset] = useState(false);
   const cropsById = new Map(crops.map((crop) => [crop.id, crop]));
   const cropFits = new Map(crops.map((crop) => [crop.id, getCropSeasonFit(season, crop)]));
   const placementsByCell = new Map(
@@ -233,11 +235,11 @@ function GardenGrid({
 
   async function recreateGrid() {
     if (isSaving) return;
-    if (!window.confirm("현재 작물 배치를 모두 지우고 격자를 다시 만들까요?")) return;
     setIsSaving(true);
     try {
       await deleteGardenLayout(layout);
       await reload();
+      setConfirmingReset(false);
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : "격자를 삭제하지 못했습니다.");
     } finally {
@@ -255,24 +257,7 @@ function GardenGrid({
       <div className="planner-workspace">
         <div className="planner-left-rail">
           <PlannerContext season={season} sidebar space={space} />
-          <aside className="planner-crop-panel" aria-labelledby="crop-selector-title">
-            <div className="planner-panel-heading">
-              <div><p>재배할 작물</p><h2 id="crop-selector-title">작물을 선택하세요</h2></div>
-              <span>{crops.length}종</span>
-            </div>
-            <div className="planner-crop-list" role="radiogroup" aria-labelledby="crop-selector-title">
-              {crops.map((crop) => {
-                const recommended = isCompleteSeasonFit(cropFits.get(crop.id));
-                return (
-                  <label className={`planner-crop-choice ${cropChoiceClass(selectedCropId === crop.id, recommended)}`} key={crop.id}>
-                    <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => setSelectedCropId(crop.id)} type="radio" />
-                    <CropVisual crop={crop} />
-                    <span><strong>{crop.name}</strong><small>{recommended ? "현재 시즌 추천" : `${crop.plantingPeriod.label} 권장`}</small></span>
-                  </label>
-                );
-              })}
-            </div>
-          </aside>
+          <CropSelectorPanel crops={crops} cropFits={cropFits} onSelect={setSelectedCropId} selectedCropId={selectedCropId} />
         </div>
 
         <section className="planner-board-panel" aria-labelledby="planner-board-title">
@@ -314,39 +299,94 @@ function GardenGrid({
           </div>
           <div className="planner-board-footer">
             <p>한 칸 {layout.cellSizeCm}cm · 작물이 있는 칸을 다시 누르면 비워집니다.</p>
-            <button disabled={isSaving} onClick={() => void recreateGrid()} type="button">격자 초기화</button>
+            <button disabled={isSaving} onClick={() => setConfirmingReset(true)} type="button">격자 초기화</button>
           </div>
+          {confirmingReset && (
+            <InlineConfirm
+              confirmLabel="초기화하기"
+              description="현재 작물 배치를 모두 지우고 격자를 다시 만듭니다. 되돌릴 수 없습니다."
+              disabled={isSaving}
+              onCancel={() => setConfirmingReset(false)}
+              onConfirm={() => void recreateGrid()}
+              title="격자를 초기화할까요?"
+            />
+          )}
         </section>
 
-        <aside className="planner-inspector">
-          {selectedCrop && (
-            <section className="planner-selected-crop" aria-labelledby="selected-crop-title">
-              <p>선택한 작물</p>
-              <div>
-                <CropVisual crop={selectedCrop} />
-                <span><strong id="selected-crop-title">{selectedCrop.name}</strong><small>{selectedCrop.plantingPeriod.label} 심기 권장</small></span>
-              </div>
-              <dl>
-                <div><dt>권장 간격</dt><dd>{selectedCrop.plantSpacingCm}cm</dd></div>
-                <div><dt>난이도</dt><dd>{difficultyLabel(selectedCrop.difficulty)}</dd></div>
-              </dl>
-            </section>
-          )}
-          <PlantCountSummary summary={plantCount} />
-          <section className="planner-guide-card">
-            <p>배치 가이드</p>
-            <h2>{selectedCrop?.name ?? "작물"}을 심을 위치</h2>
-            <ul>
-              <li>햇빛 방향과 권장 시기를 먼저 확인하세요.</li>
-              <li>각 칸은 한 포기로 계산됩니다.</li>
-              <li>저장할 때 간격과 연작 위험을 함께 확인해요.</li>
-            </ul>
-          </section>
-        </aside>
+        <PlacementInspector plantCount={plantCount} selectedCrop={selectedCrop} />
       </div>
-      {error && <p className="mt-4 rounded-xl bg-red-50 p-4 text-sm font-bold text-red-700" role="alert">{error}</p>}
+      {error && <p className="mt-4 rounded-xl bg-[#fff4f2] p-4 text-sm font-bold text-[var(--color-danger)]" role="alert">{error}</p>}
       <LayoutNextStep crops={crops} layout={layout} season={season} />
     </div>
+  );
+}
+
+function CropSelectorPanel({
+  cropFits,
+  crops,
+  onSelect,
+  selectedCropId,
+}: {
+  cropFits: Map<string, CropSeasonFit>;
+  crops: readonly CropReference[];
+  onSelect: (cropId: string) => void;
+  selectedCropId: string;
+}) {
+  return (
+    <aside className="planner-crop-panel" aria-labelledby="crop-selector-title">
+      <div className="planner-panel-heading">
+        <div><p>재배할 작물</p><h2 id="crop-selector-title">작물을 선택하세요</h2></div>
+        <span>{crops.length}종</span>
+      </div>
+      <div className="planner-crop-list" role="radiogroup" aria-labelledby="crop-selector-title">
+        {crops.map((crop) => {
+          const recommended = isCompleteSeasonFit(cropFits.get(crop.id));
+          return (
+            <label className={`planner-crop-choice ${cropChoiceClass(selectedCropId === crop.id, recommended)}`} key={crop.id}>
+              <input checked={selectedCropId === crop.id} className="sr-only" name="crop" onChange={() => onSelect(crop.id)} type="radio" />
+              <CropVisual crop={crop} />
+              <span><strong>{crop.name}</strong><small>{recommended ? "현재 시즌 추천" : `${crop.plantingPeriod.label} 권장`}</small></span>
+            </label>
+          );
+        })}
+      </div>
+    </aside>
+  );
+}
+
+function PlacementInspector({
+  plantCount,
+  selectedCrop,
+}: {
+  plantCount: PlantCountSummaryValue;
+  selectedCrop: CropReference | undefined;
+}) {
+  return (
+    <aside className="planner-inspector">
+      {selectedCrop && (
+        <section className="planner-selected-crop" aria-labelledby="selected-crop-title">
+          <p>선택한 작물</p>
+          <div>
+            <CropVisual crop={selectedCrop} />
+            <span><strong id="selected-crop-title">{selectedCrop.name}</strong><small>{selectedCrop.plantingPeriod.label} 심기 권장</small></span>
+          </div>
+          <dl>
+            <div><dt>권장 간격</dt><dd>{selectedCrop.plantSpacingCm}cm</dd></div>
+            <div><dt>난이도</dt><dd>{difficultyLabel(selectedCrop.difficulty)}</dd></div>
+          </dl>
+        </section>
+      )}
+      <PlantCountSummary summary={plantCount} />
+      <section className="planner-guide-card">
+        <p>배치 가이드</p>
+        <h2>{selectedCrop?.name ?? "작물"}을 심을 위치</h2>
+        <ul>
+          <li>햇빛 방향과 권장 시기를 먼저 확인하세요.</li>
+          <li>각 칸은 한 포기로 계산됩니다.</li>
+          <li>저장할 때 간격과 연작 위험을 함께 확인해요.</li>
+        </ul>
+      </section>
+    </aside>
   );
 }
 
@@ -440,11 +480,15 @@ function LayoutNextStep({
   );
 }
 
-function Message({ message }: { message: string }) {
+function Message({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="rounded-2xl bg-red-50 p-5 text-red-700" role="alert">
+    <div className="rounded-2xl bg-[#fff4f2] p-5 text-[var(--color-danger)]" role="alert">
       <p className="font-semibold">{message}</p>
-      <Link className="mt-4 inline-flex font-bold underline" href="/seasons">시즌 목록으로 돌아가기</Link>
+      {onRetry ? (
+        <button className="mt-4 inline-flex font-bold underline" onClick={onRetry} type="button">다시 시도</button>
+      ) : (
+        <Link className="mt-4 inline-flex font-bold underline" href="/seasons">시즌 목록으로 돌아가기</Link>
+      )}
     </div>
   );
 }

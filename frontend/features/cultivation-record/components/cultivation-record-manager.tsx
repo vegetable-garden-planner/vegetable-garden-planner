@@ -30,9 +30,9 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
   const [busyKey, setBusyKey] = useState("");
   const [actionError, setActionError] = useState("");
 
-  if (seasonsState.status === "error") return <CultivationRecordLoadError message={seasonsState.message} />;
-  if (spacesState.status === "error") return <CultivationRecordLoadError message={spacesState.message} />;
-  if (recordsState.status === "error") return <CultivationRecordLoadError message={recordsState.message} />;
+  if (seasonsState.status === "error") return <CultivationRecordLoadError message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
+  if (spacesState.status === "error") return <CultivationRecordLoadError message={spacesState.message} onRetry={() => void spacesState.reload()} />;
+  if (recordsState.status === "error") return <CultivationRecordLoadError message={recordsState.message} onRetry={() => void recordsState.reload()} />;
   if (seasonsState.status === "loading" || spacesState.status === "loading" || recordsState.status === "loading") {
     return <CultivationRecordLoadingState />;
   }

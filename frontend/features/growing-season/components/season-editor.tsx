@@ -8,6 +8,10 @@ import styles from "@/features/growing-season/components/growing-season.module.c
 export function SeasonEditor({ seasonId }: { seasonId: string }) {
   const seasonsState = useGrowingSeasons();
 
+  if (seasonsState.status === "loading") {
+    return <p className="surface-panel p-5 text-muted" role="status">시즌 정보를 불러오고 있습니다.</p>;
+  }
+
   if (seasonsState.status === "error") {
     return <Message message={seasonsState.message} />;
   }

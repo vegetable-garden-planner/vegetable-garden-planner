@@ -366,13 +366,13 @@ function DashboardGettingStarted({
 
 function DashboardLoadError({ detail }: { detail: string }) {
   return (
-    <section className="dashboard-state surface-panel border-red-200 p-6 sm:p-8" aria-labelledby="dashboard-error-title" role="alert">
-      <p className="text-sm font-bold text-red-700">재배 정보를 불러오지 못했어요</p>
+    <section className="dashboard-state surface-panel border-[#efcbc6] p-6 sm:p-8" aria-labelledby="dashboard-error-title" role="alert">
+      <p className="text-sm font-bold text-[var(--color-danger)]">재배 정보를 불러오지 못했어요</p>
       <h2 className="mt-2 text-xl font-bold" id="dashboard-error-title">연결 상태를 다시 확인해 주세요</h2>
       <p className="mt-3 leading-7 text-muted">
         로그인 정보가 만료됐거나 연결이 잠시 불안정할 수 있어요. 다시 불러온 뒤에도 계속되면 로그인 화면에서 계정을 확인해 주세요.
       </p>
-      <p className="mt-3 text-sm text-red-700">확인 내용: {detail}</p>
+      <p className="mt-3 text-sm text-[var(--color-danger)]">확인 내용: {detail}</p>
       <div className="mt-6 flex flex-wrap gap-3">
         <button className="primary-action px-5 py-3" onClick={() => window.location.reload()} type="button">다시 불러오기</button>
         <Link className="inline-flex items-center rounded-full border border-[var(--color-border)] px-5 py-3 font-bold" href="/login?next=%2Fdashboard">로그인 화면으로 이동</Link>

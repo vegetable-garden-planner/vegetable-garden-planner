@@ -8,6 +8,10 @@ import styles from "@/features/growing-space/components/growing-space.module.css
 export function SpaceEditor({ spaceId }: { spaceId: string }) {
   const spacesState = useGrowingSpaces();
 
+  if (spacesState.status === "loading") {
+    return <p className="surface-panel p-5 text-muted" role="status">공간 정보를 불러오고 있습니다.</p>;
+  }
+
   if (spacesState.status === "error") {
     return <Message message={spacesState.message} />;
   }

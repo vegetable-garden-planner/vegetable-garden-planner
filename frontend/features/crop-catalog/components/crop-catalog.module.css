@@ -92,7 +92,7 @@
 .empty { padding: 56px 24px; text-align: center; }
 .empty > span { display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 18px; border-radius: 50%; color: var(--color-primary); background: var(--color-primary-soft); font-size: 1.25rem; font-weight: 900; }
 .empty h3,
-.error h2 { margin: 0; color: var(--color-ink-strong); font-size: 1.3rem; }
+.error h2 { margin: 0; color: var(--color-danger); font-size: 1.3rem; }
 .empty p,
 .error p { margin: 10px 0 20px; color: var(--color-muted); line-height: 1.65; }
 .empty button,

@@ -1,3 +1,4 @@
+import { InlineConfirm } from "@/components/inline-confirm";
 import type { PersistedGrowingSeason } from "../../growing-season/domain/growing-season";
 import {
   CULTIVATION_RECORD_TYPE_LABELS,
@@ -47,10 +48,13 @@ export function CultivationRecordCard({
         {record.quantity !== null && <p className={styles.quantity}><span>측정·수확량</span>{formatQuantity(record.quantity)} {record.unit}</p>}
         <p className={record.notes ? styles.notes : styles.emptyNotes}>{record.notes || "메모 없이 남긴 기록입니다."}</p>
         {deleting ? (
-          <div className={styles.deleteConfirm} role="alert">
-            <div><strong>이 기록을 삭제할까요?</strong><span>삭제한 기록은 되돌릴 수 없습니다.</span></div>
-            <div><button disabled={disabled} onClick={onCancelDelete} type="button">취소</button><button disabled={disabled} onClick={() => { void onDelete(); }} type="button">삭제하기</button></div>
-          </div>
+          <InlineConfirm
+            description="삭제한 기록은 되돌릴 수 없습니다."
+            disabled={disabled}
+            onCancel={onCancelDelete}
+            onConfirm={() => { void onDelete(); }}
+            title="이 기록을 삭제할까요?"
+          />
         ) : (
           <div className={styles.recordActions}>
             <button disabled={disabled} onClick={onEdit} type="button">수정</button>

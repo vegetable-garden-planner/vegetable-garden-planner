@@ -75,7 +75,7 @@ export function CultivationRecordWorkspace(props: CultivationRecordWorkspaceProp
             </ol>
           )}
         </main>
-        <aside className={styles.sideColumn}>
+        <aside className={styles.sideColumn} id="record-create-form">
           <CultivationRecordForm disabled={props.busy} onSubmit={props.onCreate} season={props.season} />
           <RecordGuide seasonId={props.season.id} space={props.space} />
         </aside>
@@ -141,15 +141,29 @@ function RecordGuide({ seasonId, space }: { seasonId: string; space: GrowingSpac
 }
 
 function RecordEmptyState({ filtered }: { filtered: boolean }) {
-  return <div className={styles.emptyState}><span aria-hidden="true">일지</span><p>{filtered ? "선택한 종류의 기록이 없어요" : "아직 남긴 기록이 없어요"}</p><h3>{filtered ? "다른 종류를 확인해 보세요" : "오른쪽에서 첫 기록을 남겨 보세요"}</h3><strong>한 일과 식물의 작은 변화를 기록하면 다음 시즌을 계획할 때 좋은 기준이 됩니다.</strong></div>;
+  return (
+    <div className={styles.emptyState}>
+      <span aria-hidden="true">일지</span>
+      <p>{filtered ? "선택한 종류의 기록이 없어요" : "아직 남긴 기록이 없어요"}</p>
+      <h3>{filtered ? "다른 종류를 확인해 보세요" : "첫 기록을 남겨 보세요"}</h3>
+      <strong>한 일과 식물의 작은 변화를 기록하면 다음 시즌을 계획할 때 좋은 기준이 됩니다.</strong>
+      {!filtered && <Link href="#record-create-form">기록 남기러 가기 →</Link>}
+    </div>
+  );
 }
 
 export function CultivationRecordLoadingState() {
   return <div aria-label="시즌 기록을 불러오는 중" className={styles.loading} role="status"><div /><div><span /><span /></div></div>;
 }
 
-export function CultivationRecordLoadError({ message }: { message: string }) {
-  return <div className={styles.errorState} role="alert"><p>기록을 불러오지 못했어요</p><h2>{message}</h2><Link href="/seasons">시즌 목록으로 돌아가기</Link></div>;
+export function CultivationRecordLoadError({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div className={styles.errorState} role="alert">
+      <p>기록을 불러오지 못했어요</p>
+      <h2>{message}</h2>
+      {onRetry ? <button onClick={onRetry} type="button">다시 시도</button> : <Link href="/seasons">시즌 목록으로 돌아가기</Link>}
+    </div>
+  );
 }
 
 function countByType(records: CultivationRecord[]): Record<CultivationRecordType, number> {
