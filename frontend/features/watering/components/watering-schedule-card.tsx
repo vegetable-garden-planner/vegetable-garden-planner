@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { InlineConfirm } from "@/components/inline-confirm";
 import type { CropReference } from "../../crop-catalog/domain/crop-reference";
 import type { PersistedGrowingSeason } from "../../growing-season/domain/growing-season";
 import {
@@ -55,6 +56,7 @@ export function WateringScheduleCard({
   const [intervalDays, setIntervalDays] = useState(String(schedule.intervalDays));
   const [openAction, setOpenAction] = useState<"complete" | "snooze" | null>(null);
   const [intervalError, setIntervalError] = useState("");
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const status = getWateringScheduleStatus(schedule, new Date());
 
   async function saveInterval() {
@@ -148,10 +150,19 @@ export function WateringScheduleCard({
             <button disabled={disabled} onClick={onCloseHistory} type="button">이력 닫기</button>
           </span>
         )}
-        <button className={styles.deleteButton} disabled={disabled} onClick={() => { void onDelete(); }} type="button">
+        <button className={styles.deleteButton} disabled={disabled} onClick={() => setConfirmingDelete(true)} type="button">
           일정 삭제
         </button>
       </div>
+      {confirmingDelete && (
+        <InlineConfirm
+          description="삭제하면 되돌릴 수 없습니다."
+          disabled={disabled}
+          onCancel={() => setConfirmingDelete(false)}
+          onConfirm={() => { void onDelete().then(() => setConfirmingDelete(false)); }}
+          title={`'${crop?.name ?? schedule.cropId}' 물주기 일정을 삭제할까요?`}
+        />
+      )}
       <WateringHistoryPanel disabled={disabled} onReopen={onReopen} state={historyState} />
     </li>
   );

@@ -38,7 +38,7 @@
 .header {
   position: relative;
   z-index: 3;
-  height: 72px;
+  min-height: 72px;
 }
 
 .headerInner,
@@ -173,19 +173,6 @@
   bottom: -6px;
   width: 4px;
   height: 4px;
-  border-radius: 999px;
-  background: currentColor;
-}
-
-.menuIcon {
-  display: grid;
-  width: 24px;
-  gap: 5px;
-}
-
-.menuIcon i {
-  display: block;
-  height: 2px;
   border-radius: 999px;
   background: currentColor;
 }
@@ -836,8 +823,25 @@
 }
 
 @media (max-width: 900px) {
+  .headerInner {
+    flex-wrap: wrap;
+    row-gap: var(--space-2);
+  }
+
   .navigation {
+    order: 3;
+    width: 100%;
+    gap: var(--space-6);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .navigation::-webkit-scrollbar {
     display: none;
+  }
+
+  .navigation a {
+    white-space: nowrap;
   }
 
   .heroCopy {

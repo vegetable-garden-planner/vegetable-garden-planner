@@ -135,12 +135,12 @@ export function WateringLoadingState() {
   );
 }
 
-export function WateringLoadError({ message }: { message: string }) {
+export function WateringLoadError({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <section className={styles.errorState} role="alert">
       <p>물주기 관리 정보를 불러오지 못했습니다.</p>
       <h2>{message}</h2>
-      <Link href="/seasons">시즌 목록으로 돌아가기</Link>
+      {onRetry ? <button onClick={onRetry} type="button">다시 시도</button> : <Link href="/seasons">시즌 목록으로 돌아가기</Link>}
     </section>
   );
 }

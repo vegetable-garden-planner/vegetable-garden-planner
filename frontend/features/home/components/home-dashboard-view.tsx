@@ -225,7 +225,6 @@ function Header({ authenticated }: { authenticated: boolean }) {
           <Link className={`${styles.iconButton} ${styles.bellButton}`} href={authenticated ? "/dashboard" : "/login?next=%2Fdashboard"} aria-label={authenticated ? "알림 확인" : "로그인"}>
             <span className={styles.bellIcon} aria-hidden="true" />
           </Link>
-          <span className={styles.menuIcon} aria-hidden="true"><i /><i /><i /></span>
         </div>
       </div>
     </header>

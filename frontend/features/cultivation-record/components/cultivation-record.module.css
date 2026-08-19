@@ -218,15 +218,6 @@
 .recordActions { display: flex; margin-top: 18px; padding-top: 15px; border-top: 1px dashed #d9d4ca; gap: 15px; }
 .recordActions button { border: 0; background: transparent; color: var(--color-primary-hover); cursor: pointer; font-size: 10px; font-weight: 800; }
 .recordActions button:last-child { color: var(--color-danger); }
-.deleteConfirm { display: flex; margin-top: 18px; padding: 14px 15px; align-items: center; justify-content: space-between; border: 1px solid #efcbc6; border-radius: 14px; background: #fff4f2; gap: 15px; }
-.deleteConfirm > div:first-child strong,
-.deleteConfirm > div:first-child span { display: block; }
-.deleteConfirm > div:first-child strong { color: var(--color-danger); font-size: 11px; }
-.deleteConfirm > div:first-child span { margin-top: 4px; color: var(--color-muted); font-size: 9px; }
-.deleteConfirm > div:last-child { display: flex; flex: 0 0 auto; gap: 6px; }
-.deleteConfirm button { min-height: 34px; border: 1px solid var(--color-border); border-radius: 999px; background: white; padding: 0 11px; color: var(--color-ink); cursor: pointer; font-size: 9px; font-weight: 800; }
-.deleteConfirm button:last-child { border-color: var(--color-danger); background: var(--color-danger); color: white; }
-
 .createForm,
 .editForm,
 .guidePanel { padding: 22px; }
@@ -267,8 +258,7 @@
 .cancelButton:active { transform: scale(0.98); }
 .submitButton:disabled,
 .cancelButton:disabled,
-.recordActions button:disabled,
-.deleteConfirm button:disabled { cursor: not-allowed; opacity: 0.48; }
+.recordActions button:disabled { cursor: not-allowed; opacity: 0.48; }
 
 .guidePanel { background: var(--color-surface-warm); }
 .guidePanel > p { color: #d87524; }
@@ -288,10 +278,12 @@
 .emptyState h3,
 .errorState h2 { margin-top: 7px; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
 .emptyState > strong { max-width: 470px; margin-top: 11px; color: var(--color-muted); font-size: 12px; font-weight: 500; line-height: 1.7; word-break: keep-all; }
+.emptyState a,
+.errorState a,
+.errorState button { display: inline-flex; min-height: 44px; margin-top: 20px; padding: 0 17px; align-items: center; border: 0; border-radius: 999px; background: var(--color-primary); color: white; font-family: inherit; font-size: 11px; font-weight: 800; cursor: pointer; }
 .errorState { min-height: 300px; }
 .errorState > p,
 .errorState h2 { color: var(--color-danger); }
-.errorState a { display: inline-flex; min-height: 44px; margin-top: 20px; padding: 0 17px; align-items: center; border-radius: 999px; background: var(--color-primary); color: white; font-size: 11px; font-weight: 800; }
 
 .loading { display: grid; gap: 20px; }
 .loading > div:first-child,
@@ -302,7 +294,6 @@
 
 .filters button:focus-visible,
 .recordActions button:focus-visible,
-.deleteConfirm button:focus-visible,
 .guidePanel a:focus-visible,
 .submitButton:focus-visible,
 .cancelButton:focus-visible,
@@ -343,7 +334,6 @@
   .fieldGrid { grid-template-columns: 1fr; }
   .fieldGrid .field:first-child { grid-column: auto; }
   .formActions { display: grid; grid-template-columns: 1fr; }
-  .deleteConfirm { align-items: flex-start; flex-direction: column; }
   .emptyState,
   .errorState { min-height: 280px; padding: 32px 19px; }
 }

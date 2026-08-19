@@ -184,7 +184,7 @@
 
 .error {
   background: #fff0ef;
-  color: #9a392f;
+  color: var(--color-danger);
 }
 
 .error .actionButtons {
@@ -193,7 +193,7 @@
 }
 
 .error .actionButtons a:first-child {
-  background: #9a392f;
+  background: var(--color-danger);
   color: white;
 }
 

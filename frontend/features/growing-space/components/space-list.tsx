@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { InlineConfirm } from "@/components/inline-confirm";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { deleteGrowingSpace } from "@/features/growing-space/infrastructure/space-api";
@@ -24,9 +25,11 @@ export function SpaceList() {
   const spacesState = useGrowingSpaces();
   const seasonsState = useGrowingSeasons();
   const [actionError, setActionError] = useState("");
+  const [deletingId, setDeletingId] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
-  if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
+  if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} onRetry={() => void spacesState.reload()} />;
+  if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
   if (spacesState.status === "loading" || seasonsState.status === "loading") return <SpaceListLoading />;
 
   const { spaces } = spacesState;
@@ -36,13 +39,15 @@ export function SpaceList() {
 
   async function removeSpace(space: GrowingSpace) {
     setActionError("");
-    if (!window.confirm(`'${space.name}' 공간을 삭제할까요?`)) return;
-
+    setBusy(true);
     try {
       await deleteGrowingSpace(space);
       await spacesState.reload();
+      setDeletingId("");
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "공간을 삭제하지 못했습니다.");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -82,11 +87,21 @@ export function SpaceList() {
                 <div><dt>예상 햇빛</dt><dd>{space.estimatedSunlightHours === null ? SUNLIGHT_LABELS[space.sunlight] : `하루 약 ${space.estimatedSunlightHours}시간`}</dd></div>
                 <div><dt>연결 시즌</dt><dd>{seasonCount}개</dd></div>
               </dl>
-              <div className={styles.cardActions}>
-                <Link className={styles.cardPrimaryLink} href={`/seasons?spaceId=${encodeURIComponent(space.id)}`}>시즌 보기 <span>→</span></Link>
-                <Link href={`/spaces/${space.id}/edit`}>수정</Link>
-                <button onClick={() => void removeSpace(space)} type="button">삭제</button>
-              </div>
+              {deletingId === space.id ? (
+                <InlineConfirm
+                  description="삭제하면 되돌릴 수 없습니다."
+                  disabled={busy}
+                  onCancel={() => setDeletingId("")}
+                  onConfirm={() => void removeSpace(space)}
+                  title={`'${space.name}' 공간을 삭제할까요?`}
+                />
+              ) : (
+                <div className={styles.cardActions}>
+                  <Link className={styles.cardPrimaryLink} href={`/seasons?spaceId=${encodeURIComponent(space.id)}`}>시즌 보기 <span>→</span></Link>
+                  <Link href={`/spaces/${space.id}/edit`}>수정</Link>
+                  <button onClick={() => setDeletingId(space.id)} type="button">삭제</button>
+                </div>
+              )}
               <Link className={styles.addSeasonLink} href={`/seasons/new?spaceId=${space.id}`}>이 공간에 새 시즌 추가하기</Link>
             </li>
           );
@@ -108,8 +123,13 @@ function EmptySpaceList() {
   );
 }
 
-function ErrorMessage({ message }: { message: string }) {
-  return <p className={styles.errorMessage} role="alert">{message}</p>;
+function ErrorMessage({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div className={styles.errorMessage} role="alert">
+      <p>{message}</p>
+      {onRetry && <button onClick={onRetry} type="button">다시 시도</button>}
+    </div>
+  );
 }
 
 function SpaceStat({ label, value }: { label: string; value: string }) {

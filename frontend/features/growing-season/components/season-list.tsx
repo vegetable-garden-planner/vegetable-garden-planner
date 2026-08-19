@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { InlineConfirm } from "@/components/inline-confirm";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
@@ -26,11 +27,13 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   const cropCatalog = useCropCatalog();
   const layoutsState = useGardenLayouts();
   const [actionError, setActionError] = useState("");
+  const [deletingId, setDeletingId] = useState("");
+  const [busy, setBusy] = useState(false);
 
-  if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} />;
-  if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} />;
-  if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} />;
-  if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} />;
+  if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
+  if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} onRetry={() => void spacesState.reload()} />;
+  if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} onRetry={() => window.location.reload()} />;
+  if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} onRetry={() => void layoutsState.reload()} />;
   if (seasonsState.status === "loading" || spacesState.status === "loading" || cropCatalog.status === "loading" || layoutsState.status === "loading") return <SeasonListLoading />;
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
   const cropsById = new Map(cropCatalog.crops.map((crop) => [crop.id, crop]));
@@ -53,13 +56,15 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
 
   async function removeSeason(season: PersistedGrowingSeason) {
     setActionError("");
-    if (!window.confirm(`'${season.name}' 시즌을 삭제할까요?`)) return;
-
+    setBusy(true);
     try {
       await deleteGrowingSeason(season);
       await seasonsState.reload();
+      setDeletingId("");
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "시즌을 삭제하지 못했습니다.");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -111,10 +116,20 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
                 <Link href={`/seasons/${season.id}/watering`}>물주기</Link>
                 <Link href={`/seasons/${season.id}/records`}>시즌 기록</Link>
               </div>
-              <div className={styles.cardActions}>
-                <Link href={`/seasons/${season.id}/edit`}>시즌 수정</Link>
-                <button onClick={() => void removeSeason(season)} type="button">삭제</button>
-              </div>
+              {deletingId === season.id ? (
+                <InlineConfirm
+                  description="삭제하면 되돌릴 수 없습니다."
+                  disabled={busy}
+                  onCancel={() => setDeletingId("")}
+                  onConfirm={() => void removeSeason(season)}
+                  title={`'${season.name}' 시즌을 삭제할까요?`}
+                />
+              ) : (
+                <div className={styles.cardActions}>
+                  <Link href={`/seasons/${season.id}/edit`}>시즌 수정</Link>
+                  <button onClick={() => setDeletingId(season.id)} type="button">삭제</button>
+                </div>
+              )}
             </li>
           );
         })}
@@ -154,8 +169,13 @@ function InvalidSpaceFilter() {
   );
 }
 
-function ErrorMessage({ message }: { message: string }) {
-  return <p className={styles.errorMessage} role="alert">{message}</p>;
+function ErrorMessage({ message, onRetry }: { message: string; onRetry?: () => void }) {
+  return (
+    <div className={styles.errorMessage} role="alert">
+      <p>{message}</p>
+      {onRetry && <button onClick={onRetry} type="button">다시 시도</button>}
+    </div>
+  );
 }
 
 function SeasonStat({ label, value }: { label: string; value: string }) {

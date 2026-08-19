@@ -37,11 +37,11 @@ export function WateringManager({ seasonId }: { seasonId: string }) {
   const [actionError, setActionError] = useState("");
   const [histories, setHistories] = useState<Record<string, WateringHistoryState>>({});
 
-  if (seasonsState.status === "error") return <WateringLoadError message={seasonsState.message} />;
-  if (spacesState.status === "error") return <WateringLoadError message={spacesState.message} />;
-  if (layoutsState.status === "error") return <WateringLoadError message={layoutsState.message} />;
-  if (cropCatalog.status === "error") return <WateringLoadError message={cropCatalog.message} />;
-  if (schedulesState.status === "error") return <WateringLoadError message={schedulesState.message} />;
+  if (seasonsState.status === "error") return <WateringLoadError message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
+  if (spacesState.status === "error") return <WateringLoadError message={spacesState.message} onRetry={() => void spacesState.reload()} />;
+  if (layoutsState.status === "error") return <WateringLoadError message={layoutsState.message} onRetry={() => void layoutsState.reload()} />;
+  if (cropCatalog.status === "error") return <WateringLoadError message={cropCatalog.message} onRetry={() => window.location.reload()} />;
+  if (schedulesState.status === "error") return <WateringLoadError message={schedulesState.message} onRetry={() => void schedulesState.reload()} />;
   if (seasonsState.status === "loading"
     || spacesState.status === "loading"
     || layoutsState.status === "loading"
@@ -123,13 +123,10 @@ export function WateringManager({ seasonId }: { seasonId: string }) {
   }
 
   async function remove(schedule: WateringSchedule): Promise<void> {
-    const cropName = cropById.get(schedule.cropId)?.name ?? schedule.cropId;
-    if (!window.confirm(`'${cropName}' 물주기 일정을 삭제할까요?`)) return;
     await runAction(schedule.id, async () => { await deleteWateringSchedule(schedule); });
   }
 
   async function reopen(schedule: WateringSchedule, log: WateringLog): Promise<void> {
-    if (!window.confirm("가장 최근 물주기 완료를 취소하고 이전 예정 시각으로 되돌릴까요?")) return;
     await runAction(schedule.id, async () => { await reopenWateringCompletion(schedule, log); }, schedule.id);
   }
 
