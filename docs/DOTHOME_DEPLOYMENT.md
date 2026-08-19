@@ -7,7 +7,7 @@
 - 운영 백엔드: https://yjwest9.dothome.co.kr
 - 상태 확인: https://yjwest9.dothome.co.kr/api/v1/health
 - Swagger UI: https://yjwest9.dothome.co.kr/api-docs
-- 현재 Swagger 상태: 닷홈 업로드 완료, `/api-docs`와 `/api-docs/openapi.yaml` 모두 정상 응답
+- 현재 Swagger 상태: 닷홈 업로드 완료, `/api-docs`와 `/api-docs/openapi.yaml` 모두 정상 응답. `resources/openapi.yaml`은 2026-08-19에 이메일 중복 확인·소셜 로그인 리디렉션·콜백 명세를 추가해 develop에는 반영했지만 이 파일만 아직 닷홈에 재업로드하지 않았습니다.
 - 현재 상품은 SSH 자동 배포를 사용하지 않습니다.
 - 백엔드 변경은 로컬 전체 테스트를 먼저 통과한 뒤 FileZilla로 변경 파일만 직접 업로드합니다.
 - 프론트만 변경한 작업은 닷홈에 아무 파일도 올리지 않습니다.
@@ -119,6 +119,17 @@ KAKAO_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/kakao/callba
 운영 `.env`에는 `KAKAO_REST_API_KEY`, `KAKAO_CLIENT_SECRET`, `KAKAO_REDIRECT_URI`를 직접 추가합니다. 업로드 뒤 `config:clear`와 `route:clear`를 실행하고, Kakao Developers 설정을 마친 다음 Vercel 로그인 화면에서 카카오 인증·신규 가입·기존 이메일 연결·로그아웃을 확인합니다. DB 마이그레이션은 없습니다.
 
 `APP_KEY`는 `php artisan key:generate`로 한 번 생성하고 이후 임의로 바꾸지 않습니다. 키를 바꾸면 기존 암호화 데이터와 세션을 읽을 수 없습니다.
+
+### 로고 교체 변경 파일 수동 업로드
+
+관리자 콘솔의 "싹" 텍스트 로고를 이미지 로고로 바꾸면서 바뀐 백엔드 파일은 다음과 같습니다.
+
+- `public/assets/admin.css`
+- `resources/views/layouts/admin.blade.php`
+- `resources/views/admin/auth/login.blade.php`
+- `public/brand/logo.png` (새 파일, 같은 상대 경로에 `brand` 폴더를 새로 만들어 올립니다)
+
+코드 변경이 없는 정적 파일이라 `config:clear`나 마이그레이션은 필요하지 않습니다. 업로드 후 `/admin/login`과 `/admin`에서 로고가 42px 흰색 원 안에 정상 표시되는지 확인합니다.
 
 ## 4. SSH와 Composer가 있는 경우의 배포 순서
 

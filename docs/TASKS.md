@@ -17,6 +17,7 @@
 
 ## 진행 중
 
+- [ ] 로고 교체·OpenAPI 갱신분 닷홈 업로드 — `resources/openapi.yaml`과 [닷홈 배포 가이드](DOTHOME_DEPLOYMENT.md)의 "로고 교체 변경 파일 수동 업로드" 4개 파일(`public/assets/admin.css`, `resources/views/layouts/admin.blade.php`, `resources/views/admin/auth/login.blade.php`, `public/brand/logo.png`)을 FileZilla로 올리고 운영 `/api-docs/openapi.yaml`과 `/admin/login` 로고를 확인한다
 - [ ] 카카오 로그인 변경 파일 11개 닷홈 업로드, 운영 `.env`에 카카오 키 추가, `config:clear`·`route:clear`, Kakao Developers 리디렉션 URI·동의 항목 설정, Vercel 로그인 화면에서 카카오 인증·신규 가입·기존 이메일 연결 확인 — 업로드 파일 목록은 [닷홈 배포 가이드](DOTHOME_DEPLOYMENT.md)의 "카카오 로그인 변경 파일 수동 업로드"를 그대로 따른다
 
 ## 다음 작업
