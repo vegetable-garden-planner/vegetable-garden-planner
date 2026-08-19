@@ -153,6 +153,32 @@ SSH 또는 Composer가 없다면 로컬에서 만든 `vendor` 업로드와 phpMy
 
 SSH가 없는 현재 닷홈 환경에서는 일회용 실행 파일로 `config:clear`와 `migrate --force`를 실행할 수 있습니다. 실행 파일은 필요한 순간에만 `html`에 올리고 실행 직후 반드시 삭제합니다. 환경변수만 바꿔도 이전 설정 캐시가 남아 있다면 `config:clear`가 필요합니다.
 
+라우트 캐시(`route:cache`)를 쓰고 있지 않다면 새 라우트는 파일 업로드만으로 바로 반영되며 `route:clear`가 필요 없습니다. 새 엔드포인트가 404로 응답할 때만 아래 캐시 정리 스크립트를 사용합니다.
+
+캐시 정리 전용 일회용 스크립트(마이그레이션 등 데이터를 바꾸는 명령은 포함하지 않습니다):
+
+```php
+<?php
+// _deploy_clear.php — 확인 후 서버에서 즉시 삭제
+$token = '무작위_문자열로_직접_교체';
+$allowed = ['route:clear', 'config:clear', 'cache:clear', 'view:clear'];
+
+header('Content-Type: text/plain; charset=utf-8');
+if (($_GET['token'] ?? '') !== $token) { http_response_code(403); exit('forbidden'); }
+$cmd = $_GET['cmd'] ?? '';
+if (!in_array($cmd, $allowed, true)) { http_response_code(400); exit('cmd must be one of: '.implode(', ', $allowed)); }
+
+require __DIR__.'/../vendor/autoload.php';
+$app = require __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
+
+$status = Illuminate\Support\Facades\Artisan::call($cmd);
+echo "command: {$cmd}\nstatus: {$status}\n\n".Illuminate\Support\Facades\Artisan::output();
+```
+
+`public/`에 올리고 `https://yjwest9.dothome.co.kr/_deploy_clear.php?token=...&cmd=route:clear`로 접속해 결과를 확인한 다음 파일을 바로 삭제합니다. `$token`은 매번 새 무작위 문자열로 바꾸고 Git에 실제 토큰 값을 커밋하지 않습니다.
+
 ## 5. 운영 안전 기준
 
 - `.env`, `vendor`, 업로드 파일을 Git에 커밋하지 않습니다.
