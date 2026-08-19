@@ -1,9 +1,20 @@
-export function BrandMark() {
+import Image from "next/image";
+import logoColor from "@/public/brand/logo.png";
+import logoWhite from "@/public/brand/logo-white.png";
+
+interface BrandMarkProps {
+  variant?: "color" | "white";
+  size?: number;
+}
+
+export function BrandMark({ variant = "color", size = 28 }: BrandMarkProps) {
   return (
-    <span className="brand-symbol" aria-hidden="true">
-      <span className="brand-leaf brand-leaf-left" />
-      <span className="brand-leaf brand-leaf-right" />
-      <span className="brand-stem" />
-    </span>
+    <Image
+      className="brand-mark-image"
+      src={variant === "white" ? logoWhite : logoColor}
+      alt=""
+      width={size}
+      height={size}
+    />
   );
 }

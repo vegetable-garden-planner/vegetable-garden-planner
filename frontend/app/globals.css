@@ -161,42 +161,9 @@ body {
   letter-spacing: -0.055em;
 }
 
-.brand-symbol {
-  position: relative;
-  display: inline-block;
-  width: 30px;
-  height: 34px;
+.brand-mark-image {
   flex: 0 0 auto;
-}
-
-.brand-leaf {
-  position: absolute;
-  top: 5px;
-  width: 13px;
-  height: 21px;
-  border: 2px solid currentColor;
-}
-
-.brand-leaf-left {
-  left: 2px;
-  border-radius: 100% 0 100% 0;
-  transform: rotate(-19deg);
-}
-
-.brand-leaf-right {
-  right: 2px;
-  border-radius: 0 100% 0 100%;
-  transform: rotate(19deg);
-}
-
-.brand-stem {
-  position: absolute;
-  bottom: 1px;
-  left: 14px;
-  width: 2px;
-  height: 19px;
-  border-radius: 99px;
-  background: currentColor;
+  object-fit: contain;
 }
 
 .app-header-nav {
