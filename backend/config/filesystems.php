@@ -48,10 +48,11 @@ return [
         ],
 
         // 닷홈 공유 호스팅에는 SSH가 없어 storage:link 심볼릭 링크를 만들 수 없다.
-        // 회원이 올린 사진은 웹 루트 아래 public/uploads 에 바로 저장한다.
+        // 회원이 올린 사진은 웹 루트 아래 uploads 에 바로 저장한다.
+        // 로컬은 웹 루트 폴더명이 public, 닷홈은 html이라 PUBLIC_DIR로 구분한다.
         'uploads' => [
             'driver' => 'local',
-            'root' => public_path('uploads'),
+            'root' => base_path(env('PUBLIC_DIR', 'public').'/uploads'),
             'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/uploads',
             'visibility' => 'public',
             'throw' => false,

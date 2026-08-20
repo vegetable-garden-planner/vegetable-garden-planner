@@ -139,6 +139,8 @@ KAKAO_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/kakao/callba
 
 이 기능은 **마이그레이션이 있고 서버에 쓰기 가능한 폴더가 필요합니다.** 지금까지의 업로드와 절차가 다릅니다.
 
+`config/filesystems.php`의 `uploads` 디스크는 `base_path(env('PUBLIC_DIR', 'public').'/uploads')`를 씁니다. 로컬은 웹 루트 폴더명이 `public`이지만 닷홈은 `html`이므로, **운영 `.env`에 `PUBLIC_DIR=html`을 추가하지 않으면 사진이 존재하지도 않는 `public/uploads`에 저장되고 공개 URL이 전부 404가 됩니다.** (`public/index.php`, `bootstrap/app.php`는 닷홈에서도 로컬과 완전히 동일한 파일이라 이 경로 차이를 대신 흡수해 주지 않습니다.)
+
 올릴 파일:
 
 - `database/migrations/2026_08_20_120000_add_photo_path_to_cultivation_records_table.php` (신규)
