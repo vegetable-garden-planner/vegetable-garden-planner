@@ -60,3 +60,7 @@ export async function checkEmailAvailability(email: string): Promise<boolean> {
 export async function logout(): Promise<void> {
   await apiRequest<void>("/auth/logout", { method: "POST" });
 }
+
+export async function withdraw(): Promise<void> {
+  await apiRequest<void>("/me", { method: "DELETE" });
+}

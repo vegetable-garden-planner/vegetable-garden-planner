@@ -42,21 +42,19 @@ tests/Feature/Admin/AdminUserDetailTest.php          권한·표시 내용·빈 
 
 ---
 
-## 2. 회원 탈퇴 — 구현 전에 결정 필요
+## 2. 회원 탈퇴 — 비활성화 유지로 결정 (2026-08-20)
 
-**결정 전에는 만들지 않습니다.** 회원을 그냥 지우면 `growing_spaces` → `growing_seasons` → `cultivation_records`·`cultivation_tasks`·`garden_layouts`·`watering_schedules`가 전부 따라 지워지고 되돌릴 수 없습니다.
-
-세 가지 중 하나를 골라야 합니다.
+회원을 그냥 지우면 `growing_spaces` → `growing_seasons` → `cultivation_records`·`cultivation_tasks`·`garden_layouts`·`watering_schedules`가 전부 따라 지워지고 되돌릴 수 없어, 세 가지 방식 중 하나를 골라야 했습니다.
 
 | 방식 | 하는 일 | 장점 | 단점 |
 | --- | --- | --- | --- |
-| 비활성화 유지 | 지금 이미 있음. 로그인만 막음 | 데이터 보존, 복구 쉬움 | 개인정보 삭제 요구에 대응 못 함 |
+| **비활성화 유지 (채택)** | 로그인만 막음 | 데이터 보존, 복구 쉬움 | 개인정보 삭제 요구에 대응 못 함 |
 | Soft delete | `users.deleted_at` 추가, 데이터는 남김 | 실수 복구 가능 | 개인정보(이메일·닉네임)가 남음 |
 | 익명화 후 비활성화 | 이메일·닉네임을 익명값으로 바꾸고 소셜 연결 해제, 재배 데이터는 남김 | 개인정보 삭제 + 통계 보존 | 되돌릴 수 없음, 마이그레이션 필요 |
 
-개인정보 처리방침에 회원 탈퇴를 이미 적어 두었다면 **익명화**가 그 약속에 맞습니다. 지금은 그런 요구가 없으므로 **비활성화 유지**로 두는 것이 가장 안전합니다.
+개인정보 처리방침에 탈퇴 시 즉시 파기를 약속한 적이 없으므로 **비활성화 유지**를 채택했습니다. 회원 본인이 `DELETE /me`로 탈퇴하면 계정 상태가 `disabled`로 바뀌고 세션·API 토큰이 즉시 종료됩니다(구현: `App\Actions\Auth\WithdrawAccount`, `App\Http\Controllers\Api\V1\Auth\WithdrawAccountController`). 재배 데이터는 지우지 않습니다.
 
-어느 쪽이든 결정되면 그때 별도 작업으로 진행합니다. 관리자가 회원을 지우는 기능보다, 회원 본인이 탈퇴하는 기능이 먼저 필요할 수도 있습니다(`docs/PROJECT_STATUS.md`의 "MVP 후속 · 비밀번호 재설정, 회원 탈퇴와 개인정보 처리" 항목).
+나중에 처리방침에 파기 조항이 추가되면 그때 익명화 마이그레이션을 별도 작업으로 추가합니다. 관리자가 다른 회원을 탈퇴시키는 기능은 아직 없습니다 — 필요해지면 위 `WithdrawAccount`를 재사용해 관리자 화면에서 호출하면 됩니다.
 
 ---
 

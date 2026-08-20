@@ -6,6 +6,15 @@ import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
 export function AuthHeaderMenu() {
   const auth = useAuthSession();
 
+  async function handleWithdraw() {
+    if (!window.confirm("정말 탈퇴하시겠어요? 다시 로그인할 수 없고, 그동안의 재배 기록은 보존됩니다.")) return;
+    try {
+      await auth.withdraw();
+    } catch {
+      window.alert("탈퇴에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+    }
+  }
+
   if (auth.state.status === "authenticated") {
     return (
       <details className="group relative text-sm">
@@ -18,7 +27,8 @@ export function AuthHeaderMenu() {
           <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/dashboard">내 텃밭 홈</Link>
           <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/spaces">재배 공간</Link>
           <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/seasons">재배 시즌</Link>
-          <button className="mt-1 w-full border-t border-ink/10 px-3 py-2.5 text-left font-bold text-red-700" onClick={() => void auth.logout()} type="button">로그아웃</button>
+          <button className="w-full px-3 py-2.5 text-left font-bold text-red-700" onClick={() => void auth.logout()} type="button">로그아웃</button>
+          <button className="w-full border-t border-ink/10 px-3 py-2.5 text-left font-bold text-muted" onClick={handleWithdraw} type="button">회원 탈퇴</button>
         </div>
       </details>
     );
