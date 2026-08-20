@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { AuthUser } from "@/features/auth/domain/auth";
-import { fetchCurrentUser, logout as requestLogout } from "@/features/auth/infrastructure/auth-api";
+import { fetchCurrentUser, logout as requestLogout, withdraw as requestWithdraw } from "@/features/auth/infrastructure/auth-api";
 import { clearCachedResources } from "@/shared/hooks/use-cached-resource";
 
 export type AuthSessionState =
@@ -15,6 +15,7 @@ interface AuthSessionContextValue {
   state: AuthSessionState;
   authenticate: (user: AuthUser) => void;
   logout: () => Promise<void>;
+  withdraw: () => Promise<void>;
   reload: () => Promise<void>;
 }
 
@@ -53,6 +54,11 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     },
     logout: async () => {
       await requestLogout();
+      clearCachedResources();
+      setState({ status: "anonymous" });
+    },
+    withdraw: async () => {
+      await requestWithdraw();
       clearCachedResources();
       setState({ status: "anonymous" });
     },
