@@ -59,7 +59,6 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
     setBusy(true);
     try {
       await deleteGrowingSeason(season);
-      await seasonsState.reload();
       setDeletingId("");
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "시즌을 삭제하지 못했습니다.");
