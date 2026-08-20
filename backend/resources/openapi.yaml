@@ -251,6 +251,18 @@ paths:
                 $ref: '#/components/schemas/UserResponse'
         '401':
           $ref: '#/components/responses/Unauthenticated'
+    delete:
+      tags: [Auth]
+      summary: 회원 탈퇴
+      description: |
+        로그인한 본인 계정을 비활성화합니다. 세션과 API 토큰이 즉시 종료되어 다시 로그인할 수 없습니다.
+        재배 공간·시즌·기록 등 데이터는 삭제하지 않고 보존합니다.
+      operationId: withdrawAccount
+      responses:
+        '204':
+          description: 탈퇴 성공
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
 
   /crops:
     get:

@@ -198,6 +198,33 @@ class AuthenticationTest extends TestCase
         $this->assertGuest('web');
     }
 
+    public function test_authenticated_user_can_withdraw_and_is_signed_out(): void
+    {
+        $user = User::factory()->create(['password' => 'garden123']);
+        $user->createToken('test');
+
+        $this->statefulPost('/api/v1/auth/login', [
+            'email' => $user->email,
+            'password' => 'garden123',
+        ])->assertOk();
+
+        $this->withHeader('Origin', 'http://localhost:3000')
+            ->deleteJson('/api/v1/me')
+            ->assertNoContent();
+
+        $this->assertGuest('web');
+        $this->assertSame(UserStatus::Disabled, $user->fresh()->status);
+        $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    public function test_guest_cannot_withdraw(): void
+    {
+        $this->withHeader('Origin', 'http://localhost:3000')
+            ->deleteJson('/api/v1/me')
+            ->assertUnauthorized()
+            ->assertJsonPath('error.code', 'UNAUTHENTICATED');
+    }
+
     public function test_guest_cannot_read_profile_or_logout(): void
     {
         $this->getJson('/api/v1/me')
