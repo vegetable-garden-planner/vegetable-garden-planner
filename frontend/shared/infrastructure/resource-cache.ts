@@ -66,6 +66,16 @@ export function reloadResource<T>(
   return loadResource(key, fetcher, fallbackMessage);
 }
 
+/**
+ * 목록을 바꾸는 요청 뒤에 호출합니다. 캐시를 버리고 구독자에게 알리면
+ * 화면에 떠 있는 목록은 다시 불러오고, 없으면 다음에 열 때 불러옵니다.
+ */
+export function invalidateResource(key: string): void {
+  cache.delete(key);
+  inflight.delete(key);
+  listeners.get(key)?.forEach((notify) => notify());
+}
+
 /** 로그아웃·로그인처럼 사용자가 바뀌는 시점에 이전 사용자의 캐시를 남기지 않습니다. */
 export function clearCachedResources(): void {
   cache.clear();

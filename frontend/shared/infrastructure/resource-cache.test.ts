@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   clearCachedResources,
   hasResource,
+  invalidateResource,
   loadResource,
   readResource,
   reloadResource,
@@ -80,4 +81,37 @@ test("구독을 해제하면 더 이상 알림을 받지 않는다", async () =>
   await loadResource("layouts", async () => [], "실패");
 
   assert.equal(notified, 0);
+});
+
+test("목록을 바꾸면 캐시를 버리고 구독자에게 알려 다시 불러오게 한다", async () => {
+  let calls = 0;
+  const fetchSeasons = async () => { calls += 1; return [`시즌 ${calls}`]; };
+  let notified = 0;
+  const unsubscribe = subscribeResource("seasons", () => { notified += 1; });
+
+  await loadResource("seasons", fetchSeasons, "실패");
+  assert.deepEqual(readResource("seasons"), { status: "ready", data: ["시즌 1"] });
+
+  invalidateResource("seasons");
+
+  assert.equal(hasResource("seasons"), false, "캐시가 남아 있으면 예전 목록을 그대로 보여 준다");
+  assert.equal(notified, 2, "화면에 떠 있는 목록이 다시 불러오도록 알려야 한다");
+
+  await loadResource("seasons", fetchSeasons, "실패");
+  assert.deepEqual(readResource("seasons"), { status: "ready", data: ["시즌 2"] });
+  assert.equal(calls, 2);
+  unsubscribe();
+});
+
+test("요청이 진행 중일 때 목록을 바꾸면 그 응답을 캐시로 쓰지 않는다", async () => {
+  let resolveFirst: ((value: string[]) => void) | undefined;
+  const slow = async () => new Promise<string[]>((resolve) => { resolveFirst = resolve; });
+
+  const pending = loadResource("spaces", slow, "실패");
+  invalidateResource("spaces");
+  resolveFirst?.(["삭제된 공간"]);
+  await pending;
+
+  await loadResource("spaces", async () => ["새 공간"], "실패");
+  assert.deepEqual(readResource("spaces"), { status: "ready", data: ["새 공간"] });
 });
