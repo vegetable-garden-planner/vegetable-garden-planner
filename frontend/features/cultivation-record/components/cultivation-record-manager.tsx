@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ApiError } from "@/shared/infrastructure/api-client";
 import { useGrowingSeasons } from "../../growing-season/hooks/use-growing-seasons";
 import { useSeasonSummary } from "../../growing-season/hooks/use-season-summary";
 import { useGrowingSpaces } from "../../growing-space/hooks/use-growing-spaces";
@@ -61,8 +62,23 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
     }
   }
 
-  async function create(input: CultivationRecordInput): Promise<boolean> {
-    return runAction("create", async () => { await createCultivationRecord(seasonId, input); });
+  async function create(input: CultivationRecordInput, photo?: File): Promise<boolean> {
+    let photoFailure = "";
+    const saved = await runAction("create", async () => {
+      const record = await createCultivationRecord(seasonId, input);
+      if (!photo) return;
+      try {
+        await uploadCultivationRecordPhoto(record, photo);
+      } catch (error) {
+        // 기록은 이미 저장됐다. 사진 실패를 기록 저장 실패처럼 보이게 하지 않는다.
+        photoFailure = toMessage(error);
+      }
+    });
+
+    if (photoFailure) {
+      setActionError(`기록은 저장했지만 사진을 올리지 못했어요. ${photoFailure} 아래 기록에서 다시 올려 주세요.`);
+    }
+    return saved;
   }
 
   async function update(record: CultivationRecord, input: CultivationRecordInput): Promise<boolean> {
@@ -109,5 +125,10 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
 }
 
 function toMessage(error: unknown): string {
+  // 서버가 어떤 값이 잘못됐는지 알려 주면 "입력값을 확인해 주세요" 대신 그 문장을 보여 준다.
+  if (error instanceof ApiError) {
+    const firstFieldMessage = Object.values(error.fields)[0]?.[0];
+    if (firstFieldMessage) return firstFieldMessage;
+  }
   return error instanceof Error ? error.message : "시즌 기록 요청을 처리하지 못했습니다.";
 }

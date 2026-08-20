@@ -7,6 +7,7 @@ import {
   CULTIVATION_RECORD_TYPE_LABELS,
   createRecordDraft,
   validateCultivationRecordDraft,
+  validateRecordPhoto,
   type CultivationRecord,
   type CultivationRecordDraft,
   type CultivationRecordDraftErrors,
@@ -23,12 +24,24 @@ export function CultivationRecordForm({
 }: {
   disabled: boolean;
   onCancel?: () => void;
-  onSubmit: (input: CultivationRecordInput) => Promise<boolean>;
+  onSubmit: (input: CultivationRecordInput, photo?: File) => Promise<boolean>;
   record?: CultivationRecord;
   season: PersistedGrowingSeason;
 }) {
   const [draft, setDraft] = useState<CultivationRecordDraft>(() => createRecordDraft(season, record));
   const [errors, setErrors] = useState<CultivationRecordDraftErrors>({});
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoError, setPhotoError] = useState("");
+
+  function choosePhoto(event: React.ChangeEvent<HTMLInputElement>) {
+    const selected = event.target.files?.[0] ?? null;
+    event.target.value = "";
+    if (!selected) return;
+
+    const message = validateRecordPhoto(selected);
+    setPhotoError(message ?? "");
+    setPhoto(message === null ? selected : null);
+  }
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,8 +52,12 @@ export function CultivationRecordForm({
     }
 
     setErrors({});
-    const saved = await onSubmit(validation.value);
-    if (saved && !record) setDraft(createRecordDraft(season));
+    const saved = await onSubmit(validation.value, photo ?? undefined);
+    if (saved && !record) {
+      setDraft(createRecordDraft(season));
+      setPhoto(null);
+      setPhotoError("");
+    }
   }
 
   return (
@@ -111,6 +128,37 @@ export function CultivationRecordForm({
         />
       </Field>
       <p className={styles.characterCount}>{draft.notes.length} / 2,000</p>
+      {!record && (
+        <div className={styles.photoField}>
+          <span>사진 (선택)</span>
+          <div className={styles.photoUpload}>
+            <label className={styles.photoButton} htmlFor="record-photo-new">
+              {photo ? "다른 사진 고르기" : "사진 고르기"}
+            </label>
+            <input
+              accept="image/jpeg,image/png,image/webp"
+              disabled={disabled}
+              id="record-photo-new"
+              onChange={choosePhoto}
+              type="file"
+            />
+            {photo
+              ? <span className={styles.photoChosen}>{photo.name}</span>
+              : <span>JPG · PNG · WEBP, 5MB까지</span>}
+            {photo && (
+              <button
+                className={styles.photoClear}
+                disabled={disabled}
+                onClick={() => { setPhoto(null); setPhotoError(""); }}
+                type="button"
+              >
+                선택 취소
+              </button>
+            )}
+          </div>
+          {photoError && <strong className={styles.fieldError} role="alert">{photoError}</strong>}
+        </div>
+      )}
       <div className={styles.formActions}>
         <button className={styles.submitButton} disabled={disabled} type="submit">
           {disabled ? "저장 중..." : record ? "수정 저장" : "기록 추가"}
