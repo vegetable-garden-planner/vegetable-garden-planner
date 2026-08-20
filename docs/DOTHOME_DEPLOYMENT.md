@@ -264,4 +264,5 @@ echo "command: {$cmd}\nstatus: {$status}\n\n".Illuminate\Support\Facades\Artisan
 - 운영 DB에 `migrate:fresh`를 실행하지 않습니다.
 - 배포 전 DB를 백업하고, 마이그레이션은 한 번에 한 배포만 실행합니다.
 - 프론트엔드에는 DB 비밀번호나 `APP_KEY`를 넣지 않습니다.
-- 예약 알림을 구현할 때는 cron이 매분 `php artisan schedule:run`을 실행할 수 있는지 확인합니다.
+- 예약 알림을 구현할 때는 cron이 매분 `php artisan schedule:run`을 실행할 수 있는지 확인합니다. `notifications:send-daily-reminders`(매일 07:00)가 이 스케줄러에 등록되어 있습니다.
+- 위 명령이 큐에 넣는 메일은 `QUEUE_CONNECTION=database`라 `php artisan queue:work`가 계속 돌지 않으면 `jobs` 테이블에 쌓이기만 하고 발송되지 않습니다. 닷홈은 SSH가 없어 워커 프로세스를 상시 실행할 수 없으므로, cron에 `php artisan queue:work --stop-when-empty --max-time=50`처럼 짧게 끝나는 실행을 몇 분 간격으로 추가해야 합니다. 배포 리허설에서 이 cron 항목도 함께 확인합니다.
