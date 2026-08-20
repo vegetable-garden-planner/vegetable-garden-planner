@@ -12,6 +12,7 @@ import {
   snoozeWatering,
   updateWateringSchedule,
 } from "./watering-api.ts";
+import { hasResource, loadResource } from "../../../shared/infrastructure/resource-cache.ts";
 
 const originalFetch = globalThis.fetch;
 const originalDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
@@ -173,3 +174,41 @@ function createLog() {
     createdAt: "2026-05-01T01:00:00Z",
   };
 }
+
+test("물주기를 바꾸면 대시보드가 읽는 전체 목록 캐시를 버린다", async () => {
+  prepareDocumentCookie();
+  globalThis.fetch = async (_input, init) => {
+    if (init?.method === "DELETE" && !String(_input).includes("/logs/")) {
+      return new Response(null, { status: 204 });
+    }
+    if (String(_input).endsWith("/complete")) {
+      return Response.json({ data: { schedule: createSchedule(), log: createLog() } });
+    }
+    if (String(_input).endsWith("/snoozes")) {
+      return Response.json({ data: { schedule: createSchedule(), snooze: { id: "snooze-1" } } });
+    }
+    return Response.json({ data: createSchedule() });
+  };
+
+  const writes: Array<() => Promise<unknown>> = [
+    () => createWateringSchedule("season-1", { cropId: "lettuce", intervalDays: 3, nextWateringAt: "2026-05-01T00:00:00Z", enabled: true }),
+    () => updateWateringSchedule(createSchedule(), { intervalDays: 5 }),
+    () => deleteWateringSchedule(createSchedule()),
+    () => completeWatering(createSchedule(), { wateredAt: "2026-05-01T01:00:00Z", amountMl: null, memo: "" }),
+    () => snoozeWatering(createSchedule(), "2026-05-02T00:00:00Z"),
+    () => reopenWateringCompletion(createSchedule(), createLog()),
+  ];
+
+  for (const write of writes) {
+    await loadResource("watering-schedules", async () => [createSchedule()], "실패");
+    assert.equal(hasResource("watering-schedules"), true);
+
+    await write();
+
+    assert.equal(
+      hasResource("watering-schedules"),
+      false,
+      "쓰기 뒤에도 캐시가 남으면 대시보드가 예전 물주기 상태를 보여 준다",
+    );
+  }
+});

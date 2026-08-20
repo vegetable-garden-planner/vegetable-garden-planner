@@ -42,7 +42,6 @@ export function SpaceList() {
     setBusy(true);
     try {
       await deleteGrowingSpace(space);
-      await spacesState.reload();
       setDeletingId("");
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "공간을 삭제하지 못했습니다.");
