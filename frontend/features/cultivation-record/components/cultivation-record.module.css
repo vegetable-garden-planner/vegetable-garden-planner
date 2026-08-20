@@ -219,6 +219,12 @@
 .photo img { display: block; width: 100%; max-height: 320px; border-radius: 13px; background: var(--color-surface-warm); object-fit: cover; }
 .photo figcaption { display: flex; margin-top: 9px; justify-content: flex-end; }
 .photo figcaption button { border: 0; background: transparent; color: var(--color-danger); cursor: pointer; font-size: 10px; font-weight: 800; }
+.photoField { margin-top: 15px; }
+.photoField > span { display: block; margin-bottom: 8px; color: var(--color-muted); font-size: 10px; font-weight: 800; }
+.photoField .photoUpload { display: flex; margin-top: 0; align-items: center; flex-wrap: wrap; gap: 9px; }
+.photoField .photoUpload > span { margin-left: 0; }
+.photoChosen { overflow-wrap: anywhere; color: var(--color-ink-strong) !important; }
+.photoClear { border: 0; background: transparent; color: var(--color-danger); cursor: pointer; font-size: 10px; font-weight: 800; }
 .photoUpload { margin-top: 17px; }
 .photoUpload input { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
 .photoButton { display: inline-flex; padding: 8px 14px; align-items: center; border: 1px dashed var(--color-border); border-radius: 999px; background: transparent; color: var(--color-primary-hover); cursor: pointer; font-size: 10px; font-weight: 800; }

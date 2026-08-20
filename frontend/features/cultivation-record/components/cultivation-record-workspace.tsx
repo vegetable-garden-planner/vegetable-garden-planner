@@ -24,7 +24,7 @@ interface CultivationRecordWorkspaceProps {
   filter: RecordFilter;
   onCancelDelete: () => void;
   onCancelEdit: () => void;
-  onCreate: (input: CultivationRecordInput) => Promise<boolean>;
+  onCreate: (input: CultivationRecordInput, photo?: File) => Promise<boolean>;
   onDelete: (record: CultivationRecord) => Promise<void>;
   onDeleteRequest: (recordId: string) => void;
   onEdit: (recordId: string) => void;
