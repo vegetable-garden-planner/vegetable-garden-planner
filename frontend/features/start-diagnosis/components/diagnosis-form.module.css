@@ -49,6 +49,8 @@
 
 .dimensionStage {
   position: relative;
+  width: 100%;
+  margin: 0;
   padding: var(--space-20) var(--space-16) var(--space-12);
 }
 
@@ -245,9 +247,9 @@
 .planterViewport {
   position: absolute;
   z-index: 4;
-  right: calc(24.5% - 20vw);
+  right: 0;
   bottom: var(--space-16);
-  width: 51%;
+  width: 60%;
   height: 58%;
   min-height: calc((var(--space-36) * 3) - var(--space-3));
   overflow: visible;
@@ -977,8 +979,71 @@
 
 @media (min-width: 1025px) and (max-width: 1280px) {
   .planterViewport {
-    right: calc(23.5% - 20vw);
-    width: 53%;
+    right: 0;
+    width: 60%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .dimensionHeading {
+    width: min(44%, calc(var(--layout-question-max) + var(--space-24)));
+  }
+
+  .dimensionHeading h1 {
+    font-size: var(--type-display-hero-size);
+    line-height: 1.08;
+  }
+
+  .dimensionHeading > span {
+    max-width: calc(var(--layout-question-max) + var(--space-8));
+    margin-top: var(--space-4);
+    font-size: var(--type-body-size);
+    line-height: 1.55;
+  }
+
+  .measurementGrid {
+    width: calc(var(--space-36) * 3 + var(--space-16));
+  }
+
+  .measurement {
+    min-height: calc(var(--space-20) + var(--space-3));
+    grid-template-columns: var(--control-lg) var(--space-18) var(--control-md) var(--control-lg) var(--space-16) var(--control-lg);
+    column-gap: var(--space-3);
+  }
+
+  .measurementIcon {
+    width: var(--control-lg);
+    height: var(--control-lg);
+    font-size: var(--type-body-lg-size);
+  }
+
+  .measurementLabel {
+    font-size: var(--type-body-size);
+  }
+
+  .measurement small {
+    font-size: var(--type-caption-size);
+  }
+
+  .measurement button {
+    width: var(--control-lg);
+    height: var(--control-lg);
+    font-size: var(--type-body-lg-size);
+  }
+
+  .measurement strong {
+    height: var(--control-lg);
+    font-size: var(--type-stat-size);
+  }
+
+  .dimensionActions {
+    width: calc(var(--space-36) * 3 + var(--space-16));
+  }
+
+  .dimensionActions .primaryButton,
+  .dimensionActions .backButton {
+    min-height: var(--space-16);
+    font-size: var(--type-body-size);
   }
 }
 

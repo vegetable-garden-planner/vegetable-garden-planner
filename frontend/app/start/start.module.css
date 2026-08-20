@@ -14,8 +14,8 @@
   top: 0;
   right: 0;
   left: 0;
-  width: min(100%, var(--layout-diagnosis-max));
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   padding: var(--space-5) var(--space-16) 0;
   pointer-events: none;
 }
@@ -36,8 +36,20 @@
   letter-spacing: -0.04em;
 }
 
+@media (min-width: 1025px) {
+  .brand {
+    font-size: var(--type-h2-compact-size);
+  }
+}
+
 @media (max-width: 768px) {
   .headerShell {
     padding-inline: var(--space-4);
+  }
+}
+
+@media (max-width: 640px) {
+  .headerShell {
+    padding-inline: var(--space-3);
   }
 }

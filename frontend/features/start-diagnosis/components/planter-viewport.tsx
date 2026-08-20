@@ -63,7 +63,12 @@ const RIB_SPACING = 0.018;
 const RIB_BASE_HEIGHT = 0.148;
 const RIB_BOTTOM = 0.07;
 const ACCENT_COLOR = "#f1cf83";
-const PLANTER_GAP = 0.055;
+const SINGLE_DOUBLE_FORWARD_OFFSET = 0.48;
+const THREE_PLANTER_FORWARD_OFFSET = 0.62;
+const TWO_PLANTER_SIDE_OFFSET = 0.36;
+const THREE_PLANTER_DEPTH_GAP = 0.42;
+const THREE_PLANTER_SIDE_OFFSET = 0.43;
+const MID_VIEW_CAMERA_FIT = 1.22;
 const VIEW_RIGHT_X = 0.862;
 const VIEW_RIGHT_Z = -0.507;
 const VIEW_FORWARD_X = 0.507;
@@ -205,51 +210,32 @@ function ProductArrangement({
     if (count === 1) return [[0, 0, 0]];
     if (count === 2) {
       return [
-        [0, 0, 0],
-        composeScenePosition(dimensions.width * 0.24, -0.75),
+        composeScenePosition(-TWO_PLANTER_SIDE_OFFSET, 0),
+        composeScenePosition(TWO_PLANTER_SIDE_OFFSET, 0),
       ];
     }
-    const backOffset = Math.min(0.4, (dimensions.width + PLANTER_GAP) / (2 * VIEW_RIGHT_X));
     return [
-      [0, 0, 0],
-      composeScenePosition(-backOffset, -0.72),
-      composeScenePosition(backOffset, -0.72),
+      composeScenePosition(0, 0),
+      composeScenePosition(-THREE_PLANTER_SIDE_OFFSET, -THREE_PLANTER_DEPTH_GAP),
+      composeScenePosition(THREE_PLANTER_SIDE_OFFSET, -THREE_PLANTER_DEPTH_GAP),
     ];
-  }, [count, dimensions.width]);
-  const arrangementRef = useRef<THREE.Group>(null);
-  const { camera, size } = useThree((state) => ({ camera: state.camera, size: state.size }));
-
-  useLayoutEffect(() => {
-    const arrangement = arrangementRef.current;
-    const representative = arrangement?.getObjectByName("representative-planter");
-    if (!arrangement || !representative) return;
-
-    arrangement.position.set(0, 0, 0);
-    arrangement.updateMatrixWorld(true);
-    const centerAtOrigin = getProjectedCenterX(representative, camera);
-    const calibrationStep = 0.01;
-    const calibration = composeScenePosition(calibrationStep, 0);
-    arrangement.position.set(...calibration);
-    arrangement.updateMatrixWorld(true);
-    const centerAtCalibration = getProjectedCenterX(representative, camera);
-    const pixelsPerSceneUnit = (centerAtCalibration - centerAtOrigin) / calibrationStep;
-    const opticalOffset = Math.abs(pixelsPerSceneUnit) < 0.0001 ? 0 : -centerAtOrigin / pixelsPerSceneUnit;
-    arrangement.position.set(...composeScenePosition(opticalOffset, 0));
-    arrangement.updateMatrixWorld(true);
-  }, [assets, camera, count, dimensions, positions, size.height, size.width]);
+  }, [count]);
+  const forwardOffset = count === 3 ? THREE_PLANTER_FORWARD_OFFSET : SINGLE_DOUBLE_FORWARD_OFFSET;
 
   return (
-    <group ref={arrangementRef}>
-      {positions.map((position, index) => (
-        <PlanterInstance
-          assets={assets}
-          dimensions={dimensions}
-          key={`planter-${index}`}
-          measured={index === 0}
-          onBounds={onBounds}
-          position={position}
-        />
-      ))}
+    <group position={composeScenePosition(0, forwardOffset)}>
+      <group name="planter-composition">
+        {positions.map((position, index) => (
+          <PlanterInstance
+            assets={assets}
+            dimensions={dimensions}
+            key={`planter-${index}`}
+            measured={index === 0}
+            onBounds={onBounds}
+            position={position}
+          />
+        ))}
+      </group>
       <group position={positions[0]}>
         <DimensionGuides dimensions={dimensions} />
       </group>
@@ -263,25 +249,6 @@ function composeScenePosition(screenOffset: number, depthOffset: number): [numbe
     0,
     screenOffset * VIEW_RIGHT_Z + depthOffset * VIEW_FORWARD_Z,
   ];
-}
-
-function getProjectedCenterX(object: THREE.Object3D, camera: THREE.Camera) {
-  const box = new THREE.Box3().setFromObject(object, true);
-  const corner = new THREE.Vector3();
-  let minX = Number.POSITIVE_INFINITY;
-  let maxX = Number.NEGATIVE_INFINITY;
-
-  for (const x of [box.min.x, box.max.x]) {
-    for (const y of [box.min.y, box.max.y]) {
-      for (const z of [box.min.z, box.max.z]) {
-        corner.set(x, y, z).project(camera);
-        minX = Math.min(minX, corner.x);
-        maxX = Math.max(maxX, corner.x);
-      }
-    }
-  }
-
-  return (minX + maxX) * 0.5;
 }
 
 class PlanterSceneErrorBoundary extends Component<
@@ -497,9 +464,10 @@ function CameraRig({ count }: { count: number }) {
   useLayoutEffect(() => {
     const aspect = size.width / Math.max(1, size.height);
     const narrowFit = aspect < 1.02 ? 1.02 / aspect : 1;
+    const responsiveFit = size.width >= 640 && size.width < 900 ? MID_VIEW_CAMERA_FIT : 1;
     const countDistance = count === 1 ? 1.55 : count === 2 ? 1.75 : 1.8;
-    const distance = countDistance * narrowFit;
-    camera.position.set(distance * 0.59, 0.54 * narrowFit, distance);
+    const distance = countDistance * narrowFit * responsiveFit;
+    camera.position.set(distance * 0.59, 0.54 * narrowFit * responsiveFit, distance);
     camera.lookAt(0, 0.2, 0);
     camera.updateProjectionMatrix();
   }, [camera, count, size.height, size.width]);
