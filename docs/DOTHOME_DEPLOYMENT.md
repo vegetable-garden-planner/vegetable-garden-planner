@@ -159,9 +159,45 @@ KAKAO_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/kakao/callba
 1. `public/uploads` 폴더를 만들고 FileZilla에서 권한을 `707`(또는 `755`로 안 되면 `777`)로 바꿉니다. 웹 서버가 이 폴더에 파일을 쓸 수 있어야 합니다.
 2. `public/uploads/.htaccess`를 올립니다. 이 파일이 없으면 업로드 폴더에서 코드가 실행될 수 있으므로 **사진 기능을 켜기 전에 반드시 먼저 올립니다.**
 3. 나머지 파일을 올립니다.
-4. 일회용 스크립트로 `migrate --force`를 실행합니다(아래 캐시 정리 스크립트의 `$allowed`에 `migrate --force`를 임시로 추가한 별도 파일을 쓰고, 실행 직후 삭제합니다).
-5. `config:clear`를 실행합니다. `config/filesystems.php`가 바뀌었으므로 설정 캐시가 남아 있으면 새 `uploads` 디스크를 못 찾습니다.
+4. 아래 [마이그레이션 실행 스크립트](#마이그레이션-실행-스크립트)로 `migrate --force`를 실행하고, 확인 후 파일을 바로 지웁니다.
+5. 같은 스크립트로 `config:clear`를 실행합니다. `config/filesystems.php`가 바뀌었으므로 설정 캐시가 남아 있으면 새 `uploads` 디스크를 못 찾습니다.
 6. 새 엔드포인트가 404면 `route:clear`를 실행합니다.
+7. 스크립트 파일을 삭제했는지 다시 확인합니다.
+
+#### 마이그레이션 실행 스크립트
+
+SSH가 없으니 브라우저로 artisan을 한 번 실행시키는 방법뿐입니다. 아래 내용을 `_deploy_migrate.php`로 저장해 닷홈의 `html`(=`public`) 폴더에 올립니다.
+
+```php
+<?php
+// _deploy_migrate.php — 실행하고 결과를 확인한 뒤 서버에서 즉시 삭제한다.
+$token = '무작위_문자열로_직접_교체';
+$allowed = ['migrate --force', 'config:clear', 'route:clear', 'cache:clear', 'view:clear'];
+
+header('Content-Type: text/plain; charset=utf-8');
+if (($_GET['token'] ?? '') !== $token) { http_response_code(403); exit('forbidden'); }
+$cmd = $_GET['cmd'] ?? '';
+if (!in_array($cmd, $allowed, true)) { http_response_code(400); exit('cmd must be one of: '.implode(', ', $allowed)); }
+
+require __DIR__.'/../vendor/autoload.php';
+$app = require __DIR__.'/../bootstrap/app.php';
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+$kernel->bootstrap();
+
+$status = Illuminate\Support\Facades\Artisan::call($cmd);
+echo "command: {$cmd}\nstatus: {$status}\n\n".Illuminate\Support\Facades\Artisan::output();
+```
+
+브라우저 주소창에 순서대로 칩니다. `$token`은 매번 새 무작위 문자열로 바꾸고 Git에 실제 값을 커밋하지 않습니다.
+
+```text
+https://yjwest9.dothome.co.kr/_deploy_migrate.php?token=내토큰&cmd=migrate%20--force
+https://yjwest9.dothome.co.kr/_deploy_migrate.php?token=내토큰&cmd=config:clear
+```
+
+`status: 0`과 마이그레이션 이름이 보이면 성공입니다. **확인하자마자 FileZilla로 `_deploy_migrate.php`를 삭제합니다.** 이 파일이 서버에 남아 있으면 토큰을 아는 사람이 명령을 실행할 수 있습니다.
+
+`migrate --force`는 아직 실행하지 않은 마이그레이션만 적용하므로 여러 번 눌러도 안전합니다. 다만 실행 전 phpMyAdmin에서 DB를 내보내 백업해 둡니다.
 
 확인할 것:
 
