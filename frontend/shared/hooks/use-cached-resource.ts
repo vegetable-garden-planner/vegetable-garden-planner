@@ -29,11 +29,12 @@ export function useCachedResource<T>(
     useCallback(() => LOADING as ResourceState<T>, []),
   );
 
+  // state를 의존성에 두어 다른 곳에서 캐시를 버렸을 때도 다시 불러옵니다.
   useEffect(() => {
     if (!hasResource(key)) void loadResource(key, fetcher, fallbackMessage);
     // fetcher는 호출부에서 매번 새로 만들어지므로 의존성에서 제외하고 key로 자원을 식별합니다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key, state]);
 
   const reload = useCallback(
     () => reloadResource(key, fetcher, fallbackMessage),
