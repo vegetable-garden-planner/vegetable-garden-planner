@@ -23,9 +23,22 @@ export interface CultivationRecord {
   notes: string;
   quantity: number | null;
   unit: string | null;
+  photoUrl: string | null;
   version: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export const RECORD_PHOTO_MAX_BYTES = 5 * 1024 * 1024;
+export const RECORD_PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+
+/** 서버로 보내기 전에 같은 조건으로 먼저 걸러 준다. 서버 검증을 대신하지는 않는다. */
+export function validateRecordPhoto(file: File): string | null {
+  if (!RECORD_PHOTO_TYPES.some((type) => type === file.type)) {
+    return "JPG, PNG, WEBP 이미지 파일만 올릴 수 있어요.";
+  }
+  if (file.size > RECORD_PHOTO_MAX_BYTES) return "사진은 5MB 이하만 올릴 수 있어요.";
+  return null;
 }
 
 export interface CultivationRecordInput {

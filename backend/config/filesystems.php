@@ -47,6 +47,17 @@ return [
             'report' => false,
         ],
 
+        // 닷홈 공유 호스팅에는 SSH가 없어 storage:link 심볼릭 링크를 만들 수 없다.
+        // 회원이 올린 사진은 웹 루트 아래 public/uploads 에 바로 저장한다.
+        'uploads' => [
+            'driver' => 'local',
+            'root' => public_path('uploads'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/uploads',
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

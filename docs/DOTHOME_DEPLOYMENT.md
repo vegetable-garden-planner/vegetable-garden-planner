@@ -135,6 +135,48 @@ KAKAO_REDIRECT_URI=https://vegetable-garden-planner.vercel.app/auth/kakao/callba
 
 코드 변경이 없는 정적 파일이라 `config:clear`나 마이그레이션은 필요하지 않습니다. 업로드 후 `/admin/login`과 `/admin`에서 로고가 42px 흰색 원 안에 정상 표시되는지 확인합니다.
 
+### 기록 사진 업로드 변경 파일 수동 업로드
+
+이 기능은 **마이그레이션이 있고 서버에 쓰기 가능한 폴더가 필요합니다.** 지금까지의 업로드와 절차가 다릅니다.
+
+올릴 파일:
+
+- `database/migrations/2026_08_20_120000_add_photo_path_to_cultivation_records_table.php` (신규)
+- `config/filesystems.php` (수정, `uploads` 디스크 추가)
+- `routes/api.php` (수정)
+- `app/Models/CultivationRecord.php` (수정)
+- `app/Actions/Records/ReplaceCultivationRecordPhoto.php` (신규)
+- `app/Actions/Records/DeleteCultivationRecord.php` (수정)
+- `app/Http/Requests/Api/V1/Records/StoreRecordPhotoRequest.php` (신규)
+- `app/Http/Controllers/Api/V1/Records/StoreRecordPhotoController.php` (신규)
+- `app/Http/Controllers/Api/V1/Records/DestroyRecordPhotoController.php` (신규)
+- `app/Http/Resources/Api/V1/CultivationRecordResource.php` (수정)
+- `resources/openapi.yaml` (수정)
+- `public/uploads/.htaccess` (신규, `public` 아래에 `uploads` 폴더를 만들고 그 안에 올립니다)
+
+순서:
+
+1. `public/uploads` 폴더를 만들고 FileZilla에서 권한을 `707`(또는 `755`로 안 되면 `777`)로 바꿉니다. 웹 서버가 이 폴더에 파일을 쓸 수 있어야 합니다.
+2. `public/uploads/.htaccess`를 올립니다. 이 파일이 없으면 업로드 폴더에서 코드가 실행될 수 있으므로 **사진 기능을 켜기 전에 반드시 먼저 올립니다.**
+3. 나머지 파일을 올립니다.
+4. 일회용 스크립트로 `migrate --force`를 실행합니다(아래 캐시 정리 스크립트의 `$allowed`에 `migrate --force`를 임시로 추가한 별도 파일을 쓰고, 실행 직후 삭제합니다).
+5. `config:clear`를 실행합니다. `config/filesystems.php`가 바뀌었으므로 설정 캐시가 남아 있으면 새 `uploads` 디스크를 못 찾습니다.
+6. 새 엔드포인트가 404면 `route:clear`를 실행합니다.
+
+확인할 것:
+
+- 닷홈 PHP 설정의 `upload_max_filesize`와 `post_max_size`가 **6MB 이상**인지 확인합니다. 기본값이 2MB면 5MB 사진이 빈 요청으로 도착해 "사진 파일을 선택해 주세요"만 뜹니다. 호스팅 관리 화면에서 못 바꾸면 `public/.htaccess`에 다음을 추가합니다.
+
+  ```apache
+  <IfModule mod_php.c>
+      php_value upload_max_filesize 6M
+      php_value post_max_size 8M
+  </IfModule>
+  ```
+
+- 사진을 한 장 올린 뒤 `https://yjwest9.dothome.co.kr/uploads/records/<파일명>`이 이미지로 열리는지 확인합니다.
+- 백업 대상에 `public/uploads`를 포함합니다. 이 폴더는 Git에 없으므로 지우면 복구할 수 없습니다.
+
 ## 4. SSH와 Composer가 있는 경우의 배포 순서
 
 ```bash

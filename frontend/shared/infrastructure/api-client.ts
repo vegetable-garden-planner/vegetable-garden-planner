@@ -27,7 +27,10 @@ export class ApiError extends Error {
 export async function apiRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Accept", "application/json");
-  if (init.body !== undefined) headers.set("Content-Type", "application/json");
+  // FormData는 브라우저가 boundary를 붙인 Content-Type을 직접 만들어야 한다.
+  if (init.body !== undefined && !(init.body instanceof FormData)) {
+    headers.set("Content-Type", "application/json");
+  }
   if (isStateChanging(init.method)) {
     if (!findXsrfCookie()) await prepareCsrfCookie();
     headers.set("X-XSRF-TOKEN", readXsrfToken());

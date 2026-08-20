@@ -12,7 +12,9 @@ import { useCultivationRecords } from "../hooks/use-cultivation-records";
 import {
   createCultivationRecord,
   deleteCultivationRecord,
+  deleteCultivationRecordPhoto,
   updateCultivationRecord,
+  uploadCultivationRecordPhoto,
 } from "../infrastructure/cultivation-record-api";
 import {
   CultivationRecordLoadError,
@@ -69,6 +71,14 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
     return saved;
   }
 
+  async function uploadPhoto(record: CultivationRecord, photo: File): Promise<boolean> {
+    return runAction(record.id, async () => { await uploadCultivationRecordPhoto(record, photo); });
+  }
+
+  async function removePhoto(record: CultivationRecord): Promise<void> {
+    await runAction(record.id, async () => { await deleteCultivationRecordPhoto(record); });
+  }
+
   async function remove(record: CultivationRecord): Promise<void> {
     const removed = await runAction(record.id, async () => { await deleteCultivationRecord(record); });
     if (removed) setDeletingId("");
@@ -88,6 +98,8 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
       onDeleteRequest={setDeletingId}
       onEdit={setEditingId}
       onFilterChange={setFilter}
+      onPhotoRemove={removePhoto}
+      onPhotoUpload={uploadPhoto}
       onUpdate={update}
       records={recordsState.records}
       season={season}

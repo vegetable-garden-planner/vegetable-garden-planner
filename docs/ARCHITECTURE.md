@@ -79,10 +79,21 @@ routes/web.php
 - 작물·과·분류·재배 기준정보와 출처
 - 텃밭 격자와 작물 배치, 화분·베란다의 시즌 대표 작물
 - 재배 일정
-- 시즌 활동 기록
+- 시즌 활동 기록과 기록마다 한 장까지 붙는 사진 경로(`cultivation_records.photo_path`)
 - 물주기 일정·완료 기록·미루기 기록
 
 사용자·공간·시즌·배치·일정·기록 ID는 UUIDv7입니다. 작물 ID는 `lettuce` 같은 slug입니다. 테이블이나 컬럼 변경은 항상 새 Laravel 마이그레이션과 테스트로 공유합니다.
+
+## 업로드 파일 저장
+
+회원이 올린 사진은 DB가 아니라 파일 시스템에 두고, 경로만 DB에 저장합니다.
+
+- 저장 위치: `backend/public/uploads/records/`, 디스크 이름은 `uploads` (`config/filesystems.php`)
+- 닷홈 공유 호스팅에는 SSH가 없어 `storage:link` 심볼릭 링크를 만들 수 없습니다. 그래서 `storage/app/public`이 아니라 웹 루트 아래에 바로 저장합니다.
+- 저장 파일명은 서버가 만듭니다. 회원이 보낸 원본 파일명은 쓰지 않습니다.
+- 허용 형식은 JPG·PNG·WEBP, 최대 5MB입니다. 검증은 `StoreRecordPhotoRequest`가 담당합니다.
+- `public/uploads/.htaccess`가 그 폴더 아래에서 PHP·CGI 실행을 막습니다. 이 파일만 Git에 올리고 업로드된 사진은 커밋하지 않습니다.
+- 기록을 지우거나 사진을 교체하면 이전 파일도 함께 지웁니다(`ReplaceCultivationRecordPhoto`, `DeleteCultivationRecord`).
 
 ## 인증과 브라우저 연결
 

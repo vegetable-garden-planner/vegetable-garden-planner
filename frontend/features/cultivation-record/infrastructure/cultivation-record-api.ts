@@ -37,6 +37,28 @@ export async function updateCultivationRecord(
   })).data;
 }
 
+export async function uploadCultivationRecordPhoto(
+  record: CultivationRecord,
+  photo: File,
+): Promise<CultivationRecord> {
+  const body = new FormData();
+  body.append("photo", photo);
+  return (await apiRequest<ItemResponse>(`${recordPath(record.id)}/photo`, {
+    method: "POST",
+    headers: versionHeader(record.version),
+    body,
+  })).data;
+}
+
+export async function deleteCultivationRecordPhoto(
+  record: CultivationRecord,
+): Promise<CultivationRecord> {
+  return (await apiRequest<ItemResponse>(`${recordPath(record.id)}/photo`, {
+    method: "DELETE",
+    headers: versionHeader(record.version),
+  })).data;
+}
+
 export async function deleteCultivationRecord(record: CultivationRecord): Promise<void> {
   await apiRequest<void>(recordPath(record.id), {
     method: "DELETE",

@@ -4,8 +4,10 @@ import type { CultivationRecord, CultivationRecordInput } from "../domain/cultiv
 import {
   createCultivationRecord,
   deleteCultivationRecord,
+  deleteCultivationRecordPhoto,
   fetchSeasonRecords,
   updateCultivationRecord,
+  uploadCultivationRecordPhoto,
 } from "./cultivation-record-api.ts";
 
 const originalFetch = globalThis.fetch;
@@ -63,6 +65,47 @@ test("기록 수정과 삭제는 현재 버전을 If-Match로 전송한다", asy
   ]);
 });
 
+test("사진 업로드는 FormData로 보내고 Content-Type을 직접 지정하지 않는다", async () => {
+  prepareDocumentCookie();
+  let request: RequestInit | undefined;
+  let url = "";
+  globalThis.fetch = async (input, init) => {
+    url = String(input);
+    request = init;
+    return Response.json({ data: { ...record(), photoUrl: "https://api.test/uploads/records/a.jpg", version: 4 } });
+  };
+
+  const photo = new File(["binary"], "garden.jpg", { type: "image/jpeg" });
+  const saved = await uploadCultivationRecordPhoto(record(), photo);
+
+  assert.equal(url, "/api/v1/records/record-1/photo");
+  assert.equal(request?.method, "POST");
+  assert.ok(request?.body instanceof FormData);
+  assert.equal((request.body as FormData).get("photo"), photo);
+  const headers = new Headers(request?.headers);
+  assert.equal(headers.get("If-Match"), '"3"');
+  assert.equal(headers.get("Content-Type"), null);
+  assert.equal(saved.photoUrl, "https://api.test/uploads/records/a.jpg");
+});
+
+test("사진 삭제는 현재 버전을 If-Match로 전송한다", async () => {
+  prepareDocumentCookie();
+  let request: RequestInit | undefined;
+  let url = "";
+  globalThis.fetch = async (input, init) => {
+    url = String(input);
+    request = init;
+    return Response.json({ data: { ...record(), version: 4 } });
+  };
+
+  const saved = await deleteCultivationRecordPhoto(record());
+
+  assert.equal(url, "/api/v1/records/record-1/photo");
+  assert.equal(request?.method, "DELETE");
+  assert.equal(new Headers(request?.headers).get("If-Match"), '"3"');
+  assert.equal(saved.photoUrl, null);
+});
+
 test("기록 서버 오류를 빈 목록으로 숨기지 않는다", async () => {
   globalThis.fetch = async () => Response.json(
     { error: { code: "SERVER_FAILURE", message: "기록 서버 오류" } },
@@ -85,7 +128,7 @@ function recordInput(): CultivationRecordInput {
 function record(): CultivationRecord {
   return {
     id: "record-1", seasonId: "season-1", type: "growth", occurredAt: "2026-05-01T00:00:00Z",
-    notes: "키 측정", quantity: 10, unit: "cm", version: 3,
+    notes: "키 측정", quantity: 10, unit: "cm", photoUrl: null, version: 3,
     createdAt: "2026-05-01T00:00:00Z", updatedAt: "2026-05-01T00:00:00Z",
   };
 }

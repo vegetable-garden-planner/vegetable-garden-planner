@@ -1,0 +1,11 @@
+# 회원이 올린 사진만 두는 폴더다. 어떤 경우에도 이 아래에서 코드가 실행되면 안 된다.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+RemoveHandler .php .phtml .phar .cgi .pl .py
+RemoveType .php .phtml .phar .cgi .pl .py
+<IfModule mod_authz_core.c>
+    <FilesMatch "\.(?i:php|phtml|phar|cgi|pl|py|sh|htaccess)$">
+        Require all denied
+    </FilesMatch>
+</IfModule>
