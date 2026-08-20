@@ -19,7 +19,7 @@
     <div class="table-wrap"><table class="member-table"><thead><tr><th>회원</th><th>권한</th><th>가입 방식</th><th>재배 공간</th><th>가입일</th><th>상태 관리</th></tr></thead><tbody>
     @forelse ($users as $user)
         <tr>
-            <td><div class="member-cell"><span>{{ mb_substr($user->nickname, 0, 1) }}</span><div><strong>{{ $user->nickname }}</strong><small>{{ $user->email }}</small></div></div></td>
+            <td><a class="member-cell" href="{{ route('admin.users.show', $user) }}"><span>{{ mb_substr($user->nickname, 0, 1) }}</span><div><strong>{{ $user->nickname }}</strong><small>{{ $user->email }}</small></div></a></td>
             <td><span class="role {{ $user->role->value }}">{{ $user->role->value === 'admin' ? '관리자' : '일반 회원' }}</span></td>
             <td>{{ $user->social_accounts_count > 0 ? 'Google 연결' : '이메일' }}</td>
             <td>{{ $user->growing_spaces_count }}개</td>

@@ -26,6 +26,7 @@ Route::post('/admin/login', [AdminAuthController::class, 'store'])
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(function (): void {
     Route::get('/', AdminDashboardController::class)->name('dashboard');
     Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
     Route::patch('/users/{user}/status', [AdminUserController::class, 'updateStatus'])
         ->name('users.status');
     Route::get('/catalog', AdminCatalogController::class)->name('catalog');
