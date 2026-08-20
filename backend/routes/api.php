@@ -17,7 +17,9 @@ use App\Http\Controllers\Api\V1\Layouts\PutGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\ShowGardenLayoutController;
 use App\Http\Controllers\Api\V1\Locations\GeocodeAddressController;
 use App\Http\Controllers\Api\V1\Records\DestroyRecordController;
+use App\Http\Controllers\Api\V1\Records\DestroyRecordPhotoController;
 use App\Http\Controllers\Api\V1\Records\IndexSeasonRecordController;
+use App\Http\Controllers\Api\V1\Records\StoreRecordPhotoController;
 use App\Http\Controllers\Api\V1\Records\StoreSeasonRecordController;
 use App\Http\Controllers\Api\V1\Records\UpdateRecordController;
 use App\Http\Controllers\Api\V1\Seasons\DestroySeasonController;
@@ -84,6 +86,8 @@ Route::prefix('v1')->group(function (): void {
 
         Route::patch('/records/{cultivationRecord}', UpdateRecordController::class);
         Route::delete('/records/{cultivationRecord}', DestroyRecordController::class);
+        Route::post('/records/{cultivationRecord}/photo', StoreRecordPhotoController::class);
+        Route::delete('/records/{cultivationRecord}/photo', DestroyRecordPhotoController::class);
 
         Route::get('/watering-schedules', IndexWateringScheduleController::class);
         Route::get('/watering-schedules/{wateringSchedule}', ShowWateringScheduleController::class);

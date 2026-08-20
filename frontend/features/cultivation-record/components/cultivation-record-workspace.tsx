@@ -29,6 +29,8 @@ interface CultivationRecordWorkspaceProps {
   onDeleteRequest: (recordId: string) => void;
   onEdit: (recordId: string) => void;
   onFilterChange: (filter: RecordFilter) => void;
+  onPhotoRemove: (record: CultivationRecord) => Promise<void>;
+  onPhotoUpload: (record: CultivationRecord, photo: File) => Promise<boolean>;
   onUpdate: (record: CultivationRecord, input: CultivationRecordInput) => Promise<boolean>;
   records: CultivationRecord[];
   season: PersistedGrowingSeason;
@@ -67,6 +69,8 @@ export function CultivationRecordWorkspace(props: CultivationRecordWorkspaceProp
                     onDelete={() => props.onDelete(record)}
                     onDeleteRequest={() => props.onDeleteRequest(record.id)}
                     onEdit={() => props.onEdit(record.id)}
+                    onPhotoRemove={() => props.onPhotoRemove(record)}
+                    onPhotoUpload={(photo) => props.onPhotoUpload(record, photo)}
                     onUpdate={(input) => props.onUpdate(record, input)}
                     record={record}
                     season={props.season}

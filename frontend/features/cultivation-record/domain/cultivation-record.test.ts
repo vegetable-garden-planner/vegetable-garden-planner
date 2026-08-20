@@ -3,6 +3,8 @@ import test from "node:test";
 import {
   createRecordDraft,
   validateCultivationRecordDraft,
+  validateRecordPhoto,
+  RECORD_PHOTO_MAX_BYTES,
   type CultivationRecord,
 } from "./cultivation-record.ts";
 
@@ -52,7 +54,7 @@ test("시즌 밖 날짜와 잘못된 경계값을 거부한다", () => {
 test("기존 기록은 수정 입력값으로 변환한다", () => {
   const record: CultivationRecord = {
     id: "record-1", seasonId: "season-1", type: "growth", occurredAt: "2026-06-01T00:30:00Z",
-    notes: "키 측정", quantity: 12, unit: "cm", version: 2,
+    notes: "키 측정", quantity: 12, unit: "cm", photoUrl: null, version: 2,
     createdAt: "2026-06-01T00:30:00Z", updatedAt: "2026-06-01T00:30:00Z",
   };
   const draft = createRecordDraft(season, record);
@@ -60,4 +62,14 @@ test("기존 기록은 수정 입력값으로 변환한다", () => {
   assert.equal(draft.type, "growth");
   assert.equal(draft.quantity, "12");
   assert.equal(draft.unit, "cm");
+});
+
+test("사진은 허용 형식과 5MB 제한을 서버로 보내기 전에 먼저 확인한다", () => {
+  const jpeg = new File(["binary"], "garden.jpg", { type: "image/jpeg" });
+  const pdf = new File(["binary"], "garden.pdf", { type: "application/pdf" });
+  const huge = new File([new Uint8Array(RECORD_PHOTO_MAX_BYTES + 1)], "huge.png", { type: "image/png" });
+
+  assert.equal(validateRecordPhoto(jpeg), null);
+  assert.match(String(validateRecordPhoto(pdf)), /JPG, PNG, WEBP/);
+  assert.match(String(validateRecordPhoto(huge)), /5MB/);
 });

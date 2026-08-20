@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { InlineConfirm } from "@/components/inline-confirm";
 import type { PersistedGrowingSeason } from "../../growing-season/domain/growing-season";
 import {
   CULTIVATION_RECORD_TYPE_LABELS,
+  validateRecordPhoto,
   type CultivationRecord,
   type CultivationRecordInput,
 } from "../domain/cultivation-record";
@@ -17,6 +19,8 @@ export function CultivationRecordCard({
   onDelete,
   onDeleteRequest,
   onEdit,
+  onPhotoRemove,
+  onPhotoUpload,
   onUpdate,
   record,
   season,
@@ -29,6 +33,8 @@ export function CultivationRecordCard({
   onDelete: () => Promise<void>;
   onDeleteRequest: () => void;
   onEdit: () => void;
+  onPhotoRemove: () => Promise<void>;
+  onPhotoUpload: (photo: File) => Promise<boolean>;
   onUpdate: (input: CultivationRecordInput) => Promise<boolean>;
   record: CultivationRecord;
   season: PersistedGrowingSeason;
@@ -47,6 +53,7 @@ export function CultivationRecordCard({
         </div>
         {record.quantity !== null && <p className={styles.quantity}><span>측정·수확량</span>{formatQuantity(record.quantity)} {record.unit}</p>}
         <p className={record.notes ? styles.notes : styles.emptyNotes}>{record.notes || "메모 없이 남긴 기록입니다."}</p>
+        <RecordPhoto disabled={disabled} onRemove={onPhotoRemove} onUpload={onPhotoUpload} record={record} />
         {deleting ? (
           <InlineConfirm
             description="삭제한 기록은 되돌릴 수 없습니다."
@@ -63,6 +70,55 @@ export function CultivationRecordCard({
         )}
       </div>
     </article>
+  );
+}
+
+function RecordPhoto({ disabled, onRemove, onUpload, record }: {
+  disabled: boolean;
+  onRemove: () => Promise<void>;
+  onUpload: (photo: File) => Promise<boolean>;
+  record: CultivationRecord;
+}) {
+  const [error, setError] = useState("");
+  const inputId = `record-photo-${record.id}`;
+  const typeLabel = CULTIVATION_RECORD_TYPE_LABELS[record.type];
+
+  async function choose(event: React.ChangeEvent<HTMLInputElement>) {
+    const photo = event.target.files?.[0];
+    event.target.value = "";
+    if (!photo) return;
+
+    const message = validateRecordPhoto(photo);
+    setError(message ?? "");
+    if (message === null) await onUpload(photo);
+  }
+
+  if (record.photoUrl !== null) {
+    return (
+      <figure className={styles.photo}>
+        {/* 회원이 올린 사진은 백엔드 도메인에서 그대로 내려받는다. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img alt={`${typeLabel} 기록에 첨부한 사진`} src={record.photoUrl} />
+        <figcaption>
+          <button disabled={disabled} onClick={() => { void onRemove(); }} type="button">사진 삭제</button>
+        </figcaption>
+      </figure>
+    );
+  }
+
+  return (
+    <div className={styles.photoUpload}>
+      <label className={styles.photoButton} htmlFor={inputId}>사진 추가</label>
+      <input
+        accept="image/jpeg,image/png,image/webp"
+        disabled={disabled}
+        id={inputId}
+        onChange={(event) => { void choose(event); }}
+        type="file"
+      />
+      <span>JPG · PNG · WEBP, 5MB까지</span>
+      {error && <strong className={styles.fieldError} role="alert">{error}</strong>}
+    </div>
   );
 }
 

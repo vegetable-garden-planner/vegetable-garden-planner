@@ -1078,6 +1078,79 @@ paths:
         '419':
           $ref: '#/components/responses/CsrfMismatch'
 
+  /records/{recordId}/photo:
+    parameters:
+      - $ref: '#/components/parameters/RecordId'
+    post:
+      tags: [Records]
+      summary: 기록 사진 등록·교체
+      description: |
+        기록 하나에 사진 한 장을 붙인다. 이미 사진이 있으면 새 파일로 바꾸고 이전 파일은 지운다.
+        JPG·PNG·WEBP만 허용하고 5MB를 넘을 수 없다. 저장 파일명은 서버가 만들며 원본 파일명은 쓰지 않는다.
+      operationId: uploadRecordPhoto
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [photo]
+              properties:
+                photo:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 사진 등록 성공. 기록 version이 1 증가한다
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CultivationRecordResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '419':
+          $ref: '#/components/responses/CsrfMismatch'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+    delete:
+      tags: [Records]
+      summary: 기록 사진 삭제
+      description: 기록은 남기고 사진만 지운다. 저장된 파일도 함께 삭제된다.
+      operationId: deleteRecordPhoto
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '200':
+          description: 사진 삭제 성공. 기록 version이 1 증가한다
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CultivationRecordResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '419':
+          $ref: '#/components/responses/CsrfMismatch'
+
   /watering-schedules:
     get:
       tags: [Watering]
@@ -2194,6 +2267,10 @@ components:
           exclusiveMinimum: 0
         unit:
           type: [string, 'null']
+        photoUrl:
+          type: [string, 'null']
+          format: uri
+          description: 기록에 붙은 사진의 전체 URL. 사진이 없으면 null이다
         version:
           type: integer
           minimum: 1

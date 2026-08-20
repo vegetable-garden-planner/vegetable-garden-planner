@@ -24,6 +24,7 @@ class CultivationRecord extends Model
         'notes',
         'quantity',
         'unit',
+        'photo_path',
         'version',
     ];
 

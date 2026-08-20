@@ -16,6 +16,8 @@
 /node_modules
 /public/build
 /public/hot
+/public/uploads/*
+!/public/uploads/.htaccess
 /public/storage
 /storage/*.key
 /storage/pail
