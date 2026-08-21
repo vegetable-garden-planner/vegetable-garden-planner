@@ -37,6 +37,7 @@
 }
 
 .dimensionStage,
+.sunlightStage,
 .cropStage,
 .conditionStage,
 .analysisStage,
@@ -45,6 +46,384 @@
   min-height: 100svh;
   margin: 0 auto;
   animation: stage-in var(--motion-scene) var(--ease-scene) both;
+}
+
+.stage1 .sceneImage {
+  animation: none;
+  object-position: center;
+  filter: brightness(0.78) saturate(0.9) contrast(1.04);
+  transform: none;
+}
+
+.stage1 .sceneShade {
+  background:
+    radial-gradient(circle at 50% 54%, rgba(0, 9, 6, 0.04) 0 24%, rgba(1, 15, 10, 0.18) 58%, rgba(1, 12, 8, 0.48) 100%),
+    linear-gradient(90deg, rgba(2, 20, 14, 0.24), transparent 42%, rgba(8, 23, 14, 0.12));
+}
+
+.stage1 .sceneTexture {
+  background: linear-gradient(0deg, rgba(0, 10, 7, 0.36), transparent 54%);
+}
+
+.stage4 .sceneImage {
+  object-position: center;
+  filter: brightness(0.82) saturate(0.9) contrast(1.05);
+}
+
+.stage4 .sceneShade {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(1, 18, 11, 0.03) 0 32%, rgba(1, 13, 9, 0.23) 78%, rgba(1, 9, 6, 0.48) 100%),
+    linear-gradient(180deg, rgba(1, 14, 9, 0.08), rgba(1, 10, 7, 0.25));
+}
+
+.stage4 .sceneTexture {
+  background: linear-gradient(90deg, rgba(0, 11, 7, 0.16), transparent 46%, rgba(15, 18, 5, 0.08));
+}
+
+.sunlightStage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sunlightCurve {
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.sunlightCanopy {
+  position: absolute;
+  z-index: 9;
+  top: -2.75rem;
+  left: 50%;
+  width: 16rem;
+  height: 9rem;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.sunlightCanopy::before {
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  width: 0.25rem;
+  height: 8rem;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(#152b13, #47682e 68%, #18361e);
+  box-shadow: 0 0 1rem rgba(4, 16, 7, 0.34);
+  content: "";
+  transform: rotate(10deg);
+  transform-origin: top;
+}
+
+.sunlightCanopy i {
+  position: absolute;
+  top: 1.15rem;
+  left: 50%;
+  width: 3.4rem;
+  height: 7.25rem;
+  border-radius: 85% 12% 82% 16%;
+  background:
+    linear-gradient(108deg, transparent 47%, rgba(160, 194, 103, 0.3) 49%, transparent 52%),
+    linear-gradient(145deg, #527d35, #16391f 58%, #071b10);
+  box-shadow: inset 0.4rem 0.25rem 0.9rem rgba(172, 205, 112, 0.22), 0 0.6rem 1rem rgba(1, 13, 6, 0.25);
+  transform-origin: 50% 0;
+}
+
+.sunlightCanopy i:nth-child(1) { transform: translate(-5.5rem, 0.1rem) rotate(56deg); }
+.sunlightCanopy i:nth-child(2) { transform: translate(-3.1rem, -0.4rem) rotate(30deg); }
+.sunlightCanopy i:nth-child(3) { transform: translate(-1.5rem, 0.3rem) rotate(4deg); }
+.sunlightCanopy i:nth-child(4) { transform: translate(0.35rem, -0.2rem) rotate(-24deg); }
+.sunlightCanopy i:nth-child(5) { transform: translate(2.15rem, 0.5rem) rotate(-50deg); }
+
+.sunlightProgress {
+  position: absolute;
+  z-index: 14;
+  top: 1.75rem;
+  right: clamp(2rem, 4vw, 4rem);
+  width: 12rem;
+  pointer-events: none;
+  text-align: right;
+}
+
+.sunlightProgress p {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+
+.sunlightProgress strong {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.sunlightProgress span {
+  color: rgba(83, 91, 83, 0.54);
+}
+
+.sunlightProgress i {
+  display: block;
+  width: 11.5rem;
+  height: var(--line-thin);
+  margin-top: 0.65rem;
+  margin-left: auto;
+  background: linear-gradient(90deg, transparent, var(--color-primary) 22% 100%);
+}
+
+.sunlightContent {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  width: min(100% - 10rem, 45rem);
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  padding: 23.9vh 0 0;
+  text-align: center;
+}
+
+.sunlightHeading h1 {
+  margin: 0;
+  color: #fffdfa;
+  font-size: clamp(2.15rem, 3.2vw, 3rem);
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  text-shadow: 0 0.15rem 1.25rem rgba(0, 0, 0, 0.5);
+}
+
+.sunlightHeading p {
+  margin: 1rem 0 0;
+  color: rgba(224, 231, 225, 0.72);
+  font-size: clamp(0.76rem, 1vw, 0.9rem);
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+}
+
+.sunlightGroup {
+  width: min(100%, 42rem);
+  margin: 3.75rem 0 0;
+  border: 0;
+  padding: 0;
+}
+
+.sunlightGroup + .sunlightGroup {
+  margin-top: 3rem;
+}
+
+.sunlightGroup legend {
+  width: 100%;
+  color: #35be8d;
+  font-size: 0.94rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-align: center;
+}
+
+.sunlightOptions {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 2.25rem;
+}
+
+.sunlightChoice {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 4rem;
+  cursor: pointer;
+  place-items: center;
+}
+
+.sunlightChoice:not(:first-child)::after {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--line-thin);
+  height: 2.1rem;
+  background: rgba(203, 217, 205, 0.2);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.sunlightChoice input {
+  position: absolute;
+  width: var(--line-thin);
+  height: var(--line-thin);
+  opacity: 0;
+}
+
+.sunlightChoice span {
+  position: relative;
+  display: inline-grid;
+  min-width: 6.5rem;
+  min-height: 4rem;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: rgba(205, 213, 206, 0.38);
+  font-size: 2.4rem;
+  font-weight: 650;
+  line-height: 1;
+  text-shadow: 0 0 0 transparent;
+  transition:
+    color 280ms ease-out,
+    filter 280ms ease-out,
+    text-shadow 280ms ease-out;
+}
+
+.sunlightOptions[data-variant="duration"] .sunlightChoice span {
+  font-family: Georgia, "Times New Roman", var(--font-garden);
+  font-size: 2.75rem;
+  font-weight: 600;
+}
+
+.sunlightChoice span::before {
+  position: absolute;
+  z-index: -1;
+  top: -1.15rem;
+  right: -1.2rem;
+  width: 7.75rem;
+  height: 5.6rem;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 70% 18%, rgba(255, 229, 157, 0.4), rgba(230, 183, 77, 0.13) 38%, transparent 72%);
+  content: "";
+  filter: blur(0.65rem);
+  opacity: 0;
+  transition: opacity 280ms ease-out;
+}
+
+.sunlightChoice span::after {
+  position: absolute;
+  right: 0;
+  bottom: -0.22rem;
+  left: 0;
+  height: var(--line-thin);
+  background: linear-gradient(90deg, transparent, rgba(255, 220, 129, 0.98) 48% 52%, transparent);
+  box-shadow: 0 0 0.6rem rgba(255, 213, 112, 0.46);
+  content: "";
+  opacity: 0;
+  transform: scaleX(0.6);
+  transition: opacity 280ms ease-out, transform 280ms ease-out;
+}
+
+.sunlightChoice input:checked + span {
+  color: #fff0bd;
+  filter: brightness(1.12);
+  text-shadow: 0 0 0.35rem rgba(255, 234, 175, 0.86), 0 0 1.25rem rgba(233, 181, 62, 0.62);
+}
+
+.sunlightChoice input:checked + span::before,
+.sunlightChoice input:checked + span::after {
+  opacity: 1;
+}
+
+.sunlightChoice input:checked + span::after {
+  transform: scaleX(1);
+}
+
+.sunlightChoice input:focus-visible + span {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: 0.35rem;
+}
+
+.sunlightNavigation {
+  display: flex;
+  width: min(100%, 23.25rem);
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+}
+
+.sunlightBack,
+.sunlightNext {
+  display: inline-flex;
+  width: 11.25rem;
+  min-height: 3.75rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  border: var(--line-thin) solid transparent;
+  border-radius: 0.45rem;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: background-color var(--motion-base) var(--ease-out), opacity var(--motion-base) var(--ease-out);
+}
+
+.sunlightBack {
+  border-color: rgba(10, 101, 72, 0.1);
+  background: #f6f2e9;
+  color: #087a57;
+}
+
+.sunlightNext {
+  background: #079f72;
+  color: #fff;
+}
+
+.sunlightBack:hover,
+.sunlightNext:not(:disabled):hover {
+  opacity: 0.86;
+}
+
+.sunlightNext:disabled {
+  cursor: not-allowed;
+  background: #285244;
+  color: rgba(255, 255, 255, 0.44);
+}
+
+.sunlightBack:focus-visible,
+.sunlightNext:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+.stage1 .stepRail {
+  top: 57%;
+  right: clamp(1.5rem, 4vw, 4rem);
+  gap: clamp(6rem, 20.5vh, 10.25rem);
+}
+
+.stage1 .stepRail::before {
+  border-color: rgba(245, 240, 220, 0.42);
+}
+
+.stage1 .stepRail span {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-width: 0.1rem;
+  background: rgba(4, 22, 15, 0.68);
+  color: rgba(241, 240, 226, 0.72);
+  font-size: 1.05rem;
+}
+
+.stage1 .stepRail .completeStep button {
+  color: rgba(241, 240, 226, 0.58);
+}
+
+.stage1 .stepRail .completeStep span {
+  border-color: rgba(241, 240, 226, 0.58);
+  background: rgba(5, 23, 16, 0.55);
+  box-shadow: none;
+}
+
+.stage1 .stepRail .activeStep span {
+  border-color: #fff8dc;
+  background: rgba(12, 35, 25, 0.88);
+  color: #fff8dc;
+  box-shadow: 0 0 0 0.32rem rgba(255, 248, 220, 0.2), 0 0 1.25rem rgba(245, 207, 121, 0.82);
 }
 
 .dimensionStage {
@@ -1083,6 +1462,53 @@
   .stepRail small {
     display: none;
   }
+
+  .sunlightGroup {
+    width: min(100%, 34rem);
+    margin-top: 2rem;
+  }
+
+  .sunlightGroup + .sunlightGroup {
+    margin-top: 2rem;
+  }
+
+  .sunlightGroup legend {
+    font-size: 0.8rem;
+  }
+
+  .sunlightOptions {
+    margin-top: 1rem;
+  }
+
+  .sunlightChoice {
+    min-height: 3rem;
+  }
+
+  .sunlightChoice:not(:first-child)::after {
+    height: 1.6rem;
+  }
+
+  .sunlightChoice span {
+    min-width: 5.5rem;
+    min-height: 3rem;
+    font-size: 1.75rem;
+  }
+
+  .sunlightOptions[data-variant="duration"] .sunlightChoice span {
+    font-size: 2.1rem;
+  }
+
+  .sunlightNavigation {
+    width: min(100%, 20.75rem);
+    margin-top: 2.2rem;
+  }
+
+  .sunlightBack,
+  .sunlightNext {
+    width: 10rem;
+    min-height: 3.45rem;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1277,6 +1703,92 @@
     width: var(--space-8);
     height: var(--space-8);
   }
+
+  .sunlightStage {
+    height: auto;
+    min-height: max(100svh, 45rem);
+  }
+
+  .sunlightCanopy {
+    top: -3.5rem;
+    width: 13rem;
+    transform: translateX(-42%) scale(0.82);
+  }
+
+  .sunlightProgress {
+    top: 1.2rem;
+    right: 1.15rem;
+    width: 8rem;
+  }
+
+  .sunlightProgress i {
+    width: 7rem;
+  }
+
+  .sunlightContent {
+    width: calc(100% - 2rem);
+    height: auto;
+    min-height: max(100svh, 45rem);
+    padding: 8.5rem 0 6.75rem;
+  }
+
+  .sunlightHeading h1 {
+    font-size: clamp(1.85rem, 5.8vw, 2.5rem);
+  }
+
+  .sunlightHeading p {
+    max-width: 31rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  .sunlightGroup {
+    width: min(100%, 32rem);
+    margin-top: 1.9rem;
+  }
+
+  .sunlightGroup + .sunlightGroup {
+    margin-top: 1.75rem;
+  }
+
+  .sunlightOptions {
+    margin-top: 1.15rem;
+  }
+
+  .sunlightChoice span {
+    min-width: 0;
+    width: 76%;
+    font-size: 1.55rem;
+  }
+
+  .sunlightOptions[data-variant="duration"] .sunlightChoice span {
+    font-size: 1.85rem;
+  }
+
+  .sunlightNavigation {
+    width: min(100%, 22rem);
+    margin-top: 1.85rem;
+  }
+
+  .sunlightBack,
+  .sunlightNext {
+    width: 50%;
+  }
+
+  .stage1 .stepRail {
+    top: auto;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    gap: 2.5rem;
+    transform: none;
+  }
+
+  .stage1 .stepRail span {
+    width: var(--space-8);
+    height: var(--space-8);
+    font-size: var(--type-caption-size);
+  }
 }
 
 @media (max-width: 420px) {
@@ -1310,12 +1822,49 @@
   .conditionGroup strong {
     font-size: var(--type-caption-size);
   }
+
+  .sunlightContent {
+    width: calc(100% - 1.5rem);
+    padding-top: 11.75rem;
+  }
+
+  .sunlightHeading h1 {
+    font-size: 1.78rem;
+  }
+
+  .sunlightHeading p {
+    padding-inline: 0.25rem;
+    font-size: 0.74rem;
+  }
+
+  .sunlightGroup legend {
+    font-size: 0.74rem;
+  }
+
+  .sunlightChoice span {
+    width: 82%;
+    font-size: 1.5rem;
+  }
+
+  .sunlightOptions[data-variant="duration"] .sunlightChoice span {
+    font-size: 1.75rem;
+  }
+
+  .sunlightNavigation {
+    gap: 0.5rem;
+  }
+
+  .sunlightBack,
+  .sunlightNext {
+    min-height: 3.2rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .sceneBackdrop,
   .sceneImage,
   .dimensionStage,
+  .sunlightStage,
   .cropStage,
   .conditionStage,
   .analysisStage,
@@ -1324,7 +1873,12 @@
   .scanLine,
   .loadingTrack span,
   .cropCard img,
-  .planPlants img {
+  .planPlants img,
+  .sunlightChoice span,
+  .sunlightChoice span::before,
+  .sunlightChoice span::after,
+  .sunlightBack,
+  .sunlightNext {
     animation: none;
     transition: none;
   }

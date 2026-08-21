@@ -1,0 +1,549 @@
+{
+  "quality_target": "AAA Unreal Engine 5 Hero Asset Quality adapted for WebGL",
+  "source_preserved": "garden-step3-v01-blockout.blend",
+  "assets": {
+    "planter": {
+      "lods": {
+        "LOD0": {
+          "object": "GEO-Planter-LOD0",
+          "triangles": 25215,
+          "materials": [
+            "MAT-Planter-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD1": {
+          "object": "GEO-Planter-LOD1",
+          "triangles": 12607,
+          "materials": [
+            "MAT-Planter-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD2": {
+          "object": "GEO-Planter-LOD2",
+          "triangles": 5041,
+          "materials": [
+            "MAT-Planter-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        }
+      },
+      "high_poly_triangles": 135906,
+      "master_textures": [
+        "textures\\master\\planter\\T_Planter_AO_4K.png",
+        "textures\\master\\planter\\T_Planter_BaseColor_4K.png",
+        "textures\\master\\planter\\T_Planter_Metallic_4K.png",
+        "textures\\master\\planter\\T_Planter_Normal_4K.png",
+        "textures\\master\\planter\\T_Planter_Roughness_4K.png"
+      ],
+      "runtime_textures": [
+        "textures\\runtime\\planter\\T_Planter_AO_1K.png",
+        "textures\\runtime\\planter\\T_Planter_BaseColor_1K.png",
+        "textures\\runtime\\planter\\T_Planter_Metallic_1K.png",
+        "textures\\runtime\\planter\\T_Planter_Normal_1K.png",
+        "textures\\runtime\\planter\\T_Planter_Roughness_1K.png"
+      ]
+    },
+    "lettuce": {
+      "lods": {
+        "LOD0": {
+          "object": "GEO-Lettuce-LOD0",
+          "triangles": 56304,
+          "materials": [
+            "MAT-Lettuce-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD1": {
+          "object": "GEO-Lettuce-LOD1",
+          "triangles": 28152,
+          "materials": [
+            "MAT-Lettuce-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD2": {
+          "object": "GEO-Lettuce-LOD2",
+          "triangles": 11260,
+          "materials": [
+            "MAT-Lettuce-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        }
+      },
+      "high_poly_triangles": 225216,
+      "master_textures": [
+        "textures\\master\\lettuce\\T_Lettuce_AO_4K.png",
+        "textures\\master\\lettuce\\T_Lettuce_BaseColor_4K.png",
+        "textures\\master\\lettuce\\T_Lettuce_Metallic_4K.png",
+        "textures\\master\\lettuce\\T_Lettuce_Normal_4K.png",
+        "textures\\master\\lettuce\\T_Lettuce_Roughness_4K.png"
+      ],
+      "runtime_textures": [
+        "textures\\runtime\\lettuce\\T_Lettuce_AO_1K.png",
+        "textures\\runtime\\lettuce\\T_Lettuce_BaseColor_1K.png",
+        "textures\\runtime\\lettuce\\T_Lettuce_Metallic_1K.png",
+        "textures\\runtime\\lettuce\\T_Lettuce_Normal_1K.png",
+        "textures\\runtime\\lettuce\\T_Lettuce_Roughness_1K.png"
+      ]
+    },
+    "cherry-tomato": {
+      "lods": {
+        "LOD0": {
+          "object": "GEO-CherryTomato-LOD0",
+          "triangles": 51540,
+          "materials": [
+            "MAT-CherryTomato-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD1": {
+          "object": "GEO-CherryTomato-LOD1",
+          "triangles": 25884,
+          "materials": [
+            "MAT-CherryTomato-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD2": {
+          "object": "GEO-CherryTomato-LOD2",
+          "triangles": 10402,
+          "materials": [
+            "MAT-CherryTomato-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        }
+      },
+      "high_poly_triangles": 207808,
+      "master_textures": [
+        "textures\\master\\cherry-tomato\\T_CherryTomato_AO_4K.png",
+        "textures\\master\\cherry-tomato\\T_CherryTomato_BaseColor_4K.png",
+        "textures\\master\\cherry-tomato\\T_CherryTomato_Metallic_4K.png",
+        "textures\\master\\cherry-tomato\\T_CherryTomato_Normal_4K.png",
+        "textures\\master\\cherry-tomato\\T_CherryTomato_Roughness_4K.png"
+      ],
+      "runtime_textures": [
+        "textures\\runtime\\cherry-tomato\\T_CherryTomato_AO_1K.png",
+        "textures\\runtime\\cherry-tomato\\T_CherryTomato_BaseColor_1K.png",
+        "textures\\runtime\\cherry-tomato\\T_CherryTomato_Metallic_1K.png",
+        "textures\\runtime\\cherry-tomato\\T_CherryTomato_Normal_1K.png",
+        "textures\\runtime\\cherry-tomato\\T_CherryTomato_Roughness_1K.png"
+      ]
+    },
+    "basil": {
+      "lods": {
+        "LOD0": {
+          "object": "GEO-Basil-LOD0",
+          "triangles": 44592,
+          "materials": [
+            "MAT-Basil-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD1": {
+          "object": "GEO-Basil-LOD1",
+          "triangles": 22320,
+          "materials": [
+            "MAT-Basil-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD2": {
+          "object": "GEO-Basil-LOD2",
+          "triangles": 8956,
+          "materials": [
+            "MAT-Basil-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        }
+      },
+      "high_poly_triangles": 178176,
+      "master_textures": [
+        "textures\\master\\basil\\T_Basil_AO_4K.png",
+        "textures\\master\\basil\\T_Basil_BaseColor_4K.png",
+        "textures\\master\\basil\\T_Basil_Metallic_4K.png",
+        "textures\\master\\basil\\T_Basil_Normal_4K.png",
+        "textures\\master\\basil\\T_Basil_Roughness_4K.png"
+      ],
+      "runtime_textures": [
+        "textures\\runtime\\basil\\T_Basil_AO_1K.png",
+        "textures\\runtime\\basil\\T_Basil_BaseColor_1K.png",
+        "textures\\runtime\\basil\\T_Basil_Metallic_1K.png",
+        "textures\\runtime\\basil\\T_Basil_Normal_1K.png",
+        "textures\\runtime\\basil\\T_Basil_Roughness_1K.png"
+      ]
+    },
+    "chili": {
+      "lods": {
+        "LOD0": {
+          "object": "GEO-Chili-LOD0",
+          "triangles": 28612,
+          "materials": [
+            "MAT-Chili-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD1": {
+          "object": "GEO-Chili-LOD1",
+          "triangles": 14396,
+          "materials": [
+            "MAT-Chili-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD2": {
+          "object": "GEO-Chili-LOD2",
+          "triangles": 5782,
+          "materials": [
+            "MAT-Chili-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        }
+      },
+      "high_poly_triangles": 113216,
+      "master_textures": [
+        "textures\\master\\chili\\T_Chili_AO_4K.png",
+        "textures\\master\\chili\\T_Chili_BaseColor_4K.png",
+        "textures\\master\\chili\\T_Chili_Metallic_4K.png",
+        "textures\\master\\chili\\T_Chili_Normal_4K.png",
+        "textures\\master\\chili\\T_Chili_Roughness_4K.png"
+      ],
+      "runtime_textures": [
+        "textures\\runtime\\chili\\T_Chili_AO_1K.png",
+        "textures\\runtime\\chili\\T_Chili_BaseColor_1K.png",
+        "textures\\runtime\\chili\\T_Chili_Metallic_1K.png",
+        "textures\\runtime\\chili\\T_Chili_Normal_1K.png",
+        "textures\\runtime\\chili\\T_Chili_Roughness_1K.png"
+      ]
+    },
+    "spinach": {
+      "lods": {
+        "LOD0": {
+          "object": "GEO-Spinach-LOD0",
+          "triangles": 34920,
+          "materials": [
+            "MAT-Spinach-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD1": {
+          "object": "GEO-Spinach-LOD1",
+          "triangles": 17640,
+          "materials": [
+            "MAT-Spinach-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD2": {
+          "object": "GEO-Spinach-LOD2",
+          "triangles": 7124,
+          "materials": [
+            "MAT-Spinach-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        }
+      },
+      "high_poly_triangles": 138240,
+      "master_textures": [
+        "textures\\master\\spinach\\T_Spinach_AO_4K.png",
+        "textures\\master\\spinach\\T_Spinach_BaseColor_4K.png",
+        "textures\\master\\spinach\\T_Spinach_Metallic_4K.png",
+        "textures\\master\\spinach\\T_Spinach_Normal_4K.png",
+        "textures\\master\\spinach\\T_Spinach_Roughness_4K.png"
+      ],
+      "runtime_textures": [
+        "textures\\runtime\\spinach\\T_Spinach_AO_1K.png",
+        "textures\\runtime\\spinach\\T_Spinach_BaseColor_1K.png",
+        "textures\\runtime\\spinach\\T_Spinach_Metallic_1K.png",
+        "textures\\runtime\\spinach\\T_Spinach_Normal_1K.png",
+        "textures\\runtime\\spinach\\T_Spinach_Roughness_1K.png"
+      ]
+    },
+    "strawberry": {
+      "lods": {
+        "LOD0": {
+          "object": "GEO-Strawberry-LOD0",
+          "triangles": 41040,
+          "materials": [
+            "MAT-Strawberry-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD1": {
+          "object": "GEO-Strawberry-LOD1",
+          "triangles": 20598,
+          "materials": [
+            "MAT-Strawberry-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        },
+        "LOD2": {
+          "object": "GEO-Strawberry-LOD2",
+          "triangles": 8266,
+          "materials": [
+            "MAT-Strawberry-Hero-PBR"
+          ],
+          "uv_layers": [
+            "UV_Hero"
+          ]
+        }
+      },
+      "high_poly_triangles": 166808,
+      "master_textures": [
+        "textures\\master\\strawberry\\T_Strawberry_AO_4K.png",
+        "textures\\master\\strawberry\\T_Strawberry_BaseColor_4K.png",
+        "textures\\master\\strawberry\\T_Strawberry_Metallic_4K.png",
+        "textures\\master\\strawberry\\T_Strawberry_Normal_4K.png",
+        "textures\\master\\strawberry\\T_Strawberry_Roughness_4K.png"
+      ],
+      "runtime_textures": [
+        "textures\\runtime\\strawberry\\T_Strawberry_AO_1K.png",
+        "textures\\runtime\\strawberry\\T_Strawberry_BaseColor_1K.png",
+        "textures\\runtime\\strawberry\\T_Strawberry_Metallic_1K.png",
+        "textures\\runtime\\strawberry\\T_Strawberry_Normal_1K.png",
+        "textures\\runtime\\strawberry\\T_Strawberry_Roughness_1K.png"
+      ]
+    }
+  },
+  "animation": {
+    "lettuce": {
+      "armature": "ARM_Lettuce",
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Lettuce_IdleSway"
+      ],
+      "root_motion": "none",
+      "deformation_groups_match_bones": true,
+      "loop_frames": [
+        1,
+        121
+      ]
+    },
+    "cherry-tomato": {
+      "armature": "ARM_CherryTomato",
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_CherryTomato_IdleSway"
+      ],
+      "root_motion": "none",
+      "deformation_groups_match_bones": true,
+      "loop_frames": [
+        1,
+        121
+      ]
+    },
+    "basil": {
+      "armature": "ARM_Basil",
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway"
+      ],
+      "root_motion": "none",
+      "deformation_groups_match_bones": true,
+      "loop_frames": [
+        1,
+        121
+      ]
+    },
+    "chili": {
+      "armature": "ARM_Chili",
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Chili_IdleSway"
+      ],
+      "root_motion": "none",
+      "deformation_groups_match_bones": true,
+      "loop_frames": [
+        1,
+        121
+      ]
+    },
+    "spinach": {
+      "armature": "ARM_Spinach",
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Spinach_IdleSway"
+      ],
+      "root_motion": "none",
+      "deformation_groups_match_bones": true,
+      "loop_frames": [
+        1,
+        121
+      ]
+    },
+    "strawberry": {
+      "armature": "ARM_Strawberry",
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Strawberry_IdleSway"
+      ],
+      "root_motion": "none",
+      "deformation_groups_match_bones": true,
+      "loop_frames": [
+        1,
+        121
+      ]
+    }
+  },
+  "exports": [
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-lettuce.glb",
+      "bytes": 2282300
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-lettuce-lod1.glb",
+      "bytes": 1454092
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-lettuce-lod2.glb",
+      "bytes": 895772
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-cherry-tomato.glb",
+      "bytes": 2052652
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-cherry-tomato-lod1.glb",
+      "bytes": 1300144
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-cherry-tomato-lod2.glb",
+      "bytes": 820936
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-basil.glb",
+      "bytes": 1812424
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-basil-lod1.glb",
+      "bytes": 1168152
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-basil-lod2.glb",
+      "bytes": 742572
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-chili.glb",
+      "bytes": 1300692
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-chili-lod1.glb",
+      "bytes": 862032
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-chili-lod2.glb",
+      "bytes": 587852
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-spinach.glb",
+      "bytes": 1585104
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-spinach-lod1.glb",
+      "bytes": 1055212
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-spinach-lod2.glb",
+      "bytes": 714856
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-strawberry.glb",
+      "bytes": 1830036
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-strawberry-lod1.glb",
+      "bytes": 1213636
+    },
+    {
+      "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-strawberry-lod2.glb",
+      "bytes": 813500
+    }
+  ],
+  "cycles_hero": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\garden-step3-cycles-hero-1920x1080.png",
+  "camera_fixed": true,
+  "planter_stationary": true,
+  "runtime_controls": []
+}

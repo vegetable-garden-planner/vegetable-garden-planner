@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "units": "metres",
+  "coordinateSystem": "glTF +Y up",
+  "sourceBlend": "garden-step3.blend",
+  "sourceReference": "C:\\Users\\YJ\\Pictures\\Saved Pictures\\3번째 화면.PNG",
+  "cleanBackground": "/figma/garden-room-clean.webp",
+  "planter": {
+    "file": "planter.glb",
+    "source": "../planter-modular.glb",
+    "baseDimensions": {
+      "width": 0.6,
+      "depth": 0.2,
+      "height": 0.25
+    },
+    "innerInset": {
+      "width": 0.08,
+      "depth": 0.06
+    },
+    "soilHeight": 0.229,
+    "requiredNodes": [
+      "SM_Planter_Outer",
+      "SM_Planter_Inner",
+      "SM_Planter_Rim",
+      "SM_Planter_Ribs",
+      "SM_Planter_Base",
+      "SM_Soil"
+    ]
+  },
+  "crops": {
+    "lettuce": {
+      "file": "crop-lettuce.glb",
+      "label": "상추",
+      "patchHeight": 0.105,
+      "animation": "AN_IdleSway",
+      "phaseOffset": 0.34,
+      "timeScale": 0.94,
+      "thumbnail": "/models/garden/thumbnails/crop-lettuce.webp"
+    },
+    "cherry-tomato": {
+      "file": "crop-cherry-tomato.glb",
+      "label": "방울토마토",
+      "patchHeight": 0.245,
+      "animation": "AN_IdleSway",
+      "phaseOffset": 1.16,
+      "timeScale": 1.08,
+      "thumbnail": "/models/garden/thumbnails/crop-cherry-tomato.webp"
+    },
+    "basil": {
+      "file": "crop-basil.glb",
+      "label": "바질",
+      "patchHeight": 0.205,
+      "animation": "AN_IdleSway",
+      "phaseOffset": 2.08,
+      "timeScale": 0.88,
+      "thumbnail": "/models/garden/thumbnails/crop-basil.webp"
+    },
+    "chili": {
+      "file": "crop-chili.glb",
+      "label": "고추",
+      "patchHeight": 0.235,
+      "animation": "AN_IdleSway",
+      "phaseOffset": 3.02,
+      "timeScale": 1.12,
+      "thumbnail": "/models/garden/thumbnails/crop-chili.webp"
+    },
+    "spinach": {
+      "file": "crop-spinach.glb",
+      "label": "시금치",
+      "patchHeight": 0.105,
+      "animation": "AN_IdleSway",
+      "phaseOffset": 4.22,
+      "timeScale": 0.97,
+      "thumbnail": "/models/garden/thumbnails/crop-spinach.webp"
+    },
+    "strawberry": {
+      "file": "crop-strawberry.glb",
+      "label": "딸기",
+      "patchHeight": 0.125,
+      "animation": "AN_IdleSway",
+      "phaseOffset": 5.12,
+      "timeScale": 1.03,
+      "thumbnail": "/models/garden/thumbnails/crop-strawberry.webp"
+    }
+  },
+  "camera": {
+    "type": "PerspectiveCamera",
+    "focalLengthMm": 52,
+    "blenderPosition": [
+      0.82,
+      -1.08,
+      0.52
+    ],
+    "webPosition": [
+      0.82,
+      0.52,
+      1.08
+    ],
+    "target": [
+      0.0,
+      0.19,
+      0.0
+    ],
+    "controls": false
+  },
+  "lighting": {
+    "key": {
+      "name": "LGT_GrowLight_Key",
+      "color": "#ffab5c",
+      "position": [
+        0.1,
+        1.05,
+        0.08
+      ]
+    },
+    "fill": {
+      "name": "LGT_Environment_Fill",
+      "color": "#40946b",
+      "position": [
+        -0.65,
+        0.45,
+        0.35
+      ]
+    },
+    "rim": {
+      "name": "LGT_Plant_Rim",
+      "color": "#8cd17a",
+      "position": [
+        0.22,
+        0.54,
+        -0.48
+      ]
+    }
+  },
+  "normalizedSlots": {
+    "1": [
+      [
+        0,
+        0
+      ]
+    ],
+    "2": [
+      [
+        -0.27,
+        0
+      ],
+      [
+        0.27,
+        0
+      ]
+    ],
+    "3": [
+      [
+        -0.32,
+        0
+      ],
+      [
+        0,
+        0.08
+      ],
+      [
+        0.32,
+        0
+      ]
+    ],
+    "4": [
+      [
+        -0.25,
+        0.2
+      ],
+      [
+        0.25,
+        0.2
+      ],
+      [
+        -0.25,
+        -0.2
+      ],
+      [
+        0.25,
+        -0.2
+      ]
+    ],
+    "5": [
+      [
+        -0.32,
+        0.2
+      ],
+      [
+        0,
+        0.2
+      ],
+      [
+        0.32,
+        0.2
+      ],
+      [
+        -0.18,
+        -0.2
+      ],
+      [
+        0.18,
+        -0.2
+      ]
+    ],
+    "6": [
+      [
+        -0.32,
+        0.2
+      ],
+      [
+        0,
+        0.2
+      ],
+      [
+        0.32,
+        0.2
+      ],
+      [
+        -0.32,
+        -0.2
+      ],
+      [
+        0,
+        -0.2
+      ],
+      [
+        0.32,
+        -0.2
+      ]
+    ]
+  },
+  "selectionTransitionMs": 560,
+  "heroRender": "garden-step3-blender-hero.png"
+}

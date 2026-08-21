@@ -1,0 +1,86 @@
+{
+  "planter": {
+    "masterResolution": 4096,
+    "runtimeResolution": 1024,
+    "maps": [
+      "BaseColor",
+      "Roughness",
+      "Metallic",
+      "Normal",
+      "AO"
+    ],
+    "normalConvention": "OpenGL"
+  },
+  "lettuce": {
+    "masterResolution": 4096,
+    "runtimeResolution": 1024,
+    "maps": [
+      "BaseColor",
+      "Roughness",
+      "Metallic",
+      "Normal",
+      "AO"
+    ],
+    "normalConvention": "OpenGL"
+  },
+  "cherry-tomato": {
+    "masterResolution": 4096,
+    "runtimeResolution": 1024,
+    "maps": [
+      "BaseColor",
+      "Roughness",
+      "Metallic",
+      "Normal",
+      "AO"
+    ],
+    "normalConvention": "OpenGL"
+  },
+  "basil": {
+    "masterResolution": 4096,
+    "runtimeResolution": 1024,
+    "maps": [
+      "BaseColor",
+      "Roughness",
+      "Metallic",
+      "Normal",
+      "AO"
+    ],
+    "normalConvention": "OpenGL"
+  },
+  "chili": {
+    "masterResolution": 4096,
+    "runtimeResolution": 1024,
+    "maps": [
+      "BaseColor",
+      "Roughness",
+      "Metallic",
+      "Normal",
+      "AO"
+    ],
+    "normalConvention": "OpenGL"
+  },
+  "spinach": {
+    "masterResolution": 4096,
+    "runtimeResolution": 1024,
+    "maps": [
+      "BaseColor",
+      "Roughness",
+      "Metallic",
+      "Normal",
+      "AO"
+    ],
+    "normalConvention": "OpenGL"
+  },
+  "strawberry": {
+    "masterResolution": 4096,
+    "runtimeResolution": 1024,
+    "maps": [
+      "BaseColor",
+      "Roughness",
+      "Metallic",
+      "Normal",
+      "AO"
+    ],
+    "normalConvention": "OpenGL"
+  }
+}

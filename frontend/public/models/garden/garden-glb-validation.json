@@ -1,0 +1,233 @@
+{
+  "blenderVersion": "5.2.0 LTS",
+  "reference": "C:\\Users\\YJ\\Pictures\\Saved Pictures\\3번째 화면.PNG",
+  "blend": {
+    "path": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\garden-step3.blend",
+    "bytes": 1498675
+  },
+  "cleanBackground": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\figma\\garden-room-clean.webp",
+  "planter": {
+    "mesh_count": 48,
+    "triangle_count": 20044,
+    "materials": [
+      "MAT_Planter_Cavity",
+      "MAT_Planter_ForestPlastic",
+      "MAT_Soil_DarkLoam"
+    ],
+    "material_count": 3,
+    "armatures": [],
+    "bones": [],
+    "idle_animation": false,
+    "unapplied_mesh_scales": [],
+    "non_mesh_leaf_cards": false,
+    "file": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\planter.glb",
+    "bytes": 1345204,
+    "sourceReused": "planter-modular.glb",
+    "baseDimensions": {
+      "width": 0.6,
+      "depth": 0.2,
+      "height": 0.25
+    }
+  },
+  "crops": {
+    "lettuce": {
+      "mesh_count": 51,
+      "triangle_count": 14076,
+      "materials": [
+        "MAT_Leaf_Bright",
+        "MAT_Leaf_Light",
+        "MAT_Leaf_Mid"
+      ],
+      "material_count": 3,
+      "armatures": [
+        "ARM_Lettuce"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "idle_animation": true,
+      "unapplied_mesh_scales": [],
+      "non_mesh_leaf_cards": false,
+      "file": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-lettuce.glb",
+      "bytes": 476588,
+      "targetTriangles": [
+        8000,
+        16000
+      ],
+      "thumbnail": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\thumbnails\\crop-lettuce.webp"
+    },
+    "cherry-tomato": {
+      "mesh_count": 97,
+      "triangle_count": 15912,
+      "materials": [
+        "MAT_Fruit_Green",
+        "MAT_Fruit_Red",
+        "MAT_Leaf_Deep",
+        "MAT_Stem_Fresh"
+      ],
+      "material_count": 4,
+      "armatures": [
+        "ARM_CherryTomato"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "idle_animation": true,
+      "unapplied_mesh_scales": [],
+      "non_mesh_leaf_cards": false,
+      "file": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-cherry-tomato.glb",
+      "bytes": 631372,
+      "targetTriangles": [
+        12000,
+        22000
+      ],
+      "thumbnail": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\thumbnails\\crop-cherry-tomato.webp"
+    },
+    "basil": {
+      "mesh_count": 44,
+      "triangle_count": 11424,
+      "materials": [
+        "MAT_Leaf_Bright",
+        "MAT_Leaf_Light",
+        "MAT_Stem_Fresh"
+      ],
+      "material_count": 3,
+      "armatures": [
+        "ARM_Basil"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "idle_animation": true,
+      "unapplied_mesh_scales": [],
+      "non_mesh_leaf_cards": false,
+      "file": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-basil.glb",
+      "bytes": 395028,
+      "targetTriangles": [
+        8000,
+        16000
+      ],
+      "thumbnail": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\thumbnails\\crop-basil.webp"
+    },
+    "chili": {
+      "mesh_count": 43,
+      "triangle_count": 8400,
+      "materials": [
+        "MAT_Fruit_Green",
+        "MAT_Fruit_Red",
+        "MAT_Leaf_Mid",
+        "MAT_Stem_Fresh"
+      ],
+      "material_count": 4,
+      "armatures": [
+        "ARM_Chili"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "idle_animation": true,
+      "unapplied_mesh_scales": [],
+      "non_mesh_leaf_cards": false,
+      "file": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-chili.glb",
+      "bytes": 317852,
+      "targetTriangles": [
+        10000,
+        18000
+      ],
+      "thumbnail": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\thumbnails\\crop-chili.webp"
+    },
+    "spinach": {
+      "mesh_count": 60,
+      "triangle_count": 9720,
+      "materials": [
+        "MAT_Leaf_Deep",
+        "MAT_Leaf_Mid",
+        "MAT_Stem_Fresh"
+      ],
+      "material_count": 3,
+      "armatures": [
+        "ARM_Spinach"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "idle_animation": true,
+      "unapplied_mesh_scales": [],
+      "non_mesh_leaf_cards": false,
+      "file": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-spinach.glb",
+      "bytes": 373988,
+      "targetTriangles": [
+        7000,
+        14000
+      ],
+      "thumbnail": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\thumbnails\\crop-spinach.webp"
+    },
+    "strawberry": {
+      "mesh_count": 122,
+      "triangle_count": 14772,
+      "materials": [
+        "MAT_Flower_Seed",
+        "MAT_Fruit_Red",
+        "MAT_Leaf_Mid",
+        "MAT_Stem_Fresh"
+      ],
+      "material_count": 4,
+      "armatures": [
+        "ARM_Strawberry"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "idle_animation": true,
+      "unapplied_mesh_scales": [],
+      "non_mesh_leaf_cards": false,
+      "file": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\crop-strawberry.glb",
+      "bytes": 663920,
+      "targetTriangles": [
+        12000,
+        22000
+      ],
+      "thumbnail": "C:\\Users\\YJ\\Documents\\GitHub\\vegetable-garden-planner\\frontend\\public\\models\\garden\\thumbnails\\crop-strawberry.webp"
+    }
+  },
+  "validation": {
+    "allFilesExist": true,
+    "allCropOriginsAtSoilContact": true,
+    "allLeavesClosedCurvedMeshes": true,
+    "allCropsHaveArmature": true,
+    "allCropsHaveIdleAnimation": true,
+    "planterStationary": true,
+    "cameraStationary": true,
+    "orbitControls": false
+  }
+}

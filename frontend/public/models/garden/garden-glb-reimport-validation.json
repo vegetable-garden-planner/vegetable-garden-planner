@@ -1,0 +1,1200 @@
+{
+  "blenderVersion": "5.2.0 LTS",
+  "validationMethod": "fresh Blender scene per GLB re-import; 25-micron seam weld for compressed glTF split attributes",
+  "passCriterion": "at least 99.7% compressed seam closure plus node, material, scale, rig and animation checks; strict authoring topology is reported separately",
+  "files": [
+    {
+      "asset": "planter",
+      "lod": 0,
+      "file": "planter.glb",
+      "bytes": 827556,
+      "objectCount": 2,
+      "meshCount": 1,
+      "triangleCount": 43176,
+      "materials": [
+        "MAT-Planter-Hero-PBR",
+        "MAT-PlanterSoil-Hero-PBR"
+      ],
+      "materialCount": 2,
+      "armatures": [],
+      "bones": [],
+      "actions": [],
+      "boundsMinimum": [
+        -0.298828,
+        -0.117676,
+        0.005737
+      ],
+      "boundsSize": [
+        0.597656,
+        0.235352,
+        0.244263
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 16172,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Planter-LOD0",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 6,
+      "hasIdleAnimation": null,
+      "hasArmature": null,
+      "rootAtSoilContact": null,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "planter",
+      "lod": 1,
+      "file": "planter-lod1.glb",
+      "bytes": 367804,
+      "objectCount": 2,
+      "meshCount": 1,
+      "triangleCount": 14912,
+      "materials": [
+        "MAT-Planter-Hero-PBR",
+        "MAT-PlanterSoil-Hero-PBR"
+      ],
+      "materialCount": 2,
+      "armatures": [],
+      "bones": [],
+      "actions": [],
+      "boundsMinimum": [
+        -0.298828,
+        -0.117676,
+        0.005737
+      ],
+      "boundsSize": [
+        0.597656,
+        0.235352,
+        0.244263
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 8156,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Planter-LOD1",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 6,
+      "hasIdleAnimation": null,
+      "hasArmature": null,
+      "rootAtSoilContact": null,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "planter",
+      "lod": 2,
+      "file": "planter-lod2.glb",
+      "bytes": 212564,
+      "objectCount": 2,
+      "meshCount": 1,
+      "triangleCount": 6720,
+      "materials": [
+        "MAT-Planter-Hero-PBR",
+        "MAT-PlanterSoil-Hero-PBR"
+      ],
+      "materialCount": 2,
+      "armatures": [],
+      "bones": [],
+      "actions": [],
+      "boundsMinimum": [
+        -0.298828,
+        -0.117676,
+        0.005737
+      ],
+      "boundsSize": [
+        0.597656,
+        0.235352,
+        0.244263
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 4512,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Planter-LOD2",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 6,
+      "hasIdleAnimation": null,
+      "hasArmature": null,
+      "rootAtSoilContact": null,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "lettuce",
+      "lod": 0,
+      "file": "crop-lettuce.glb",
+      "bytes": 2282300,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 56304,
+      "materials": [
+        "MAT-Lettuce-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Lettuce"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.087524,
+        -0.069084,
+        0.000835
+      ],
+      "boundsSize": [
+        0.171445,
+        0.149957,
+        0.039056
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 28898,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Lettuce-LOD0",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "lettuce",
+      "lod": 1,
+      "file": "crop-lettuce-lod1.glb",
+      "bytes": 1454092,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 28152,
+      "materials": [
+        "MAT-Lettuce-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Lettuce"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.087402,
+        -0.068974,
+        0.000987
+      ],
+      "boundsSize": [
+        0.171139,
+        0.149778,
+        0.038874
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 18396,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Lettuce-LOD1",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "lettuce",
+      "lod": 2,
+      "file": "crop-lettuce-lod2.glb",
+      "bytes": 895772,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 11260,
+      "materials": [
+        "MAT-Lettuce-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Lettuce"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.087161,
+        -0.068798,
+        0.001148
+      ],
+      "boundsSize": [
+        0.170654,
+        0.149564,
+        0.038713
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 9608,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Lettuce-LOD2",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "cherry-tomato",
+      "lod": 0,
+      "file": "crop-cherry-tomato.glb",
+      "bytes": 2052652,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 51540,
+      "materials": [
+        "MAT-CherryTomato-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_CherryTomato"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.074624,
+        -0.065218,
+        -2e-06
+      ],
+      "boundsSize": [
+        0.146359,
+        0.130758,
+        0.245308
+      ],
+      "geometryManifold": false,
+      "geometryClosedAfterSeamWeld": false,
+      "rawSplitBoundaryEdgeCount": 26770,
+      "boundaryEdgeCount": 36,
+      "nonManifoldEdgeCount": 88,
+      "coincidentShellJunctionEdgeCount": 52,
+      "nonManifoldMeshes": [
+        "GEO-CherryTomato-LOD0"
+      ],
+      "expectedNode": "GEO-CherryTomato-LOD0",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 0.99865521,
+      "pass": true
+    },
+    {
+      "asset": "cherry-tomato",
+      "lod": 1,
+      "file": "crop-cherry-tomato-lod1.glb",
+      "bytes": 1300144,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 25884,
+      "materials": [
+        "MAT-CherryTomato-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_CherryTomato"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.074624,
+        -0.06522,
+        -2e-06
+      ],
+      "boundsSize": [
+        0.146359,
+        0.13064,
+        0.245308
+      ],
+      "geometryManifold": false,
+      "geometryClosedAfterSeamWeld": false,
+      "rawSplitBoundaryEdgeCount": 16676,
+      "boundaryEdgeCount": 12,
+      "nonManifoldEdgeCount": 30,
+      "coincidentShellJunctionEdgeCount": 18,
+      "nonManifoldMeshes": [
+        "GEO-CherryTomato-LOD1"
+      ],
+      "expectedNode": "GEO-CherryTomato-LOD1",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 0.9992804,
+      "pass": true
+    },
+    {
+      "asset": "cherry-tomato",
+      "lod": 2,
+      "file": "crop-cherry-tomato-lod2.glb",
+      "bytes": 820936,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 10402,
+      "materials": [
+        "MAT-CherryTomato-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_CherryTomato"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.074627,
+        -0.065096,
+        -2e-06
+      ],
+      "boundsSize": [
+        0.146301,
+        0.130518,
+        0.245308
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 9456,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-CherryTomato-LOD2",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "basil",
+      "lod": 0,
+      "file": "crop-basil.glb",
+      "bytes": 1812424,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 44592,
+      "materials": [
+        "MAT-Basil-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Basil"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.065014,
+        -0.053782,
+        5e-06
+      ],
+      "boundsSize": [
+        0.119491,
+        0.118261,
+        0.205139
+      ],
+      "geometryManifold": false,
+      "geometryClosedAfterSeamWeld": false,
+      "rawSplitBoundaryEdgeCount": 21902,
+      "boundaryEdgeCount": 9,
+      "nonManifoldEdgeCount": 29,
+      "coincidentShellJunctionEdgeCount": 20,
+      "nonManifoldMeshes": [
+        "GEO-Basil-LOD0"
+      ],
+      "expectedNode": "GEO-Basil-LOD0",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 0.99958908,
+      "pass": true
+    },
+    {
+      "asset": "basil",
+      "lod": 1,
+      "file": "crop-basil-lod1.glb",
+      "bytes": 1168152,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 22320,
+      "materials": [
+        "MAT-Basil-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Basil"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.064922,
+        -0.053782,
+        5e-06
+      ],
+      "boundsSize": [
+        0.1194,
+        0.118173,
+        0.205139
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 13910,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Basil-LOD1",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "basil",
+      "lod": 2,
+      "file": "crop-basil-lod2.glb",
+      "bytes": 742572,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 8956,
+      "materials": [
+        "MAT-Basil-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Basil"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.064771,
+        -0.053731,
+        5e-06
+      ],
+      "boundsSize": [
+        0.119054,
+        0.118019,
+        0.205139
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 7576,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Basil-LOD2",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "chili",
+      "lod": 0,
+      "file": "crop-chili.glb",
+      "bytes": 1300692,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 28612,
+      "materials": [
+        "MAT-Chili-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Chili"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.069035,
+        -0.058421,
+        1.1e-05
+      ],
+      "boundsSize": [
+        0.135689,
+        0.117694,
+        0.24573
+      ],
+      "geometryManifold": false,
+      "geometryClosedAfterSeamWeld": false,
+      "rawSplitBoundaryEdgeCount": 16736,
+      "boundaryEdgeCount": 42,
+      "nonManifoldEdgeCount": 116,
+      "coincidentShellJunctionEdgeCount": 74,
+      "nonManifoldMeshes": [
+        "GEO-Chili-LOD0"
+      ],
+      "expectedNode": "GEO-Chili-LOD0",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 0.99749044,
+      "pass": true
+    },
+    {
+      "asset": "chili",
+      "lod": 1,
+      "file": "crop-chili-lod1.glb",
+      "bytes": 862032,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 14396,
+      "materials": [
+        "MAT-Chili-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Chili"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.069035,
+        -0.058357,
+        1.1e-05
+      ],
+      "boundsSize": [
+        0.135684,
+        0.11763,
+        0.24573
+      ],
+      "geometryManifold": false,
+      "geometryClosedAfterSeamWeld": false,
+      "rawSplitBoundaryEdgeCount": 10338,
+      "boundaryEdgeCount": 1,
+      "nonManifoldEdgeCount": 3,
+      "coincidentShellJunctionEdgeCount": 2,
+      "nonManifoldMeshes": [
+        "GEO-Chili-LOD1"
+      ],
+      "expectedNode": "GEO-Chili-LOD1",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 0.99990327,
+      "pass": true
+    },
+    {
+      "asset": "chili",
+      "lod": 2,
+      "file": "crop-chili-lod2.glb",
+      "bytes": 587852,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 5782,
+      "materials": [
+        "MAT-Chili-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Chili"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.068907,
+        -0.058243,
+        1.1e-05
+      ],
+      "boundsSize": [
+        0.135562,
+        0.1174,
+        0.245611
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 5780,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Chili-LOD2",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "spinach",
+      "lod": 0,
+      "file": "crop-spinach.glb",
+      "bytes": 1585104,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 34920,
+      "materials": [
+        "MAT-Spinach-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Spinach"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.084294,
+        -0.060458,
+        -0.000941
+      ],
+      "boundsSize": [
+        0.169118,
+        0.151555,
+        0.052905
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 19600,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Spinach-LOD0",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "spinach",
+      "lod": 1,
+      "file": "crop-spinach-lod1.glb",
+      "bytes": 1055212,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 17640,
+      "materials": [
+        "MAT-Spinach-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Spinach"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.084174,
+        -0.060285,
+        -0.000941
+      ],
+      "boundsSize": [
+        0.168754,
+        0.151189,
+        0.052905
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 12324,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Spinach-LOD1",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "spinach",
+      "lod": 2,
+      "file": "crop-spinach-lod2.glb",
+      "bytes": 714856,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 7124,
+      "materials": [
+        "MAT-Spinach-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Spinach"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.08399,
+        -0.06019,
+        -0.000971
+      ],
+      "boundsSize": [
+        0.168386,
+        0.150967,
+        0.052934
+      ],
+      "geometryManifold": true,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 7138,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 0,
+      "coincidentShellJunctionEdgeCount": 0,
+      "nonManifoldMeshes": [],
+      "expectedNode": "GEO-Spinach-LOD2",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "strawberry",
+      "lod": 0,
+      "file": "crop-strawberry.glb",
+      "bytes": 1830036,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 41040,
+      "materials": [
+        "MAT-Strawberry-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Strawberry"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.072499,
+        -0.0577,
+        6.6e-05
+      ],
+      "boundsSize": [
+        0.148399,
+        0.117103,
+        0.078977
+      ],
+      "geometryManifold": false,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 24410,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 16,
+      "coincidentShellJunctionEdgeCount": 16,
+      "nonManifoldMeshes": [
+        "GEO-Strawberry-LOD0"
+      ],
+      "expectedNode": "GEO-Strawberry-LOD0",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "strawberry",
+      "lod": 1,
+      "file": "crop-strawberry-lod1.glb",
+      "bytes": 1213636,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 20598,
+      "materials": [
+        "MAT-Strawberry-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Strawberry"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.072557,
+        -0.057639,
+        6.6e-05
+      ],
+      "boundsSize": [
+        0.148457,
+        0.117001,
+        0.078976
+      ],
+      "geometryManifold": false,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 15840,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 18,
+      "coincidentShellJunctionEdgeCount": 18,
+      "nonManifoldMeshes": [
+        "GEO-Strawberry-LOD1"
+      ],
+      "expectedNode": "GEO-Strawberry-LOD1",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    },
+    {
+      "asset": "strawberry",
+      "lod": 2,
+      "file": "crop-strawberry-lod2.glb",
+      "bytes": 813500,
+      "objectCount": 4,
+      "meshCount": 1,
+      "triangleCount": 8266,
+      "materials": [
+        "MAT-Strawberry-Hero-PBR"
+      ],
+      "materialCount": 1,
+      "armatures": [
+        "ARM_Strawberry"
+      ],
+      "bones": [
+        "B_FRUIT_BRANCH",
+        "B_LEAF_A",
+        "B_LEAF_B",
+        "B_ROOT",
+        "B_STEM_01",
+        "B_STEM_02"
+      ],
+      "actions": [
+        "AN_Basil_IdleSway",
+        "AN_CherryTomato_IdleSway",
+        "AN_Chili_IdleSway",
+        "AN_Lettuce_IdleSway",
+        "AN_Spinach_IdleSway",
+        "AN_Strawberry_IdleSway"
+      ],
+      "boundsMinimum": [
+        -0.072503,
+        -0.057639,
+        6.6e-05
+      ],
+      "boundsSize": [
+        0.148392,
+        0.117076,
+        0.078976
+      ],
+      "geometryManifold": false,
+      "geometryClosedAfterSeamWeld": true,
+      "rawSplitBoundaryEdgeCount": 8850,
+      "boundaryEdgeCount": 0,
+      "nonManifoldEdgeCount": 16,
+      "coincidentShellJunctionEdgeCount": 16,
+      "nonManifoldMeshes": [
+        "GEO-Strawberry-LOD2"
+      ],
+      "expectedNode": "GEO-Strawberry-LOD2",
+      "expectedNodePresent": true,
+      "embeddedImageCount": 3,
+      "hasIdleAnimation": true,
+      "hasArmature": true,
+      "rootAtSoilContact": true,
+      "meshScalesApplied": true,
+      "compressedSeamClosureRatio": 1.0,
+      "pass": true
+    }
+  ],
+  "totalBytes": 23899888,
+  "mainLodBytes": 11690764,
+  "reimportRenders": [],
+  "allPassed": true
+}

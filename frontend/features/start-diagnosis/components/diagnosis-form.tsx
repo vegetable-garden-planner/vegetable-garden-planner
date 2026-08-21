@@ -3,43 +3,45 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { SessionAwareLink } from "@/components/session-aware-link";
 import {
-  CARE_TIME_OPTIONS,
-  SPACE_OPTIONS,
-  SUNLIGHT_OPTIONS,
-} from "@/features/start-diagnosis/data/questions";
+  CROP_OPTIONS,
+  DEFAULT_SELECTED_CROPS,
+  toggleCropSelection,
+  type CropId,
+} from "@/features/start-diagnosis/data/crop-selection";
 import {
-  getRecommendation,
-  isCompleteDiagnosis,
-  type DiagnosisAnswers,
-  type GrowingGoal,
-} from "@/features/start-diagnosis/domain/diagnosis";
+  DEFAULT_GARDEN_CONFIGURATOR_STATE,
+  toGardenConfiguration,
+  type GardenConfiguratorState,
+} from "@/features/start-diagnosis/domain/garden-configuration";
+import {
+  createGardenRecommendation,
+  type GardenRecommendation,
+} from "@/features/start-diagnosis/domain/garden-recommendation";
+import { CropSelectionStage } from "./crop-selection-stage";
 import { PlanterViewport } from "./planter-viewport";
+import { RecommendationGuide } from "./recommendation-guide";
+import {
+  SunlightStage,
+  type PlantPlacement,
+  type SunlightDuration,
+  type SunlightSelection,
+} from "./sunlight-stage";
 import styles from "./diagnosis-form.module.css";
 
-const STAGES = ["화분 크기", "작물 선택", "공간 조건"] as const;
-
-const CROP_OPTIONS: readonly CropOption[] = [
-  { id: "lettuce", label: "잎채소", detail: "상추 · 루꼴라", goal: "easy", image: "/figma/image3.png" },
-  { id: "tomato", label: "방울토마토", detail: "햇빛이 좋은 공간", goal: "edible", image: "/figma/image7.png" },
-  { id: "basil", label: "바질", detail: "향긋한 첫 수확", goal: "edible", image: "/figma/image5.png" },
-  { id: "strawberry", label: "딸기", detail: "달콤한 열매", goal: "edible", image: "/figma/image6.png" },
-  { id: "mixed", label: "모둠 채소", detail: "여러 작물을 조금씩", goal: "easy", image: "/figma/image1.png" },
-  { id: "flowers", label: "꽃과 허브", detail: "보고 향을 즐기는 밭", goal: "flowers", image: "/figma/image4.png" },
-];
+const STAGES = ["화분 크기", "햇빛 조건", "작물 선택"] as const;
 
 const SCENE_IMAGES = [
   "/figma/diagnosis-greenhouse-reference-empty.png",
-  "/figma/image2.png",
+  "/figma/diagnosis-sunlight-greenhouse-v2.png",
+  "/figma/garden-room-clean.webp",
   "/figma/image1.png",
-  "/figma/image1.png",
-  "/figma/layout-greenhouse.png",
+  "/figma/diagnosis-result-greenhouse-v1.png",
 ] as const;
 
 type Measurements = { width: number; length: number; height: number; count: number };
-type CropOption = { id: string; label: string; detail: string; goal: GrowingGoal; image: string };
-type PlanVariant = "balanced" | "simple";
+
+const CONFIGURATOR_STORAGE_KEY = "simeobom:garden-configurator:v1";
 
 const MEASUREMENT_LIMITS: Record<keyof Measurements, { min: number; max: number; step: number }> = {
   width: { min: 10, max: 120, step: 5 },
@@ -51,52 +53,121 @@ const MEASUREMENT_LIMITS: Record<keyof Measurements, { min: number; max: number;
 export function DiagnosisForm() {
   const [step, setStep] = useState(0);
   const [maxVisitedStep, setMaxVisitedStep] = useState(0);
-  const [answers, setAnswers] = useState<Partial<DiagnosisAnswers>>({});
-  const [cropId, setCropId] = useState<string>();
-  const [measurements, setMeasurements] = useState<Measurements>({ width: 60, length: 25, height: 20, count: 2 });
-  const [selectedPlan, setSelectedPlan] = useState<PlanVariant>("balanced");
-  const recommendation = isCompleteDiagnosis(answers) ? getRecommendation(answers) : null;
+  const [configuration, setConfiguration] = useState<GardenConfiguratorState>(() => createDefaultConfiguration());
+  const [recommendation, setRecommendation] = useState<GardenRecommendation | null>(null);
+  const [storageReady, setStorageReady] = useState(false);
+  const measurements: Measurements = {
+    width: configuration.planter.widthCm,
+    length: configuration.planter.heightCm,
+    height: configuration.planter.depthCm,
+    count: configuration.planter.count,
+  };
+  const sunlightSelection: SunlightSelection = {
+    duration: configuration.sunlight.duration,
+    placement: configuration.sunlight.location,
+  };
+  const selectedCrops = configuration.preferences.selectedCrops;
+  const completeConfiguration = toGardenConfiguration(configuration);
   const railStep = Math.min(step, STAGES.length - 1);
   const isFollowUpState = step >= STAGES.length;
 
   useEffect(() => {
-    if (step !== 3 || !isCompleteDiagnosis(answers)) return;
+    const frame = window.requestAnimationFrame(() => {
+      const restored = readStoredConfigurator();
+      if (restored) {
+        setConfiguration(restored.configuration);
+        setRecommendation(restored.recommendation);
+        if (new URLSearchParams(window.location.search).get("stage") === "crops") {
+          setStep(2);
+          setMaxVisitedStep(4);
+        }
+      }
+      if (window.location.search) window.history.replaceState(null, "", window.location.pathname);
+      setStorageReady(true);
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
+
+  useEffect(() => {
+    if (!storageReady) return;
+    try {
+      window.sessionStorage.setItem(CONFIGURATOR_STORAGE_KEY, JSON.stringify({
+        version: 1,
+        configuration,
+        recommendation,
+      }));
+    } catch {
+      // Storage is an enhancement; the in-memory configurator remains the source for this visit.
+    }
+  }, [configuration, recommendation, storageReady]);
+
+  useEffect(() => {
+    if (step !== 3 || !recommendation) return;
     const timer = window.setTimeout(() => {
       setStep(4);
       setMaxVisitedStep(4);
     }, 2200);
     return () => window.clearTimeout(timer);
-  }, [answers, step]);
+  }, [recommendation, step]);
 
   function changeMeasurement(key: keyof Measurements, amount: number) {
     const { max, min } = MEASUREMENT_LIMITS[key];
-    setMeasurements((current) => ({
+    const planterKey = key === "width"
+      ? "widthCm"
+      : key === "length"
+        ? "heightCm"
+        : key === "height"
+          ? "depthCm"
+          : "count";
+    setConfiguration((current) => ({
       ...current,
-      [key]: Math.min(max, Math.max(min, current[key] + amount)),
+      planter: {
+        ...current.planter,
+        [planterKey]: Math.min(max, Math.max(min, current.planter[planterKey] + amount)),
+      },
+    }));
+    setRecommendation(null);
+  }
+
+  function updateSunlightDuration(duration: SunlightDuration) {
+    setConfiguration((current) => ({
+      ...current,
+      sunlight: { ...current.sunlight, duration },
+    }));
+    setRecommendation(null);
+  }
+
+  function updatePlantPlacement(placement: PlantPlacement) {
+    setConfiguration((current) => ({
+      ...current,
+      sunlight: { ...current.sunlight, location: placement },
+    }));
+    setRecommendation(null);
+  }
+
+  function toggleCrop(cropId: CropId) {
+    setConfiguration((current) => ({
+      ...current,
+      preferences: {
+        selectedCrops: toggleCropSelection(current.preferences.selectedCrops, cropId),
+      },
     }));
   }
 
-  function selectCrop(option: CropOption) {
-    setCropId(option.id);
-    setAnswers((current) => ({ ...current, goal: option.goal }));
-  }
-
-  function updateAnswer<K extends keyof DiagnosisAnswers>(key: K, value: DiagnosisAnswers[K]) {
-    setAnswers((current) => ({ ...current, [key]: value }));
+  function completeCropSelection() {
+    const complete = toGardenConfiguration(configuration);
+    if (!complete) return;
+    setRecommendation(createGardenRecommendation({
+      planter: complete.planter,
+      sunlight: complete.sunlight,
+    }));
+    advance(3);
   }
 
   function advance(nextStep = step + 1) {
     setStep(nextStep);
     setMaxVisitedStep((current) => Math.max(current, nextStep));
-  }
-
-  function restart() {
-    setAnswers({});
-    setCropId(undefined);
-    setMeasurements({ width: 60, length: 25, height: 20, count: 2 });
-    setSelectedPlan("balanced");
-    setStep(0);
-    setMaxVisitedStep(0);
   }
 
   return (
@@ -114,44 +185,101 @@ export function DiagnosisForm() {
         <DimensionStage measurements={measurements} onAdvance={() => advance(1)} onChange={changeMeasurement} />
       )}
       {step === 1 && (
-        <CropStage cropId={cropId} onAdvance={() => advance(2)} onBack={() => setStep(0)} onSelect={selectCrop} />
+        <SunlightStage
+          onAdvance={() => advance(2)}
+          onBack={() => setStep(0)}
+          onDurationChange={updateSunlightDuration}
+          onPlacementChange={updatePlantPlacement}
+          selection={sunlightSelection}
+        />
       )}
       {step === 2 && (
-        <ConditionStage answers={answers} onAdvance={() => advance(3)} onBack={() => setStep(1)} onUpdate={updateAnswer} />
+        <CropSelectionStage
+          onAdvance={completeCropSelection}
+          onBack={() => setStep(1)}
+          onToggle={toggleCrop}
+          selectedCrops={selectedCrops}
+        />
       )}
       {step === 3 && <AnalysisStage />}
-      {step === 4 && recommendation && (
-        <ResultStage
-          answers={answers}
-          measurements={measurements}
-          onRestart={restart}
-          onSelectPlan={setSelectedPlan}
+      {step === 4 && recommendation && completeConfiguration && (
+        <RecommendationGuide
+          configuration={completeConfiguration}
           recommendation={recommendation}
-          selectedPlan={selectedPlan}
         />
       )}
 
-      <ol className={styles.stepRail} aria-label="진단 진행 단계">
-        {STAGES.map((label, index) => (
-          <li
-            className={!isFollowUpState && index === railStep ? styles.activeStep : index < railStep || isFollowUpState ? styles.completeStep : ""}
-            key={label}
-          >
-            <button
-              aria-current={!isFollowUpState && index === railStep ? "step" : undefined}
-              aria-label={`${index + 1}단계, ${label}`}
-              disabled={index > Math.min(maxVisitedStep, STAGES.length - 1)}
-              onClick={() => setStep(index)}
-              type="button"
+      {step !== 2 && step !== 4 && (
+        <ol className={styles.stepRail} aria-label="진단 진행 단계">
+          {STAGES.map((label, index) => (
+            <li
+              className={!isFollowUpState && index === railStep ? styles.activeStep : index < railStep || isFollowUpState ? styles.completeStep : ""}
+              key={label}
             >
-              <small>{label}</small>
-              <span>{index + 1}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
+              <button
+                aria-current={!isFollowUpState && index === railStep ? "step" : undefined}
+                aria-label={`${index + 1}단계, ${label}`}
+                disabled={index > Math.min(maxVisitedStep, STAGES.length - 1)}
+                onClick={() => setStep(index)}
+                type="button"
+              >
+                <small>{label}</small>
+                <span>{index + 1}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
     </section>
   );
+}
+
+function createDefaultConfiguration(): GardenConfiguratorState {
+  return {
+    planter: { ...DEFAULT_GARDEN_CONFIGURATOR_STATE.planter },
+    sunlight: {},
+    preferences: { selectedCrops: [...DEFAULT_SELECTED_CROPS] },
+  };
+}
+
+function readStoredConfigurator(): {
+  configuration: GardenConfiguratorState;
+  recommendation: GardenRecommendation | null;
+} | null {
+  try {
+    const raw = window.sessionStorage.getItem(CONFIGURATOR_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as {
+      version?: unknown;
+      configuration?: GardenConfiguratorState;
+      recommendation?: GardenRecommendation | null;
+    };
+    const configuration = parsed.configuration;
+    if (parsed.version !== 1 || !configuration) return null;
+    const selectedIds = new Set(CROP_OPTIONS.map((crop) => crop.id));
+    const selectedCrops = configuration.preferences?.selectedCrops;
+    const planter = configuration.planter;
+    if (
+      !planter
+      || !Number.isFinite(planter.widthCm)
+      || !Number.isFinite(planter.heightCm)
+      || !Number.isFinite(planter.depthCm)
+      || !Number.isFinite(planter.count)
+      || !Array.isArray(selectedCrops)
+      || selectedCrops.some((cropId) => !selectedIds.has(cropId))
+    ) return null;
+
+    return {
+      configuration: {
+        planter: { ...planter },
+        sunlight: { ...configuration.sunlight },
+        preferences: { selectedCrops: [...selectedCrops] },
+      },
+      recommendation: parsed.recommendation?.planters ? parsed.recommendation : null,
+    };
+  } catch {
+    return null;
+  }
 }
 
 function DimensionStage({
@@ -203,111 +331,6 @@ function DimensionStage({
   );
 }
 
-function CropStage({
-  cropId,
-  onAdvance,
-  onBack,
-  onSelect,
-}: {
-  cropId?: string;
-  onAdvance: () => void;
-  onBack: () => void;
-  onSelect: (option: CropOption) => void;
-}) {
-  return (
-    <div className={styles.cropStage}>
-      <div className={styles.cropPanel}>
-        <header>
-          <p>첫 수확을 상상해 보세요</p>
-          <h1>처음 키울 작물을<br />골라주세요</h1>
-          <span>마음이 가는 작물 하나를 고르면 비슷한 관리 난이도로 묶어드려요.</span>
-        </header>
-        <div className={styles.cropGrid} role="radiogroup" aria-label="선호 작물">
-          {CROP_OPTIONS.map((option) => {
-            const selected = cropId === option.id;
-            return (
-              <button
-                aria-checked={selected}
-                className={`${styles.cropCard} ${selected ? styles.cropSelected : ""}`}
-                key={option.id}
-                onClick={() => onSelect(option)}
-                role="radio"
-                type="button"
-              >
-                <Image alt="" fill sizes="(max-width: 768px) 42vw, 180px" src={option.image} />
-                <span><strong>{option.label}</strong><small>{option.detail}</small></span>
-                <b aria-hidden="true">{selected ? "✓" : ""}</b>
-              </button>
-            );
-          })}
-        </div>
-        <Navigation backLabel="이전" disabled={!cropId} nextLabel="공간 조건 보기" onBack={onBack} onNext={onAdvance} />
-      </div>
-      <div className={styles.cropSceneLabel} aria-hidden="true">
-        <span>선택한 작물</span>
-        <strong>{CROP_OPTIONS.find((option) => option.id === cropId)?.label ?? "아직 고르는 중"}</strong>
-        <small>화분 배치를 실시간으로 준비하고 있어요</small>
-      </div>
-    </div>
-  );
-}
-
-function ConditionStage({
-  answers,
-  onAdvance,
-  onBack,
-  onUpdate,
-}: {
-  answers: Partial<DiagnosisAnswers>;
-  onAdvance: () => void;
-  onBack: () => void;
-  onUpdate: <K extends keyof DiagnosisAnswers>(key: K, value: DiagnosisAnswers[K]) => void;
-}) {
-  const complete = Boolean(answers.space && answers.sunlight && answers.careTime);
-  return (
-    <div className={styles.conditionStage}>
-      <header>
-        <p>마지막으로 한 가지만 더</p>
-        <h1>이 공간의 빛과 돌봄 조건을 알려주세요</h1>
-        <span>완벽한 환경보다 실제 생활에 맞는 조건이 더 중요해요.</span>
-      </header>
-      <div className={styles.conditionSummary}>
-        <ConditionGroup label="공간" options={SPACE_OPTIONS} selected={answers.space} onSelect={(value) => onUpdate("space", value)} />
-        <ConditionGroup label="햇빛" options={SUNLIGHT_OPTIONS} selected={answers.sunlight} onSelect={(value) => onUpdate("sunlight", value)} />
-        <ConditionGroup label="돌봄" options={CARE_TIME_OPTIONS} selected={answers.careTime} onSelect={(value) => onUpdate("careTime", value)} />
-      </div>
-      <Navigation backLabel="이전" disabled={!complete} nextLabel="추천 계산하기" onBack={onBack} onNext={onAdvance} />
-    </div>
-  );
-}
-
-function ConditionGroup<T extends string>({
-  label,
-  onSelect,
-  options,
-  selected,
-}: {
-  label: string;
-  onSelect: (value: T) => void;
-  options: readonly { value: T; label: string; description: string }[];
-  selected?: T;
-}) {
-  return (
-    <fieldset className={styles.conditionGroup}>
-      <legend>{label}</legend>
-      <div>
-        {options.map((option) => (
-          <label className={selected === option.value ? styles.conditionSelected : ""} key={option.value}>
-            <input checked={selected === option.value} name={label} onChange={() => onSelect(option.value)} type="radio" value={option.value} />
-            <strong>{shortenOptionLabel(option.label)}</strong>
-            <small>{option.description}</small>
-          </label>
-        ))}
-      </div>
-    </fieldset>
-  );
-}
-
 function AnalysisStage() {
   return (
     <div className={styles.analysisStage} aria-live="polite">
@@ -323,89 +346,9 @@ function AnalysisStage() {
   );
 }
 
-function ResultStage({
-  answers,
-  measurements,
-  onRestart,
-  onSelectPlan,
-  recommendation,
-  selectedPlan,
-}: {
-  answers: Partial<DiagnosisAnswers>;
-  measurements: Measurements;
-  onRestart: () => void;
-  onSelectPlan: (variant: PlanVariant) => void;
-  recommendation: ReturnType<typeof getRecommendation>;
-  selectedPlan: PlanVariant;
-}) {
-  const spacePath = `/spaces/new?type=${recommendation.spaceTypeKey}&width=${measurements.width}&length=${measurements.length}&sunlight=${answers.sunlight}&preset=${selectedPlan}`;
-  const plans = [
-    { value: "balanced" as const, label: "추천 배치", title: recommendation.plants.join(" · "), detail: recommendation.title, image: "/figma/image3.png" },
-    { value: "simple" as const, label: "간편 배치", title: recommendation.plants.slice(0, 1).join(" · "), detail: "작물 수를 줄여 관리에 여유를 둬요", image: "/figma/image5.png" },
-  ];
-  return (
-    <div className={styles.resultStage} aria-live="polite">
-      <header>
-        <p>공간에 맞는 두 가지 방법</p>
-        <h1>이렇게 심어보세요</h1>
-        <span>{recommendation.spaceType} · {measurements.width} × {measurements.length}cm</span>
-      </header>
-      <div className={styles.planGrid}>
-        {plans.map((plan) => {
-          const selected = selectedPlan === plan.value;
-          return (
-            <button aria-pressed={selected} className={`${styles.planCard} ${selected ? styles.planSelected : ""}`} key={plan.value} onClick={() => onSelectPlan(plan.value)} type="button">
-              <span className={styles.planPlants}><Image alt="" fill sizes="(max-width: 768px) 70vw, 360px" src={plan.image} /></span>
-              <span className={styles.planterModel}><i /><b /></span>
-              <span className={styles.planCopy}><small>{plan.label}</small><strong>{plan.title}</strong><span>{plan.detail}</span></span>
-              <em aria-hidden="true">{selected ? "✓" : ""}</em>
-            </button>
-          );
-        })}
-      </div>
-      <p className={styles.resultDescription}>{recommendation.description}</p>
-      <div className={styles.resultActions}>
-        <button className={styles.secondaryButton} onClick={onRestart} type="button">처음부터 다시</button>
-        <SessionAwareLink
-          anonymousHref={`/login?next=${encodeURIComponent(spacePath)}`}
-          anonymousLabel="로그인하고 이 배치로 시작하기"
-          authenticatedHref={spacePath}
-          authenticatedLabel="이 배치로 시작하기"
-          className={styles.primaryButton}
-        />
-      </div>
-    </div>
-  );
-}
-
-function Navigation({
-  backLabel,
-  disabled,
-  nextLabel,
-  onBack,
-  onNext,
-}: {
-  backLabel: string;
-  disabled: boolean;
-  nextLabel: string;
-  onBack: () => void;
-  onNext: () => void;
-}) {
-  return (
-    <div className={styles.navigation}>
-      <button className={styles.backButton} onClick={onBack} type="button">{backLabel}</button>
-      <button className={styles.primaryButton} disabled={disabled} onClick={onNext} type="button">{nextLabel} <span aria-hidden="true">→</span></button>
-    </div>
-  );
-}
-
 function getMeasurementLabel(key: keyof Measurements) {
   if (key === "width") return "가로";
   if (key === "length") return "세로";
   if (key === "height") return "깊이";
   return "화분 개수";
-}
-
-function shortenOptionLabel(label: string) {
-  return label.replace("이 있어요", "").replace("가 있어요", "").replace("아직 ", "").replace(" 정도", "");
 }
