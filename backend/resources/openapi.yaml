@@ -31,6 +31,9 @@ tags:
   - name: Watering
     description: 시즌별 작물 물주기 일정과 완료·미루기 이력
 
+  - name: Notifications
+    description: 웹 푸시 구독 등록·해제
+
 paths:
   /health:
     get:
@@ -263,6 +266,41 @@ paths:
           description: 탈퇴 성공
         '401':
           $ref: '#/components/responses/Unauthenticated'
+
+  /push-subscriptions:
+    post:
+      tags: [Notifications]
+      summary: 웹 푸시 구독 등록
+      description: |
+        브라우저의 PushManager 구독 정보를 저장합니다. 같은 endpoint가 이미 있으면 키를 갱신합니다.
+      operationId: subscribePush
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PushSubscriptionInput' }
+      responses:
+        '204':
+          description: 구독 등록 성공
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Notifications]
+      summary: 웹 푸시 구독 해제
+      description: 본인 소유가 아니거나 존재하지 않는 endpoint를 보내도 조용히 성공합니다.
+      operationId: unsubscribePush
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PushUnsubscribeInput' }
+      responses:
+        '204':
+          description: 구독 해제 성공
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
 
   /crops:
     get:
@@ -1593,6 +1631,34 @@ components:
     SocialProvider:
       type: string
       enum: [google, kakao]
+    PushSubscriptionInput:
+      type: object
+      additionalProperties: false
+      required: [endpoint, keys]
+      properties:
+        endpoint:
+          type: string
+          format: uri
+          maxLength: 500
+        keys:
+          type: object
+          additionalProperties: false
+          required: [p256dh, auth]
+          properties:
+            p256dh:
+              type: string
+              maxLength: 255
+            auth:
+              type: string
+              maxLength: 255
+    PushUnsubscribeInput:
+      type: object
+      additionalProperties: false
+      required: [endpoint]
+      properties:
+        endpoint:
+          type: string
+          maxLength: 500
     RegisterRequest:
       type: object
       additionalProperties: false
