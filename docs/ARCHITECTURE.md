@@ -27,7 +27,7 @@ features/<domain>/domain
   → 프레임워크와 네트워크에 의존하지 않는 타입·계산·검증
 ```
 
-주요 도메인은 `auth`, `crop-catalog`, `growing-space`, `growing-season`, `garden-layout`, `cultivation-schedule`, `cultivation-record`, `watering`, `dashboard`입니다.
+주요 도메인은 `auth`, `crop-catalog`, `growing-space`, `growing-season`, `garden-layout`, `cultivation-schedule`, `cultivation-record`, `watering`, `dashboard`, `billing`입니다.
 
 - 도메인 규칙은 컴포넌트 안에 중복 구현하지 않습니다.
 - 한 도메인 전용 코드는 `shared`로 올리지 않습니다.
@@ -81,6 +81,7 @@ routes/web.php
 - 재배 일정
 - 시즌 활동 기록과 기록마다 한 장까지 붙는 사진 경로(`cultivation_records.photo_path`)
 - 물주기 일정·완료 기록·미루기 기록
+- 프로 요금제 구독(`subscriptions`)과 정기 결제 이력(`subscription_payments`)
 
 사용자·공간·시즌·배치·일정·기록 ID는 UUIDv7입니다. 작물 ID는 `lettuce` 같은 slug입니다. 테이블이나 컬럼 변경은 항상 새 Laravel 마이그레이션과 테스트로 공유합니다.
 
@@ -153,6 +154,8 @@ erDiagram
     CROPS ||--o{ WATERING_SCHEDULES : targets
     WATERING_SCHEDULES ||--o{ WATERING_LOGS : completes
     WATERING_SCHEDULES ||--o{ WATERING_SNOOZES : postpones
+    USERS ||--o| SUBSCRIPTIONS : subscribes
+    SUBSCRIPTIONS ||--o{ SUBSCRIPTION_PAYMENTS : charges
 ```
 
 정확한 컬럼·인덱스·삭제 정책은 마이그레이션 파일을 기준으로 확인합니다.

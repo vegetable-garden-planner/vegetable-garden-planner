@@ -18,6 +18,14 @@ return [
         'subject' => env('VAPID_SUBJECT'),
     ],
 
+    'portone' => [
+        'store_id' => env('PORTONE_STORE_ID'),
+        'channel_key' => env('PORTONE_CHANNEL_KEY'),
+        'api_secret' => env('PORTONE_API_SECRET'),
+        'webhook_secret' => env('PORTONE_WEBHOOK_SECRET'),
+        'base_url' => env('PORTONE_BASE_URL', 'https://api.portone.io'),
+    ],
+
     'google' => [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
