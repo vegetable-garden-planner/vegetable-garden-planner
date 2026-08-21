@@ -12,6 +12,7 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
+    "@portone/browser-sdk": "^0.1.9",
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"
