@@ -34,6 +34,9 @@ tags:
   - name: Notifications
     description: 웹 푸시 구독 등록·해제
 
+  - name: Billing
+    description: 프로 요금제 구독·해지와 포트원 결제 웹훅
+
 paths:
   /health:
     get:
@@ -301,6 +304,93 @@ paths:
         '401': { $ref: '#/components/responses/Unauthenticated' }
         '419': { $ref: '#/components/responses/CsrfMismatch' }
         '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /subscriptions:
+    post:
+      tags: [Billing]
+      summary: 프로 요금제 구독
+      description: |
+        포트원 빌링키로 프로 요금제(월 정기결제)를 구독하고 즉시 첫 결제를 청구합니다.
+        빌링키 발급 시 지정한 고객 ID가 요청자 본인과 다르면 거부합니다.
+      operationId: subscribe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SubscriptionInput' }
+      responses:
+        '201':
+          description: 구독 성공
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /subscriptions/me:
+    get:
+      tags: [Billing]
+      summary: 내 구독 조회
+      operationId: showMySubscription
+      responses:
+        '200':
+          description: 구독 조회 성공
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /subscriptions/{subscription}:
+    delete:
+      tags: [Billing]
+      summary: 구독 해지
+      description: 구독을 즉시 해지 상태로 바꿉니다. 이미 진행한 결제는 환불하지 않습니다.
+      operationId: cancelSubscription
+      parameters:
+        - name: subscription
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '204':
+          description: 구독 해지 성공
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '412': { $ref: '#/components/responses/PreconditionFailed' }
+        '419': { $ref: '#/components/responses/CsrfMismatch' }
+
+  /webhooks/portone:
+    post:
+      tags: [Billing]
+      summary: 포트원 결제 웹훅 수신
+      description: |
+        Standard Webhooks 서명(webhook-id/webhook-timestamp/webhook-signature 헤더)을 검증한 뒤
+        결제 성공·실패, 빌링키 해지 이벤트를 반영합니다. 알 수 없는 결제 ID는 조용히 무시합니다.
+      operationId: receivePortOneWebhook
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        '204':
+          description: 웹훅 처리 성공(서명이 유효하면 이벤트를 몰라도 204)
+        '401':
+          description: 웹훅 서명 검증 실패
 
   /crops:
     get:
@@ -1659,6 +1749,47 @@ components:
         endpoint:
           type: string
           maxLength: 500
+    SubscriptionInput:
+      type: object
+      additionalProperties: false
+      required: [billing_key]
+      properties:
+        billing_key:
+          type: string
+          maxLength: 255
+          description: 포트원 빌링키 발급 SDK가 반환한 빌링키
+    SubscriptionStatus:
+      type: string
+      enum: [active, past_due, canceled]
+    Subscription:
+      type: object
+      required: [id, planCode, status, currentPeriodStart, currentPeriodEnd, canceledAt, version]
+      properties:
+        id:
+          type: string
+          format: uuid
+        planCode:
+          type: string
+        status:
+          $ref: '#/components/schemas/SubscriptionStatus'
+        currentPeriodStart:
+          type: string
+          format: date-time
+        currentPeriodEnd:
+          type: string
+          format: date-time
+        canceledAt:
+          type: [string, 'null']
+          format: date-time
+        version:
+          type: integer
+          minimum: 1
+    SubscriptionResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Subscription'
     RegisterRequest:
       type: object
       additionalProperties: false

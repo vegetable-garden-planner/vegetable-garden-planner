@@ -8,6 +8,10 @@ use App\Http\Controllers\Api\V1\Auth\LoginController;
 use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\WithdrawAccountController;
+use App\Http\Controllers\Api\V1\Billing\CancelSubscriptionController;
+use App\Http\Controllers\Api\V1\Billing\PortOneWebhookController;
+use App\Http\Controllers\Api\V1\Billing\ShowSubscriptionController;
+use App\Http\Controllers\Api\V1\Billing\StoreSubscriptionController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropSourceController;
 use App\Http\Controllers\Api\V1\Crops\ShowCropController;
@@ -69,6 +73,8 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/logout', LogoutController::class)->middleware('auth:sanctum');
     });
 
+    Route::post('/webhooks/portone', PortOneWebhookController::class)->middleware('throttle:60,1');
+
     Route::get('/me', CurrentUserController::class)->middleware('auth:sanctum');
     Route::delete('/me', WithdrawAccountController::class)->middleware('auth:sanctum');
 
@@ -78,6 +84,10 @@ Route::prefix('v1')->group(function (): void {
 
         Route::post('/push-subscriptions', StorePushSubscriptionController::class);
         Route::delete('/push-subscriptions', DestroyPushSubscriptionController::class);
+
+        Route::post('/subscriptions', StoreSubscriptionController::class);
+        Route::get('/subscriptions/me', ShowSubscriptionController::class);
+        Route::delete('/subscriptions/{subscription}', CancelSubscriptionController::class);
 
         Route::get('/spaces', IndexSpaceController::class);
         Route::post('/spaces', StoreSpaceController::class);
