@@ -201,6 +201,19 @@ https://yjwest9.dothome.co.kr/_deploy_migrate.php?token=내토큰&cmd=config:cle
 
 `migrate --force`는 아직 실행하지 않은 마이그레이션만 적용하므로 여러 번 눌러도 안전합니다. 다만 실행 전 phpMyAdmin에서 DB를 내보내 백업해 둡니다.
 
+### 마이그레이션 롤백
+
+배포한 마이그레이션을 되돌려야 하면 같은 일회용 스크립트의 `$allowed`에 `'migrate:rollback --step=1 --force'`를 추가해 올립니다. `--force`가 없으면 프로덕션 확인 프롬프트에서 비대화형 실행이 그대로 취소됩니다(`WARN Command cancelled`, `status: 1`). `--step` 값은 되돌릴 마이그레이션 개수입니다.
+
+```text
+https://yjwest9.dothome.co.kr/_deploy_migrate.php?token=내토큰&cmd=migrate:status
+https://yjwest9.dothome.co.kr/_deploy_migrate.php?token=내토큰&cmd=migrate:rollback%20--step=1%20--force
+```
+
+`migrate:rollback`은 각 마이그레이션의 `down()`이 실제로 스키마를 되돌릴 때만 안전합니다. 배포 전 마이그레이션의 `down()`을 반드시 확인합니다. 이미 마이그레이션 이후 사용자가 입력한 데이터가 있다면 컬럼을 되돌리면서 데이터가 함께 사라질 수 있으므로, `migrate:rollback`은 최후 수단이 아니라 배포 직후 즉시 되돌리는 용도로만 씁니다. 배포가 오래돼 데이터가 쌓인 뒤에는 롤백 대신 앞으로 가는 수정 마이그레이션을 추가합니다. phpMyAdmin DB 백업은 `migrate:rollback`으로도 복구할 수 없는 경우의 최후 수단입니다.
+
+닷홈과 학교 테스트 서버 양쪽에서 더미 스크래치 마이그레이션으로 백업 → 업로드 → `migrate --force` → `migrate:status` → `migrate:rollback --step=1 --force` → `migrate:status` 전체 절차를 리허설해 정상 동작을 확인했습니다(2026-08-21).
+
 확인할 것:
 
 - 닷홈 PHP 설정의 `upload_max_filesize`와 `post_max_size`가 **6MB 이상**인지 확인합니다. 기본값이 2MB면 5MB 사진이 빈 요청으로 도착해 "사진 파일을 선택해 주세요"만 뜹니다. 호스팅 관리 화면에서 못 바꾸면 `public/.htaccess`에 다음을 추가합니다.
