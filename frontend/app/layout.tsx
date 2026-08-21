@@ -25,6 +25,11 @@ export const metadata: Metadata = {
     title: "심어봄 | 내 밭에 맞는 재배 계획",
     description: "내 밭에 꼭 맞는 재배 계획을 한눈에 확인하세요.",
   },
+  appleWebApp: {
+    capable: true,
+    title: "심어봄",
+    statusBarStyle: "default",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
