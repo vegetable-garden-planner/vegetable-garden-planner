@@ -1,0 +1,81 @@
+{
+  "asset": "심어봄 추천 가이드 실시간 정원 자산 세트",
+  "purpose": "Three.js/React Three Fiber 결과 카드와 3단계 장면에서 재사용하는 웹 GLB",
+  "reference": "C:/Users/YJ/Pictures/Saved Pictures/sdaegth.PNG",
+  "source_policy": {
+    "canonical": "결정적 Blender Python 소스와 versioned .blend",
+    "runtime_truth": "새 Blender 장면과 Three.js에 다시 불러온 GLB",
+    "reference_role": "단일 hero 이미지의 화분 비율, 전면 리브, 작물 실루엣, 잎 밀도, 색상/명암",
+    "unseen_surface_assumption": "후면과 측면은 동일 사출 플라스틱 구조와 자연스러운 식물 분지 규칙으로 완성"
+  },
+  "required_assets": [
+    "planter",
+    "lettuce",
+    "cherry-tomato",
+    "basil",
+    "chili",
+    "spinach",
+    "strawberry"
+  ],
+  "required_relations": [
+    "화분은 0.60m x 0.20m x 0.25m 기준 비율과 전면 세로 리브를 유지",
+    "화분 상단 림 안으로 흙이 보이고 식물 원점은 흙 표면 접점",
+    "각 작물은 종별 실루엣과 잎 밀도를 읽을 수 있어야 함",
+    "작물의 AN_IdleSway 애니메이션과 기존 런타임 URL 계약을 유지",
+    "화분, 흙, 카메라는 정지하고 작물만 미세하게 움직임"
+  ],
+  "finish": {
+    "profile": "polished_realistic_web_hero",
+    "low_poly_explicitly_requested": false,
+    "surface_targets": [
+      "둥근 사출 플라스틱 림과 일관된 미세 베벨",
+      "평평한 판처럼 보이지 않는 두께 있는 잎과 중앙맥/측맥",
+      "작물별 크라운, 절간, 잎 배열, 열매 형태가 즉시 구분",
+      "짙은 온실 조명에서도 잎 전후면과 과실이 분리되는 PBR"
+    ]
+  },
+  "scale_m": {
+    "planter": [0.60, 0.20, 0.25],
+    "crop_height_ranges": {
+      "lettuce": [0.09, 0.13],
+      "cherry-tomato": [0.22, 0.30],
+      "basil": [0.17, 0.24],
+      "chili": [0.21, 0.28],
+      "spinach": [0.09, 0.14],
+      "strawberry": [0.10, 0.16]
+    }
+  },
+  "limits": {
+    "runtime_lod0_triangle_range_per_asset": [15000, 60000],
+    "runtime_glb_soft_limit_mb_per_asset": 8,
+    "runtime_texture_variant": "2K or screen-size optimized",
+    "master_texture_resolution": 4096,
+    "materials_per_asset_target": [1, 3]
+  },
+  "stages": [
+    "contract_and_reference",
+    "graybox_and_proportion",
+    "primary_secondary_forms",
+    "structural_refinement_and_retopology",
+    "materials_and_textures",
+    "lookdev_and_lighting",
+    "multiview_validation",
+    "iterative_refinement",
+    "optimization_export_fresh_import_webgl"
+  ],
+  "review_views": ["hero", "front", "back", "left", "right", "top"],
+  "hard_gates": [
+    "모든 GLB가 새 Blender 프로세스에 재임포트됨",
+    "hero/front/back/left/right/top 증거가 모든 자산에 존재",
+    "필수 이름, 재질, 원점, 치수, AN_IdleSway가 유지",
+    "Three.js 렌더에서 base color, normal, alpha/double-sided leaf, shadow, color space가 유지",
+    "기존 public runtime 파일은 검증 성공 뒤에만 교체"
+  ],
+  "explicit_exclusions": [
+    "Superloopy",
+    "unreal-export",
+    "외부 생성형 3D 서비스",
+    "PNG/빌보드로 작물 본체 대체",
+    "화면 UI와 추천 로직 변경"
+  ]
+}

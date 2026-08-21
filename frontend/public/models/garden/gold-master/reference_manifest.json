@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "references": [
+    {
+      "path": "C:/Users/YJ/Pictures/Saved Pictures/sdaegth.PNG",
+      "role": "canonical hero look and composition",
+      "view": "slightly elevated front view",
+      "priority": 1,
+      "observable_landmarks": [
+        "얇고 둥근 상단 림",
+        "직선에 가까운 정면 화분",
+        "규칙적인 전면 수직 리브",
+        "림 안쪽에 노출된 짙은 흙",
+        "화분 높이보다 작물이 먼저 읽히는 조밀한 캐노피",
+        "열매 작물은 중심 줄기와 과실이 전면에서 식별됨"
+      ]
+    }
+  ],
+  "coordinate_contract": {
+    "units": "metres",
+    "up": "+Z",
+    "front_camera": "-Y looking toward origin",
+    "width_axis": "+X",
+    "depth_axis": "+Y",
+    "height_axis": "+Z"
+  },
+  "source_classification": "single-image reference; exact unseen geometry is underconstrained",
+  "canonical_policy": "front/hero read beats unseen side/back detail, while every side must remain plausible and production-clean"
+}
