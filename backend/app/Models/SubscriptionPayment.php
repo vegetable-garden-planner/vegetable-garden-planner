@@ -19,7 +19,7 @@ class SubscriptionPayment extends Model
     /** @var list<string> */
     protected $fillable = [
         'subscription_id',
-        'portone_payment_id',
+        'order_id',
         'status',
         'amount',
         'currency',

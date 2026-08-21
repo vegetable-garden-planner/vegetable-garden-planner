@@ -12,10 +12,10 @@ export async function getMySubscription(): Promise<Subscription | null> {
   }
 }
 
-export async function subscribe(billingKey: string): Promise<Subscription> {
+export async function subscribe(authKey: string): Promise<Subscription> {
   const response = await apiRequest<SubscriptionResponse>("/subscriptions", {
     method: "POST",
-    body: JSON.stringify({ billing_key: billingKey }),
+    body: JSON.stringify({ auth_key: authKey }),
   });
   return response.data;
 }

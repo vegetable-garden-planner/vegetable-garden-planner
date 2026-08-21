@@ -12,7 +12,7 @@
     "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
-    "@portone/browser-sdk": "^0.1.9",
+    "@tosspayments/tosspayments-sdk": "^2.8.0",
     "next": "16.3.0",
     "react": "19.2.8",
     "react-dom": "19.2.8"

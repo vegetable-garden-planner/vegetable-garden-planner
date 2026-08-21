@@ -6,7 +6,7 @@ namespace App\Http\Requests\Api\V1\Billing;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PortOneWebhookRequest extends FormRequest
+class TossPaymentsWebhookRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,7 +17,7 @@ class PortOneWebhookRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', 'string'],
+            'eventType' => ['required', 'string'],
             'data' => ['required', 'array'],
         ];
     }

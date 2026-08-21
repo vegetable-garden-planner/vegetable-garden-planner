@@ -46,7 +46,7 @@ class ChargeDueSubscriptionsTest extends TestCase
         $dueSubscription = Subscription::factory()->create([
             'status' => SubscriptionStatus::Active,
             'current_period_end' => now()->subDay(),
-            'portone_billing_key' => 'billing-key-declined',
+            'billing_key' => 'billing-key-declined',
             'version' => 1,
         ]);
         $gateway->failingBillingKeys = ['billing-key-declined'];

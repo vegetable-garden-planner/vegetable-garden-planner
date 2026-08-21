@@ -22,32 +22,33 @@ final class SubscribeToProPlan
 
     public function __construct(private readonly PaymentGateway $gateway) {}
 
-    public function execute(User $user, string $billingKey): Subscription
+    public function execute(User $user, string $authKey): Subscription
     {
         $existing = Subscription::query()->where('user_id', $user->id)->first();
         if ($existing !== null && in_array($existing->status, [SubscriptionStatus::Active, SubscriptionStatus::PastDue], true)) {
             throw new ApiConflictException('SUBSCRIPTION_ALREADY_ACTIVE', '이미 진행 중인 구독이 있습니다.');
         }
 
-        $ownerId = $this->gateway->findBillingKeyOwnerId($billingKey);
-        if ($ownerId !== $user->id) {
+        $customerKey = $user->id;
+        $issue = $this->gateway->issueBillingKey($authKey, $customerKey);
+        if (! $issue->success || $issue->customerKey !== $customerKey) {
             throw ValidationException::withMessages([
-                'billing_key' => '본인 명의로 등록한 카드만 사용할 수 있습니다.',
+                'auth_key' => $issue->failureReason ?? '카드 등록 인증에 실패했습니다.',
             ]);
         }
 
-        $paymentId = (string) Str::uuid();
+        $orderId = (string) Str::uuid();
         $result = $this->gateway->chargeBillingKey(
-            $billingKey,
-            $paymentId,
+            $issue->billingKey,
+            $customerKey,
+            $orderId,
             self::MONTHLY_PRICE,
             self::ORDER_NAME,
-            $user->id,
         );
 
         if (! $result->success) {
             throw ValidationException::withMessages([
-                'billing_key' => $result->failureReason ?? '결제에 실패했습니다.',
+                'auth_key' => $result->failureReason ?? '결제에 실패했습니다.',
             ]);
         }
 
@@ -56,7 +57,7 @@ final class SubscribeToProPlan
             [
                 'plan_code' => 'pro',
                 'status' => SubscriptionStatus::Active,
-                'portone_billing_key' => $billingKey,
+                'billing_key' => $issue->billingKey,
                 'current_period_start' => now(),
                 'current_period_end' => now()->addMonth(),
                 'canceled_at' => null,
@@ -66,7 +67,7 @@ final class SubscribeToProPlan
 
         SubscriptionPayment::query()->create([
             'subscription_id' => $subscription->id,
-            'portone_payment_id' => $paymentId,
+            'order_id' => $orderId,
             'status' => SubscriptionPaymentStatus::Paid,
             'amount' => self::MONTHLY_PRICE,
             'currency' => 'KRW',

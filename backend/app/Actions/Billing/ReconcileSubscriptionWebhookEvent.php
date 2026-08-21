@@ -13,25 +13,61 @@ use Illuminate\Support\Facades\Log;
 
 final class ReconcileSubscriptionWebhookEvent
 {
-    public function execute(string $type, string $paymentId): void
+    private const FAILED_PAYMENT_STATUSES = ['CANCELED', 'ABORTED', 'EXPIRED'];
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function execute(string $eventType, array $data): void
     {
-        if ($paymentId === '') {
-            return;
-        }
-
-        $payment = SubscriptionPayment::query()->where('portone_payment_id', $paymentId)->first();
-        if ($payment === null) {
-            Log::info('알 수 없는 결제 웹훅을 수신했습니다.', ['paymentId' => $paymentId, 'type' => $type]);
-
-            return;
-        }
-
-        match ($type) {
-            'Transaction.Paid' => $this->markPaid($payment),
-            'Transaction.Failed', 'Transaction.Cancelled' => $this->markFailed($payment),
-            'BillingKey.Deleted' => $this->markSubscriptionPastDue($payment->subscription),
+        match ($eventType) {
+            'PAYMENT_STATUS_CHANGED' => $this->reconcilePayment($data),
+            'BILLING_DELETED' => $this->reconcileBillingKeyDeletion($data),
             default => null,
         };
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function reconcilePayment(array $data): void
+    {
+        $orderId = (string) ($data['orderId'] ?? '');
+        if ($orderId === '') {
+            return;
+        }
+
+        $payment = SubscriptionPayment::query()->where('order_id', $orderId)->first();
+        if ($payment === null) {
+            Log::info('알 수 없는 결제 웹훅을 수신했습니다.', ['orderId' => $orderId]);
+
+            return;
+        }
+
+        $status = (string) ($data['status'] ?? '');
+        if ($status === 'DONE') {
+            $this->markPaid($payment);
+        } elseif (in_array($status, self::FAILED_PAYMENT_STATUSES, true)) {
+            $this->markFailed($payment);
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    private function reconcileBillingKeyDeletion(array $data): void
+    {
+        $customerKey = (string) ($data['customerKey'] ?? '');
+        if ($customerKey === '') {
+            return;
+        }
+
+        $subscription = Subscription::query()->where('user_id', $customerKey)->first();
+        if ($subscription === null) {
+            return;
+        }
+
+        $this->markSubscriptionPastDue($subscription);
     }
 
     private function markPaid(SubscriptionPayment $payment): void
