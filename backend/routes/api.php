@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\V1\Layouts\IndexGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\PutGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\ShowGardenLayoutController;
 use App\Http\Controllers\Api\V1\Locations\GeocodeAddressController;
+use App\Http\Controllers\Api\V1\Notifications\DestroyPushSubscriptionController;
+use App\Http\Controllers\Api\V1\Notifications\StorePushSubscriptionController;
 use App\Http\Controllers\Api\V1\Records\DestroyRecordController;
 use App\Http\Controllers\Api\V1\Records\DestroyRecordPhotoController;
 use App\Http\Controllers\Api\V1\Records\IndexSeasonRecordController;
@@ -73,6 +75,9 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware('auth:sanctum')->group(function (): void {
         Route::get('/locations/geocode', GeocodeAddressController::class)
             ->middleware('throttle:30,1');
+
+        Route::post('/push-subscriptions', StorePushSubscriptionController::class);
+        Route::delete('/push-subscriptions', DestroyPushSubscriptionController::class);
 
         Route::get('/spaces', IndexSpaceController::class);
         Route::post('/spaces', StoreSpaceController::class);

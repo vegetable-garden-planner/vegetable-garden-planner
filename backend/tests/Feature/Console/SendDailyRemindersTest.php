@@ -10,11 +10,14 @@ use App\Mail\DailyReminderMail;
 use App\Models\CultivationTask;
 use App\Models\GrowingSeason;
 use App\Models\GrowingSpace;
+use App\Models\PushSubscription;
 use App\Models\User;
 use App\Models\WateringSchedule;
+use App\Services\Notifications\PushNotifier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Mail;
+use Tests\Fakes\FakePushNotifier;
 use Tests\TestCase;
 
 class SendDailyRemindersTest extends TestCase
@@ -72,5 +75,37 @@ class SendDailyRemindersTest extends TestCase
             DailyReminderMail::class,
             fn (DailyReminderMail $mail): bool => $mail->user->is($idleUser) || $mail->user->is($disabledUser),
         );
+    }
+
+    public function test_it_sends_a_push_notification_to_subscribed_owners_and_prunes_expired_subscriptions(): void
+    {
+        Mail::fake();
+        $fakePush = new FakePushNotifier;
+        $this->app->instance(PushNotifier::class, $fakePush);
+
+        $dueUser = User::factory()->create();
+        $dueSpace = GrowingSpace::factory()->for($dueUser, 'owner')->create();
+        $dueSeason = GrowingSeason::factory()->for($dueSpace)->create();
+        CultivationTask::factory()->for($dueSeason)->create([
+            'due_date' => now()->toDateString(),
+            'status' => CultivationTaskStatus::Pending,
+        ]);
+        $liveSubscription = PushSubscription::factory()->for($dueUser)->create();
+        $expiredSubscription = PushSubscription::factory()->for($dueUser)->create();
+        $fakePush->expiredEndpoints = [$expiredSubscription->endpoint];
+
+        $unsubscribedUser = User::factory()->create();
+        $unsubscribedSpace = GrowingSpace::factory()->for($unsubscribedUser, 'owner')->create();
+        $unsubscribedSeason = GrowingSeason::factory()->for($unsubscribedSpace)->create();
+        CultivationTask::factory()->for($unsubscribedSeason)->create([
+            'due_date' => now()->toDateString(),
+            'status' => CultivationTaskStatus::Pending,
+        ]);
+
+        Artisan::call('notifications:send-daily-reminders');
+
+        $this->assertCount(2, $fakePush->sent);
+        $this->assertDatabaseHas('push_subscriptions', ['id' => $liveSubscription->id]);
+        $this->assertDatabaseMissing('push_subscriptions', ['id' => $expiredSubscription->id]);
     }
 }
