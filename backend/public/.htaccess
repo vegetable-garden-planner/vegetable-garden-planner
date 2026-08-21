@@ -23,3 +23,8 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# mod_rewrite가 꺼져 있는 서버(학교 서버 등)용 대체 라우팅.
+# mod_rewrite가 켜져 있으면 위 RewriteRule이 먼저 처리하므로 아래는 쓰이지 않는다.
+DirectoryIndex index.php
+FallbackResource /index.php
