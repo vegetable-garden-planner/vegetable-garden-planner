@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
 import type { Subscription } from "@/features/billing/domain/subscription";
-import { issueBillingKey } from "@/features/billing/infrastructure/portone-client";
-import { cancelSubscription, getMySubscription, subscribe as subscribeRequest } from "@/features/billing/infrastructure/subscription-api";
+import { cancelSubscription, getMySubscription } from "@/features/billing/infrastructure/subscription-api";
+import { requestBillingAuth } from "@/features/billing/infrastructure/toss-payments-client";
 
 export type SubscriptionState =
   | { status: "loading" }
@@ -42,13 +42,12 @@ export function useSubscription(): UseSubscriptionResult {
   const subscribeAction = useCallback(async () => {
     if (authState.status !== "authenticated") return;
     try {
-      const billingKey = await issueBillingKey({
-        userId: authState.user.id,
-        email: authState.user.email,
-        nickname: authState.user.nickname,
+      // 카드 등록 페이지로 리다이렉트된다. 성공하면 /plans/billing-callback으로 돌아와 구독이 완료된다.
+      await requestBillingAuth({
+        customerKey: authState.user.id,
+        customerName: authState.user.nickname,
+        customerEmail: authState.user.email,
       });
-      const subscription = await subscribeRequest(billingKey);
-      setRemoteState(toState(subscription));
     } catch (error) {
       setRemoteState({ status: "error", message: toMessage(error) });
     }

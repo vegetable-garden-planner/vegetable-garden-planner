@@ -17,7 +17,7 @@ class SubscriptionPaymentFactory extends Factory
     {
         return [
             'subscription_id' => Subscription::factory(),
-            'portone_payment_id' => 'payment-'.$this->faker->uuid(),
+            'order_id' => 'order-'.$this->faker->uuid(),
             'status' => SubscriptionPaymentStatus::Paid,
             'amount' => 4_900,
             'currency' => 'KRW',

@@ -6,19 +6,19 @@ namespace App\Services\Billing;
 
 interface PaymentGateway
 {
+    /**
+     * 카드 등록(자동결제 인증) 완료 후 받은 authKey를 실제 빌링키로 교환한다.
+     * 응답의 customerKey가 요청자와 일치하는지 호출부에서 반드시 확인한다.
+     */
+    public function issueBillingKey(string $authKey, string $customerKey): BillingKeyIssueResult;
+
     public function chargeBillingKey(
         string $billingKey,
-        string $paymentId,
+        string $customerKey,
+        string $orderId,
         int $amount,
         string $orderName,
-        string $customerId,
     ): PaymentChargeResult;
-
-    /**
-     * 빌링키를 발급받을 때 지정했던 고객 ID(customer.id)를 조회한다.
-     * 조회에 실패하거나 빌링키가 존재하지 않으면 null을 반환한다.
-     */
-    public function findBillingKeyOwnerId(string $billingKey): ?string;
 
     /**
      * @param  array<string, string>  $headers  소문자 헤더 이름을 키로 하는 웹훅 요청 헤더

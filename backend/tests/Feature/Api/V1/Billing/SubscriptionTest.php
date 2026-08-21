@@ -29,24 +29,23 @@ class SubscriptionTest extends TestCase
 
     public function test_guest_cannot_subscribe(): void
     {
-        $this->postJson('/api/v1/subscriptions', ['billing_key' => 'billing-key-1'])
+        $this->postJson('/api/v1/subscriptions', ['auth_key' => 'auth-key-1'])
             ->assertUnauthorized();
     }
 
-    public function test_user_can_subscribe_with_own_billing_key(): void
+    public function test_user_can_subscribe_with_own_card_authorization(): void
     {
         $user = User::factory()->create();
-        $this->gateway->billingKeyOwners['billing-key-1'] = $user->id;
 
         $response = $this->actingAs($user)
-            ->postJson('/api/v1/subscriptions', ['billing_key' => 'billing-key-1'])
+            ->postJson('/api/v1/subscriptions', ['auth_key' => 'auth-key-1'])
             ->assertCreated();
 
         $response->assertJsonPath('data.status', 'active');
         $this->assertDatabaseHas('subscriptions', [
             'user_id' => $user->id,
             'status' => SubscriptionStatus::Active->value,
-            'portone_billing_key' => 'billing-key-1',
+            'billing_key' => 'billing-key-for-auth-key-1',
         ]);
         $this->assertDatabaseHas('subscription_payments', [
             'subscription_id' => $response->json('data.id'),
@@ -54,16 +53,16 @@ class SubscriptionTest extends TestCase
         ]);
     }
 
-    public function test_subscribing_with_another_users_billing_key_is_rejected(): void
+    public function test_subscribing_with_another_users_card_authorization_is_rejected(): void
     {
         $user = User::factory()->create();
         $someoneElseId = (string) Str::uuid();
-        $this->gateway->billingKeyOwners['billing-key-1'] = $someoneElseId;
+        $this->gateway->issuedCustomerKeyOverrides['auth-key-1'] = $someoneElseId;
 
         $this->actingAs($user)
-            ->postJson('/api/v1/subscriptions', ['billing_key' => 'billing-key-1'])
+            ->postJson('/api/v1/subscriptions', ['auth_key' => 'auth-key-1'])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['billing_key'], 'error.fields');
+            ->assertJsonValidationErrors(['auth_key'], 'error.fields');
 
         $this->assertDatabaseCount('subscriptions', 0);
     }
@@ -71,14 +70,14 @@ class SubscriptionTest extends TestCase
     public function test_subscribing_with_a_declined_card_returns_the_failure_reason(): void
     {
         $user = User::factory()->create();
-        $this->gateway->billingKeyOwners['billing-key-1'] = $user->id;
+        $this->gateway->billingKeysByAuthKey['auth-key-1'] = 'billing-key-1';
         $this->gateway->failingBillingKeys = ['billing-key-1'];
         $this->gateway->failureReason = '카드 한도를 초과했습니다.';
 
         $this->actingAs($user)
-            ->postJson('/api/v1/subscriptions', ['billing_key' => 'billing-key-1'])
+            ->postJson('/api/v1/subscriptions', ['auth_key' => 'auth-key-1'])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['billing_key'], 'error.fields');
+            ->assertJsonValidationErrors(['auth_key'], 'error.fields');
 
         $this->assertDatabaseCount('subscriptions', 0);
     }
@@ -86,15 +85,13 @@ class SubscriptionTest extends TestCase
     public function test_subscribing_twice_while_active_is_a_conflict(): void
     {
         $user = User::factory()->create();
-        $this->gateway->billingKeyOwners['billing-key-1'] = $user->id;
-        $this->gateway->billingKeyOwners['billing-key-2'] = $user->id;
 
         $this->actingAs($user)
-            ->postJson('/api/v1/subscriptions', ['billing_key' => 'billing-key-1'])
+            ->postJson('/api/v1/subscriptions', ['auth_key' => 'auth-key-1'])
             ->assertCreated();
 
         $this->actingAs($user)
-            ->postJson('/api/v1/subscriptions', ['billing_key' => 'billing-key-2'])
+            ->postJson('/api/v1/subscriptions', ['auth_key' => 'auth-key-2'])
             ->assertConflict();
     }
 

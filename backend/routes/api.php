@@ -9,9 +9,9 @@ use App\Http\Controllers\Api\V1\Auth\LogoutController;
 use App\Http\Controllers\Api\V1\Auth\RegisterController;
 use App\Http\Controllers\Api\V1\Auth\WithdrawAccountController;
 use App\Http\Controllers\Api\V1\Billing\CancelSubscriptionController;
-use App\Http\Controllers\Api\V1\Billing\PortOneWebhookController;
 use App\Http\Controllers\Api\V1\Billing\ShowSubscriptionController;
 use App\Http\Controllers\Api\V1\Billing\StoreSubscriptionController;
+use App\Http\Controllers\Api\V1\Billing\TossPaymentsWebhookController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropSourceController;
 use App\Http\Controllers\Api\V1\Crops\ShowCropController;
@@ -73,7 +73,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/logout', LogoutController::class)->middleware('auth:sanctum');
     });
 
-    Route::post('/webhooks/portone', PortOneWebhookController::class)->middleware('throttle:60,1');
+    Route::post('/webhooks/toss-payments', TossPaymentsWebhookController::class)->middleware('throttle:60,1');
 
     Route::get('/me', CurrentUserController::class)->middleware('auth:sanctum');
     Route::delete('/me', WithdrawAccountController::class)->middleware('auth:sanctum');

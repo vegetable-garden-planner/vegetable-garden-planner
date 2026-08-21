@@ -19,7 +19,7 @@ class SubscriptionFactory extends Factory
             'user_id' => User::factory(),
             'plan_code' => 'pro',
             'status' => SubscriptionStatus::Active,
-            'portone_billing_key' => 'billing-key-'.$this->faker->uuid(),
+            'billing_key' => 'billing-key-'.$this->faker->uuid(),
             'current_period_start' => now(),
             'current_period_end' => now()->addMonth(),
             'canceled_at' => null,

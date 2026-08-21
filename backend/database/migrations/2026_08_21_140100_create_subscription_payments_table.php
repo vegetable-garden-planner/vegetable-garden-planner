@@ -13,7 +13,7 @@ return new class extends Migration
         Schema::create('subscription_payments', function (Blueprint $table): void {
             $table->uuid('id')->primary();
             $table->foreignUuid('subscription_id')->constrained('subscriptions')->cascadeOnDelete();
-            $table->string('portone_payment_id', 255)->unique();
+            $table->string('order_id', 255)->unique();
             $table->string('status', 20);
             $table->unsignedInteger('amount');
             $table->string('currency', 3)->default('KRW');

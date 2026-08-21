@@ -42,7 +42,7 @@ test("구독이 없으면 null을 반환한다", async () => {
   assert.equal(subscription, null);
 });
 
-test("빌링키로 구독을 신청한다", async () => {
+test("authKey로 구독을 신청한다", async () => {
   prepareDocumentCookie();
   const calls: { url: string; body: unknown }[] = [];
   globalThis.fetch = async (input, init) => {
@@ -52,10 +52,10 @@ test("빌링키로 구독을 신청한다", async () => {
     return Response.json({ data: subscriptionPayload }, { status: 201 });
   };
 
-  const subscription = await subscribe("billing-key-1");
+  const subscription = await subscribe("auth-key-1");
 
   assert.deepEqual(calls, [
-    { url: "/api/v1/subscriptions", body: { billing_key: "billing-key-1" } },
+    { url: "/api/v1/subscriptions", body: { auth_key: "auth-key-1" } },
   ]);
   assert.deepEqual(subscription, subscriptionPayload);
 });

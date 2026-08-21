@@ -22,7 +22,7 @@ class Subscription extends Model
         'user_id',
         'plan_code',
         'status',
-        'portone_billing_key',
+        'billing_key',
         'current_period_start',
         'current_period_end',
         'canceled_at',

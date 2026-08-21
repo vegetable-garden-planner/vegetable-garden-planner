@@ -17,13 +17,13 @@ class StoreSubscriptionRequest extends StrictJsonRequest
     public function rules(): array
     {
         return [
-            'billing_key' => ['required', 'string', 'max:255'],
+            'auth_key' => ['required', 'string', 'max:300'],
         ];
     }
 
     /** @return list<string> */
     protected function allowedFields(): array
     {
-        return ['billing_key'];
+        return ['auth_key'];
     }
 }

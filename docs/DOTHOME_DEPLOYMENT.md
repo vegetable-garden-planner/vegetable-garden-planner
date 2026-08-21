@@ -251,7 +251,7 @@ https://yjwest9.dothome.co.kr/_deploy_migrate.php?token=내토큰&cmd=migrate:ro
 
 업로드 뒤 [마이그레이션 실행 스크립트](#마이그레이션-실행-스크립트)로 `migrate --force`와 `config:clear`를 실행합니다. 새 엔드포인트가 404면 `route:clear`도 실행합니다. 실제 발송은 기존 `notifications:send-daily-reminders` cron에 얹혀 있으므로 별도 cron 등록은 필요 없습니다 — [5번](#5-운영-안전-기준)의 스케줄러·큐 cron이 이미 있어야 합니다.
 
-### 프로 요금제 결제 인프라(포트원) 변경 파일 수동 업로드
+### 프로 요금제 결제 인프라(토스페이먼츠) 변경 파일 수동 업로드
 
 이 기능도 **마이그레이션이 있고**, 서명 검증 외에는 새 PHP 패키지를 추가하지 않았으므로 `vendor` 재업로드는 필요 없습니다.
 
@@ -261,22 +261,25 @@ https://yjwest9.dothome.co.kr/_deploy_migrate.php?token=내토큰&cmd=migrate:ro
 - `app/Enums/SubscriptionStatus.php`, `SubscriptionPaymentStatus.php` (신규)
 - `app/Models/Subscription.php`, `SubscriptionPayment.php` (신규)
 - `app/Models/User.php` (수정, `subscription` 관계 추가)
-- `app/Services/Billing/` 전체 (신규 — `PaymentGateway`, `PortOneGateway`, `PaymentChargeResult`)
+- `app/Services/Billing/` 전체 (신규 — `PaymentGateway`, `TossPaymentsGateway`, `PaymentChargeResult`, `BillingKeyIssueResult`)
 - `app/Actions/Billing/` 전체 (신규)
 - `app/Http/Requests/Api/V1/Billing/`, `app/Http/Controllers/Api/V1/Billing/` 전체 (신규)
 - `app/Http/Resources/Api/V1/SubscriptionResource.php` (신규)
 - `app/Policies/SubscriptionPolicy.php` (신규)
 - `app/Console/Commands/ChargeDueSubscriptions.php` (신규)
 - `app/Providers/AppServiceProvider.php` (수정, `PaymentGateway` 바인딩)
-- `config/services.php` (수정, `portone` 설정 추가)
+- `config/services.php` (수정, `toss_payments` 설정 추가)
 - `routes/api.php`, `routes/console.php` (수정)
 - `resources/openapi.yaml` (수정)
+- 프론트: `app/plans/billing-callback/` (신규, `authKey` 리다이렉트 콜백), `features/billing/` 전체(수정)
 
-운영 `.env`에 `PORTONE_STORE_ID`, `PORTONE_CHANNEL_KEY`, `PORTONE_API_SECRET`, `PORTONE_WEBHOOK_SECRET`을 추가합니다. **테스트 모드 키가 아니라 운영(라이브) 키를 발급해서 씁니다.** 프론트 `.env`(Vercel)에도 `NEXT_PUBLIC_PORTONE_STORE_ID`, `NEXT_PUBLIC_PORTONE_CHANNEL_KEY`를 같은 값으로 맞춥니다(둘 다 비밀값이 아니라 공개해도 되는 식별자입니다).
+운영 `.env`에 `TOSS_PAYMENTS_SECRET_KEY`, `TOSS_PAYMENTS_WEBHOOK_SECURITY_KEY`를 추가합니다. **테스트(연동) 키가 아니라 운영(라이브) 키를 발급해서 씁니다.** 프론트 `.env`(Vercel)에는 `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY`를 같은 값으로 맞춥니다(비밀값이 아니라 공개해도 되는 식별자입니다).
 
-포트원 콘솔의 웹훅 설정에 `https://yjwest9.dothome.co.kr/api/v1/webhooks/portone`을 등록하고, 콘솔에서 발급한 웹훅 시크릿을 `PORTONE_WEBHOOK_SECRET`에 그대로 넣습니다.
+토스페이먼츠 개발자센터의 웹훅 설정에 `https://yjwest9.dothome.co.kr/api/v1/webhooks/toss-payments`를 등록하고, 같은 화면에서 확인한 64자리 보안 키를 `TOSS_PAYMENTS_WEBHOOK_SECURITY_KEY`에 그대로 넣습니다. 카드 자동결제 인증이 성공하면 프론트 `successUrl`(`/plans/billing-callback`)로 돌아오므로, 이 경로가 실제 배포 도메인에서 정상 응답하는지 함께 확인합니다.
 
 업로드 뒤 [마이그레이션 실행 스크립트](#마이그레이션-실행-스크립트)로 `migrate --force`와 `config:clear`를 실행합니다. 새 엔드포인트가 404면 `route:clear`도 실행합니다. 매일 자동 정기결제(`subscriptions:charge-due`)는 기존 `notifications:send-daily-reminders`와 같은 스케줄러(`schedule:run`)에 등록되어 있으므로 별도 cron 등록은 필요 없습니다 — [5번](#5-운영-안전-기준)의 스케줄러 cron이 이미 있어야 합니다.
+
+**웹훅 서명 검증 방식은 실제 테스트 키를 발급받은 뒤 진짜 웹훅 요청으로 한 번 검증합니다.** 헤더 이름과 서명 대상 문자열 조합, 보안 키가 hex로 인코딩되어 있다는 점은 공식 문서와 커뮤니티 자료를 근거로 구현했지만, 포트원 때와 마찬가지로 손으로 만져볼 수 있는 테스트 키가 없어 실제 요청으로 끝까지 확인하지는 못했습니다.
 
 프로 전용 기능(날씨 반영 일정, 사진 비교, 무제한 공유)은 아직 구현되어 있지 않습니다. 이 배포는 결제·구독·해지·정기청구 파이프라인만 켜는 것이며, 실제로 프로 전용 기능을 잠그거나 열어 주는 서버 로직은 없습니다.
 

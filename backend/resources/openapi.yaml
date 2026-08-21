@@ -310,8 +310,9 @@ paths:
       tags: [Billing]
       summary: 프로 요금제 구독
       description: |
-        포트원 빌링키로 프로 요금제(월 정기결제)를 구독하고 즉시 첫 결제를 청구합니다.
-        빌링키 발급 시 지정한 고객 ID가 요청자 본인과 다르면 거부합니다.
+        토스페이먼츠 카드 자동결제(빌링) 인증 완료 후 받은 authKey로 빌링키를 발급받아
+        프로 요금제(월 정기결제)를 구독하고 즉시 첫 결제를 청구합니다.
+        빌링키 발급 응답의 고객 키가 요청자 본인과 다르면 거부합니다.
       operationId: subscribe
       requestBody:
         required: true
@@ -372,14 +373,15 @@ paths:
         '412': { $ref: '#/components/responses/PreconditionFailed' }
         '419': { $ref: '#/components/responses/CsrfMismatch' }
 
-  /webhooks/portone:
+  /webhooks/toss-payments:
     post:
       tags: [Billing]
-      summary: 포트원 결제 웹훅 수신
+      summary: 토스페이먼츠 결제 웹훅 수신
       description: |
-        Standard Webhooks 서명(webhook-id/webhook-timestamp/webhook-signature 헤더)을 검증한 뒤
-        결제 성공·실패, 빌링키 해지 이벤트를 반영합니다. 알 수 없는 결제 ID는 조용히 무시합니다.
-      operationId: receivePortOneWebhook
+        tosspayments-webhook-signature/tosspayments-webhook-transmission-time 헤더로 서명을 검증한 뒤
+        결제 상태 변경(PAYMENT_STATUS_CHANGED), 빌링키 삭제(BILLING_DELETED) 이벤트를 반영합니다.
+        알 수 없는 주문 ID는 조용히 무시합니다.
+      operationId: receiveTossPaymentsWebhook
       security: []
       requestBody:
         required: true
@@ -1752,12 +1754,12 @@ components:
     SubscriptionInput:
       type: object
       additionalProperties: false
-      required: [billing_key]
+      required: [auth_key]
       properties:
-        billing_key:
+        auth_key:
           type: string
-          maxLength: 255
-          description: 포트원 빌링키 발급 SDK가 반환한 빌링키
+          maxLength: 300
+          description: 토스페이먼츠 카드 자동결제 인증 완료 후 successUrl로 돌아올 때 받은 authKey
     SubscriptionStatus:
       type: string
       enum: [active, past_due, canceled]

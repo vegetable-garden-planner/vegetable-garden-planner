@@ -36,13 +36,13 @@ final class ChargeDueSubscriptions
 
     private function charge(Subscription $subscription): void
     {
-        $paymentId = (string) Str::uuid();
+        $orderId = (string) Str::uuid();
         $result = $this->gateway->chargeBillingKey(
-            $subscription->portone_billing_key,
-            $paymentId,
+            $subscription->billing_key,
+            $subscription->user_id,
+            $orderId,
             self::MONTHLY_PRICE,
             self::ORDER_NAME,
-            $subscription->user_id,
         );
 
         if ($result->success) {
@@ -59,7 +59,7 @@ final class ChargeDueSubscriptions
 
         SubscriptionPayment::query()->create([
             'subscription_id' => $subscription->id,
-            'portone_payment_id' => $paymentId,
+            'order_id' => $orderId,
             'status' => $result->success ? SubscriptionPaymentStatus::Paid : SubscriptionPaymentStatus::Failed,
             'amount' => self::MONTHLY_PRICE,
             'currency' => 'KRW',

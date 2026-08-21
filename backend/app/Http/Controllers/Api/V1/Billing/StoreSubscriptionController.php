@@ -22,7 +22,7 @@ class StoreSubscriptionController extends Controller
             throw new LogicException('인증된 사용자 모델이 올바르지 않습니다.');
         }
 
-        $subscription = $action->execute($user, (string) $request->validated('billing_key'));
+        $subscription = $action->execute($user, (string) $request->validated('auth_key'));
 
         return VersionedResourceResponse::make(
             SubscriptionResource::make($subscription),

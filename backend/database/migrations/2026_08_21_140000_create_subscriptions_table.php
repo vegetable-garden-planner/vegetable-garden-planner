@@ -15,7 +15,7 @@ return new class extends Migration
             $table->foreignUuid('user_id')->unique()->constrained('users')->cascadeOnDelete();
             $table->string('plan_code', 30)->default('pro');
             $table->string('status', 20);
-            $table->string('portone_billing_key', 255);
+            $table->string('billing_key', 255);
             $table->dateTime('current_period_start');
             $table->dateTime('current_period_end');
             $table->dateTime('canceled_at')->nullable();
