@@ -228,6 +228,29 @@ https://yjwest9.dothome.co.kr/_deploy_migrate.php?token=내토큰&cmd=migrate:ro
 - 사진을 한 장 올린 뒤 `https://yjwest9.dothome.co.kr/uploads/records/<파일명>`이 이미지로 열리는지 확인합니다.
 - 백업 대상에 `public/uploads`를 포함합니다. 이 폴더는 Git에 없으므로 지우면 복구할 수 없습니다.
 
+### 웹 푸시 알림 변경 파일 수동 업로드
+
+이 기능은 **`composer require`로 새 패키지(`minishlink/web-push`)를 추가했고 마이그레이션이 있습니다.** 닷홈은 Composer를 쓸 수 없으므로 로컬에서 만든 `vendor` 전체를 다시 업로드해야 합니다(부분 업로드로는 `vendor/composer/autoload_*.php`가 새 패키지를 못 찾습니다).
+
+올릴 파일:
+
+- `vendor/` 전체 (재업로드)
+- `database/migrations/2026_08_21_130000_create_push_subscriptions_table.php` (신규)
+- `app/Models/PushSubscription.php` (신규)
+- `app/Models/User.php` (수정, `pushSubscriptions` 관계 추가)
+- `app/Actions/Notifications/SavePushSubscription.php`, `DeletePushSubscription.php` (신규)
+- `app/Actions/Notifications/SendDailyReminders.php` (수정, 메일과 함께 푸시도 보낸다)
+- `app/Http/Requests/Api/V1/Notifications/`, `app/Http/Controllers/Api/V1/Notifications/` 전체 (신규)
+- `app/Services/Notifications/PushNotifier.php`, `WebPushNotifier.php` (신규)
+- `app/Providers/AppServiceProvider.php` (수정, `PushNotifier` 바인딩)
+- `config/services.php` (수정, `web_push` 설정 추가)
+- `routes/api.php` (수정)
+- `resources/openapi.yaml` (수정)
+
+운영 `.env`에 `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`를 추가합니다. 로컬 `.env`에 이미 만들어 둔 값을 그대로 쓰지 말고 운영용 키를 새로 생성합니다(`php artisan tinker --execute="print_r(Minishlink\WebPush\VAPID::createVapidKeys());"`, 프론트 `NEXT_PUBLIC_VAPID_PUBLIC_KEY`도 같은 공개키로 맞춥니다). Windows 로컬에서 이 명령이 `Unable to create the key`로 실패하면 PHP의 OpenSSL이 `openssl.cnf`를 못 찾는 것이라 `OPENSSL_CONF` 환경변수로 PHP 설치 경로의 `extras/ssl/openssl.cnf`를 가리켜야 한다 — 닷홈 Linux 서버에서는 보통 필요 없다.
+
+업로드 뒤 [마이그레이션 실행 스크립트](#마이그레이션-실행-스크립트)로 `migrate --force`와 `config:clear`를 실행합니다. 새 엔드포인트가 404면 `route:clear`도 실행합니다. 실제 발송은 기존 `notifications:send-daily-reminders` cron에 얹혀 있으므로 별도 cron 등록은 필요 없습니다 — [5번](#5-운영-안전-기준)의 스케줄러·큐 cron이 이미 있어야 합니다.
+
 ## 4. SSH와 Composer가 있는 경우의 배포 순서
 
 ```bash
