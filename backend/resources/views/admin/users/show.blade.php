@@ -62,6 +62,16 @@
                                 $seasonNotes->push(['tag' => '기록: ' . $recordTypes[$record->type->value], 'body' => $record->notes]);
                             }
                         }
+                        foreach ($season->wateringSchedules as $wateringSchedule) {
+                            foreach ($wateringSchedule->logs as $log) {
+                                if (trim((string) $log->memo) !== '') {
+                                    $seasonNotes->push([
+                                        'tag' => '물주기: ' . ($cropNames[$wateringSchedule->crop_id] ?? $wateringSchedule->crop_id),
+                                        'body' => $log->memo,
+                                    ]);
+                                }
+                            }
+                        }
                     @endphp
                     <dl class="operations-list season-block">
                         <div>

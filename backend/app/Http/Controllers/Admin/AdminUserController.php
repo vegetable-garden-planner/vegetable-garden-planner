@@ -61,6 +61,7 @@ class AdminUserController extends Controller
             'growingSpaces.seasons.layout.placements',
             'growingSpaces.seasons.tasks' => fn ($query) => $query->latest('due_date'),
             'growingSpaces.seasons.records' => fn ($query) => $query->latest('occurred_at'),
+            'growingSpaces.seasons.wateringSchedules.logs' => fn ($query) => $query->latest('watered_at'),
         ]);
 
         /** @var Collection<int, GrowingSeason> $seasons */
@@ -74,6 +75,7 @@ class AdminUserController extends Controller
         $cropIds = $seasons
             ->flatMap(static fn (GrowingSeason $season) => $season->layout?->placements->pluck('crop_id') ?? [])
             ->merge($seasons->pluck('featured_crop_id'))
+            ->merge($seasons->flatMap(static fn (GrowingSeason $season) => $season->wateringSchedules->pluck('crop_id')))
             ->filter()
             ->unique();
 
