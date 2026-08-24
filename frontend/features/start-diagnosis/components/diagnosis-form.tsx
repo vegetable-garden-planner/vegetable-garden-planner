@@ -15,6 +15,7 @@ import {
 } from "@/features/start-diagnosis/data/crop-selection";
 import {
   DEFAULT_GARDEN_CONFIGURATOR_STATE,
+  GARDEN_CONFIGURATOR_STORAGE_KEY,
   toGardenConfiguration,
   type GardenConfiguratorState,
 } from "@/features/start-diagnosis/domain/garden-configuration";
@@ -44,8 +45,6 @@ const SCENE_IMAGES = [
 ] as const;
 
 type Measurements = { width: number; length: number; height: number; count: number };
-
-const CONFIGURATOR_STORAGE_KEY = "simeobom:garden-configurator:v1";
 
 const MEASUREMENT_LIMITS: Record<keyof Measurements, { min: number; max: number; step: number }> = {
   width: { min: 10, max: 120, step: 5 },
@@ -96,7 +95,7 @@ export function DiagnosisForm() {
   useEffect(() => {
     if (!storageReady) return;
     try {
-      window.sessionStorage.setItem(CONFIGURATOR_STORAGE_KEY, JSON.stringify({
+      window.sessionStorage.setItem(GARDEN_CONFIGURATOR_STORAGE_KEY, JSON.stringify({
         version: 1,
         configuration,
         recommendation,
@@ -253,7 +252,7 @@ function readStoredConfigurator(): {
   recommendation: GardenRecommendation | null;
 } | null {
   try {
-    const raw = window.sessionStorage.getItem(CONFIGURATOR_STORAGE_KEY);
+    const raw = window.sessionStorage.getItem(GARDEN_CONFIGURATOR_STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as {
       version?: unknown;

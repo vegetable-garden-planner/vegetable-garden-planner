@@ -82,7 +82,9 @@ export function PlanterViewport({ measurements }: { measurements: PlanterMeasure
     height: BASE_HEIGHT,
     depth: BASE_DEPTH,
   });
-  const visibleCount = Math.max(1, Math.min(measurements.count, 3));
+  // 화분이 여러 개면 3D 모델이 겹쳐 보여 오히려 알아보기 어려우므로,
+  // 실제 화분 개수와 무관하게 항상 1개만 미리보기로 보여준다.
+  const visibleCount = 1;
   const targetDimensions = useMemo<ProductDimensions>(
     () => ({
       width: measurements.width / 100,

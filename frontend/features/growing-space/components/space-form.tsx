@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { SunlightLocationAssistant } from "@/features/growing-space/components/sunlight-location-assistant";
 import {
@@ -19,8 +19,13 @@ import {
   updateGrowingSpace,
 } from "@/features/growing-space/infrastructure/space-api";
 import {
+  clearStoredGardenConfiguration,
+  readStoredGardenConfiguration,
+} from "@/features/start-diagnosis/domain/garden-configuration";
+import {
   isSunlightExposure,
   type GrowingSpaceType,
+  type SunlightExposure,
 } from "@/shared/domain/growing-environment";
 import { ApiError } from "@/shared/infrastructure/api-client";
 import styles from "@/features/growing-space/components/growing-space.module.css";
@@ -37,6 +42,25 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
   );
   const [errors, setErrors] = useState<GrowingSpaceErrors>({});
   const [formError, setFormError] = useState("");
+  const [diagnosisApplied, setDiagnosisApplied] = useState(false);
+
+  useEffect(() => {
+    if (space) return;
+    const frame = window.requestAnimationFrame(() => {
+      const diagnosis = readStoredGardenConfiguration();
+      if (!diagnosis) return;
+      setValues((current) => ({
+        ...current,
+        type: diagnosisSpaceType(diagnosis.sunlight.location),
+        sunlight: diagnosisSunlightExposure(diagnosis.sunlight.duration),
+        widthCm: String(diagnosis.planter.widthCm),
+        lengthCm: String(diagnosis.planter.heightCm),
+      }));
+      setDiagnosisApplied(true);
+      clearStoredGardenConfiguration();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [space]);
 
   function update<K extends keyof GrowingSpaceFormValues>(
     key: K,
@@ -76,6 +100,11 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
   return (
     <form className={styles.formLayout} noValidate onSubmit={submit}>
       <div className={styles.formMain}>
+      {diagnosisApplied && (
+        <p className={styles.diagnosisNotice} role="status">
+          방금 진단한 화분 크기와 햇빛 조건을 아래에 미리 채워 넣었어요. 내용을 확인하고 이름을 정한 뒤 저장해 주세요.
+        </p>
+      )}
       <fieldset className={styles.formSection}>
         <legend><span>01</span><strong>공간 유형</strong></legend>
         <p className={styles.sectionDescription}>실제 재배 방식과 가장 가까운 환경을 선택해 주세요.</p>
@@ -216,6 +245,17 @@ function toSpaceServerErrors(error: unknown): {
     fields,
     form: hasVisibleFieldError ? "표시된 입력값을 확인해 주세요." : error.message,
   };
+}
+
+function diagnosisSpaceType(location: "balcony" | "window" | "indoor"): GrowingSpaceType {
+  if (location === "balcony") return "balcony";
+  return "indoor";
+}
+
+function diagnosisSunlightExposure(duration: "2h" | "3-5h" | "6h+"): SunlightExposure {
+  if (duration === "2h") return "low";
+  if (duration === "6h+") return "full";
+  return "partial";
 }
 
 function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValues {
