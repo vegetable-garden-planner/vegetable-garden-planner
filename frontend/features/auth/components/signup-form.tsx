@@ -19,6 +19,7 @@ import {
   registerAndStartSession,
 } from "@/features/auth/infrastructure/auth-api";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
+import { SocialLoginButtons } from "@/features/auth/components/social-login-buttons";
 import { ApiError } from "@/shared/infrastructure/api-client";
 import styles from "./auth.module.css";
 
@@ -110,6 +111,8 @@ export function SignupForm({ nextPath }: SignupFormProps) {
         가입하면 바로 로그인되며 비밀번호는 암호화해 저장합니다.
       </p>
       {errors.form && <p className={styles.error} role="alert">{errors.form}</p>}
+      <SocialLoginButtons nextPath={nextPath} />
+      <div className={styles.divider} aria-hidden="true">또는 이메일로 가입</div>
       <AuthField error={errors.email} id="signup-email" label="이메일">
         <div className={styles.inputRow}>
           <input aria-describedby="signup-email-status signup-email-error" aria-invalid={Boolean(errors.email)} autoCapitalize="none" autoComplete="email" className="form-input min-w-0" id="signup-email" onChange={(event) => update("email", event.target.value)} placeholder="garden@example.com" type="email" value={values.email} />
