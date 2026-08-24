@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import styles from "@/app/home.module.css";
 import { BrandMark } from "@/components/brand-mark";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import type { HomeDashboardModel } from "@/features/home/domain/home-dashboard";
 
 const MONTH_DAY_FORMATTER = new Intl.DateTimeFormat("ko-KR", { month: "2-digit", day: "2-digit" });
@@ -68,7 +69,7 @@ function HeroSection({
               resourcesLoading={resourcesLoading}
             />
           </p>
-          {!authenticated && !authLoading && <Link className={styles.heroAction} href="/signup?next=%2F">무료로 시작하기</Link>}
+          {!authenticated && !authLoading && <Link className={styles.heroAction} href={`/signup?next=${encodeNextPath("/")}`}>무료로 시작하기</Link>}
         </div>
         <div className={styles.dateCapsule} aria-label={`${formatKoreanDate(now)}, ${taskCountLabel}`}>
           <span className={styles.capsuleLeaf} aria-hidden="true" />
@@ -133,7 +134,7 @@ function GardenStatus({
           <span className={styles.shortRule} aria-hidden="true" />
           <p className={styles.supportingCopy}>{resourcesLoading ? "서버에 저장된 재배 현황을\n안전하게 불러오고 있어요." : model.primarySeason ? "저장된 재배 일정에서\n다음 작업을 확인해 보세요." : "재배 공간과 시즌을 만들면\n맞춤 일정을 관리할 수 있어요."}</p>
           <span className={styles.nextBadge}>다음 할 일</span>
-          <Link className={styles.inlineAction} href={resourcesLoading ? "/dashboard" : authenticated ? nextHref : "/login?next=%2Fdashboard"}><span>{resourcesLoading ? "내 홈 열기" : model.primarySeason ? "일정 확인하기" : "공간 등록하기"}</span><b aria-hidden="true">→</b></Link>
+          <Link className={styles.inlineAction} href={resourcesLoading ? "/dashboard" : authenticated ? nextHref : `/login?next=${encodeNextPath("/dashboard")}`}><span>{resourcesLoading ? "내 홈 열기" : model.primarySeason ? "일정 확인하기" : "공간 등록하기"}</span><b aria-hidden="true">→</b></Link>
         </article>
       </div>
     </section>
@@ -204,7 +205,7 @@ function Recommendations({ authenticated, model }: HomeDashboardViewProps) {
           </div>
         </div>
       </div>
-      <Link className={styles.scrollPrompt} href={authenticated ? "/dashboard" : "/signup?next=%2Fdashboard"}><span aria-hidden="true">↓</span> {authenticated ? "내 홈에서 전체 재배 현황을 확인해 보세요" : "가입하고 나만의 재배 기록을 시작해 보세요"}</Link>
+      <Link className={styles.scrollPrompt} href={authenticated ? "/dashboard" : `/signup?next=${encodeNextPath("/dashboard")}`}><span aria-hidden="true">↓</span> {authenticated ? "내 홈에서 전체 재배 현황을 확인해 보세요" : "가입하고 나만의 재배 기록을 시작해 보세요"}</Link>
     </section>
   );
 }
@@ -218,11 +219,11 @@ function Header({ authenticated }: { authenticated: boolean }) {
           <Link href="/start">심어봄 클래스</Link>
           <Link href="/crops">작물관리</Link>
           <Link href="/#today">가이드</Link>
-          <Link href={authenticated ? "/dashboard" : "/login?next=%2Fdashboard"}>마이페이지</Link>
+          <Link href={authenticated ? "/dashboard" : `/login?next=${encodeNextPath("/dashboard")}`}>마이페이지</Link>
         </nav>
         <div className={styles.headerActions}>
           <Link className={styles.iconButton} href="/crops" aria-label="작물 검색"><span className={styles.searchIcon} aria-hidden="true" /></Link>
-          <Link className={`${styles.iconButton} ${styles.bellButton}`} href={authenticated ? "/dashboard" : "/login?next=%2Fdashboard"} aria-label={authenticated ? "알림 확인" : "로그인"}>
+          <Link className={`${styles.iconButton} ${styles.bellButton}`} href={authenticated ? "/dashboard" : `/login?next=${encodeNextPath("/dashboard")}`} aria-label={authenticated ? "알림 확인" : "로그인"}>
             <span className={styles.bellIcon} aria-hidden="true" />
           </Link>
         </div>

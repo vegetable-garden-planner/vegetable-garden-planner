@@ -101,6 +101,22 @@ export function validateSignup(values: SignupFormValues): SignupValidation {
   };
 }
 
+// next= 값은 base64url로 인코딩한다. 일부 호스팅의 보안 필터가 쿼리스트링 안의
+// "/"(인코딩 여부 무관)를 의심 요청으로 차단하는데, 로그인 복귀 경로는 항상
+// "/"를 포함하는 경로라 이 문제를 그대로 맞는다.
+export function encodeNextPath(path: string): string {
+  return btoa(path).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function decodeNextPath(value: string): string | null {
+  try {
+    const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+    return atob(base64 + "=".repeat((4 - (base64.length % 4)) % 4));
+  } catch {
+    return null;
+  }
+}
+
 export function getSafeReturnPath(
   requestedPath: string | string[] | undefined,
   fallback = "/dashboard",
@@ -109,11 +125,12 @@ export function getSafeReturnPath(
     return fallback;
   }
 
-  if (!requestedPath.startsWith("/") || requestedPath.startsWith("//") || requestedPath.includes("\\")) {
+  const decoded = decodeNextPath(requestedPath);
+  if (decoded === null || !decoded.startsWith("/") || decoded.startsWith("//") || decoded.includes("\\")) {
     return fallback;
   }
 
-  return requestedPath;
+  return decoded;
 }
 
 export function getSocialLoginErrorMessage(error: string | string[] | undefined): string {

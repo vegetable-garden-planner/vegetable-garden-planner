@@ -3,6 +3,7 @@ import { AppPageShell } from "@/components/app-page-shell";
 import { SpaceForm } from "@/features/growing-space/components/space-form";
 import { isGrowingSpaceType } from "@/shared/domain/growing-environment";
 import { AuthGate } from "@/features/auth/components/auth-gate";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 
 export const metadata: Metadata = {
   title: "재배 공간 등록 | 심어봄",
@@ -18,7 +19,7 @@ export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
   const returnPath = `/spaces/new?type=${initialType}`;
 
   return (
-    <AuthGate loginHref={`/login?next=${encodeURIComponent(returnPath)}`}>
+    <AuthGate loginHref={`/login?next=${encodeNextPath(returnPath)}`}>
       <AppPageShell
         backHref="/spaces"
         backLabel="내 공간 목록"

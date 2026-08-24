@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppFooter } from "@/components/app-footer";
 import { AppHeader } from "@/components/app-header";
 import { AuthGate } from "@/features/auth/components/auth-gate";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import { DashboardOverview } from "@/features/dashboard/components/dashboard-overview";
 
 export const metadata: Metadata = {
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function DashboardPage() {
   return (
-    <AuthGate loginHref="/login?next=%2Fdashboard">
+    <AuthGate loginHref={`/login?next=${encodeNextPath("/dashboard")}`}>
       <main className="app-page dashboard-page">
         <AppHeader
           action={<Link className="primary-action px-4 py-2.5 text-sm" href="/spaces/new">공간 추가</Link>}

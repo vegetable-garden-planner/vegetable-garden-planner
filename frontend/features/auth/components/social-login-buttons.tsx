@@ -1,7 +1,8 @@
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import styles from "./auth.module.css";
 
 export function SocialLoginButtons({ nextPath }: { nextPath: string }) {
-  const encodedNext = encodeURIComponent(nextPath);
+  const encodedNext = encodeNextPath(nextPath);
 
   return (
     <div className={styles.socialGroup} aria-label="소셜 로그인">

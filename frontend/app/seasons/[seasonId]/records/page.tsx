@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppPageShell } from "@/components/app-page-shell";
 import { AuthGate } from "@/features/auth/components/auth-gate";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import { CultivationRecordManager } from "@/features/cultivation-record/components/cultivation-record-manager";
 
 export const metadata: Metadata = {
@@ -13,7 +14,7 @@ export default async function SeasonRecordsPage({ params }: { params: Promise<{ 
   const path = `/seasons/${seasonId}/records`;
 
   return (
-    <AuthGate loginHref={`/login?next=${encodeURIComponent(path)}`}>
+    <AuthGate loginHref={`/login?next=${encodeNextPath(path)}`}>
       <AppPageShell
         backHref="/seasons"
         backLabel="시즌 목록"

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthField } from "@/features/auth/components/auth-field";
 import {
+  encodeNextPath,
   getPasswordRequirements,
   isValidEmailAddress,
   passwordsMatch,
@@ -141,7 +142,7 @@ export function SignupForm({ nextPath }: SignupFormProps) {
       <button className={styles.primaryButton} disabled={submitting} type="submit">{submitting ? "가입 중" : "회원가입"}</button>
       <p className={styles.switchText}>
         이미 계정이 있나요?{" "}
-        <Link href={`/login?next=${encodeURIComponent(nextPath)}`}>로그인</Link>
+        <Link href={`/login?next=${encodeNextPath(nextPath)}`}>로그인</Link>
       </p>
     </form>
   );

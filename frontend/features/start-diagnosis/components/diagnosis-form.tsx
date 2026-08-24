@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { SessionAwareLink } from "@/components/session-aware-link";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import {
   CROP_CATEGORY_LABELS,
   CROP_DIFFICULTY_LABELS,
@@ -175,7 +176,7 @@ function ResultStep({
 
         <div className={styles.resultActions}>
           <SessionAwareLink
-            anonymousHref={`/login?next=${encodeURIComponent(`/spaces/new?type=${recommendation.spaceTypeKey}`)}`}
+            anonymousHref={`/login?next=${encodeNextPath(`/spaces/new?type=${recommendation.spaceTypeKey}`)}`}
             anonymousLabel="로그인하고 공간 등록하기"
             authenticatedHref={`/spaces/new?type=${recommendation.spaceTypeKey}`}
             authenticatedLabel={`${recommendation.spaceTypeLabel} 공간 등록하기`}
@@ -231,7 +232,7 @@ function FallbackPanel({
       <p>{fallback.message}</p>
       <CropList crops={fallback.crops} />
       <SessionAwareLink
-        anonymousHref={`/login?next=${encodeURIComponent(`/spaces/new?type=${fallback.spaceTypeKey}`)}`}
+        anonymousHref={`/login?next=${encodeNextPath(`/spaces/new?type=${fallback.spaceTypeKey}`)}`}
         anonymousLabel={`로그인하고 ${fallback.spaceTypeLabel} 공간 등록하기`}
         authenticatedHref={`/spaces/new?type=${fallback.spaceTypeKey}`}
         authenticatedLabel={`${fallback.spaceTypeLabel} 공간 등록하기`}
