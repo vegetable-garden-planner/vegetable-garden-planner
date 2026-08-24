@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { encodeNextPath } from "@/features/auth/domain/auth";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
+import { useAllCultivationRecords } from "@/features/cultivation-record/hooks/use-all-cultivation-records";
 import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
 import { DashboardAlertList } from "@/features/dashboard/components/dashboard-alert-list";
 import {
@@ -44,6 +45,7 @@ export function DashboardOverview() {
   const tasksState = useCultivationTasks();
   const wateringState = useAllWateringSchedules();
   const cropCatalog = useCropCatalog();
+  const recordsState = useAllCultivationRecords();
 
   if (auth.state.status === "error") return <DashboardLoadError detail={auth.state.message} />;
   if (spacesState.status === "error") return <DashboardLoadError detail={spacesState.message} />;
@@ -52,6 +54,7 @@ export function DashboardOverview() {
   if (tasksState.status === "error") return <DashboardLoadError detail={tasksState.message} />;
   if (wateringState.status === "error") return <DashboardLoadError detail={wateringState.message} />;
   if (cropCatalog.status === "error") return <DashboardLoadError detail={cropCatalog.message} />;
+  if (recordsState.status === "error") return <DashboardLoadError detail={recordsState.message} />;
   if (
     spacesState.status === "loading"
     || seasonsState.status === "loading"
@@ -59,6 +62,7 @@ export function DashboardOverview() {
     || tasksState.status === "loading"
     || wateringState.status === "loading"
     || cropCatalog.status === "loading"
+    || recordsState.status === "loading"
   ) {
     return <DashboardLoading />;
   }
@@ -85,6 +89,10 @@ export function DashboardOverview() {
   const registeredPlants = createRegisteredPlantSummaries(
     seasonsState.seasons,
     cropCatalog.crops,
+    spacesState.spaces,
+    tasksState.tasks,
+    recordsState.records,
+    new Set(alerts.alerts.map((alert) => alert.seasonId)),
     today,
   );
 

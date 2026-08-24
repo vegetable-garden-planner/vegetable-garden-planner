@@ -81,6 +81,7 @@ routes/web.php
 - 재배 일정
 - 시즌 활동 기록과 기록마다 한 장까지 붙는 사진 경로(`cultivation_records.photo_path`)
 - 물주기 일정·완료 기록·미루기 기록
+- 화분 또는 화분 안 특정 작물에 남기는 메모(`space_memos`, 화분마다 여러 건)
 - 프로 요금제 구독(`subscriptions`)과 정기 결제 이력(`subscription_payments`)
 
 사용자·공간·시즌·배치·일정·기록 ID는 UUIDv7입니다. 작물 ID는 `lettuce` 같은 slug입니다. 테이블이나 컬럼 변경은 항상 새 Laravel 마이그레이션과 테스트로 공유합니다.

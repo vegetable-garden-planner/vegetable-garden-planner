@@ -219,6 +219,28 @@ class ContainerPlacementApiTest extends TestCase
             ->assertNoContent();
     }
 
+    public function test_pot_referenced_only_by_placements_cannot_be_deleted_until_cleared(): void
+    {
+        [$owner, $anchorPot, $season] = $this->ownedSeason(type: GrowingSpaceType::Balcony);
+        $secondPot = GrowingSpace::factory()->for($owner, 'owner')->create(['type' => GrowingSpaceType::Balcony]);
+
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"1"')
+            ->putJson("/api/v1/seasons/{$season->id}/container-placements", [
+                'placements' => [['spaceId' => $secondPot->id, 'cropId' => 'lettuce', 'quantity' => 1]],
+            ])
+            ->assertOk();
+
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"1"')
+            ->deleteJson("/api/v1/spaces/{$secondPot->id}")
+            ->assertConflict()
+            ->assertJsonPath('error.code', 'SPACE_HAS_CONTAINER_PLACEMENTS');
+
+        $this->assertDatabaseHas('growing_spaces', ['id' => $secondPot->id]);
+        $this->assertDatabaseHas('growing_spaces', ['id' => $anchorPot->id]);
+    }
+
     /** @return array{User, GrowingSpace, GrowingSeason} */
     private function ownedSeason(GrowingSpaceType $type): array
     {

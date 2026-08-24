@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
 import type { RegisteredPlantSummary } from "@/features/dashboard/domain/registered-plant-summary";
+import { SpaceMemoPanel } from "@/features/space-memo/components/space-memo-panel";
 
 const STATUS_LABELS: Readonly<Record<GrowingSeasonStatus, string>> = {
   active: "관리 중",
@@ -35,16 +36,22 @@ export function RegisteredPlantList({
             <li className="rounded-2xl border border-ink/10 p-5" key={plant.seasonId}>
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-bold text-leaf">{STATUS_LABELS[plant.status]}</p>
+                  <p className="text-xs font-bold text-leaf">
+                    {STATUS_LABELS[plant.status]}
+                    {plant.needsAttention && <span className="ml-1 text-[var(--color-danger)]" aria-label="확인이 필요해요" role="img">!</span>}
+                  </p>
                   <h3 className="mt-1 text-lg font-bold">{plant.cropName}</h3>
-                  <p className="mt-1 text-sm text-muted">{plant.seasonName}</p>
+                  <p className="mt-1 text-sm text-muted">{plant.spaceName} · {plant.seasonName} · {plant.startDate} 시작</p>
                 </div>
                 {plant.cropHref && <Link className="shrink-0 text-sm font-bold text-leaf underline" href={plant.cropHref}>관리법</Link>}
               </div>
               <p className="mt-4 line-clamp-2 text-sm leading-6 text-muted">{plant.careHint}</p>
+              {plant.nextTaskTitle && <p className="mt-2 text-sm font-bold text-ink">다음 할 일: {plant.nextTaskTitle}</p>}
+              {plant.latestRecordNote && <p className="mt-1 text-sm text-muted">최근 기록: {plant.latestRecordNote}</p>}
               <Link className="mt-4 inline-flex text-sm font-bold text-ink" href="/seasons">
                 관리 기간 보기 <span className="ml-1 text-leaf" aria-hidden="true">→</span>
               </Link>
+              <SpaceMemoPanel spaceId={plant.spaceId} />
             </li>
           ))}
         </ul>
