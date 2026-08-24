@@ -48,7 +48,7 @@
 .progress {
   position: absolute;
   z-index: 10;
-  top: clamp(1.65rem, 3.7vh, 2.25rem);
+  top: calc(var(--control-lg) + clamp(1.65rem, 3.7vh, 2.25rem));
   right: clamp(2.5rem, 6.8vw, 7.5rem);
   width: clamp(10.5rem, 14vw, 13rem);
   pointer-events: none;
