@@ -1,4 +1,4 @@
-import type { GrowingSpaceType } from "@/shared/domain/growing-environment";
+import type { GrowingSpaceType, SunlightExposure } from "@/shared/domain/growing-environment";
 
 export type CropCategory = "leaf" | "fruit" | "root" | "legume" | "tuber" | "flower";
 export type CropDifficulty = "easy" | "normal" | "challenging";
@@ -26,6 +26,9 @@ export interface CropReference {
   plantingPeriod: CropPeriod;
   harvestPeriod: CropPeriod;
   plantSpacingCm: number;
+  minPotDepthCm: number | null;
+  sunRequirement: SunlightExposure | null;
+  needsSupport: boolean;
   summary: string;
   sourceId: string;
   careGuide?: PlantCareGuide;

@@ -29,6 +29,8 @@ class Crop extends Model
             'planting_period' => 'array',
             'harvest_period' => 'array',
             'plant_spacing_cm' => 'integer',
+            'min_pot_depth_cm' => 'integer',
+            'needs_support' => 'boolean',
             'care_guide' => 'array',
         ];
     }

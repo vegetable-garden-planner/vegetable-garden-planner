@@ -51,6 +51,9 @@
         "label": "6월 말~7월 초"
       },
       "plantSpacingCm": 25,
+      "minPotDepthCm": 30,
+      "sunRequirement": "full",
+      "needsSupport": false,
       "summary": "씨감자를 심어 초여름에 수확하는 대표적인 텃밭 작물입니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -76,6 +79,9 @@
         "label": "5월 중순~6월 말"
       },
       "plantSpacingCm": 25,
+      "minPotDepthCm": 15,
+      "sunRequirement": "partial",
+      "needsSupport": false,
       "summary": "화분과 텃밭에서 모두 시작하기 쉬운 잎채소입니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -100,6 +106,9 @@
         "label": "7월 초"
       },
       "plantSpacingCm": 30,
+      "minPotDepthCm": 25,
+      "sunRequirement": "full",
+      "needsSupport": true,
       "summary": "씨앗으로 바로 심고 지지대를 활용해 기르는 콩과 작물입니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -125,6 +134,9 @@
         "label": "5월 중순부터"
       },
       "plantSpacingCm": 5,
+      "minPotDepthCm": 15,
+      "sunRequirement": "partial",
+      "needsSupport": false,
       "summary": "생육 기간이 짧아 작은 구역에서도 빠르게 수확할 수 있습니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -150,6 +162,9 @@
         "label": "5월 중순부터"
       },
       "plantSpacingCm": 5,
+      "minPotDepthCm": 15,
+      "sunRequirement": "partial",
+      "needsSupport": false,
       "summary": "줄뿌림 후 솎아주며 기르는 대표적인 잎채소입니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -175,6 +190,9 @@
         "label": "모종은 6월 초부터"
       },
       "plantSpacingCm": 10,
+      "minPotDepthCm": 20,
+      "sunRequirement": "partial",
+      "needsSupport": false,
       "summary": "모종이나 씨앗으로 시작해 필요한 만큼 나누어 수확할 수 있습니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -200,6 +218,9 @@
         "label": "7월 초부터"
       },
       "plantSpacingCm": 10,
+      "minPotDepthCm": 25,
+      "sunRequirement": "full",
+      "needsSupport": false,
       "summary": "깊이가 충분한 흙에 씨앗을 바로 뿌려 기르는 뿌리채소입니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -225,6 +246,9 @@
         "label": "6월 말부터"
       },
       "plantSpacingCm": 45,
+      "minPotDepthCm": 30,
+      "sunRequirement": "full",
+      "needsSupport": true,
       "summary": "햇빛과 지지대가 필요하며 곁순 관리가 중요한 열매채소입니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -249,6 +273,9 @@
         "label": "6월 중순부터"
       },
       "plantSpacingCm": 40,
+      "minPotDepthCm": 30,
+      "sunRequirement": "full",
+      "needsSupport": true,
       "summary": "덩굴을 유인할 지지 구조와 꾸준한 물 관리가 필요합니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -273,6 +300,9 @@
         "label": "6월 중순부터"
       },
       "plantSpacingCm": 45,
+      "minPotDepthCm": 25,
+      "sunRequirement": "full",
+      "needsSupport": true,
       "summary": "모종을 심고 지지대를 세워 여름 동안 차례로 수확합니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
     },
@@ -297,6 +327,9 @@
         "label": "꽃병에서 감상"
       },
       "plantSpacingCm": 1,
+      "minPotDepthCm": null,
+      "sunRequirement": "partial",
+      "needsSupport": false,
       "summary": "선물 받은 꽃을 바로 손질하고 물을 관리해 가능한 오래 감상하는 방법을 안내합니다.",
       "sourceId": "iowa-state-cut-flower-care",
       "careGuide": {
@@ -333,6 +366,9 @@
         "label": "꽃이 수개월 지속될 수 있음"
       },
       "plantSpacingCm": 20,
+      "minPotDepthCm": 15,
+      "sunRequirement": "partial",
+      "needsSupport": false,
       "summary": "밝은 간접광과 통풍이 좋은 난 전용 배지가 필요한 오래 사는 실내 꽃입니다.",
       "sourceId": "rhs-phalaenopsis-guide",
       "careGuide": {
@@ -368,6 +404,9 @@
         "label": "환경이 맞으면 여러 달 개화"
       },
       "plantSpacingCm": 15,
+      "minPotDepthCm": 10,
+      "sunRequirement": "partial",
+      "needsSupport": false,
       "summary": "작은 공간에서 키우기 좋고 밝은 간접광에서 오랫동안 꽃을 볼 수 있는 화분 식물입니다.",
       "sourceId": "rhs-african-violet-guide",
       "careGuide": {
