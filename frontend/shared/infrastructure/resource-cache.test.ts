@@ -50,6 +50,21 @@ test("reload는 캐시를 버리고 다시 요청한다", async () => {
   assert.deepEqual(readResource<string[]>("tasks"), { status: "ready", data: ["call-2"] });
 });
 
+test("reload 중에는 로딩 상태로 비우지 않고 이전 값을 그대로 보여준다", async () => {
+  let resolveSecond: ((value: string[]) => void) | undefined;
+  const first = async () => ["기존 값"];
+  const second = () => new Promise<string[]>((resolve) => { resolveSecond = resolve; });
+
+  await loadResource("layouts", first, "실패");
+  const pending = reloadResource("layouts", second, "실패");
+
+  assert.deepEqual(readResource<string[]>("layouts"), { status: "ready", data: ["기존 값"] });
+
+  resolveSecond?.(["새 값"]);
+  await pending;
+  assert.deepEqual(readResource<string[]>("layouts"), { status: "ready", data: ["새 값"] });
+});
+
 test("실패는 빈 목록이 아니라 오류 상태로 남긴다", async () => {
   await loadResource("seasons", async () => { throw new Error("서버 오류"); }, "기본 문구");
   assert.deepEqual(readResource("seasons"), { status: "error", message: "서버 오류" });

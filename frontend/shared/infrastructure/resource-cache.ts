@@ -60,9 +60,11 @@ export function reloadResource<T>(
   fetcher: () => Promise<T>,
   fallbackMessage: string,
 ): Promise<void> {
-  cache.delete(key);
   inflight.delete(key);
-  publish<T>(key, LOADING);
+  // 캐시된 값이 있으면 새 응답이 올 때까지 그대로 보여준다(stale-while-revalidate).
+  // 매번 로딩 상태로 비우면 화면 전체가 잠깐 사라졌다 다시 그려져, 클릭할 때마다
+  // 새로고침한 것처럼 화면이 튀어 보인다.
+  if (!cache.has(key)) publish<T>(key, LOADING);
   return loadResource(key, fetcher, fallbackMessage);
 }
 
