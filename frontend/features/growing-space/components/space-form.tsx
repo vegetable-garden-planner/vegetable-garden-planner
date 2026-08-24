@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { SunlightLocationAssistant } from "@/features/growing-space/components/sunlight-location-assistant";
 import {
+  SHADE_OPTIONS,
   SPACE_SIZE_PRESETS,
   SPACE_TYPE_OPTIONS,
   SUNLIGHT_OPTIONS,
@@ -23,6 +24,7 @@ import {
   readStoredGardenConfiguration,
 } from "@/features/start-diagnosis/domain/garden-configuration";
 import {
+  isSpaceShade,
   isSunlightExposure,
   type GrowingSpaceType,
   type SunlightExposure,
@@ -89,12 +91,6 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
       const serverErrors = toSpaceServerErrors(error);
       setErrors(serverErrors.fields);
       setFormError(serverErrors.form);
-    }
-  }
-
-  function updateSunlight(value: string) {
-    if (isSunlightExposure(value)) {
-      update("sunlight", value);
     }
   }
 
@@ -167,8 +163,14 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
       <section className={styles.formSection}>
         <div className={styles.sectionHeading}><span>03</span><div><h2>햇빛과 위치</h2><p>직접 선택하거나 주소·현재 위치로 예상 일조 시간을 계산할 수 있어요.</p></div></div>
         <Field label="하루 일조 시간" id="sunlight">
-          <select className={styles.input} id="sunlight" onChange={(event) => updateSunlight(event.target.value)} value={values.sunlight}>
-            {SUNLIGHT_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          <select className={styles.input} id="sunlight" onChange={(event) => update("sunlight", isSunlightExposure(event.target.value) ? event.target.value : null)} value={values.sunlight ?? ""}>
+            {SUNLIGHT_OPTIONS.map((option) => <option key={option.label} value={option.value ?? ""}>{option.label}</option>)}
+          </select>
+        </Field>
+
+        <Field label="주변 가림 정도" id="shade">
+          <select className={styles.input} id="shade" onChange={(event) => update("shadeLevel", isSpaceShade(event.target.value) ? event.target.value : null)} value={values.shadeLevel ?? ""}>
+            {SHADE_OPTIONS.map((option) => <option key={option.label} value={option.value ?? ""}>{option.label}</option>)}
           </select>
         </Field>
 
@@ -241,6 +243,7 @@ function toSpaceServerErrors(error: unknown): {
     latitude: error.fields.latitude?.[0],
     longitude: error.fields.longitude?.[0],
     orientation: error.fields.orientation?.[0],
+    shadeLevel: error.fields.shadeLevel?.[0],
     estimatedSunlightHours: error.fields.estimatedSunlightHours?.[0],
     notes: error.fields.notes?.[0],
   };
@@ -275,6 +278,7 @@ function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValue
     latitude: "",
     longitude: "",
     orientation: null,
+    shadeLevel: null,
     estimatedSunlightHours: null,
     notes: "",
   };
@@ -292,6 +296,7 @@ function toFormValues(space: GrowingSpace): GrowingSpaceFormValues {
     latitude: space.latitude === null ? "" : String(space.latitude),
     longitude: space.longitude === null ? "" : String(space.longitude),
     orientation: space.orientation,
+    shadeLevel: space.shadeLevel,
     estimatedSunlightHours: space.estimatedSunlightHours,
     notes: space.notes,
   };

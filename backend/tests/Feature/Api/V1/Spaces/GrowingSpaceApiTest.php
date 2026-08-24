@@ -6,6 +6,7 @@ namespace Tests\Feature\Api\V1\Spaces;
 
 use App\Enums\GrowingSpaceType;
 use App\Enums\SpaceOrientation;
+use App\Enums\SpaceShade;
 use App\Enums\SunlightExposure;
 use App\Models\GrowingSpace;
 use App\Models\User;
@@ -41,6 +42,7 @@ class GrowingSpaceApiTest extends TestCase
             'orientation' => SpaceOrientation::South->value,
             'estimatedSunlightHours' => 6.5,
             'depthCm' => 25,
+            'shadeLevel' => SpaceShade::Some->value,
         ]);
 
         $response
@@ -49,6 +51,7 @@ class GrowingSpaceApiTest extends TestCase
             ->assertJsonPath('data.name', '주말 텃밭')
             ->assertJsonPath('data.widthCm', 200)
             ->assertJsonPath('data.depthCm', 25)
+            ->assertJsonPath('data.shadeLevel', 'some')
             ->assertJsonPath('data.notes', '남향 구역')
             ->assertJsonPath('data.address', '서울특별시 중구 세종대로 110')
             ->assertJsonPath('data.orientation', 'south')
@@ -59,6 +62,25 @@ class GrowingSpaceApiTest extends TestCase
 
         $this->assertSame($user->id, $space->owner_id);
         $this->assertTrue(Str::isUuid($space->id, version: 7));
+    }
+
+    public function test_sunlight_and_orientation_can_be_left_unknown(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->postJson('/api/v1/spaces', [
+            'name' => '베란다',
+            'type' => GrowingSpaceType::Balcony->value,
+            'widthCm' => 100,
+            'lengthCm' => 40,
+            'notes' => '',
+        ]);
+
+        $response
+            ->assertCreated()
+            ->assertJsonPath('data.sunlight', null)
+            ->assertJsonPath('data.orientation', null)
+            ->assertJsonPath('data.shadeLevel', null);
     }
 
     public function test_create_rejects_boundaries_invalid_enums_and_owner_injection(): void
@@ -72,6 +94,7 @@ class GrowingSpaceApiTest extends TestCase
             'widthCm' => 9,
             'lengthCm' => 100001,
             'depthCm' => 0,
+            'shadeLevel' => 'full-shade',
             'notes' => '',
             'ownerId' => User::factory()->create()->id,
         ]);
@@ -86,6 +109,7 @@ class GrowingSpaceApiTest extends TestCase
                 'widthCm',
                 'lengthCm',
                 'depthCm',
+                'shadeLevel',
                 'ownerId',
             ], 'error.fields');
 

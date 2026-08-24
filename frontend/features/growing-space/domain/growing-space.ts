@@ -1,5 +1,6 @@
 import type {
   GrowingSpaceType,
+  SpaceShade,
   SunlightExposure,
 } from "@/shared/domain/growing-environment";
 import type { SpaceOrientation } from "@/features/growing-space/domain/sunlight-estimate";
@@ -7,7 +8,7 @@ import type { SpaceOrientation } from "@/features/growing-space/domain/sunlight-
 export interface GrowingSpaceFormValues {
   name: string;
   type: GrowingSpaceType;
-  sunlight: SunlightExposure;
+  sunlight: SunlightExposure | null;
   widthCm: string;
   lengthCm: string;
   depthCm: string;
@@ -15,6 +16,7 @@ export interface GrowingSpaceFormValues {
   latitude: string;
   longitude: string;
   orientation: SpaceOrientation | null;
+  shadeLevel: SpaceShade | null;
   estimatedSunlightHours: number | null;
   notes: string;
 }
@@ -22,7 +24,7 @@ export interface GrowingSpaceFormValues {
 export interface GrowingSpaceInput {
   name: string;
   type: GrowingSpaceType;
-  sunlight: SunlightExposure;
+  sunlight: SunlightExposure | null;
   widthCm: number;
   lengthCm: number;
   depthCm: number | null;
@@ -30,6 +32,7 @@ export interface GrowingSpaceInput {
   latitude: number | null;
   longitude: number | null;
   orientation: SpaceOrientation | null;
+  shadeLevel: SpaceShade | null;
   estimatedSunlightHours: number | null;
   notes: string;
 }
@@ -102,6 +105,7 @@ export function validateGrowingSpace(
       latitude,
       longitude,
       orientation: values.orientation,
+      shadeLevel: values.shadeLevel,
       estimatedSunlightHours: values.estimatedSunlightHours,
       notes: values.notes.trim(),
     },

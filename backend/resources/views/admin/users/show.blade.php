@@ -31,7 +31,7 @@
         @forelse ($user->growingSpaces as $space)
             <article class="space-block">
                 <header>
-                    <div><strong>{{ $space->name }}</strong><small>{{ $spaceTypes[$space->type->value] }} · {{ $space->width_cm }}×{{ $space->length_cm }}cm · {{ $sunlights[$space->sunlight->value] }}</small></div>
+                    <div><strong>{{ $space->name }}</strong><small>{{ $spaceTypes[$space->type->value] }} · {{ $space->width_cm }}×{{ $space->length_cm }}cm · {{ $space->sunlight ? $sunlights[$space->sunlight->value] : '햇빛 모름' }}</small></div>
                     <span class="muted">시즌 {{ $space->seasons->count() }}개</span>
                 </header>
 

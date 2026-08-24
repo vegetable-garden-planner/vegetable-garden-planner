@@ -32,6 +32,7 @@ class GrowingSpaceFactory extends Factory
             'latitude' => null,
             'longitude' => null,
             'orientation' => null,
+            'shade_level' => null,
             'estimated_sunlight_hours' => null,
             'notes' => '',
             'version' => 1,

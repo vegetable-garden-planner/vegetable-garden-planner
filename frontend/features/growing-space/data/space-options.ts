@@ -1,5 +1,6 @@
 import type {
   GrowingSpaceType,
+  SpaceShade,
   SunlightExposure,
 } from "@/shared/domain/growing-environment";
 
@@ -14,12 +15,23 @@ export const SPACE_TYPE_OPTIONS: readonly {
 ];
 
 export const SUNLIGHT_OPTIONS: readonly {
-  value: SunlightExposure;
+  value: SunlightExposure | null;
   label: string;
 }[] = [
   { value: "low", label: "2시간 미만" },
   { value: "partial", label: "2~5시간" },
   { value: "full", label: "6시간 이상" },
+  { value: null, label: "모름" },
+];
+
+export const SHADE_OPTIONS: readonly {
+  value: SpaceShade | null;
+  label: string;
+}[] = [
+  { value: null, label: "선택 안 함" },
+  { value: "none", label: "가리는 것 없음" },
+  { value: "some", label: "일부 시간대에 그늘짐" },
+  { value: "heavy", label: "대부분 그늘짐" },
 ];
 
 export const SPACE_SIZE_PRESETS = [

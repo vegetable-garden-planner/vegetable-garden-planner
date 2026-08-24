@@ -17,6 +17,7 @@ const validValues: GrowingSpaceFormValues = {
   latitude: "37.5665000",
   longitude: "126.9780000",
   orientation: "south",
+  shadeLevel: "some",
   estimatedSunlightHours: 6.5,
   notes: "남향",
 };
@@ -28,6 +29,15 @@ test("정상 공간 입력을 숫자 크기로 변환한다", () => {
     assert.equal(result.value.widthCm, 400);
     assert.equal(result.value.depthCm, 20);
     assert.equal(result.value.name, "우리집 베란다");
+  }
+});
+
+test("햇빛과 가림 정도는 모름(null)을 허용한다", () => {
+  const result = validateGrowingSpace({ ...validValues, sunlight: null, shadeLevel: null });
+  assert.equal(result.valid, true);
+  if (result.valid) {
+    assert.equal(result.value.sunlight, null);
+    assert.equal(result.value.shadeLevel, null);
   }
 });
 
