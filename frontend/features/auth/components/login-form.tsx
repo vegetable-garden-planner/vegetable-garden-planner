@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AuthField } from "@/features/auth/components/auth-field";
 import {
+  encodeNextPath,
   validateLogin,
   type LoginErrors,
   type LoginFormValues,
@@ -65,7 +66,7 @@ export function LoginForm({ nextPath, socialError = "" }: LoginFormProps) {
       <button className={styles.primaryButton} type="submit">로그인</button>
       <p className={styles.switchText}>
         아직 계정이 없나요?{" "}
-        <Link href={`/signup?next=${encodeURIComponent(nextPath)}`}>회원가입</Link>
+        <Link href={`/signup?next=${encodeNextPath(nextPath)}`}>회원가입</Link>
       </p>
     </form>
   );

@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
 import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
 import { DashboardAlertList } from "@/features/dashboard/components/dashboard-alert-list";
@@ -375,7 +376,7 @@ function DashboardLoadError({ detail }: { detail: string }) {
       <p className="mt-3 text-sm text-[var(--color-danger)]">확인 내용: {detail}</p>
       <div className="mt-6 flex flex-wrap gap-3">
         <button className="primary-action px-5 py-3" onClick={() => window.location.reload()} type="button">다시 불러오기</button>
-        <Link className="inline-flex items-center rounded-full border border-[var(--color-border)] px-5 py-3 font-bold" href="/login?next=%2Fdashboard">로그인 화면으로 이동</Link>
+        <Link className="inline-flex items-center rounded-full border border-[var(--color-border)] px-5 py-3 font-bold" href={`/login?next=${encodeNextPath("/dashboard")}`}>로그인 화면으로 이동</Link>
       </div>
     </section>
   );

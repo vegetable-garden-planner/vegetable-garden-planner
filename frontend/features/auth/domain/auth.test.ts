@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  encodeNextPath,
   getSafeReturnPath,
   getSocialLoginErrorMessage,
   getPasswordRequirements,
@@ -71,11 +72,17 @@ test("회원가입 입력 상태를 필드별로 확인한다", () => {
 });
 
 test("내부 복귀 경로만 허용한다", () => {
-  assert.equal(getSafeReturnPath("/spaces/new?type=balcony"), "/spaces/new?type=balcony");
-  assert.equal(getSafeReturnPath("https://example.com"), "/dashboard");
-  assert.equal(getSafeReturnPath("//example.com"), "/dashboard");
-  assert.equal(getSafeReturnPath("javascript:alert(1)"), "/dashboard");
-  assert.equal(getSafeReturnPath("/\\example.com"), "/dashboard");
+  assert.equal(getSafeReturnPath(encodeNextPath("/spaces/new?type=balcony")), "/spaces/new?type=balcony");
+  assert.equal(getSafeReturnPath(encodeNextPath("https://example.com")), "/dashboard");
+  assert.equal(getSafeReturnPath(encodeNextPath("//example.com")), "/dashboard");
+  assert.equal(getSafeReturnPath(encodeNextPath("javascript:alert(1)")), "/dashboard");
+  assert.equal(getSafeReturnPath(encodeNextPath("/\\example.com")), "/dashboard");
+  assert.equal(getSafeReturnPath("이건-base64가-아니다"), "/dashboard");
+  assert.equal(getSafeReturnPath(undefined), "/dashboard");
+});
+
+test("next= 값은 슬래시 없이 인코딩된다(공용 호스팅 보안 필터 회피)", () => {
+  assert.doesNotMatch(encodeNextPath("/dashboard"), /[/+]/);
 });
 
 test("소셜 로그인 제공자별 실패 원인을 안내한다", () => {

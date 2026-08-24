@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppPageShell } from "@/components/app-page-shell";
 import { AuthGate } from "@/features/auth/components/auth-gate";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import { SpaceEditor } from "@/features/growing-space/components/space-editor";
 
 export const metadata: Metadata = {
@@ -14,7 +15,7 @@ export default async function EditSpacePage({
   params: Promise<{ spaceId: string }>;
 }) {
   const { spaceId } = await params;
-  const loginHref = `/login?next=${encodeURIComponent(`/spaces/${spaceId}/edit`)}`;
+  const loginHref = `/login?next=${encodeNextPath(`/spaces/${spaceId}/edit`)}`;
 
   return (
     <AuthGate loginHref={loginHref}>

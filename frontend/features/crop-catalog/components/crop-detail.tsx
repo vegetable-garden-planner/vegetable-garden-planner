@@ -1,4 +1,5 @@
 import { SessionAwareLink } from "@/components/session-aware-link";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import { CropArtwork } from "@/features/crop-catalog/components/crop-artwork";
 import {
   CROP_CATEGORY_LABELS,
@@ -88,7 +89,7 @@ function StartCard({ crop, startLabel, startPath }: { crop: CropReference; start
     <section className={styles.startCard} aria-labelledby="crop-start-title">
       <p>내 재배 계획에 담기</p><h2 id="crop-start-title">{crop.name} 재배를 시작해 볼까요?</h2>
       <span>공간과 기간을 정하면 일정과 기록을 한곳에서 이어갈 수 있습니다.</span>
-      <SessionAwareLink anonymousHref={`/login?next=${encodeURIComponent(startPath)}`} anonymousLabel={startLabel} authenticatedHref={startPath} authenticatedLabel={startLabel} className={styles.startAction} />
+      <SessionAwareLink anonymousHref={`/login?next=${encodeNextPath(startPath)}`} anonymousLabel={startLabel} authenticatedHref={startPath} authenticatedLabel={startLabel} className={styles.startAction} />
       <small>선택한 작물을 키울 수 있는 공간만 시즌 생성 화면에 표시됩니다.</small>
     </section>
   );

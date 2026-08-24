@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppPageShell } from "@/components/app-page-shell";
 import { AuthGate } from "@/features/auth/components/auth-gate";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import { SeasonEditor } from "@/features/growing-season/components/season-editor";
 
 export const metadata: Metadata = {
@@ -14,7 +15,7 @@ export default async function EditSeasonPage({
   params: Promise<{ seasonId: string }>;
 }) {
   const { seasonId } = await params;
-  const loginHref = `/login?next=${encodeURIComponent(`/seasons/${seasonId}/edit`)}`;
+  const loginHref = `/login?next=${encodeNextPath(`/seasons/${seasonId}/edit`)}`;
 
   return (
     <AuthGate loginHref={loginHref}>

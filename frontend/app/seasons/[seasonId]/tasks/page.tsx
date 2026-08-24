@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppPageShell } from "@/components/app-page-shell";
 import { AuthGate } from "@/features/auth/components/auth-gate";
+import { encodeNextPath } from "@/features/auth/domain/auth";
 import { CultivationSchedule } from "@/features/cultivation-schedule/components/cultivation-schedule";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default async function SeasonTasksPage({
   const path = `/seasons/${seasonId}/tasks`;
 
   return (
-    <AuthGate loginHref={`/login?next=${encodeURIComponent(path)}`}>
+    <AuthGate loginHref={`/login?next=${encodeNextPath(path)}`}>
       <AppPageShell
         backHref="/seasons"
         backLabel="시즌 목록"
