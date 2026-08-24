@@ -26,9 +26,12 @@ async function makeIcon(outPath, canvasSize, logoRatio) {
   console.log("wrote", outPath);
 }
 
-mkdirSync(path.join(root, "public/icons"), { recursive: true });
+// "pwa-icons", not "icons": Apache reserves /icons/ as a server-wide alias
+// for its own built-in directory-listing icons, which silently shadows
+// anything an app puts there on shared hosting (no root to remove it).
+mkdirSync(path.join(root, "public/pwa-icons"), { recursive: true });
 
-await makeIcon(path.join(root, "public/icons/icon-192.png"), 192, 0.7);
-await makeIcon(path.join(root, "public/icons/icon-512.png"), 512, 0.7);
-await makeIcon(path.join(root, "public/icons/icon-maskable-512.png"), 512, 0.55);
+await makeIcon(path.join(root, "public/pwa-icons/icon-192.png"), 192, 0.7);
+await makeIcon(path.join(root, "public/pwa-icons/icon-512.png"), 512, 0.7);
+await makeIcon(path.join(root, "public/pwa-icons/icon-maskable-512.png"), 512, 0.55);
 await makeIcon(path.join(root, "app/apple-icon.png"), 180, 0.7);
