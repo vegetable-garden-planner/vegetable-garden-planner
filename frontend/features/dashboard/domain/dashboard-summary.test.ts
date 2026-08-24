@@ -14,6 +14,7 @@ const garden: GrowingSpace = {
   widthCm: 200,
   lengthCm: 300,
   depthCm: null,
+  shadeLevel: null,
   address: null, latitude: null, longitude: null, orientation: null, estimatedSunlightHours: null,
   notes: "",
   version: 1,

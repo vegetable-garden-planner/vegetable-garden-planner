@@ -15,7 +15,7 @@ const TYPE_LABELS: Record<GrowingSpace["type"], string> = {
   garden: "마당·텃밭",
 };
 
-const SUNLIGHT_LABELS: Record<GrowingSpace["sunlight"], string> = {
+const SUNLIGHT_LABELS: Record<NonNullable<GrowingSpace["sunlight"]>, string> = {
   low: "2시간 미만",
   partial: "2~5시간",
   full: "6시간 이상",
@@ -83,7 +83,7 @@ export function SpaceList() {
               </div>
               <dl className={styles.cardFacts}>
                 <div><dt>공간 크기</dt><dd>{space.widthCm} × {space.lengthCm}{space.depthCm !== null ? ` × ${space.depthCm}` : ""}cm</dd></div>
-                <div><dt>예상 햇빛</dt><dd>{space.estimatedSunlightHours === null ? SUNLIGHT_LABELS[space.sunlight] : `하루 약 ${space.estimatedSunlightHours}시간`}</dd></div>
+                <div><dt>예상 햇빛</dt><dd>{space.estimatedSunlightHours !== null ? `하루 약 ${space.estimatedSunlightHours}시간` : space.sunlight === null ? "모름" : SUNLIGHT_LABELS[space.sunlight]}</dd></div>
                 <div><dt>연결 시즌</dt><dd>{seasonCount}개</dd></div>
               </dl>
               {deletingId === space.id ? (

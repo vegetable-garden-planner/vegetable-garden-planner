@@ -1870,9 +1870,12 @@ components:
     SpaceOrientation:
       type: string
       enum: [open, north, northeast, east, southeast, south, southwest, west, northwest]
+    SpaceShade:
+      type: string
+      enum: [none, some, heavy]
     GrowingSpaceInput:
       type: object
-      required: [name, type, sunlight, widthCm, lengthCm, notes]
+      required: [name, type, widthCm, lengthCm, notes]
       properties:
         name:
           type: string
@@ -1881,7 +1884,10 @@ components:
         type:
           $ref: '#/components/schemas/GrowingSpaceType'
         sunlight:
-          $ref: '#/components/schemas/SunlightExposure'
+          description: 사용자가 느끼는 햇빛. null은 모름을 뜻한다.
+          oneOf:
+            - $ref: '#/components/schemas/SunlightExposure'
+            - type: 'null'
         widthCm:
           type: integer
           minimum: 10
@@ -1909,6 +1915,11 @@ components:
           oneOf:
             - $ref: '#/components/schemas/SpaceOrientation'
             - type: 'null'
+        shadeLevel:
+          description: 주변 가림 정도. null은 입력하지 않았음을 뜻한다.
+          oneOf:
+            - $ref: '#/components/schemas/SpaceShade'
+            - type: 'null'
         estimatedSunlightHours:
           type: [number, 'null']
           minimum: 0
@@ -1928,7 +1939,9 @@ components:
         type:
           $ref: '#/components/schemas/GrowingSpaceType'
         sunlight:
-          $ref: '#/components/schemas/SunlightExposure'
+          oneOf:
+            - $ref: '#/components/schemas/SunlightExposure'
+            - type: 'null'
         widthCm:
           type: integer
           minimum: 10
@@ -1955,6 +1968,10 @@ components:
         orientation:
           oneOf:
             - $ref: '#/components/schemas/SpaceOrientation'
+            - type: 'null'
+        shadeLevel:
+          oneOf:
+            - $ref: '#/components/schemas/SpaceShade'
             - type: 'null'
         estimatedSunlightHours:
           type: [number, 'null']
