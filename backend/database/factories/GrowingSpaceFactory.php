@@ -27,6 +27,7 @@ class GrowingSpaceFactory extends Factory
             'sunlight' => SunlightExposure::Full,
             'width_cm' => 200,
             'length_cm' => 300,
+            'depth_cm' => null,
             'address' => null,
             'latitude' => null,
             'longitude' => null,

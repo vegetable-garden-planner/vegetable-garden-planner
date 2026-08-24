@@ -40,6 +40,7 @@ class GrowingSpaceApiTest extends TestCase
             'longitude' => 126.978,
             'orientation' => SpaceOrientation::South->value,
             'estimatedSunlightHours' => 6.5,
+            'depthCm' => 25,
         ]);
 
         $response
@@ -47,6 +48,7 @@ class GrowingSpaceApiTest extends TestCase
             ->assertHeader('ETag', '"1"')
             ->assertJsonPath('data.name', '주말 텃밭')
             ->assertJsonPath('data.widthCm', 200)
+            ->assertJsonPath('data.depthCm', 25)
             ->assertJsonPath('data.notes', '남향 구역')
             ->assertJsonPath('data.address', '서울특별시 중구 세종대로 110')
             ->assertJsonPath('data.orientation', 'south')
@@ -69,6 +71,7 @@ class GrowingSpaceApiTest extends TestCase
             'sunlight' => 'unknown',
             'widthCm' => 9,
             'lengthCm' => 100001,
+            'depthCm' => 0,
             'notes' => '',
             'ownerId' => User::factory()->create()->id,
         ]);
@@ -82,6 +85,7 @@ class GrowingSpaceApiTest extends TestCase
                 'sunlight',
                 'widthCm',
                 'lengthCm',
+                'depthCm',
                 'ownerId',
             ], 'error.fields');
 
@@ -155,6 +159,7 @@ class GrowingSpaceApiTest extends TestCase
             ->patchJson("/api/v1/spaces/{$space->id}", [
                 'name' => '  수정한 텃밭  ',
                 'widthCm' => 450,
+                'depthCm' => 30,
             ]);
 
         $response
@@ -162,6 +167,7 @@ class GrowingSpaceApiTest extends TestCase
             ->assertHeader('ETag', '"2"')
             ->assertJsonPath('data.name', '수정한 텃밭')
             ->assertJsonPath('data.widthCm', 450)
+            ->assertJsonPath('data.depthCm', 30)
             ->assertJsonPath('data.version', 2);
 
         $this->assertDatabaseHas('growing_spaces', [

@@ -12,6 +12,7 @@ const validValues: GrowingSpaceFormValues = {
   sunlight: "full",
   widthCm: "400",
   lengthCm: "150",
+  depthCm: "20",
   address: "서울특별시 중구 세종대로 110",
   latitude: "37.5665000",
   longitude: "126.9780000",
@@ -25,8 +26,18 @@ test("정상 공간 입력을 숫자 크기로 변환한다", () => {
   assert.equal(result.valid, true);
   if (result.valid) {
     assert.equal(result.value.widthCm, 400);
+    assert.equal(result.value.depthCm, 20);
     assert.equal(result.value.name, "우리집 베란다");
   }
+});
+
+test("깊이는 선택 입력이며 범위를 벗어나면 거부한다", () => {
+  const empty = validateGrowingSpace({ ...validValues, depthCm: "" });
+  assert.equal(empty.valid, true);
+  if (empty.valid) assert.equal(empty.value.depthCm, null);
+
+  const tooDeep = validateGrowingSpace({ ...validValues, depthCm: "1001" });
+  assert.equal(tooDeep.valid, false);
 });
 
 test("빈 이름을 거부한다", () => {

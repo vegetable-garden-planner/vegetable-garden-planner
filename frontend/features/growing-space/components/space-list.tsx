@@ -82,7 +82,7 @@ export function SpaceList() {
                 <span>{space.type === "garden" ? "격자형" : "대표 작물형"}</span>
               </div>
               <dl className={styles.cardFacts}>
-                <div><dt>공간 크기</dt><dd>{space.widthCm} × {space.lengthCm}cm</dd></div>
+                <div><dt>공간 크기</dt><dd>{space.widthCm} × {space.lengthCm}{space.depthCm !== null ? ` × ${space.depthCm}` : ""}cm</dd></div>
                 <div><dt>예상 햇빛</dt><dd>{space.estimatedSunlightHours === null ? SUNLIGHT_LABELS[space.sunlight] : `하루 약 ${space.estimatedSunlightHours}시간`}</dd></div>
                 <div><dt>연결 시즌</dt><dd>{seasonCount}개</dd></div>
               </dl>

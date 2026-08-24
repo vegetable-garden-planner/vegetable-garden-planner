@@ -10,6 +10,7 @@ export interface GrowingSpaceFormValues {
   sunlight: SunlightExposure;
   widthCm: string;
   lengthCm: string;
+  depthCm: string;
   address: string;
   latitude: string;
   longitude: string;
@@ -24,6 +25,7 @@ export interface GrowingSpaceInput {
   sunlight: SunlightExposure;
   widthCm: number;
   lengthCm: number;
+  depthCm: number | null;
   address: string | null;
   latitude: number | null;
   longitude: number | null;
@@ -48,6 +50,8 @@ export type GrowingSpaceValidation =
 
 const MIN_SIZE_CM = 10;
 const MAX_SIZE_CM = 100_000;
+const MIN_DEPTH_CM = 1;
+const MAX_DEPTH_CM = 1000;
 
 export function validateGrowingSpace(
   values: GrowingSpaceFormValues,
@@ -56,6 +60,7 @@ export function validateGrowingSpace(
   const name = values.name.trim();
   const widthCm = Number(values.widthCm);
   const lengthCm = Number(values.lengthCm);
+  const depthCm = values.depthCm === "" ? null : Number(values.depthCm);
   const latitude = values.latitude === "" ? null : Number(values.latitude);
   const longitude = values.longitude === "" ? null : Number(values.longitude);
 
@@ -67,6 +72,10 @@ export function validateGrowingSpace(
 
   validateSize("widthCm", widthCm, errors);
   validateSize("lengthCm", lengthCm, errors);
+
+  if (depthCm !== null && (!Number.isFinite(depthCm) || depthCm < MIN_DEPTH_CM || depthCm > MAX_DEPTH_CM)) {
+    errors.depthCm = `${MIN_DEPTH_CM}cm 이상 ${MAX_DEPTH_CM}cm 이하로 입력해 주세요.`;
+  }
 
   if ((latitude === null) !== (longitude === null)) {
     errors.latitude = "위도와 경도를 함께 입력해 주세요.";
@@ -88,6 +97,7 @@ export function validateGrowingSpace(
       sunlight: values.sunlight,
       widthCm,
       lengthCm,
+      depthCm,
       address: values.address.trim() || null,
       latitude,
       longitude,
