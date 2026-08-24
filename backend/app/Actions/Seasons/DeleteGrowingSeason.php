@@ -40,6 +40,10 @@ final class DeleteGrowingSeason
                     $this->seasonHasWateringSchedules();
                 }
 
+                if ($lockedSeason->containerPlacements()->exists()) {
+                    $this->seasonHasContainerPlacements();
+                }
+
                 $lockedSeason->delete();
             });
         } catch (ForeignKeyConstraintViolationException $exception) {
@@ -58,6 +62,10 @@ final class DeleteGrowingSeason
 
             if ($freshSeason->wateringSchedules()->exists()) {
                 $this->seasonHasWateringSchedules();
+            }
+
+            if ($freshSeason->containerPlacements()->exists()) {
+                $this->seasonHasContainerPlacements();
             }
 
             throw $exception;
@@ -93,6 +101,14 @@ final class DeleteGrowingSeason
         throw new ApiConflictException(
             'SEASON_HAS_WATERING_SCHEDULES',
             '물주기 일정을 먼저 삭제해야 재배 시즌을 삭제할 수 있습니다.',
+        );
+    }
+
+    private function seasonHasContainerPlacements(): never
+    {
+        throw new ApiConflictException(
+            'SEASON_HAS_CONTAINER_PLACEMENTS',
+            '화분 배치를 먼저 비워야 재배 시즌을 삭제할 수 있습니다.',
         );
     }
 }

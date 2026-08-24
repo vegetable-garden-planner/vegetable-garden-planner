@@ -194,6 +194,36 @@ class CultivationTaskApiTest extends TestCase
         $this->assertDatabaseCount('cultivation_tasks', 2);
     }
 
+    public function test_container_season_with_placements_generates_tasks_for_every_placed_crop(): void
+    {
+        [$owner, $space, $season] = $this->ownedSeason([
+            'start_date' => '2026-04-01',
+            'end_date' => '2026-06-30',
+            'featured_crop_id' => 'lettuce',
+        ], ['type' => GrowingSpaceType::Balcony]);
+
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"1"')
+            ->putJson("/api/v1/seasons/{$season->id}/container-placements", [
+                'placements' => [
+                    ['spaceId' => $space->id, 'cropId' => 'lettuce', 'quantity' => 2],
+                    ['spaceId' => $space->id, 'cropId' => 'spinach', 'quantity' => 3],
+                ],
+            ])
+            ->assertOk()
+            ->assertHeader('ETag', '"2"');
+
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"2"')
+            ->postJson("/api/v1/seasons/{$season->id}/tasks/generate")
+            ->assertCreated();
+
+        $this->assertSame(
+            ['lettuce', 'spinach'],
+            CultivationTask::query()->pluck('crop_id')->unique()->sort()->values()->all(),
+        );
+    }
+
     public function test_owner_can_update_completion_and_return_task_to_pending(): void
     {
         [$owner, , $season] = $this->ownedSeason();

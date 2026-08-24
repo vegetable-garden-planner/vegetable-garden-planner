@@ -23,6 +23,8 @@ tags:
     description: 사용자 재배 시즌
   - name: Layouts
     description: 텃밭 시즌별 격자와 작물 배치
+  - name: ContainerPlacements
+    description: 화분·베란다 시즌별 화분 안 작물 배치
   - name: Tasks
     description: 앞으로 수행할 재배 일정
   - name: Records
@@ -913,6 +915,67 @@ paths:
           $ref: '#/components/responses/Forbidden'
         '404':
           $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '419':
+          $ref: '#/components/responses/CsrfMismatch'
+
+  /seasons/{seasonId}/container-placements:
+    parameters:
+      - $ref: '#/components/parameters/SeasonId'
+    get:
+      tags: [ContainerPlacements]
+      summary: 화분·베란다 시즌의 전체 작물 배치 조회
+      operationId: getContainerPlacements
+      responses:
+        '200':
+          description: 배치 조회 성공
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainerPlacementsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [ContainerPlacements]
+      summary: 화분·베란다 시즌의 전체 작물 배치 저장
+      description: 한 시즌 안에서 여러 화분에 여러 작물을 배치할 수 있다. 요청은 시즌의 현재 배치 전체를 대체한다.
+      operationId: putContainerPlacements
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContainerPlacementsInput'
+      responses:
+        '200':
+          description: 배치 교체 성공
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainerPlacementsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
         '412':
           $ref: '#/components/responses/PreconditionFailed'
         '419':
@@ -2349,6 +2412,72 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/GardenLayout'
+
+    ContainerPlacement:
+      type: object
+      required: [id, spaceId, cropId, quantity, position]
+      properties:
+        id:
+          type: string
+          format: uuid
+        spaceId:
+          type: string
+          format: uuid
+        cropId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        position:
+          description: 화분 안 배치 위치. 형식은 프론트엔드가 정하며 서버는 값을 그대로 저장·반환한다.
+          nullable: true
+    ContainerPlacementInput:
+      type: object
+      additionalProperties: false
+      required: [spaceId, cropId, quantity]
+      properties:
+        spaceId:
+          type: string
+          format: uuid
+        cropId:
+          type: string
+          maxLength: 100
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 500
+        position:
+          nullable: true
+    ContainerPlacementsInput:
+      type: object
+      additionalProperties: false
+      required: [placements]
+      properties:
+        placements:
+          type: array
+          maxItems: 200
+          items:
+            $ref: '#/components/schemas/ContainerPlacementInput'
+    ContainerPlacements:
+      type: object
+      required: [seasonId, placements, version]
+      properties:
+        seasonId:
+          type: string
+          format: uuid
+        placements:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContainerPlacement'
+        version:
+          type: integer
+          minimum: 1
+    ContainerPlacementsResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/ContainerPlacements'
 
     TaskType:
       type: string

@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\V1\Billing\CancelSubscriptionController;
 use App\Http\Controllers\Api\V1\Billing\ShowSubscriptionController;
 use App\Http\Controllers\Api\V1\Billing\StoreSubscriptionController;
 use App\Http\Controllers\Api\V1\Billing\TossPaymentsWebhookController;
+use App\Http\Controllers\Api\V1\ContainerPlacements\PutContainerPlacementsController;
+use App\Http\Controllers\Api\V1\ContainerPlacements\ShowContainerPlacementsController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropSourceController;
 use App\Http\Controllers\Api\V1\Crops\ShowCropController;
@@ -128,6 +130,8 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/seasons/{growingSeason}/layout', ShowGardenLayoutController::class);
         Route::put('/seasons/{growingSeason}/layout', PutGardenLayoutController::class);
         Route::delete('/seasons/{growingSeason}/layout', DestroyGardenLayoutController::class);
+        Route::get('/seasons/{growingSeason}/container-placements', ShowContainerPlacementsController::class);
+        Route::put('/seasons/{growingSeason}/container-placements', PutContainerPlacementsController::class);
         Route::get('/seasons/{growingSeason}/tasks', IndexSeasonTaskController::class);
         Route::post('/seasons/{growingSeason}/tasks/generate', GenerateSeasonTaskController::class);
         Route::delete('/seasons/{growingSeason}/tasks', DestroySeasonTaskController::class);

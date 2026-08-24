@@ -83,6 +83,17 @@ final class GenerateCultivationTasks
         if ($season->version !== $expectedVersion) {
             EntityTag::versionConflict();
         }
+
+        $placementCropIds = $season->containerPlacements()
+            ->lockForUpdate()
+            ->pluck('crop_id')
+            ->unique()
+            ->values();
+
+        if ($placementCropIds->isNotEmpty()) {
+            return $placementCropIds;
+        }
+
         if ($season->featured_crop_id === null) {
             throw new ApiConflictException(
                 'FEATURED_CROP_REQUIRED',

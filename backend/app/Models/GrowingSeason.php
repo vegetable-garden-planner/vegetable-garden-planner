@@ -61,6 +61,12 @@ class GrowingSeason extends Model
         return $this->hasMany(WateringSchedule::class);
     }
 
+    /** @return HasMany<ContainerPlacement, $this> */
+    public function containerPlacements(): HasMany
+    {
+        return $this->hasMany(ContainerPlacement::class);
+    }
+
     /**
      * @return array<string, string>
      */
