@@ -35,11 +35,33 @@
                     <span class="muted">시즌 {{ $space->seasons->count() }}개</span>
                 </header>
 
+                @if (trim($space->notes) !== '')
+                    <details class="notes-block" open>
+                        <summary>공간 메모</summary>
+                        <ul class="note-list"><li class="note-body">{{ $space->notes }}</li></ul>
+                    </details>
+                @endif
+
                 @forelse ($space->seasons as $season)
                     @php
                         $summary = $summaries[$season->id];
                         $placements = $season->layout?->placements ?? collect();
+                        $placementsByCell = $placements->keyBy('cell_index');
                         $cropCounts = $placements->countBy('crop_id')->sortDesc();
+                        $seasonNotes = collect();
+                        if (trim($season->notes) !== '') {
+                            $seasonNotes->push(['tag' => '시즌', 'body' => $season->notes]);
+                        }
+                        foreach ($season->tasks as $task) {
+                            if (trim($task->notes) !== '') {
+                                $seasonNotes->push(['tag' => '일정: ' . $task->title, 'body' => $task->notes]);
+                            }
+                        }
+                        foreach ($season->records as $record) {
+                            if (trim($record->notes) !== '') {
+                                $seasonNotes->push(['tag' => '기록: ' . $recordTypes[$record->type->value], 'body' => $record->notes]);
+                            }
+                        }
                     @endphp
                     <dl class="operations-list season-block">
                         <div>
@@ -93,6 +115,37 @@
                             </dd>
                         </div>
                     </dl>
+
+                    @if ($season->layout && $placements->isNotEmpty())
+                        <div class="crop-grid-wrap">
+                            <div class="crop-grid" style="grid-template-columns: repeat({{ $season->layout->columns }}, 22px)">
+                                @for ($cell = 0; $cell < $season->layout->columns * $season->layout->rows; $cell++)
+                                    @php $cellPlacement = $placementsByCell->get($cell); @endphp
+                                    <span
+                                        class="crop-grid-cell"
+                                        data-filled="{{ $cellPlacement ? 1 : 0 }}"
+                                        title="{{ (intdiv($cell, $season->layout->columns) + 1) }}행 {{ ($cell % $season->layout->columns) + 1 }}열 · {{ $cellPlacement ? ($cropNames[$cellPlacement->crop_id] ?? $cellPlacement->crop_id) : '빈 칸' }}"
+                                    >{{ $cellPlacement ? mb_substr($cropNames[$cellPlacement->crop_id] ?? $cellPlacement->crop_id, 0, 1) : '' }}</span>
+                                @endfor
+                            </div>
+                            <p class="crop-grid-legend">
+                                @foreach ($cropCounts as $cropId => $count)
+                                    <span><i></i>{{ mb_substr($cropNames[$cropId] ?? $cropId, 0, 1) }} = {{ $cropNames[$cropId] ?? $cropId }}</span>
+                                @endforeach
+                            </p>
+                        </div>
+                    @endif
+
+                    @if ($seasonNotes->isNotEmpty())
+                        <details class="notes-block" open>
+                            <summary>메모 {{ $seasonNotes->count() }}건</summary>
+                            <ul class="note-list">
+                                @foreach ($seasonNotes as $note)
+                                    <li><span class="note-tag">{{ $note['tag'] }}</span><span class="note-body">{{ $note['body'] }}</span></li>
+                                @endforeach
+                            </ul>
+                        </details>
+                    @endif
                 @empty
                     <p class="empty">이 공간에는 아직 시즌이 없습니다.</p>
                 @endforelse
@@ -116,12 +169,19 @@
         @if ($user->role->value === 'admin')
             <p class="muted" style="margin-top:18px">관리자 계정은 콘솔에서 상태를 바꿀 수 없습니다.</p>
         @else
-            <form action="{{ route('admin.users.status', $user) }}" method="post" style="margin-top:18px">
+            <form
+                action="{{ route('admin.users.status', $user) }}"
+                method="post"
+                style="margin-top:18px"
+                @if ($user->status->value === 'active')
+                    onsubmit="return confirm('{{ $user->nickname }}({{ $user->email }}) 회원을 탈퇴 처리할까요?\n로그인과 API 토큰이 즉시 차단됩니다. 재배 데이터는 삭제되지 않고 그대로 보관됩니다.')"
+                @endif
+            >
                 @csrf @method('patch')
                 <input type="hidden" name="status" value="{{ $user->status->value === 'active' ? 'disabled' : 'active' }}">
-                <button class="status-action {{ $user->status->value }}" type="submit">{{ $user->status->value === 'active' ? '이 회원 비활성화' : '다시 활성화' }}</button>
+                <button class="status-action {{ $user->status->value }}" type="submit">{{ $user->status->value === 'active' ? '이 회원 탈퇴 처리' : '탈퇴 철회(다시 활성화)' }}</button>
             </form>
-            <p class="muted" style="margin-top:10px">비활성화하면 로그인과 API 토큰이 차단되고 재배 데이터는 그대로 남습니다.</p>
+            <p class="muted" style="margin-top:10px">탈퇴 처리하면 로그인과 API 토큰이 즉시 차단됩니다. 재배 데이터는 삭제되지 않고 그대로 보관되며, 필요하면 다시 활성화할 수 있습니다.</p>
         @endif
     </section>
 </div>
