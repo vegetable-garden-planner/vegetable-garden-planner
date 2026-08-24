@@ -1,0 +1,1885 @@
+.diagnosis {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--color-forest-night);
+  color: var(--color-on-photo);
+  perspective: var(--perspective-scene);
+}
+
+.sceneBackdrop,
+.sceneShade,
+.sceneTexture {
+  position: absolute;
+  inset: 0;
+}
+
+.sceneBackdrop {
+  z-index: -4;
+}
+
+.sceneImage {
+  object-fit: cover;
+  object-position: center;
+  animation: scene-in var(--motion-scene) var(--ease-scene) both;
+}
+
+.sceneShade {
+  z-index: -3;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-forest-night) 72%, transparent), transparent 58%),
+    linear-gradient(0deg, color-mix(in srgb, var(--color-forest-night) 36%, transparent), transparent 52%);
+}
+
+.sceneTexture {
+  z-index: -2;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-forest-night) 18%, transparent), transparent 44%);
+}
+
+.dimensionStage,
+.sunlightStage,
+.cropStage,
+.conditionStage,
+.analysisStage,
+.resultStage {
+  width: min(100%, var(--layout-diagnosis-max));
+  min-height: 100svh;
+  margin: 0 auto;
+  animation: stage-in var(--motion-scene) var(--ease-scene) both;
+}
+
+.stage1 .sceneImage {
+  animation: none;
+  object-position: center;
+  filter: brightness(0.78) saturate(0.9) contrast(1.04);
+  transform: none;
+}
+
+.stage1 .sceneShade {
+  background:
+    radial-gradient(circle at 50% 54%, rgba(0, 9, 6, 0.04) 0 24%, rgba(1, 15, 10, 0.18) 58%, rgba(1, 12, 8, 0.48) 100%),
+    linear-gradient(90deg, rgba(2, 20, 14, 0.24), transparent 42%, rgba(8, 23, 14, 0.12));
+}
+
+.stage1 .sceneTexture {
+  background: linear-gradient(0deg, rgba(0, 10, 7, 0.36), transparent 54%);
+}
+
+.stage4 .sceneImage {
+  object-position: center;
+  filter: brightness(0.82) saturate(0.9) contrast(1.05);
+}
+
+.stage4 .sceneShade {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(1, 18, 11, 0.03) 0 32%, rgba(1, 13, 9, 0.23) 78%, rgba(1, 9, 6, 0.48) 100%),
+    linear-gradient(180deg, rgba(1, 14, 9, 0.08), rgba(1, 10, 7, 0.25));
+}
+
+.stage4 .sceneTexture {
+  background: linear-gradient(90deg, rgba(0, 11, 7, 0.16), transparent 46%, rgba(15, 18, 5, 0.08));
+}
+
+.sunlightStage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.sunlightCurve {
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.sunlightCanopy {
+  position: absolute;
+  z-index: 9;
+  top: -2.75rem;
+  left: 50%;
+  width: 16rem;
+  height: 9rem;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+.sunlightCanopy::before {
+  position: absolute;
+  top: -1rem;
+  left: 50%;
+  width: 0.25rem;
+  height: 8rem;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(#152b13, #47682e 68%, #18361e);
+  box-shadow: 0 0 1rem rgba(4, 16, 7, 0.34);
+  content: "";
+  transform: rotate(10deg);
+  transform-origin: top;
+}
+
+.sunlightCanopy i {
+  position: absolute;
+  top: 1.15rem;
+  left: 50%;
+  width: 3.4rem;
+  height: 7.25rem;
+  border-radius: 85% 12% 82% 16%;
+  background:
+    linear-gradient(108deg, transparent 47%, rgba(160, 194, 103, 0.3) 49%, transparent 52%),
+    linear-gradient(145deg, #527d35, #16391f 58%, #071b10);
+  box-shadow: inset 0.4rem 0.25rem 0.9rem rgba(172, 205, 112, 0.22), 0 0.6rem 1rem rgba(1, 13, 6, 0.25);
+  transform-origin: 50% 0;
+}
+
+.sunlightCanopy i:nth-child(1) { transform: translate(-5.5rem, 0.1rem) rotate(56deg); }
+.sunlightCanopy i:nth-child(2) { transform: translate(-3.1rem, -0.4rem) rotate(30deg); }
+.sunlightCanopy i:nth-child(3) { transform: translate(-1.5rem, 0.3rem) rotate(4deg); }
+.sunlightCanopy i:nth-child(4) { transform: translate(0.35rem, -0.2rem) rotate(-24deg); }
+.sunlightCanopy i:nth-child(5) { transform: translate(2.15rem, 0.5rem) rotate(-50deg); }
+
+.sunlightProgress {
+  position: absolute;
+  z-index: 14;
+  top: 1.75rem;
+  right: clamp(2rem, 4vw, 4rem);
+  width: 12rem;
+  pointer-events: none;
+  text-align: right;
+}
+
+.sunlightProgress p {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+
+.sunlightProgress strong {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+.sunlightProgress span {
+  color: rgba(83, 91, 83, 0.54);
+}
+
+.sunlightProgress i {
+  display: block;
+  width: 11.5rem;
+  height: var(--line-thin);
+  margin-top: 0.65rem;
+  margin-left: auto;
+  background: linear-gradient(90deg, transparent, var(--color-primary) 22% 100%);
+}
+
+.sunlightContent {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  width: min(100% - 10rem, 45rem);
+  height: 100%;
+  min-height: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  padding: 23.9vh 0 0;
+  text-align: center;
+}
+
+.sunlightHeading h1 {
+  margin: 0;
+  color: #fffdfa;
+  font-size: clamp(2.15rem, 3.2vw, 3rem);
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: -0.045em;
+  text-shadow: 0 0.15rem 1.25rem rgba(0, 0, 0, 0.5);
+}
+
+.sunlightHeading p {
+  margin: 1rem 0 0;
+  color: rgba(224, 231, 225, 0.72);
+  font-size: clamp(0.76rem, 1vw, 0.9rem);
+  line-height: 1.55;
+  letter-spacing: -0.02em;
+}
+
+.sunlightGroup {
+  width: min(100%, 42rem);
+  margin: 3.75rem 0 0;
+  border: 0;
+  padding: 0;
+}
+
+.sunlightGroup + .sunlightGroup {
+  margin-top: 3rem;
+}
+
+.sunlightGroup legend {
+  width: 100%;
+  color: #35be8d;
+  font-size: 0.94rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  text-align: center;
+}
+
+.sunlightOptions {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 2.25rem;
+}
+
+.sunlightChoice {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 4rem;
+  cursor: pointer;
+  place-items: center;
+}
+
+.sunlightChoice:not(:first-child)::after {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--line-thin);
+  height: 2.1rem;
+  background: rgba(203, 217, 205, 0.2);
+  content: "";
+  transform: translateY(-50%);
+}
+
+.sunlightChoice input {
+  position: absolute;
+  width: var(--line-thin);
+  height: var(--line-thin);
+  opacity: 0;
+}
+
+.sunlightChoice span {
+  position: relative;
+  display: inline-grid;
+  min-width: 6.5rem;
+  min-height: 4rem;
+  place-items: center;
+  border-radius: var(--radius-sm);
+  color: rgba(205, 213, 206, 0.38);
+  font-size: 2.4rem;
+  font-weight: 650;
+  line-height: 1;
+  text-shadow: 0 0 0 transparent;
+  transition:
+    color 280ms ease-out,
+    filter 280ms ease-out,
+    text-shadow 280ms ease-out;
+}
+
+.sunlightOptions[data-variant="duration"] .sunlightChoice span {
+  font-family: Georgia, "Times New Roman", var(--font-garden);
+  font-size: 2.75rem;
+  font-weight: 600;
+}
+
+.sunlightChoice span::before {
+  position: absolute;
+  z-index: -1;
+  top: -1.15rem;
+  right: -1.2rem;
+  width: 7.75rem;
+  height: 5.6rem;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 70% 18%, rgba(255, 229, 157, 0.4), rgba(230, 183, 77, 0.13) 38%, transparent 72%);
+  content: "";
+  filter: blur(0.65rem);
+  opacity: 0;
+  transition: opacity 280ms ease-out;
+}
+
+.sunlightChoice span::after {
+  position: absolute;
+  right: 0;
+  bottom: -0.22rem;
+  left: 0;
+  height: var(--line-thin);
+  background: linear-gradient(90deg, transparent, rgba(255, 220, 129, 0.98) 48% 52%, transparent);
+  box-shadow: 0 0 0.6rem rgba(255, 213, 112, 0.46);
+  content: "";
+  opacity: 0;
+  transform: scaleX(0.6);
+  transition: opacity 280ms ease-out, transform 280ms ease-out;
+}
+
+.sunlightChoice input:checked + span {
+  color: #fff0bd;
+  filter: brightness(1.12);
+  text-shadow: 0 0 0.35rem rgba(255, 234, 175, 0.86), 0 0 1.25rem rgba(233, 181, 62, 0.62);
+}
+
+.sunlightChoice input:checked + span::before,
+.sunlightChoice input:checked + span::after {
+  opacity: 1;
+}
+
+.sunlightChoice input:checked + span::after {
+  transform: scaleX(1);
+}
+
+.sunlightChoice input:focus-visible + span {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: 0.35rem;
+}
+
+.sunlightNavigation {
+  display: flex;
+  width: min(100%, 23.25rem);
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2.5rem;
+}
+
+.sunlightBack,
+.sunlightNext {
+  display: inline-flex;
+  width: 11.25rem;
+  min-height: 3.75rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  border: var(--line-thin) solid transparent;
+  border-radius: 0.45rem;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: background-color var(--motion-base) var(--ease-out), opacity var(--motion-base) var(--ease-out);
+}
+
+.sunlightBack {
+  border-color: rgba(10, 101, 72, 0.1);
+  background: #f6f2e9;
+  color: #087a57;
+}
+
+.sunlightNext {
+  background: #079f72;
+  color: #fff;
+}
+
+.sunlightBack:hover,
+.sunlightNext:not(:disabled):hover {
+  opacity: 0.86;
+}
+
+.sunlightNext:disabled {
+  cursor: not-allowed;
+  background: #285244;
+  color: rgba(255, 255, 255, 0.44);
+}
+
+.sunlightBack:focus-visible,
+.sunlightNext:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+.stage1 .stepRail {
+  top: 57%;
+  right: clamp(1.5rem, 4vw, 4rem);
+  gap: clamp(6rem, 20.5vh, 10.25rem);
+}
+
+.stage1 .stepRail::before {
+  border-color: rgba(245, 240, 220, 0.42);
+}
+
+.stage1 .stepRail span {
+  width: 3.25rem;
+  height: 3.25rem;
+  border-width: 0.1rem;
+  background: rgba(4, 22, 15, 0.68);
+  color: rgba(241, 240, 226, 0.72);
+  font-size: 1.05rem;
+}
+
+.stage1 .stepRail .completeStep button {
+  color: rgba(241, 240, 226, 0.58);
+}
+
+.stage1 .stepRail .completeStep span {
+  border-color: rgba(241, 240, 226, 0.58);
+  background: rgba(5, 23, 16, 0.55);
+  box-shadow: none;
+}
+
+.stage1 .stepRail .activeStep span {
+  border-color: #fff8dc;
+  background: rgba(12, 35, 25, 0.88);
+  color: #fff8dc;
+  box-shadow: 0 0 0 0.32rem rgba(255, 248, 220, 0.2), 0 0 1.25rem rgba(245, 207, 121, 0.82);
+}
+
+.dimensionStage {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: var(--space-20) var(--space-16) var(--space-12);
+}
+
+.dimensionHeading {
+  position: relative;
+  z-index: 6;
+  width: min(38%, var(--layout-question-max));
+}
+
+.clipDefs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.cropPanel header p,
+.conditionStage > header p,
+.analysisStage > p,
+.resultStage > header p {
+  margin: 0;
+  color: var(--color-leaf-bright);
+  font-size: var(--type-kicker-size);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.dimensionHeading h1,
+.cropPanel h1 {
+  margin: 0;
+  font-size: var(--type-display-compact-size);
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.04em;
+}
+
+.cropPanel h1 {
+  margin-top: var(--space-4);
+}
+
+.dimensionHeading > span,
+.cropPanel header > span,
+.conditionStage > header > span {
+  display: block;
+  margin-top: var(--space-3);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+  line-height: 1.55;
+}
+
+.whiteSweep {
+  position: absolute;
+  z-index: 5;
+  top: 28%;
+  right: auto;
+  bottom: 0;
+  left: 0;
+  width: 44.5%;
+  height: 72%;
+  background: var(--cream);
+  color: var(--color-ink-strong);
+  box-shadow: var(--shadow-panel);
+  clip-path: url("#dimension-sweep-clip");
+}
+
+.measurementGrid {
+  position: absolute;
+  bottom: calc(var(--space-24) + var(--control-xl) + var(--space-10) + var(--space-3));
+  left: var(--space-16);
+  display: grid;
+  width: min(calc(100% - (var(--space-16) * 2)), calc(var(--space-36) * 2 + var(--space-18)));
+}
+
+.measurement {
+  display: grid;
+  min-height: var(--space-20);
+  grid-template-columns: var(--control-sm) var(--space-12) var(--space-10) var(--control-sm) var(--space-14) var(--control-sm);
+  align-items: center;
+  column-gap: var(--space-2);
+  border-bottom: var(--line-thin) solid var(--color-border);
+}
+
+.measurementIcon {
+  position: relative;
+  display: grid;
+  width: var(--control-sm);
+  height: var(--control-sm);
+  place-items: center;
+  border: var(--line-thin) solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  font-size: var(--type-body-lg-size);
+}
+
+.measurementIcon[data-kind="width"]::before {
+  content: "↔";
+}
+
+.measurementIcon[data-kind="length"]::before {
+  content: "↕";
+  transform: rotate(-24deg);
+}
+
+.measurementIcon[data-kind="height"]::before {
+  content: "↕";
+}
+
+.measurementIcon[data-kind="count"] i {
+  position: relative;
+  display: block;
+  width: var(--space-4);
+  height: var(--space-3);
+  border: var(--line-thin) solid currentColor;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.measurementIcon[data-kind="count"] i::before {
+  position: absolute;
+  top: calc(var(--space-1) * -1);
+  left: calc(var(--line-thin) * -1);
+  width: var(--space-4);
+  border-top: var(--line-thin) solid currentColor;
+  content: "";
+}
+
+.measurementLabel {
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.measurement small {
+  color: var(--color-muted);
+  font-size: var(--type-micro-size);
+  white-space: nowrap;
+}
+
+.measurement button {
+  display: grid;
+  width: var(--control-sm);
+  height: var(--control-sm);
+  cursor: pointer;
+  place-items: center;
+  border: var(--line-thin) solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-ink-strong);
+  font: inherit;
+}
+
+.measurement button:first-of-type {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.measurement button:last-of-type {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.measurement button:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.measurement button:disabled {
+  cursor: not-allowed;
+  opacity: 0.32;
+}
+
+.measurement strong {
+  display: grid;
+  height: var(--control-sm);
+  place-items: center;
+  border-block: var(--line-thin) solid var(--color-border);
+  color: var(--color-primary);
+  font-size: var(--type-title-sm-size);
+  line-height: 1;
+}
+
+.dimensionActions {
+  position: absolute;
+  bottom: var(--space-24);
+  left: var(--space-16);
+  display: grid;
+  width: min(calc(100% - (var(--space-16) * 2)), calc(var(--space-36) * 2 + var(--space-18)));
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--space-3);
+}
+
+.dimensionActions .primaryButton,
+.dimensionActions .backButton {
+  min-height: var(--control-xl);
+  border-radius: var(--radius-sm);
+}
+
+.planterViewport {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: var(--space-16);
+  width: 60%;
+  height: 58%;
+  min-height: calc((var(--space-36) * 3) - var(--space-3));
+  overflow: visible;
+  cursor: default;
+  pointer-events: none;
+  touch-action: auto;
+}
+
+.planterViewport::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-forest-deep) 6%, transparent),
+    color-mix(in srgb, var(--color-forest-deep) 16%, transparent)
+  );
+  pointer-events: none;
+}
+
+.planterViewport > div,
+.planterViewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+.planterViewport:focus-within {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+.planterStatus {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  padding: var(--space-2) var(--space-3);
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-white) 28%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-forest-deep) 78%, transparent);
+  color: var(--color-on-photo);
+  font-size: var(--type-body-sm-size);
+  line-height: 1.55;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.planterStatus[data-status="error"] {
+  border-color: var(--color-sunbeam);
+}
+
+.srOnly {
+  position: absolute;
+  width: var(--line-thin);
+  height: var(--line-thin);
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.cropStage {
+  display: grid;
+  grid-template-columns: 49% 51%;
+  align-items: center;
+  padding: var(--space-28) var(--space-18) var(--space-12);
+}
+
+.cropPanel {
+  width: min(100%, calc(var(--layout-question-max) + var(--space-16)));
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 12%, transparent);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  background: color-mix(in srgb, var(--color-forest-panel) 90%, transparent);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(var(--blur-panel));
+}
+
+.cropGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.cropCard {
+  position: relative;
+  min-height: var(--space-28);
+  cursor: pointer;
+  overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  border-radius: var(--radius-md);
+  padding: 0;
+  background: var(--color-forest-panel);
+  color: var(--color-on-photo);
+  text-align: left;
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+}
+
+.cropCard::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--color-forest-night), transparent 76%);
+  content: "";
+}
+
+.cropCard img {
+  object-fit: cover;
+  transition: transform var(--motion-slow) var(--ease-out), filter var(--motion-slow) var(--ease-out);
+}
+
+.cropCard:hover {
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
+.cropCard:hover img {
+  transform: scale(1.025);
+}
+
+.cropSelected {
+  border-color: var(--color-leaf-bright);
+}
+
+.cropSelected img {
+  filter: saturate(1.12);
+}
+
+.cropCard > span {
+  position: absolute;
+  z-index: 2;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  left: var(--space-3);
+}
+
+.cropCard strong,
+.cropCard small {
+  display: block;
+}
+
+.cropCard strong {
+  font-size: var(--type-label-size);
+}
+
+.cropCard small {
+  margin-top: var(--space-1);
+  color: var(--color-forest-mist);
+  font-size: var(--type-micro-size);
+}
+
+.cropCard > b {
+  position: absolute;
+  z-index: 3;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: grid;
+  width: var(--space-6);
+  height: var(--space-6);
+  place-items: center;
+  border: var(--line-thin) solid var(--color-on-photo);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-forest-night) 62%, transparent);
+  color: var(--color-leaf-bright);
+  font-size: var(--type-caption-size);
+}
+
+.cropSceneLabel {
+  display: grid;
+  justify-self: end;
+  width: 48%;
+  gap: var(--space-1);
+  border-left: var(--line-thin) solid var(--color-sunbeam);
+  padding-left: var(--space-4);
+}
+
+.cropSceneLabel span {
+  color: var(--color-sunbeam);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.cropSceneLabel strong {
+  font-size: var(--type-title-sm-size);
+}
+
+.cropSceneLabel small {
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.conditionStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-28) var(--space-18) var(--space-16);
+}
+
+.conditionStage > header {
+  text-align: center;
+}
+
+.conditionStage > header h1,
+.resultStage > header h1 {
+  margin: var(--space-3) 0 0;
+  font-size: var(--type-h2-size);
+  letter-spacing: -0.035em;
+}
+
+.conditionSummary {
+  display: grid;
+  width: min(100%, var(--layout-result-max));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin-top: var(--space-10);
+}
+
+.conditionGroup {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.conditionGroup legend {
+  width: 100%;
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.conditionGroup > div {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.conditionGroup label {
+  display: grid;
+  min-height: var(--space-16);
+  cursor: pointer;
+  place-content: center;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  background: color-mix(in srgb, var(--color-forest-panel) 70%, transparent);
+  backdrop-filter: blur(var(--blur-panel));
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+}
+
+.conditionGroup label:hover {
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
+.conditionGroup .conditionSelected {
+  border-color: var(--color-leaf-bright);
+  background: color-mix(in srgb, var(--color-primary) 28%, var(--color-forest-panel));
+}
+
+.conditionGroup input {
+  position: absolute;
+  width: var(--line-thin);
+  height: var(--line-thin);
+  opacity: 0;
+}
+
+.conditionGroup strong,
+.conditionGroup small {
+  display: block;
+}
+
+.conditionGroup strong {
+  font-size: var(--type-body-size);
+}
+
+.conditionGroup small {
+  margin-top: var(--space-1);
+  color: var(--color-forest-mist);
+  font-size: var(--type-micro-size);
+  line-height: 1.4;
+}
+
+.conditionStage > .navigation {
+  width: min(100%, var(--layout-result-max));
+  margin-top: var(--space-8);
+}
+
+.analysisStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-28) var(--layout-gutter) var(--space-16);
+  text-align: center;
+}
+
+.analysisPanel {
+  position: relative;
+  display: grid;
+  width: min(100%, calc(var(--layout-question-max) + var(--space-10)));
+  min-height: calc(var(--space-36) + var(--space-12));
+  margin-top: var(--space-5);
+  place-content: center;
+  overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 12%, transparent);
+  border-radius: var(--radius-2xl);
+  background: color-mix(in srgb, var(--color-forest-panel) 92%, transparent);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(var(--blur-panel));
+}
+
+.analysisPanel::before,
+.analysisPanel::after {
+  position: absolute;
+  width: var(--space-24);
+  height: var(--space-36);
+  border-radius: var(--radius-pill) 0 var(--radius-pill) 0;
+  background: color-mix(in srgb, var(--color-leaf-bright) 10%, transparent);
+  content: "";
+  transform: rotate(32deg);
+}
+
+.analysisPanel::before {
+  top: calc(var(--space-20) * -1);
+  left: var(--space-6);
+}
+
+.analysisPanel::after {
+  right: var(--space-6);
+  bottom: calc(var(--space-24) * -1);
+}
+
+.scanLine {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--line-thin);
+  background: var(--color-leaf-bright);
+  box-shadow: 0 0 var(--space-6) var(--color-leaf-bright);
+  animation: scan 1200ms var(--ease-scene) infinite;
+}
+
+.analysisLeaf {
+  display: none;
+}
+
+.analysisPanel strong {
+  position: relative;
+  z-index: 3;
+  font-size: var(--type-title-sm-size);
+  line-height: 1.45;
+}
+
+.analysisPanel small {
+  position: relative;
+  z-index: 3;
+  margin-top: var(--space-3);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.loadingTrack {
+  width: min(62%, calc(var(--space-36) * 2));
+  height: var(--space-1);
+  margin-top: var(--space-6);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-on-photo) 14%, transparent);
+}
+
+.loadingTrack span {
+  display: block;
+  width: 44%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+  animation: loading 900ms var(--ease-scene) infinite alternate;
+}
+
+.resultStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-24) var(--space-18) var(--space-12);
+}
+
+.resultStage > header {
+  text-align: center;
+}
+
+.resultStage > header > span {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.planGrid {
+  display: grid;
+  width: min(100%, var(--layout-result-max));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.planCard {
+  position: relative;
+  display: grid;
+  min-height: calc(var(--space-36) * 2);
+  cursor: pointer;
+  grid-template-rows: var(--space-36) var(--space-18) auto;
+  overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  border-radius: var(--radius-2xl);
+  padding: 0;
+  background: color-mix(in srgb, var(--color-forest-panel) 92%, transparent);
+  color: var(--color-on-photo);
+  text-align: left;
+  box-shadow: var(--shadow-planter);
+  transform: rotateY(3deg);
+  transform-style: preserve-3d;
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+}
+
+.planCard:nth-child(2) {
+  transform: rotateY(-3deg);
+}
+
+.planCard:hover {
+  transform: rotateY(0) translateY(calc(var(--space-1) * -1));
+}
+
+.planSelected {
+  border-color: var(--color-leaf-bright);
+}
+
+.planPlants {
+  position: relative;
+  grid-column: 1;
+  grid-row: 1 / 3;
+  overflow: hidden;
+}
+
+.planPlants::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--color-forest-panel), transparent 68%);
+  content: "";
+}
+
+.planPlants img {
+  object-fit: cover;
+  transition: transform var(--motion-slow) var(--ease-out);
+}
+
+.planCard:hover .planPlants img {
+  transform: scale(1.025);
+}
+
+.planterModel {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 2;
+  width: 76%;
+  margin: 0 auto;
+  transform: translateY(var(--space-4));
+}
+
+.planterModel i,
+.planterModel b {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: block;
+}
+
+.planterModel i {
+  top: 0;
+  height: var(--space-5);
+  border: var(--line-thin) solid var(--color-planter-edge);
+  border-radius: var(--radius-pill);
+  background: var(--color-forest-night);
+  transform: rotateX(62deg);
+}
+
+.planterModel b {
+  top: var(--space-2);
+  height: var(--space-16);
+  border: var(--line-thin) solid var(--color-planter-edge);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: linear-gradient(90deg, var(--color-planter-face), var(--color-planter-edge), var(--color-planter-face));
+}
+
+.planCopy {
+  position: relative;
+  z-index: 3;
+  display: block;
+  grid-column: 1;
+  grid-row: 3;
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  background: var(--color-forest-panel);
+}
+
+.planCopy small,
+.planCopy strong,
+.planCopy span {
+  display: block;
+}
+
+.planCopy small {
+  color: var(--color-leaf-bright);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.planCopy strong {
+  margin-top: var(--space-2);
+  font-size: var(--type-body-size);
+}
+
+.planCopy span {
+  margin-top: var(--space-2);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.planCard > em {
+  position: absolute;
+  z-index: 4;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  display: grid;
+  width: var(--space-7);
+  height: var(--space-7);
+  place-items: center;
+  border: var(--line-thin) solid var(--color-leaf-bright);
+  border-radius: var(--radius-pill);
+  background: var(--color-forest-panel);
+  color: var(--color-leaf-bright);
+  font-size: var(--type-caption-size);
+  font-style: normal;
+}
+
+.planSelected > em {
+  background: var(--color-leaf-bright);
+  color: var(--color-forest-night);
+}
+
+.resultDescription {
+  max-width: calc(var(--layout-result-max) - var(--space-30));
+  margin: var(--space-5) auto 0;
+  color: var(--color-forest-mist);
+  text-align: center;
+  font-size: var(--type-body-sm-size);
+}
+
+.navigation,
+.resultActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.resultActions {
+  justify-content: center;
+}
+
+.primaryButton,
+.secondaryButton,
+.backButton {
+  display: inline-flex;
+  min-height: var(--control-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-6);
+  font: inherit;
+  font-size: var(--type-label-size);
+  font-weight: 700;
+  transition: transform var(--motion-fast) var(--ease-out), opacity var(--motion-fast) var(--ease-out);
+}
+
+.primaryButton {
+  border: var(--line-thin) solid var(--color-primary-hover);
+  background: var(--color-primary-hover);
+  color: var(--color-on-photo);
+}
+
+.secondaryButton,
+.backButton {
+  border: var(--line-thin) solid color-mix(in srgb, currentColor 28%, transparent);
+  background: transparent;
+  color: inherit;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.backButton:hover {
+  opacity: 0.84;
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
+.primaryButton:active,
+.secondaryButton:active,
+.backButton:active,
+.cropCard:active,
+.planCard:active {
+  transform: scale(0.98);
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.36;
+  transform: none;
+}
+
+.measurement button:focus-visible,
+.cropCard:focus-visible,
+.conditionGroup input:focus-visible + strong,
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible,
+.backButton:focus-visible,
+.planCard:focus-visible,
+.stepRail button:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+.stepRail {
+  position: absolute;
+  z-index: 12;
+  top: 50%;
+  right: var(--space-6);
+  display: grid;
+  gap: var(--space-12);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateY(-50%);
+}
+
+.stepRail::before {
+  position: absolute;
+  z-index: -1;
+  top: calc(var(--control-xl) / 2);
+  right: calc((var(--control-xl) / 2) - var(--line-thin));
+  bottom: calc(var(--control-xl) / 2);
+  border-left: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 36%, transparent);
+  content: "";
+}
+
+.stepRail button {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--color-on-photo) 46%, transparent);
+  font: inherit;
+}
+
+.stepRail button:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.stepRail span {
+  display: grid;
+  width: var(--control-xl);
+  height: var(--control-xl);
+  place-items: center;
+  border: var(--line-thin) solid currentColor;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-forest-night) 72%, transparent);
+  font-size: var(--type-caption-size);
+}
+
+.stepRail small {
+  display: none;
+}
+
+.stepRail .activeStep button,
+.stepRail .completeStep button {
+  color: var(--color-on-photo);
+}
+
+.stepRail .activeStep span {
+  border-color: var(--color-on-photo);
+  background: color-mix(in srgb, var(--color-forest-panel) 86%, transparent);
+  box-shadow: 0 0 0 var(--space-2) color-mix(in srgb, var(--color-on-photo) 24%, transparent), 0 0 var(--space-5) color-mix(in srgb, var(--color-accent) 42%, transparent);
+}
+
+.stepRail .completeStep span {
+  border-color: var(--color-leaf-bright);
+}
+
+@keyframes scene-in {
+  from { opacity: 0; transform: scale(1.025); filter: blur(var(--space-1)); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes stage-in {
+  from { opacity: 0; transform: translate3d(0, var(--space-3), 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes scan {
+  from { opacity: 0; transform: translateY(0); }
+  20% { opacity: 1; }
+  to { opacity: 0; transform: translateY(calc(var(--space-36) + var(--space-12))); }
+}
+
+@keyframes loading {
+  from { transform: translateX(-80%); }
+  to { transform: translateX(210%); }
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .planterViewport {
+    right: 0;
+    width: 60%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .dimensionHeading {
+    width: min(44%, calc(var(--layout-question-max) + var(--space-24)));
+  }
+
+  .dimensionHeading h1 {
+    font-size: var(--type-display-hero-size);
+    line-height: 1.08;
+  }
+
+  .dimensionHeading > span {
+    max-width: calc(var(--layout-question-max) + var(--space-8));
+    margin-top: var(--space-4);
+    font-size: var(--type-body-size);
+    line-height: 1.55;
+  }
+
+  .measurementGrid {
+    width: calc(var(--space-36) * 3 + var(--space-16));
+  }
+
+  .measurement {
+    min-height: calc(var(--space-20) + var(--space-3));
+    grid-template-columns: var(--control-lg) var(--space-18) var(--control-md) var(--control-lg) var(--space-16) var(--control-lg);
+    column-gap: var(--space-3);
+  }
+
+  .measurementIcon {
+    width: var(--control-lg);
+    height: var(--control-lg);
+    font-size: var(--type-body-lg-size);
+  }
+
+  .measurementLabel {
+    font-size: var(--type-body-size);
+  }
+
+  .measurement small {
+    font-size: var(--type-caption-size);
+  }
+
+  .measurement button {
+    width: var(--control-lg);
+    height: var(--control-lg);
+    font-size: var(--type-body-lg-size);
+  }
+
+  .measurement strong {
+    height: var(--control-lg);
+    font-size: var(--type-stat-size);
+  }
+
+  .dimensionActions {
+    width: calc(var(--space-36) * 3 + var(--space-16));
+  }
+
+  .dimensionActions .primaryButton,
+  .dimensionActions .backButton {
+    min-height: var(--space-16);
+    font-size: var(--type-body-size);
+  }
+}
+
+@media (max-width: 1024px) {
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .resultStage {
+    padding-inline: var(--space-8) var(--space-16);
+  }
+
+  .whiteSweep {
+    width: 52%;
+  }
+
+  .planterViewport {
+    right: calc(21% - 20vw);
+    width: 58%;
+  }
+
+  .cropStage {
+    grid-template-columns: 58% 42%;
+  }
+
+  .cropGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cropSceneLabel {
+    width: 70%;
+  }
+
+  .stepRail {
+    right: var(--space-4);
+  }
+
+  .stepRail small {
+    display: none;
+  }
+
+  .sunlightGroup {
+    width: min(100%, 34rem);
+    margin-top: 2rem;
+  }
+
+  .sunlightGroup + .sunlightGroup {
+    margin-top: 2rem;
+  }
+
+  .sunlightGroup legend {
+    font-size: 0.8rem;
+  }
+
+  .sunlightOptions {
+    margin-top: 1rem;
+  }
+
+  .sunlightChoice {
+    min-height: 3rem;
+  }
+
+  .sunlightChoice:not(:first-child)::after {
+    height: 1.6rem;
+  }
+
+  .sunlightChoice span {
+    min-width: 5.5rem;
+    min-height: 3rem;
+    font-size: 1.75rem;
+  }
+
+  .sunlightOptions[data-variant="duration"] .sunlightChoice span {
+    font-size: 2.1rem;
+  }
+
+  .sunlightNavigation {
+    width: min(100%, 20.75rem);
+    margin-top: 2.2rem;
+  }
+
+  .sunlightBack,
+  .sunlightNext {
+    width: 10rem;
+    min-height: 3.45rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .diagnosis {
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .sceneBackdrop,
+  .sceneShade,
+  .sceneTexture {
+    position: fixed;
+  }
+
+  .sceneImage {
+    object-position: 64% center;
+  }
+
+  .sceneShade {
+    background: linear-gradient(0deg, var(--color-forest-night) 10%, color-mix(in srgb, var(--color-forest-night) 10%, transparent) 58%, color-mix(in srgb, var(--color-forest-night) 48%, transparent));
+  }
+
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage {
+    min-height: 100svh;
+    padding: var(--space-24) var(--space-4) var(--space-20);
+  }
+
+  .dimensionStage {
+    min-height: calc(100svh + var(--space-36));
+    padding-bottom: 0;
+  }
+
+  .dimensionHeading {
+    width: 92%;
+  }
+
+  .dimensionHeading h1,
+  .cropPanel h1 {
+    font-size: var(--type-h2-size);
+  }
+
+  .dimensionHeading > span {
+    max-width: 92%;
+  }
+
+  .whiteSweep {
+    position: absolute;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 46%;
+    min-height: 0;
+    border-radius: 50% 50% 0 0 / 12% 12% 0 0;
+    padding: 0;
+    clip-path: none;
+  }
+
+  .measurementGrid {
+    bottom: calc(var(--space-16) + var(--control-xl) + var(--space-5));
+    left: var(--space-6);
+    width: calc(100% - (var(--space-6) * 2));
+  }
+
+  .dimensionActions {
+    bottom: var(--space-16);
+    left: var(--space-6);
+    width: calc(100% - (var(--space-6) * 2));
+  }
+
+  .planterViewport {
+    top: 18svh;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: 48svh;
+    min-height: calc((var(--space-36) * 2) + var(--space-12));
+  }
+
+  .cropStage {
+    display: block;
+  }
+
+  .cropPanel {
+    margin-top: 22svh;
+    padding: var(--space-5);
+  }
+
+  .cropGrid {
+    margin-top: var(--space-4);
+  }
+
+  .cropCard {
+    min-height: var(--space-20);
+  }
+
+  .cropSceneLabel {
+    position: absolute;
+    top: var(--space-20);
+    right: var(--space-4);
+    width: 48%;
+  }
+
+  .conditionStage {
+    align-content: end;
+  }
+
+  .conditionStage > header h1,
+  .resultStage > header h1 {
+    font-size: var(--type-h3-size);
+  }
+
+  .conditionSummary {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  .conditionGroup > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .conditionGroup label {
+    min-height: var(--control-xl);
+    padding: var(--space-2);
+  }
+
+  .conditionGroup small {
+    display: none;
+  }
+
+  .analysisPanel {
+    min-height: calc(var(--space-36) + var(--space-6));
+  }
+
+  .planGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .planCard {
+    min-height: calc(var(--space-36) + var(--space-30));
+    grid-template-rows: var(--space-24) var(--space-14) auto;
+    transform: none;
+  }
+
+  .planCard:nth-child(2) {
+    transform: none;
+  }
+
+  .planterModel b {
+    height: var(--space-12);
+  }
+
+  .resultActions {
+    width: 100%;
+    flex-direction: column-reverse;
+  }
+
+  .resultActions .primaryButton,
+  .resultActions .secondaryButton {
+    width: 100%;
+  }
+
+  .stepRail {
+    position: absolute;
+    top: auto;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    left: var(--space-4);
+    display: flex;
+    justify-content: center;
+    gap: var(--space-10);
+    transform: none;
+  }
+
+  .stepRail::before {
+    top: calc((var(--space-8) / 2) - var(--line-thin));
+    right: calc(50% - var(--space-16));
+    bottom: auto;
+    left: calc(50% - var(--space-16));
+    border-top: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 36%, transparent);
+    border-left: 0;
+  }
+
+  .stepRail span {
+    width: var(--space-8);
+    height: var(--space-8);
+  }
+
+  .sunlightStage {
+    height: auto;
+    min-height: max(100svh, 45rem);
+  }
+
+  .sunlightCanopy {
+    top: -3.5rem;
+    width: 13rem;
+    transform: translateX(-42%) scale(0.82);
+  }
+
+  .sunlightProgress {
+    top: 1.2rem;
+    right: 1.15rem;
+    width: 8rem;
+  }
+
+  .sunlightProgress i {
+    width: 7rem;
+  }
+
+  .sunlightContent {
+    width: calc(100% - 2rem);
+    height: auto;
+    min-height: max(100svh, 45rem);
+    padding: 8.5rem 0 6.75rem;
+  }
+
+  .sunlightHeading h1 {
+    font-size: clamp(1.85rem, 5.8vw, 2.5rem);
+  }
+
+  .sunlightHeading p {
+    max-width: 31rem;
+    margin-inline: auto;
+    padding-inline: 1rem;
+  }
+
+  .sunlightGroup {
+    width: min(100%, 32rem);
+    margin-top: 1.9rem;
+  }
+
+  .sunlightGroup + .sunlightGroup {
+    margin-top: 1.75rem;
+  }
+
+  .sunlightOptions {
+    margin-top: 1.15rem;
+  }
+
+  .sunlightChoice span {
+    min-width: 0;
+    width: 76%;
+    font-size: 1.55rem;
+  }
+
+  .sunlightOptions[data-variant="duration"] .sunlightChoice span {
+    font-size: 1.85rem;
+  }
+
+  .sunlightNavigation {
+    width: min(100%, 22rem);
+    margin-top: 1.85rem;
+  }
+
+  .sunlightBack,
+  .sunlightNext {
+    width: 50%;
+  }
+
+  .stage1 .stepRail {
+    top: auto;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    gap: 2.5rem;
+    transform: none;
+  }
+
+  .stage1 .stepRail span {
+    width: var(--space-8);
+    height: var(--space-8);
+    font-size: var(--type-caption-size);
+  }
+}
+
+@media (max-width: 420px) {
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage {
+    padding-inline: var(--space-3);
+  }
+
+  .cropPanel {
+    padding: var(--space-5);
+  }
+
+  .measurement {
+    grid-template-columns: var(--control-sm) var(--space-16) var(--space-8) var(--control-sm) var(--space-12) var(--control-sm);
+    column-gap: var(--space-1);
+  }
+
+  .planterViewport {
+    top: 19svh;
+    left: 0;
+    width: 100%;
+    height: 42svh;
+    min-height: calc(var(--space-36) * 2);
+    transform: none;
+  }
+
+  .cropCard strong,
+  .conditionGroup strong {
+    font-size: var(--type-caption-size);
+  }
+
+  .sunlightContent {
+    width: calc(100% - 1.5rem);
+    padding-top: 11.75rem;
+  }
+
+  .sunlightHeading h1 {
+    font-size: 1.78rem;
+  }
+
+  .sunlightHeading p {
+    padding-inline: 0.25rem;
+    font-size: 0.74rem;
+  }
+
+  .sunlightGroup legend {
+    font-size: 0.74rem;
+  }
+
+  .sunlightChoice span {
+    width: 82%;
+    font-size: 1.5rem;
+  }
+
+  .sunlightOptions[data-variant="duration"] .sunlightChoice span {
+    font-size: 1.75rem;
+  }
+
+  .sunlightNavigation {
+    gap: 0.5rem;
+  }
+
+  .sunlightBack,
+  .sunlightNext {
+    min-height: 3.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sceneBackdrop,
+  .sceneImage,
+  .dimensionStage,
+  .sunlightStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage,
+  .cropSceneLabel,
+  .scanLine,
+  .loadingTrack span,
+  .cropCard img,
+  .planPlants img,
+  .sunlightChoice span,
+  .sunlightChoice span::before,
+  .sunlightChoice span::after,
+  .sunlightBack,
+  .sunlightNext {
+    animation: none;
+    transition: none;
+  }
+}

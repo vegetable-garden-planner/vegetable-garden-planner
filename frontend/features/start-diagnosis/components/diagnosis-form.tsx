@@ -1,304 +1,354 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { SessionAwareLink } from "@/components/session-aware-link";
-import { encodeNextPath } from "@/features/auth/domain/auth";
+import { useEffect, useState } from "react";
 import {
-  CROP_CATEGORY_LABELS,
-  CROP_DIFFICULTY_LABELS,
-} from "@/features/crop-catalog/data/crop-labels";
-import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
-import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
+  CROP_OPTIONS,
+  DEFAULT_SELECTED_CROPS,
+  toggleCropSelection,
+  type CropId,
+} from "@/features/start-diagnosis/data/crop-selection";
 import {
-  CARE_TIME_OPTIONS,
-  GOAL_OPTIONS,
-  SPACE_OPTIONS,
-  SUNLIGHT_OPTIONS,
-} from "@/features/start-diagnosis/data/questions";
+  DEFAULT_GARDEN_CONFIGURATOR_STATE,
+  toGardenConfiguration,
+  type GardenConfiguratorState,
+} from "@/features/start-diagnosis/domain/garden-configuration";
 import {
-  getRecommendation,
-  isCompleteDiagnosis,
-  type DiagnosisAnswers,
-  type DiagnosisFallback,
-  type DiagnosisRecommendation,
-} from "@/features/start-diagnosis/domain/diagnosis";
-import { OptionList } from "./option-list";
-import styles from "./start-diagnosis.module.css";
+  createGardenRecommendation,
+  type GardenRecommendation,
+} from "@/features/start-diagnosis/domain/garden-recommendation";
+import { CropSelectionStage } from "./crop-selection-stage";
+import { PlanterViewport } from "./planter-viewport";
+import { RecommendationGuide } from "./recommendation-guide";
+import {
+  SunlightStage,
+  type PlantPlacement,
+  type SunlightDuration,
+  type SunlightSelection,
+} from "./sunlight-stage";
+import styles from "./diagnosis-form.module.css";
 
-const STEP_TITLES = [
-  "어떤 공간에서 시작할 수 있나요?",
-  "햇빛은 하루에 얼마나 드나요?",
-  "식물을 얼마나 자주 돌볼 수 있나요?",
-  "식물을 키우는 가장 큰 목적은 무엇인가요?",
+const STAGES = ["화분 크기", "햇빛 조건", "작물 선택"] as const;
+
+const SCENE_IMAGES = [
+  "/figma/diagnosis-greenhouse-reference-empty.png",
+  "/figma/diagnosis-sunlight-greenhouse-v2.png",
+  "/figma/garden-room-clean.webp",
+  "/figma/image1.png",
+  "/figma/diagnosis-result-greenhouse-v1.png",
 ] as const;
 
-const LAST_QUESTION_INDEX = STEP_TITLES.length - 1;
+type Measurements = { width: number; length: number; height: number; count: number };
+
+const CONFIGURATOR_STORAGE_KEY = "simeobom:garden-configurator:v1";
+
+const MEASUREMENT_LIMITS: Record<keyof Measurements, { min: number; max: number; step: number }> = {
+  width: { min: 10, max: 120, step: 5 },
+  length: { min: 10, max: 60, step: 5 },
+  height: { min: 10, max: 60, step: 5 },
+  count: { min: 1, max: 12, step: 1 },
+};
 
 export function DiagnosisForm() {
-  const catalog = useCropCatalog();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Partial<DiagnosisAnswers>>({});
-  const isResultStep = step === STEP_TITLES.length;
+  const [maxVisitedStep, setMaxVisitedStep] = useState(0);
+  const [configuration, setConfiguration] = useState<GardenConfiguratorState>(() => createDefaultConfiguration());
+  const [recommendation, setRecommendation] = useState<GardenRecommendation | null>(null);
+  const [storageReady, setStorageReady] = useState(false);
+  const measurements: Measurements = {
+    width: configuration.planter.widthCm,
+    length: configuration.planter.heightCm,
+    height: configuration.planter.depthCm,
+    count: configuration.planter.count,
+  };
+  const sunlightSelection: SunlightSelection = {
+    duration: configuration.sunlight.duration,
+    placement: configuration.sunlight.location,
+  };
+  const selectedCrops = configuration.preferences.selectedCrops;
+  const completeConfiguration = toGardenConfiguration(configuration);
+  const railStep = Math.min(step, STAGES.length - 1);
+  const isFollowUpState = step >= STAGES.length;
 
-  function updateAnswer<K extends keyof DiagnosisAnswers>(
-    key: K,
-    value: DiagnosisAnswers[K],
-  ) {
-    setAnswers((current) => ({ ...current, [key]: value }));
-  }
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      const restored = readStoredConfigurator();
+      if (restored) {
+        setConfiguration(restored.configuration);
+        setRecommendation(restored.recommendation);
+        if (new URLSearchParams(window.location.search).get("stage") === "crops") {
+          setStep(2);
+          setMaxVisitedStep(4);
+        }
+      }
+      if (window.location.search) window.history.replaceState(null, "", window.location.pathname);
+      setStorageReady(true);
+    });
 
-  const goBack = () => setStep((current) => Math.max(0, current - 1));
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
 
-  function restart() {
-    setAnswers({});
-    setStep(0);
-  }
-
-  if (isResultStep && isCompleteDiagnosis(answers)) {
-    if (catalog.status === "loading") return <CatalogLoading />;
-    if (catalog.status === "error") {
-      return <CatalogError message={catalog.message} onBack={goBack} />;
+  useEffect(() => {
+    if (!storageReady) return;
+    try {
+      window.sessionStorage.setItem(CONFIGURATOR_STORAGE_KEY, JSON.stringify({
+        version: 1,
+        configuration,
+        recommendation,
+      }));
+    } catch {
+      // Storage is an enhancement; the in-memory configurator remains the source for this visit.
     }
+  }, [configuration, recommendation, storageReady]);
 
-    return (
-      <ResultStep
-        onBack={goBack}
-        onRestart={restart}
-        recommendation={getRecommendation(answers, catalog.crops)}
-      />
-    );
+  useEffect(() => {
+    if (step !== 3 || !recommendation) return;
+    const timer = window.setTimeout(() => {
+      setStep(4);
+      setMaxVisitedStep(4);
+    }, 2200);
+    return () => window.clearTimeout(timer);
+  }, [recommendation, step]);
+
+  function changeMeasurement(key: keyof Measurements, amount: number) {
+    const { max, min } = MEASUREMENT_LIMITS[key];
+    const planterKey = key === "width"
+      ? "widthCm"
+      : key === "length"
+        ? "heightCm"
+        : key === "height"
+          ? "depthCm"
+          : "count";
+    setConfiguration((current) => ({
+      ...current,
+      planter: {
+        ...current.planter,
+        [planterKey]: Math.min(max, Math.max(min, current.planter[planterKey] + amount)),
+      },
+    }));
+    setRecommendation(null);
+  }
+
+  function updateSunlightDuration(duration: SunlightDuration) {
+    setConfiguration((current) => ({
+      ...current,
+      sunlight: { ...current.sunlight, duration },
+    }));
+    setRecommendation(null);
+  }
+
+  function updatePlantPlacement(placement: PlantPlacement) {
+    setConfiguration((current) => ({
+      ...current,
+      sunlight: { ...current.sunlight, location: placement },
+    }));
+    setRecommendation(null);
+  }
+
+  function toggleCrop(cropId: CropId) {
+    setConfiguration((current) => ({
+      ...current,
+      preferences: {
+        selectedCrops: toggleCropSelection(current.preferences.selectedCrops, cropId),
+      },
+    }));
+  }
+
+  function completeCropSelection() {
+    const complete = toGardenConfiguration(configuration);
+    if (!complete) return;
+    setRecommendation(createGardenRecommendation({
+      planter: complete.planter,
+      sunlight: complete.sunlight,
+    }));
+    advance(3);
+  }
+
+  function advance(nextStep = step + 1) {
+    setStep(nextStep);
+    setMaxVisitedStep((current) => Math.max(current, nextStep));
   }
 
   return (
-    <QuestionStep
-      answers={answers}
-      onBack={goBack}
-      onNext={() => setStep((current) => current + 1)}
-      onSelect={updateAnswer}
-      step={Math.min(step, LAST_QUESTION_INDEX)}
-    />
-  );
-}
+    <section
+      aria-label="맞춤 재배 시작 진단"
+      className={`${styles.diagnosis} ${styles[`stage${step}`]}`}
+    >
+      <div className={styles.sceneBackdrop} aria-hidden="true">
+        <Image alt="" className={styles.sceneImage} fill key={SCENE_IMAGES[step]} priority={step === 0} sizes="100vw" src={SCENE_IMAGES[step]} />
+      </div>
+      <div className={styles.sceneShade} aria-hidden="true" />
+      <div className={styles.sceneTexture} aria-hidden="true" />
 
-function QuestionStep({
-  answers,
-  onBack,
-  onNext,
-  onSelect,
-  step,
-}: {
-  answers: Partial<DiagnosisAnswers>;
-  onBack: () => void;
-  onNext: () => void;
-  onSelect: <K extends keyof DiagnosisAnswers>(key: K, value: DiagnosisAnswers[K]) => void;
-  step: number;
-}) {
-  const currentAnswer = getCurrentAnswer(step, answers);
-
-  return (
-    <div className={styles.diagnosis}>
-      <section className={styles.panel}>
-        <div className={styles.progress}>
-          <p>시작 진단</p>
-          <p>{step + 1} / {STEP_TITLES.length}</p>
-        </div>
-        <div aria-hidden="true" className={styles.progressBar}>
-          <span
-            className={styles.progressFill}
-            style={{ width: `${((step + 1) / STEP_TITLES.length) * 100}%` }}
-          />
-        </div>
-
-        <h2 className={styles.question}>{STEP_TITLES[step]}</h2>
-        {renderQuestion(step, answers, onSelect)}
-
-        <div className={styles.actions}>
-          <button className={styles.ghostButton} disabled={step === 0} onClick={onBack} type="button">
-            이전
-          </button>
-          <button className={styles.primaryButton} disabled={!currentAnswer} onClick={onNext} type="button">
-            {step === LAST_QUESTION_INDEX ? "결과 보기" : "다음"}
-          </button>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function ResultStep({
-  onBack,
-  onRestart,
-  recommendation,
-}: {
-  onBack: () => void;
-  onRestart: () => void;
-  recommendation: DiagnosisRecommendation;
-}) {
-  const hasCrops = recommendation.crops.length > 0;
-
-  return (
-    <div className={styles.diagnosis}>
-      <section aria-live="polite" className={styles.panel}>
-        <p className={styles.resultKicker}>추천 시작 단계 · {recommendation.spaceTypeLabel}</p>
-        <h2 className={styles.resultTitle}>{recommendation.title}</h2>
-        <p className={styles.resultLead}>{recommendation.description}</p>
-
-        <div className={styles.notes}>
-          <p className={styles.note}>
-            <strong>햇빛 조건</strong>
-            <span>{recommendation.sunlightNote}</span>
-          </p>
-          {recommendation.careTimeNote && (
-            <p className={styles.note}>
-              <strong>관리 시간 안내</strong>
-              <span>{recommendation.careTimeNote}</span>
-            </p>
-          )}
-        </div>
-
-        {hasCrops && (
-          <section className={styles.section}>
-            <div className={styles.sectionHeading}>
-              <h3>지금 시작하기 좋은 식물</h3>
-              <Link href="/crops">전체 식물 보기</Link>
-            </div>
-            <CropList crops={recommendation.crops} />
-          </section>
-        )}
-
-        <section className={styles.section}>
-          <div className={styles.sectionHeading}><h3>먼저 준비할 것</h3></div>
-          <ul className={styles.preparation}>
-            {recommendation.preparation.map((item) => <li key={item}>{item}</li>)}
-          </ul>
-        </section>
-
-        <div className={styles.resultActions}>
-          <SessionAwareLink
-            anonymousHref={`/login?next=${encodeNextPath(`/spaces/new?type=${recommendation.spaceTypeKey}`)}`}
-            anonymousLabel="로그인하고 공간 등록하기"
-            authenticatedHref={`/spaces/new?type=${recommendation.spaceTypeKey}`}
-            authenticatedLabel={`${recommendation.spaceTypeLabel} 공간 등록하기`}
-            className="primary-action px-5 py-3"
-          />
-          <button className={styles.ghostButton} onClick={onBack} type="button">이전 답변 보기</button>
-          <button className={styles.ghostButton} onClick={onRestart} type="button">처음부터 다시 하기</button>
-        </div>
-      </section>
-
-      {!hasCrops && recommendation.fallback && (
-        <FallbackPanel
-          fallback={recommendation.fallback}
-          spaceTypeLabel={recommendation.spaceTypeLabel}
+      {step === 0 && (
+        <DimensionStage measurements={measurements} onAdvance={() => advance(1)} onChange={changeMeasurement} />
+      )}
+      {step === 1 && (
+        <SunlightStage
+          onAdvance={() => advance(2)}
+          onBack={() => setStep(0)}
+          onDurationChange={updateSunlightDuration}
+          onPlacementChange={updatePlantPlacement}
+          selection={sunlightSelection}
         />
       )}
-      {!hasCrops && !recommendation.fallback && <EmptyResult />}
-    </div>
+      {step === 2 && (
+        <CropSelectionStage
+          onAdvance={completeCropSelection}
+          onBack={() => setStep(1)}
+          onToggle={toggleCrop}
+          selectedCrops={selectedCrops}
+        />
+      )}
+      {step === 3 && <AnalysisStage />}
+      {step === 4 && recommendation && completeConfiguration && (
+        <RecommendationGuide
+          configuration={completeConfiguration}
+          recommendation={recommendation}
+        />
+      )}
+
+      {step !== 2 && step !== 4 && (
+        <ol className={styles.stepRail} aria-label="진단 진행 단계">
+          {STAGES.map((label, index) => (
+            <li
+              className={!isFollowUpState && index === railStep ? styles.activeStep : index < railStep || isFollowUpState ? styles.completeStep : ""}
+              key={label}
+            >
+              <button
+                aria-current={!isFollowUpState && index === railStep ? "step" : undefined}
+                aria-label={`${index + 1}단계, ${label}`}
+                disabled={index > Math.min(maxVisitedStep, STAGES.length - 1)}
+                onClick={() => setStep(index)}
+                type="button"
+              >
+                <small>{label}</small>
+                <span>{index + 1}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
   );
 }
 
-function CropList({ crops }: { crops: readonly CropReference[] }) {
-  return (
-    <ul className={styles.cropList}>
-      {crops.map((crop) => (
-        <li key={crop.id}>
-          <Link className={styles.cropCard} href={`/crops/${crop.id}`}>
-            <span className={styles.cropCardHead}>
-              <strong>{crop.name}</strong>
-              <span>{CROP_CATEGORY_LABELS[crop.category]}</span>
-            </span>
-            <dl>
-              <div><dt>관리 난이도</dt><dd>{CROP_DIFFICULTY_LABELS[crop.difficulty]}</dd></div>
-              <div><dt>심는 시기</dt><dd>{crop.plantingPeriod.label}</dd></div>
-            </dl>
-            <b>재배 방법 자세히 보기</b>
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
+function createDefaultConfiguration(): GardenConfiguratorState {
+  return {
+    planter: { ...DEFAULT_GARDEN_CONFIGURATOR_STATE.planter },
+    sunlight: {},
+    preferences: { selectedCrops: [...DEFAULT_SELECTED_CROPS] },
+  };
 }
 
-function FallbackPanel({
-  fallback,
-  spaceTypeLabel,
+function readStoredConfigurator(): {
+  configuration: GardenConfiguratorState;
+  recommendation: GardenRecommendation | null;
+} | null {
+  try {
+    const raw = window.sessionStorage.getItem(CONFIGURATOR_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as {
+      version?: unknown;
+      configuration?: GardenConfiguratorState;
+      recommendation?: GardenRecommendation | null;
+    };
+    const configuration = parsed.configuration;
+    if (parsed.version !== 1 || !configuration) return null;
+    const selectedIds = new Set(CROP_OPTIONS.map((crop) => crop.id));
+    const selectedCrops = configuration.preferences?.selectedCrops;
+    const planter = configuration.planter;
+    if (
+      !planter
+      || !Number.isFinite(planter.widthCm)
+      || !Number.isFinite(planter.heightCm)
+      || !Number.isFinite(planter.depthCm)
+      || !Number.isFinite(planter.count)
+      || !Array.isArray(selectedCrops)
+      || selectedCrops.some((cropId) => !selectedIds.has(cropId))
+    ) return null;
+
+    return {
+      configuration: {
+        planter: { ...planter },
+        sunlight: { ...configuration.sunlight },
+        preferences: { selectedCrops: [...selectedCrops] },
+      },
+      recommendation: parsed.recommendation?.planters ? parsed.recommendation : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function DimensionStage({
+  measurements,
+  onAdvance,
+  onChange,
 }: {
-  fallback: DiagnosisFallback;
-  spaceTypeLabel: string;
+  measurements: Measurements;
+  onAdvance: () => void;
+  onChange: (key: keyof Measurements, amount: number) => void;
 }) {
   return (
-    <section aria-label={`${spaceTypeLabel} 대신 시작할 수 있는 방법`} className={styles.fallback}>
-      <p>{fallback.message}</p>
-      <CropList crops={fallback.crops} />
-      <SessionAwareLink
-        anonymousHref={`/login?next=${encodeNextPath(`/spaces/new?type=${fallback.spaceTypeKey}`)}`}
-        anonymousLabel={`로그인하고 ${fallback.spaceTypeLabel} 공간 등록하기`}
-        authenticatedHref={`/spaces/new?type=${fallback.spaceTypeKey}`}
-        authenticatedLabel={`${fallback.spaceTypeLabel} 공간 등록하기`}
-        className={styles.fallbackAction}
-      />
-    </section>
-  );
-}
-
-function EmptyResult() {
-  return (
-    <section className={styles.empty}>
-      <h3>지금 조건에 맞는 기준정보가 없어요</h3>
-      <p>준비된 식물 기준정보를 직접 둘러보고 시작할 식물을 골라 보세요.</p>
-      <Link className="primary-action mt-5 px-5 py-3" href="/crops">전체 식물 보기</Link>
-    </section>
-  );
-}
-
-function CatalogLoading() {
-  return (
-    <div className={styles.loading} aria-label="추천 식물을 불러오는 중" role="status">
-      <span />
-      <span />
-    </div>
-  );
-}
-
-function CatalogError({ message, onBack }: { message: string; onBack: () => void }) {
-  return (
-    <div className={styles.error} role="alert">
-      <h2>추천 식물을 불러오지 못했어요</h2>
-      <p>{message}</p>
-      <div className={styles.errorActions}>
-        <button className={styles.primaryButton} onClick={() => window.location.reload()} type="button">
-          다시 불러오기
-        </button>
-        <button className={styles.ghostButton} onClick={onBack} type="button">이전 답변 보기</button>
+    <div className={styles.dimensionStage}>
+      <svg aria-hidden="true" className={styles.clipDefs} focusable="false">
+        <defs>
+          <clipPath clipPathUnits="objectBoundingBox" id="dimension-sweep-clip">
+            <path d="M 0 0.24 C 0.22 0.06 0.5 -0.04 0.7 0.08 C 0.89 0.2 0.91 0.62 1 1 L 0 1 Z" />
+          </clipPath>
+        </defs>
+      </svg>
+      <header className={styles.dimensionHeading}>
+        <h1>사용할 화분의<br />크기를 알려주세요</h1>
+        <span>가로, 세로, 깊이와 화분 개수를 입력하면<br />맞춤 재배 계획을 계산해드려요.</span>
+      </header>
+      <div className={styles.whiteSweep}>
+        <div className={styles.measurementGrid}>
+          {(Object.keys(measurements) as (keyof Measurements)[]).map((key) => {
+            const { max, min, step } = MEASUREMENT_LIMITS[key];
+            const label = getMeasurementLabel(key);
+            return (
+              <div className={styles.measurement} key={key}>
+                <span aria-hidden="true" className={styles.measurementIcon} data-kind={key}><i /></span>
+                <span className={styles.measurementLabel}>{label}</span>
+                <small>{key === "count" ? "(개)" : "(cm)"}</small>
+                <button aria-label={`${label} 값 줄이기`} disabled={measurements[key] <= min} onClick={() => onChange(key, -step)} type="button">−</button>
+                <strong aria-live="polite">{measurements[key]}</strong>
+                <button aria-label={`${label} 값 늘리기`} disabled={measurements[key] >= max} onClick={() => onChange(key, step)} type="button">+</button>
+              </div>
+            );
+          })}
+        </div>
+        <div className={styles.dimensionActions}>
+          <Link className={styles.backButton} href="/"><span aria-hidden="true">←</span> 이전</Link>
+          <button className={styles.primaryButton} onClick={onAdvance} type="button">다음 <span aria-hidden="true">→</span></button>
+        </div>
       </div>
+      <PlanterViewport measurements={measurements} />
     </div>
   );
 }
 
-function getCurrentAnswer(
-  step: number,
-  answers: Partial<DiagnosisAnswers>,
-): string | undefined {
-  if (step === 0) return answers.space;
-  if (step === 1) return answers.sunlight;
-  if (step === 2) return answers.careTime;
-  return answers.goal;
+function AnalysisStage() {
+  return (
+    <div className={styles.analysisStage} aria-live="polite">
+      <p>공간을 분석하고 있어요</p>
+      <div className={styles.analysisPanel}>
+        <span className={styles.scanLine} aria-hidden="true" />
+        <span className={styles.analysisLeaf} aria-hidden="true">⌁</span>
+        <strong>빛, 공간, 돌봄 시간을<br />한데 맞추는 중이에요</strong>
+        <small>잠시만 기다려 주세요</small>
+      </div>
+      <div className={styles.loadingTrack} aria-hidden="true"><span /></div>
+    </div>
+  );
 }
 
-function renderQuestion(
-  step: number,
-  answers: Partial<DiagnosisAnswers>,
-  onSelect: <K extends keyof DiagnosisAnswers>(key: K, value: DiagnosisAnswers[K]) => void,
-) {
-  if (step === 0) {
-    return <OptionList name="space" onSelect={(value) => onSelect("space", value)} options={SPACE_OPTIONS} selected={answers.space} />;
-  }
-  if (step === 1) {
-    return <OptionList name="sunlight" onSelect={(value) => onSelect("sunlight", value)} options={SUNLIGHT_OPTIONS} selected={answers.sunlight} />;
-  }
-  if (step === 2) {
-    return <OptionList name="care-time" onSelect={(value) => onSelect("careTime", value)} options={CARE_TIME_OPTIONS} selected={answers.careTime} />;
-  }
-  return <OptionList name="goal" onSelect={(value) => onSelect("goal", value)} options={GOAL_OPTIONS} selected={answers.goal} />;
+function getMeasurementLabel(key: keyof Measurements) {
+  if (key === "width") return "가로";
+  if (key === "length") return "세로";
+  if (key === "height") return "깊이";
+  return "화분 개수";
 }

@@ -69,7 +69,7 @@ function HeroSection({
               resourcesLoading={resourcesLoading}
             />
           </p>
-          {!authenticated && !authLoading && <Link className={styles.heroAction} href={`/signup?next=${encodeNextPath("/")}`}>무료로 시작하기</Link>}
+          {!authenticated && !authLoading && <Link className={styles.heroAction} href="/start">무료로 시작하기</Link>}
         </div>
         <div className={styles.dateCapsule} aria-label={`${formatKoreanDate(now)}, ${taskCountLabel}`}>
           <span className={styles.capsuleLeaf} aria-hidden="true" />
