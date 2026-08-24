@@ -230,6 +230,9 @@ function createCrop(
     plantingPeriod: { startMonth, endMonth, label: `${startMonth}월 초~${endMonth}월 말` },
     harvestPeriod: { startMonth: 6, endMonth: 8, label: "6월~8월" },
     plantSpacingCm,
+    minPotDepthCm: null,
+    sunRequirement: null,
+    needsSupport: false,
     summary: `${name} 설명`,
     sourceId: "source",
   };

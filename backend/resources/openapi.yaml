@@ -2202,6 +2202,7 @@ components:
         - plantingPeriod
         - harvestPeriod
         - plantSpacingCm
+        - needsSupport
         - summary
         - sourceId
       properties:
@@ -2230,6 +2231,17 @@ components:
         plantSpacingCm:
           type: integer
           minimum: 1
+        minPotDepthCm:
+          description: 화분에 심을 때 필요한 최소 권장 깊이(cm). null은 화분 재배를 상정하지 않았음을 뜻한다.
+          type: [integer, 'null']
+          minimum: 1
+        sunRequirement:
+          description: 작물이 필요로 하는 햇빛 정도. null은 정보 없음을 뜻한다.
+          oneOf:
+            - $ref: '#/components/schemas/SunlightExposure'
+            - type: 'null'
+        needsSupport:
+          type: boolean
         summary:
           type: string
         sourceId:

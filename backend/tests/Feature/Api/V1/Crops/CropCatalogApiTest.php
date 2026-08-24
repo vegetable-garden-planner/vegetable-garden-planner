@@ -23,7 +23,23 @@ class CropCatalogApiTest extends TestCase
                 'familyName' => '국화과',
                 'supportedSpaces' => ['balcony', 'garden'],
                 'plantSpacingCm' => 25,
+                'minPotDepthCm' => 15,
+                'sunRequirement' => 'partial',
+                'needsSupport' => false,
             ]);
+    }
+
+    public function test_crops_needing_support_and_pot_less_crops_report_correctly(): void
+    {
+        $this->getJson('/api/v1/crops/tomato')
+            ->assertOk()
+            ->assertJsonPath('data.needsSupport', true)
+            ->assertJsonPath('data.minPotDepthCm', 30);
+
+        $this->getJson('/api/v1/crops/gift-bouquet')
+            ->assertOk()
+            ->assertJsonPath('data.needsSupport', false)
+            ->assertJsonPath('data.minPotDepthCm', null);
     }
 
     public function test_list_filters_by_category_space_and_search_text(): void

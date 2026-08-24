@@ -58,6 +58,9 @@ function createCrop(id: string, name: string): CropReference {
     plantingPeriod: { startMonth: 3, endMonth: 4, label: "3~4월" },
     harvestPeriod: { startMonth: 5, endMonth: 6, label: "5~6월" },
     plantSpacingCm: 20,
+    minPotDepthCm: null,
+    sunRequirement: null,
+    needsSupport: false,
     summary: "테스트 작물",
     sourceId: "test-source",
   };
