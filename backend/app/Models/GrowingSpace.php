@@ -56,6 +56,14 @@ class GrowingSpace extends Model
     }
 
     /**
+     * @return HasMany<SpaceMemo, $this>
+     */
+    public function memos(): HasMany
+    {
+        return $this->hasMany(SpaceMemo::class);
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

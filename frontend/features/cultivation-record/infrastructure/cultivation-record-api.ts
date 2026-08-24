@@ -1,4 +1,5 @@
 import { apiRequest } from "../../../shared/infrastructure/api-client.ts";
+import { invalidateResource } from "../../../shared/infrastructure/resource-cache.ts";
 import type {
   CultivationRecord,
   CultivationRecordInput,
@@ -16,25 +17,35 @@ export async function fetchSeasonRecords(
   return (await apiRequest<ListResponse>(`${seasonPath(seasonId)}/records${query}`)).data;
 }
 
+export async function fetchAllRecords(): Promise<CultivationRecord[]> {
+  return (await apiRequest<ListResponse>("/records?perPage=100")).data;
+}
+
 export async function createCultivationRecord(
   seasonId: string,
   input: CultivationRecordInput,
 ): Promise<CultivationRecord> {
-  return (await apiRequest<ItemResponse>(`${seasonPath(seasonId)}/records`, {
+  const record = (await apiRequest<ItemResponse>(`${seasonPath(seasonId)}/records`, {
     method: "POST",
     body: JSON.stringify(input),
   })).data;
+  invalidateResource("records");
+
+  return record;
 }
 
 export async function updateCultivationRecord(
   record: CultivationRecord,
   input: CultivationRecordInput,
 ): Promise<CultivationRecord> {
-  return (await apiRequest<ItemResponse>(recordPath(record.id), {
+  const updated = (await apiRequest<ItemResponse>(recordPath(record.id), {
     method: "PATCH",
     headers: versionHeader(record.version),
     body: JSON.stringify(input),
   })).data;
+  invalidateResource("records");
+
+  return updated;
 }
 
 export async function uploadCultivationRecordPhoto(
@@ -64,6 +75,7 @@ export async function deleteCultivationRecord(record: CultivationRecord): Promis
     method: "DELETE",
     headers: versionHeader(record.version),
   });
+  invalidateResource("records");
 }
 
 function versionHeader(version: number): Record<string, string> {

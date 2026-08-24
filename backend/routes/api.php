@@ -23,10 +23,15 @@ use App\Http\Controllers\Api\V1\Layouts\IndexGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\PutGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\ShowGardenLayoutController;
 use App\Http\Controllers\Api\V1\Locations\GeocodeAddressController;
+use App\Http\Controllers\Api\V1\Memos\DestroySpaceMemoController;
+use App\Http\Controllers\Api\V1\Memos\IndexSpaceMemoController;
+use App\Http\Controllers\Api\V1\Memos\StoreSpaceMemoController;
+use App\Http\Controllers\Api\V1\Memos\UpdateSpaceMemoController;
 use App\Http\Controllers\Api\V1\Notifications\DestroyPushSubscriptionController;
 use App\Http\Controllers\Api\V1\Notifications\StorePushSubscriptionController;
 use App\Http\Controllers\Api\V1\Records\DestroyRecordController;
 use App\Http\Controllers\Api\V1\Records\DestroyRecordPhotoController;
+use App\Http\Controllers\Api\V1\Records\IndexRecordController;
 use App\Http\Controllers\Api\V1\Records\IndexSeasonRecordController;
 use App\Http\Controllers\Api\V1\Records\StoreRecordPhotoController;
 use App\Http\Controllers\Api\V1\Records\StoreSeasonRecordController;
@@ -96,6 +101,10 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/spaces/{growingSpace}', ShowSpaceController::class);
         Route::patch('/spaces/{growingSpace}', UpdateSpaceController::class);
         Route::delete('/spaces/{growingSpace}', DestroySpaceController::class);
+        Route::get('/spaces/{growingSpace}/memos', IndexSpaceMemoController::class);
+        Route::post('/spaces/{growingSpace}/memos', StoreSpaceMemoController::class);
+        Route::patch('/memos/{spaceMemo}', UpdateSpaceMemoController::class);
+        Route::delete('/memos/{spaceMemo}', DestroySpaceMemoController::class);
 
         Route::get('/layouts', IndexGardenLayoutController::class);
 
@@ -103,6 +112,7 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/tasks/{cultivationTask}', UpdateTaskController::class);
         Route::delete('/tasks/{cultivationTask}', DestroyTaskController::class);
 
+        Route::get('/records', IndexRecordController::class);
         Route::patch('/records/{cultivationRecord}', UpdateRecordController::class);
         Route::delete('/records/{cultivationRecord}', DestroyRecordController::class);
         Route::post('/records/{cultivationRecord}/photo', StoreRecordPhotoController::class);

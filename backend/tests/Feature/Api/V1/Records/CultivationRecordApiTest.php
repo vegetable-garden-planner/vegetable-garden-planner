@@ -153,6 +153,35 @@ class CultivationRecordApiTest extends TestCase
             ->assertJsonPath('data.0.id', $older->id);
     }
 
+    public function test_owner_can_list_all_own_records_across_seasons_in_latest_order(): void
+    {
+        [$owner, , $season] = $this->ownedSeason();
+        $secondSeason = GrowingSeason::factory()
+            ->for(GrowingSpace::factory()->for($owner, 'owner'), 'growingSpace')
+            ->create();
+        $older = CultivationRecord::factory()->for($season, 'growingSeason')->create([
+            'occurred_at' => '2026-04-01T00:00:00Z',
+        ]);
+        $newer = CultivationRecord::factory()->for($secondSeason, 'growingSeason')->create([
+            'occurred_at' => '2026-05-01T00:00:00Z',
+        ]);
+        [, , $otherSeason] = $this->ownedSeason();
+        CultivationRecord::factory()->for($otherSeason, 'growingSeason')->create();
+
+        $this->actingAs($owner)
+            ->getJson('/api/v1/records?perPage=100')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonPath('data.0.id', $newer->id)
+            ->assertJsonPath('data.1.id', $older->id)
+            ->assertJsonPath('meta.total', 2);
+    }
+
+    public function test_guest_cannot_list_all_records(): void
+    {
+        $this->getJson('/api/v1/records')->assertUnauthorized();
+    }
+
     public function test_other_user_cannot_read_create_update_or_delete_records(): void
     {
         [$owner, , $season] = $this->ownedSeason();

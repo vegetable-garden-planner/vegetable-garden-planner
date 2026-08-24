@@ -19,6 +19,8 @@ tags:
     description: 공개 작물 기준 데이터
   - name: Spaces
     description: 사용자 재배 공간
+  - name: Memos
+    description: 화분과 화분 안 작물에 남기는 메모
   - name: Seasons
     description: 사용자 재배 시즌
   - name: Layouts
@@ -640,6 +642,123 @@ paths:
         '419':
           $ref: '#/components/responses/CsrfMismatch'
 
+  /spaces/{spaceId}/memos:
+    parameters:
+      - $ref: '#/components/parameters/SpaceId'
+    get:
+      tags: [Memos]
+      summary: 화분에 남긴 메모 목록 조회(최근 순)
+      operationId: listSpaceMemos
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 메모 목록 조회 성공
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SpaceMemo'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Memos]
+      summary: 화분 또는 화분 안 특정 작물에 메모 등록
+      operationId: createSpaceMemo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpaceMemoInput'
+      responses:
+        '201':
+          description: 메모 등록 성공
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpaceMemoResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '419':
+          $ref: '#/components/responses/CsrfMismatch'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+  /memos/{memoId}:
+    parameters:
+      - $ref: '#/components/parameters/MemoId'
+    patch:
+      tags: [Memos]
+      summary: 메모 수정
+      operationId: updateSpaceMemo
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpaceMemoPatch'
+      responses:
+        '200':
+          description: 메모 수정 성공
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpaceMemoResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '419':
+          $ref: '#/components/responses/CsrfMismatch'
+    delete:
+      tags: [Memos]
+      summary: 메모 삭제
+      operationId: deleteSpaceMemo
+      parameters:
+        - $ref: '#/components/parameters/IfMatch'
+      responses:
+        '204':
+          description: 메모 삭제 성공
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '412':
+          $ref: '#/components/responses/PreconditionFailed'
+        '419':
+          $ref: '#/components/responses/CsrfMismatch'
+
   /seasons:
     get:
       tags: [Seasons]
@@ -1160,6 +1279,35 @@ paths:
           $ref: '#/components/responses/PreconditionFailed'
         '419':
           $ref: '#/components/responses/CsrfMismatch'
+
+  /records:
+    get:
+      tags: [Records]
+      summary: 로그인 사용자의 전체 수행·관찰 기록 목록 조회
+      operationId: listRecords
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/CultivationRecordType'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: 소유한 기록 목록 조회 성공(최근 기록 순)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CultivationRecord'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
 
   /seasons/{seasonId}/records:
     get:
@@ -1687,6 +1835,13 @@ components:
       schema:
         type: string
         format: uuid
+    MemoId:
+      name: memoId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
     WateringScheduleId:
       name: wateringScheduleId
       in: path
@@ -2067,6 +2222,61 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/GrowingSpace'
+
+    SpaceMemoInput:
+      type: object
+      additionalProperties: false
+      required: [body]
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        cropId:
+          description: 화분 전체가 아니라 화분 안 특정 작물에 대한 메모일 때만 지정한다.
+          type: [string, 'null']
+          maxLength: 100
+    SpaceMemoPatch:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        cropId:
+          type: [string, 'null']
+          maxLength: 100
+    SpaceMemo:
+      type: object
+      required: [id, spaceId, cropId, body, version, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        spaceId:
+          type: string
+          format: uuid
+        cropId:
+          type: [string, 'null']
+        body:
+          type: string
+        version:
+          type: integer
+          minimum: 1
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    SpaceMemoResponse:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/SpaceMemo'
 
     GrowingSeasonStatus:
       type: string
