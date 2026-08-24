@@ -15,7 +15,7 @@
 </section>
 
 <section class="panel table-panel">
-    <div class="section-head"><div><p class="eyebrow">MEMBERS</p><h2>회원 {{ number_format($users->total()) }}명</h2></div><p class="table-note">계정을 비활성화하면 기존 세션과 API 토큰이 종료됩니다.</p></div>
+    <div class="section-head"><div><p class="eyebrow">MEMBERS</p><h2>회원 {{ number_format($users->total()) }}명</h2></div><p class="table-note">탈퇴 처리하면 세션과 API 토큰이 즉시 종료됩니다. 재배 데이터는 삭제되지 않습니다.</p></div>
     <div class="table-wrap"><table class="member-table"><thead><tr><th>회원</th><th>권한</th><th>가입 방식</th><th>재배 공간</th><th>가입일</th><th>상태 관리</th></tr></thead><tbody>
     @forelse ($users as $user)
         <tr>
@@ -28,10 +28,16 @@
                 @if ($user->role->value === 'admin')
                     <span class="muted">보호된 계정</span>
                 @else
-                    <form action="{{ route('admin.users.status', $user) }}" method="post">
+                    <form
+                        action="{{ route('admin.users.status', $user) }}"
+                        method="post"
+                        @if ($user->status->value === 'active')
+                            onsubmit="return confirm('{{ $user->nickname }} 회원을 탈퇴 처리할까요?')"
+                        @endif
+                    >
                         @csrf @method('patch')
                         <input type="hidden" name="status" value="{{ $user->status->value === 'active' ? 'disabled' : 'active' }}">
-                        <button class="status-action {{ $user->status->value }}" type="submit">{{ $user->status->value === 'active' ? '비활성화' : '다시 활성화' }}</button>
+                        <button class="status-action {{ $user->status->value }}" type="submit">{{ $user->status->value === 'active' ? '탈퇴 처리' : '탈퇴 철회' }}</button>
                     </form>
                 @endif
             </td>

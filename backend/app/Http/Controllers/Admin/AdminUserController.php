@@ -59,6 +59,8 @@ class AdminUserController extends Controller
             'growingSpaces' => fn ($query) => $query->latest(),
             'growingSpaces.seasons' => fn ($query) => $query->latest('start_date'),
             'growingSpaces.seasons.layout.placements',
+            'growingSpaces.seasons.tasks' => fn ($query) => $query->latest('due_date'),
+            'growingSpaces.seasons.records' => fn ($query) => $query->latest('occurred_at'),
         ]);
 
         /** @var Collection<int, GrowingSeason> $seasons */
