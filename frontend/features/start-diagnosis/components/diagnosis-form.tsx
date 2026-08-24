@@ -3,6 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BrandMark } from "@/components/brand-mark";
+import { SessionAwareLink } from "@/components/session-aware-link";
+import { encodeNextPath } from "@/features/auth/domain/auth";
+import pageStyles from "@/app/start/start.module.css";
 import {
   CROP_OPTIONS,
   DEFAULT_SELECTED_CROPS,
@@ -175,6 +179,8 @@ export function DiagnosisForm() {
       aria-label="맞춤 재배 시작 진단"
       className={`${styles.diagnosis} ${styles[`stage${step}`]}`}
     >
+      <StartHeader lightLogo={step === 1} />
+
       <div className={styles.sceneBackdrop} aria-hidden="true">
         <Image alt="" className={styles.sceneImage} fill key={SCENE_IMAGES[step]} priority={step === 0} sizes="100vw" src={SCENE_IMAGES[step]} />
       </div>
@@ -351,4 +357,24 @@ function getMeasurementLabel(key: keyof Measurements) {
   if (key === "length") return "세로";
   if (key === "height") return "깊이";
   return "화분 개수";
+}
+
+function StartHeader({ lightLogo }: { lightLogo: boolean }) {
+  return (
+    <div className={pageStyles.headerShell}>
+      <header className={pageStyles.header}>
+        <Link className={pageStyles.brand} href="/">
+          <BrandMark size={22} variant={lightLogo ? "color" : "white"} />
+          <span>심어봄</span>
+        </Link>
+        <SessionAwareLink
+          anonymousHref={`/login?next=${encodeNextPath("/start")}`}
+          anonymousLabel="로그인"
+          authenticatedHref="/dashboard"
+          authenticatedLabel="내 텃밭으로"
+          className={pageStyles.loginLink}
+        />
+      </header>
+    </div>
+  );
 }

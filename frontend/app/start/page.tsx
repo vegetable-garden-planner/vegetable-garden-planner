@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { DiagnosisForm } from "@/features/start-diagnosis/components/diagnosis-form";
 import styles from "./start.module.css";
 
@@ -11,13 +10,6 @@ export const metadata: Metadata = {
 export default function StartPage() {
   return (
     <main className={styles.page}>
-      <div className={styles.headerShell}>
-        <header className={styles.header}>
-          <Link className={styles.brand} href="/">
-            <span>심어봄</span>
-          </Link>
-        </header>
-      </div>
       <DiagnosisForm />
     </main>
   );
