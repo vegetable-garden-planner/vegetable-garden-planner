@@ -82,7 +82,7 @@ routes/web.php                                       (수정)
 회원 상세 화면(1번)이 요약 숫자만 보여주고, 실제로 어떤 작물을 어디에 배치했는지·회원이 남긴 메모에 뭐가 적혀 있는지는 전혀 보여주지 않았습니다. 세 가지를 추가했습니다.
 
 - **격자 배치 시각화**: 요약 문구(`4×6칸 중 3칸 사용`) 아래에 실제 격자를 렌더링합니다. `cell_index = row * columns + col`로 좌표를 복원해 CSS grid로 그리고, 칸에 작물 이름 첫 글자를 표시하고 hover 시 `N행 M열 · 작물명`을 보여줍니다. 이미 로드되어 있는 `season.layout.placements` 데이터만 쓰므로 추가 쿼리가 없습니다.
-- **메모 노출**: 공간(`growing_spaces.notes`), 시즌(`growing_seasons.notes`), 완료 여부와 무관한 재배 일정(`cultivation_tasks.notes`), 재배 기록(`cultivation_records.notes`) 중 빈 문자열이 아닌 것만 모아 시즌별로 보여줍니다. 물주기 로그 메모(`watering_logs.memo`)는 이번에 포함하지 않았습니다 — 반복적인 "물줬음" 위주라 신호가 낮다고 판단했습니다. 컨트롤러의 `growingSpaces.seasons` 즉시 로딩에 `.tasks`, `.records`를 추가했습니다.
+- **메모 노출**: 공간(`growing_spaces.notes`), 시즌(`growing_seasons.notes`), 완료 여부와 무관한 재배 일정(`cultivation_tasks.notes`), 재배 기록(`cultivation_records.notes`), 물주기 기록(`watering_logs.memo`) 중 빈 문자열이 아닌 것만 모아 시즌별로 보여줍니다. 컨트롤러의 `growingSpaces.seasons` 즉시 로딩에 `.tasks`, `.records`, `.wateringSchedules.logs`를 추가했습니다.
 - **관리자 탈퇴 처리**: 위 2번 참고. 회원 목록과 상세 화면 양쪽의 상태 변경 버튼을 "탈퇴 처리"/"탈퇴 철회"로 바꾸고 활성 회원을 탈퇴 처리할 때 확인 대화상자를 띄웁니다.
 
 동시에 `admin.css`와 로그인 화면을 다시 손봤습니다. 기존 화면이 소비자용 랜딩 페이지처럼 둥근 모서리·그라데이션·스톡 사진을 쓰고 있어 운영 도구라는 느낌이 약했습니다. 모서리를 좁히고(6-10px), 그림자 대신 테두리로 구분하고, 카드형 그라데이션과 로그인 화면의 배경 사진을 없애고, ID·타임스탬프·수치에 모노스페이스 폰트를 적용했습니다. 색상 변수 이름(`--leaf`, `--ink` 등)과 클래스 이름은 대부분 유지해 기존 뷰가 그대로 동작하도록 했습니다.
