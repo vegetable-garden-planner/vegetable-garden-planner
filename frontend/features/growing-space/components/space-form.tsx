@@ -55,6 +55,7 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
         sunlight: diagnosisSunlightExposure(diagnosis.sunlight.duration),
         widthCm: String(diagnosis.planter.widthCm),
         lengthCm: String(diagnosis.planter.heightCm),
+        depthCm: String(diagnosis.planter.depthCm),
       }));
       setDiagnosisApplied(true);
       clearStoredGardenConfiguration();
@@ -157,6 +158,9 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
         <Field label="세로 크기 (cm)" error={errors.lengthCm} id="length">
           <input aria-describedby={errors.lengthCm ? "length-error" : undefined} aria-invalid={Boolean(errors.lengthCm)} className={styles.input} id="length" inputMode="decimal" min="10" onChange={(event) => update("lengthCm", event.target.value)} placeholder="예: 300" type="number" value={values.lengthCm} />
         </Field>
+        <Field label="깊이 (cm, 선택)" error={errors.depthCm} id="depth">
+          <input aria-describedby={errors.depthCm ? "depth-error" : undefined} aria-invalid={Boolean(errors.depthCm)} className={styles.input} id="depth" inputMode="decimal" min="1" onChange={(event) => update("depthCm", event.target.value)} placeholder="예: 20" type="number" value={values.depthCm} />
+        </Field>
       </div>
       </section>
 
@@ -200,7 +204,7 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
         <h2>{values.name.trim() || "공간 이름을 입력해 주세요"}</h2>
         <span>{SPACE_TYPE_OPTIONS.find((option) => option.value === values.type)?.label}</span>
         <dl>
-          <div><dt>크기</dt><dd>{values.widthCm && values.lengthCm ? `${values.widthCm} × ${values.lengthCm}cm` : "입력 전"}</dd></div>
+          <div><dt>크기</dt><dd>{values.widthCm && values.lengthCm ? `${values.widthCm} × ${values.lengthCm}${values.depthCm ? ` × ${values.depthCm}` : ""}cm` : "입력 전"}</dd></div>
           <div><dt>햇빛</dt><dd>{values.estimatedSunlightHours === null ? SUNLIGHT_OPTIONS.find((option) => option.value === values.sunlight)?.label : `하루 약 ${values.estimatedSunlightHours}시간`}</dd></div>
           <div><dt>위치</dt><dd>{values.address || "선택 사항"}</dd></div>
         </dl>
@@ -232,6 +236,7 @@ function toSpaceServerErrors(error: unknown): {
     name: error.fields.name?.[0],
     widthCm: error.fields.widthCm?.[0],
     lengthCm: error.fields.lengthCm?.[0],
+    depthCm: error.fields.depthCm?.[0],
     address: error.fields.address?.[0],
     latitude: error.fields.latitude?.[0],
     longitude: error.fields.longitude?.[0],
@@ -265,6 +270,7 @@ function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValue
     sunlight: "partial",
     widthCm: "",
     lengthCm: "",
+    depthCm: "",
     address: "",
     latitude: "",
     longitude: "",
@@ -281,6 +287,7 @@ function toFormValues(space: GrowingSpace): GrowingSpaceFormValues {
     sunlight: space.sunlight,
     widthCm: String(space.widthCm),
     lengthCm: String(space.lengthCm),
+    depthCm: space.depthCm === null ? "" : String(space.depthCm),
     address: space.address ?? "",
     latitude: space.latitude === null ? "" : String(space.latitude),
     longitude: space.longitude === null ? "" : String(space.longitude),

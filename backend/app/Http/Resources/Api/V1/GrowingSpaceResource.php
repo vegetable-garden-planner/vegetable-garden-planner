@@ -21,6 +21,7 @@ class GrowingSpaceResource extends JsonResource
             'sunlight' => $this->resource->sunlight->value,
             'widthCm' => $this->resource->width_cm,
             'lengthCm' => $this->resource->length_cm,
+            'depthCm' => $this->resource->depth_cm,
             'address' => $this->resource->address,
             'latitude' => $this->resource->latitude === null ? null : (float) $this->resource->latitude,
             'longitude' => $this->resource->longitude === null ? null : (float) $this->resource->longitude,

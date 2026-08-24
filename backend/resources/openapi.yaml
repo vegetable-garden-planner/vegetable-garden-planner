@@ -1890,6 +1890,10 @@ components:
           type: integer
           minimum: 10
           maximum: 100000
+        depthCm:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 1000
         address:
           type: [string, 'null']
           maxLength: 255
@@ -1933,6 +1937,10 @@ components:
           type: integer
           minimum: 10
           maximum: 100000
+        depthCm:
+          type: [integer, 'null']
+          minimum: 1
+          maximum: 1000
         address:
           type: [string, 'null']
           maxLength: 255
