@@ -18,13 +18,30 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # Route non-api/sanctum/auth/admin/static-asset requests to the Next.js
+    # frontend process (school server: pm2 on 127.0.0.1:38173), keyed off the
+    # raw request line (THE_REQUEST) rather than REQUEST_URI/FILENAME, since
+    # Apache's DirectoryIndex handling silently rewrites those for
+    # directory-shaped requests like "/" before our rules ever see them.
+    # Capture PATH ONLY (stop at "?"); leaving the query string out of the
+    # substitution lets Apache append the real query string automatically,
+    # instead of us re-embedding it and producing a malformed proxy target
+    # that gets rejected whenever the request has any query string at all.
+    # Hosts without the Next.js process running (e.g. plain PHP hosting) can
+    # leave this block as-is: 127.0.0.1:38173 simply won't be listening, so
+    # every excluded/non-matching request still falls through to Laravel.
+    RewriteCond %{THE_REQUEST} ^[A-Z]+\s(/[^?\s]*)
+    RewriteCond %1 !^/(api|sanctum|auth|admin)/
+    RewriteCond %1 !^/admin$
+    RewriteCond %1 !^/(assets|brand|uploads)/
+    RewriteCond %1 !^/(favicon\.ico|robots\.txt)$
+    RewriteRule ^ http://127.0.0.1:38173%1 [P,L]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
 
-# mod_rewrite가 꺼져 있는 서버(학교 서버 등)용 대체 라우팅.
-# mod_rewrite가 켜져 있으면 위 RewriteRule이 먼저 처리하므로 아래는 쓰이지 않는다.
 DirectoryIndex index.php
 FallbackResource /index.php
