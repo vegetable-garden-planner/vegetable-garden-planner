@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>관리자 로그인 | 심어봄</title>
-    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/admin.css') }}?v={{ filemtime(public_path('assets/admin.css')) }}">
 </head>
 <body class="login-page">
 <main class="login-card">
