@@ -47,7 +47,7 @@ button, input, select { font: inherit; }
 .logout { border: 0; background: transparent; color: #a9bcb2; padding: 0; cursor: pointer; font-size: 12px; }
 .logout:hover { color: #fff; }
 
-.content { min-width: 0; padding: 24px clamp(18px, 3vw, 40px) 60px; }
+.content { min-width: 0; padding: 40px clamp(18px, 3vw, 40px) 60px; }
 .topbar { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .eyebrow { margin: 0 0 6px; color: var(--leaf); font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
 .topbar h1 { margin: 0; font-size: 22px; letter-spacing: -.01em; }
@@ -202,7 +202,7 @@ td small { color: var(--muted); margin-top: 2px; font-family: var(--mono); font-
   .nav a { justify-content: center; text-align: center; padding: 8px; font-size: 11px; }
   .nav a span { display: none; }
   .sidebar-bottom { display: none; }
-  .content { padding: 18px 14px 50px; }
+  .content { padding: 26px 14px 50px; }
   .topbar { display: block; }
   .today { display: none; }
   .metrics { grid-template-columns: 1fr 1fr; }
