@@ -7,6 +7,7 @@ import {
   getCropSeasonFit,
   getGardenLayoutRuleWarnings,
   InvalidGardenLayoutRuleDataError,
+  suggestSeasonPeriodCoveringCrops,
 } from "./garden-layout-rules.ts";
 
 const crops = [
@@ -93,6 +94,38 @@ test("심기 또는 수확 시기가 시즌 밖이면 자동 일정 불가 상�
     getCropSeasonFit(createSeason("short", "2026-05-01", "2026-05-31"), crop),
     { plantingDate: "2026-05-01", harvestDate: null },
   );
+});
+
+test("권장 시기가 맞지 않는 작물의 심기·수확 달을 모두 포함하는 시즌 기간을 제안한다", () => {
+  const season = createSeason("mismatch", "2026-08-09", "2026-09-30");
+  const lettuce = crops.find((crop) => crop.id === "lettuce")!;
+
+  const suggestion = suggestSeasonPeriodCoveringCrops(season, [lettuce]);
+
+  assert.deepEqual(suggestion, { startDate: "2026-04-01", endDate: "2026-08-31" });
+});
+
+test("여러 작물이 걸려 있으면 가장 이른 달부터 가장 늦은 달까지 제안한다", () => {
+  const season = createSeason("mixed", "2026-08-09", "2026-09-30");
+  const early = { plantingPeriod: { startMonth: 4, endMonth: 4, label: "4월" }, harvestPeriod: { startMonth: 6, endMonth: 7, label: "6~7월" } };
+  const late = { plantingPeriod: { startMonth: 9, endMonth: 9, label: "9월" }, harvestPeriod: { startMonth: 11, endMonth: 12, label: "11~12월" } };
+
+  const suggestion = suggestSeasonPeriodCoveringCrops(season, [early, late]);
+
+  assert.deepEqual(suggestion, { startDate: "2026-04-01", endDate: "2026-12-31" });
+});
+
+test("권장 시기가 연말을 넘기는 작물이 있으면 기간을 제안하지 않는다", () => {
+  const season = createSeason("winter", "2026-01-05", "2026-02-15");
+  const garlic = crops.find((crop) => crop.id === "garlic")!;
+
+  assert.equal(suggestSeasonPeriodCoveringCrops(season, [garlic]), null);
+});
+
+test("문제되는 작물이 없으면 기간을 제안하지 않는다", () => {
+  const season = createSeason("empty", "2026-01-01", "2026-01-31");
+
+  assert.equal(suggestSeasonPeriodCoveringCrops(season, []), null);
 });
 
 test("작물 사이 거리가 요구 간격과 정확히 같으면 경고하지 않는다", () => {

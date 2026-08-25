@@ -13,6 +13,7 @@ import { getSeasonNextStep } from "@/features/growing-season/domain/season-next-
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { deleteGrowingSeason } from "@/features/growing-season/infrastructure/season-api";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import { ApiError } from "@/shared/infrastructure/api-client";
 import styles from "@/features/growing-season/components/growing-season.module.css";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
@@ -21,12 +22,21 @@ const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   completed: "종료",
 };
 
+const SEASON_DELETE_BLOCKERS: Record<string, { label: string; href: (seasonId: string) => string }> = {
+  SEASON_HAS_LAYOUT: { label: "격자 배치에서 정리하기 →", href: (id) => `/seasons/${id}/layout` },
+  SEASON_HAS_TASKS: { label: "재배 일정에서 정리하기 →", href: (id) => `/seasons/${id}/tasks` },
+  SEASON_HAS_RECORDS: { label: "시즌 기록에서 정리하기 →", href: (id) => `/seasons/${id}/records` },
+  SEASON_HAS_WATERING_SCHEDULES: { label: "물주기에서 정리하기 →", href: (id) => `/seasons/${id}/watering` },
+  SEASON_HAS_CONTAINER_PLACEMENTS: { label: "화분 배치에서 정리하기 →", href: (id) => `/seasons/${id}/placements` },
+};
+
 export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string }) {
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
   const cropCatalog = useCropCatalog();
   const layoutsState = useGardenLayouts();
   const [actionError, setActionError] = useState("");
+  const [actionErrorCode, setActionErrorCode] = useState("");
   const [deletingId, setDeletingId] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -56,12 +66,14 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
 
   async function removeSeason(season: PersistedGrowingSeason) {
     setActionError("");
+    setActionErrorCode("");
     setBusy(true);
     try {
       await deleteGrowingSeason(season);
       setDeletingId("");
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "시즌을 삭제하지 못했습니다.");
+      setActionErrorCode(error instanceof ApiError ? error.code : "");
     } finally {
       setBusy(false);
     }
@@ -79,7 +91,14 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
           <Link href="/seasons">전체 시즌 보기 →</Link>
         </div>
       )}
-      {actionError && <ErrorMessage message={actionError} />}
+      {actionError && (
+        <ErrorMessage
+          action={SEASON_DELETE_BLOCKERS[actionErrorCode] && deletingId
+            ? { href: SEASON_DELETE_BLOCKERS[actionErrorCode].href(deletingId), label: SEASON_DELETE_BLOCKERS[actionErrorCode].label }
+            : undefined}
+          message={actionError}
+        />
+      )}
       <div className={styles.listHeading}><div><p>재배 흐름</p><h2>시즌별 계획</h2></div><Link href={selectedSpaceId ? `/seasons/new?spaceId=${encodeURIComponent(selectedSpaceId)}` : "/seasons/new"}>새 시즌 만들기 →</Link></div>
       <ul className={styles.seasonGrid}>
         {visibleSeasons.map((season) => {
@@ -168,10 +187,19 @@ function InvalidSpaceFilter() {
   );
 }
 
-function ErrorMessage({ message, onRetry }: { message: string; onRetry?: () => void }) {
+function ErrorMessage({
+  action,
+  message,
+  onRetry,
+}: {
+  action?: { href: string; label: string };
+  message: string;
+  onRetry?: () => void;
+}) {
   return (
     <div className={styles.errorMessage} role="alert">
       <p>{message}</p>
+      {action && <Link href={action.href}>{action.label}</Link>}
       {onRetry && <button onClick={onRetry} type="button">다시 시도</button>}
     </div>
   );

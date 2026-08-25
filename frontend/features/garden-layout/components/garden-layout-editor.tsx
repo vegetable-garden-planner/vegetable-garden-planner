@@ -16,14 +16,19 @@ import {
   type GardenLayout,
   type GridCellSizeCm,
 } from "@/features/garden-layout/domain/garden-layout";
-import { getCropSeasonFit, type CropSeasonFit } from "@/features/garden-layout/domain/garden-layout-rules";
+import {
+  getCropSeasonFit,
+  suggestSeasonPeriodCoveringCrops,
+  type CropSeasonFit,
+} from "@/features/garden-layout/domain/garden-layout-rules";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
   deleteGardenLayout,
   putGardenLayout,
 } from "@/features/garden-layout/infrastructure/garden-layout-api";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
-import type { GrowingSeason } from "@/features/growing-season/domain/growing-season";
+import { updateGrowingSeason } from "@/features/growing-season/infrastructure/season-api";
+import type { GrowingSeason, PersistedGrowingSeason } from "@/features/growing-season/domain/growing-season";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
 
@@ -189,7 +194,7 @@ function GardenGrid({
   crops: readonly CropReference[];
   layout: GardenLayout;
   reload: () => Promise<void>;
-  season: GrowingSeason;
+  season: PersistedGrowingSeason;
   space: GrowingSpace;
 }) {
   const [selectedCropId, setSelectedCropId] = useState(
@@ -423,8 +428,11 @@ function LayoutNextStep({
 }: {
   crops: readonly CropReference[];
   layout: GardenLayout;
-  season: GrowingSeason;
+  season: PersistedGrowingSeason;
 }) {
+  const [isApplyingSuggestion, setIsApplyingSuggestion] = useState(false);
+  const [applyError, setApplyError] = useState("");
+
   if (layout.placements.length === 0) {
     return (
       <section className="surface-panel mt-6 border-dashed p-6" aria-labelledby="layout-next-step-title">
@@ -439,22 +447,55 @@ function LayoutNextStep({
   const scheduleIssues = crops.flatMap((crop) => {
     if (!placedCropIds.has(crop.id)) return [];
     const fit = getCropSeasonFit(season, crop);
-    if (!fit.plantingDate) return [`${crop.name}: 권장 심기 ${crop.plantingPeriod.label}`];
-    if (!fit.harvestDate) return [`${crop.name}: 권장 수확 ${crop.harvestPeriod.label}`];
+    if (!fit.plantingDate) return [{ crop, message: `${crop.name}: 권장 심기 ${crop.plantingPeriod.label}` }];
+    if (!fit.harvestDate) return [{ crop, message: `${crop.name}: 권장 수확 ${crop.harvestPeriod.label}` }];
     return [];
   });
 
   if (scheduleIssues.length > 0) {
+    const suggestion = suggestSeasonPeriodCoveringCrops(season, scheduleIssues.map((issue) => issue.crop));
+
+    async function applySuggestion() {
+      if (!suggestion || isApplyingSuggestion) return;
+      setApplyError("");
+      setIsApplyingSuggestion(true);
+      try {
+        await updateGrowingSeason(season, {
+          spaceId: season.spaceId,
+          name: season.name,
+          startDate: suggestion.startDate,
+          endDate: suggestion.endDate,
+          notes: season.notes,
+          featuredCropId: season.featuredCropId,
+        });
+      } catch (error) {
+        setApplyError(error instanceof Error ? error.message : "시즌 기간을 바꾸지 못했습니다.");
+      } finally {
+        setIsApplyingSuggestion(false);
+      }
+    }
+
     return (
       <section className="mt-6 rounded-3xl border border-amber-300 bg-amber-50 p-6" aria-labelledby="layout-next-step-title">
         <p className="text-sm font-bold text-amber-800">자동 일정 전에 확인해 주세요</p>
         <h2 className="mt-2 text-2xl font-bold text-amber-950" id="layout-next-step-title">현재 시즌과 권장 시기가 맞지 않아요</h2>
         <p className="mt-2 text-sm leading-6 text-amber-900">작물을 키우지 못하게 막는 것은 아니지만, 지금 기간으로는 신뢰할 수 있는 자동 일정을 만들 수 없습니다.</p>
         <ul className="mt-4 space-y-1 text-sm font-bold text-amber-950">
-          {scheduleIssues.map((issue) => <li key={issue}>· {issue}</li>)}
+          {scheduleIssues.map((issue) => <li key={issue.crop.id}>· {issue.message}</li>)}
         </ul>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <Link className="rounded-full bg-amber-900 px-5 py-3 text-sm font-bold text-white" href={`/seasons/${season.id}/edit`}>시즌 기간 수정하기</Link>
+        {applyError && <p className="mt-3 text-sm font-bold text-[var(--color-danger)]" role="alert">{applyError}</p>}
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          {suggestion && (
+            <button
+              className="rounded-full bg-amber-900 px-5 py-3 text-sm font-bold text-white disabled:opacity-60"
+              disabled={isApplyingSuggestion}
+              onClick={() => void applySuggestion()}
+              type="button"
+            >
+              {isApplyingSuggestion ? "적용 중" : `이 기간으로 바꾸기 · ${suggestion.startDate} ~ ${suggestion.endDate}`}
+            </button>
+          )}
+          <Link className="rounded-full border border-amber-400 bg-white px-5 py-3 text-sm font-bold text-amber-950" href={`/seasons/${season.id}/edit`}>직접 기간 수정하기</Link>
           <Link className="rounded-full border border-amber-400 bg-white px-5 py-3 text-sm font-bold text-amber-950" href="#crop-selector-title">다른 작물 선택하기</Link>
         </div>
       </section>

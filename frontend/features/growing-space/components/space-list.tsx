@@ -7,6 +7,7 @@ import type { GrowingSpace } from "@/features/growing-space/domain/growing-space
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { deleteGrowingSpace } from "@/features/growing-space/infrastructure/space-api";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import { ApiError } from "@/shared/infrastructure/api-client";
 import styles from "@/features/growing-space/components/growing-space.module.css";
 
 const TYPE_LABELS: Record<GrowingSpace["type"], string> = {
@@ -21,10 +22,17 @@ const SUNLIGHT_LABELS: Record<NonNullable<GrowingSpace["sunlight"]>, string> = {
   full: "6시간 이상",
 };
 
+const SPACE_DELETE_BLOCKERS: Record<string, { label: string; href: (spaceId: string) => string }> = {
+  SPACE_HAS_SEASONS: { label: "시즌 목록에서 정리하기 →", href: (id) => `/seasons?spaceId=${encodeURIComponent(id)}` },
+  SPACE_HAS_CONTAINER_PLACEMENTS: { label: "시즌에서 화분 배치 정리하기 →", href: (id) => `/seasons?spaceId=${encodeURIComponent(id)}` },
+  SPACE_HAS_MEMOS: { label: "대시보드에서 메모 정리하기 →", href: () => "/dashboard" },
+};
+
 export function SpaceList() {
   const spacesState = useGrowingSpaces();
   const seasonsState = useGrowingSeasons();
   const [actionError, setActionError] = useState("");
+  const [actionErrorCode, setActionErrorCode] = useState("");
   const [deletingId, setDeletingId] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -39,12 +47,14 @@ export function SpaceList() {
 
   async function removeSpace(space: GrowingSpace) {
     setActionError("");
+    setActionErrorCode("");
     setBusy(true);
     try {
       await deleteGrowingSpace(space);
       setDeletingId("");
     } catch (error) {
       setActionError(error instanceof Error ? error.message : "공간을 삭제하지 못했습니다.");
+      setActionErrorCode(error instanceof ApiError ? error.code : "");
     } finally {
       setBusy(false);
     }
@@ -64,7 +74,14 @@ export function SpaceList() {
           <SpaceStat label="마당·텃밭" value={`${gardenCount}개`} />
         </dl>
       </section>
-      {actionError && <ErrorMessage message={actionError} />}
+      {actionError && (
+        <ErrorMessage
+          action={SPACE_DELETE_BLOCKERS[actionErrorCode] && deletingId
+            ? { href: SPACE_DELETE_BLOCKERS[actionErrorCode].href(deletingId), label: SPACE_DELETE_BLOCKERS[actionErrorCode].label }
+            : undefined}
+          message={actionError}
+        />
+      )}
       <div className={styles.listHeading}>
         <div><p>나의 재배 기반</p><h2>공간별 환경</h2></div>
         <Link href="/spaces/new">새 공간 등록하기 →</Link>
@@ -122,10 +139,19 @@ function EmptySpaceList() {
   );
 }
 
-function ErrorMessage({ message, onRetry }: { message: string; onRetry?: () => void }) {
+function ErrorMessage({
+  action,
+  message,
+  onRetry,
+}: {
+  action?: { href: string; label: string };
+  message: string;
+  onRetry?: () => void;
+}) {
   return (
     <div className={styles.errorMessage} role="alert">
       <p>{message}</p>
+      {action && <Link href={action.href}>{action.label}</Link>}
       {onRetry && <button onClick={onRetry} type="button">다시 시도</button>}
     </div>
   );
