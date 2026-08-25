@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { InlineConfirm } from "@/components/inline-confirm";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
@@ -39,6 +39,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   const [actionErrorCode, setActionErrorCode] = useState("");
   const [deletingId, setDeletingId] = useState("");
   const [busy, setBusy] = useState(false);
+  const isRunningRef = useRef(false);
 
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} onRetry={() => void spacesState.reload()} />;
@@ -65,6 +66,9 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   const plannedCount = visibleSeasons.filter((season) => season.status === "planned").length;
 
   async function removeSeason(season: PersistedGrowingSeason) {
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
+
     setActionError("");
     setActionErrorCode("");
     setBusy(true);
@@ -76,6 +80,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
       setActionErrorCode(error instanceof ApiError ? error.code : "");
     } finally {
       setBusy(false);
+      isRunningRef.current = false;
     }
   }
 

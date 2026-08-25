@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { InlineConfirm } from "@/components/inline-confirm";
 import { CropVisual } from "@/features/crop-catalog/components/crop-visual";
 import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
@@ -129,10 +129,11 @@ function GardenGridSetup({
   const [cellSizeCm, setCellSizeCm] = useState<GridCellSizeCm>(25);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const isRunningRef = useRef(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isSaving) return;
+    if (isRunningRef.current) return;
     setError("");
     const result = createGardenLayout(
       seasonId,
@@ -147,6 +148,7 @@ function GardenGridSetup({
       return;
     }
 
+    isRunningRef.current = true;
     setIsSaving(true);
     try {
       await putGardenLayout(result.layout);
@@ -155,6 +157,7 @@ function GardenGridSetup({
       setError(saveError instanceof Error ? saveError.message : "격자를 저장하지 못했습니다.");
     } finally {
       setIsSaving(false);
+      isRunningRef.current = false;
     }
   }
 
@@ -205,6 +208,7 @@ function GardenGrid({
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [confirmingReset, setConfirmingReset] = useState(false);
+  const isRunningRef = useRef(false);
   const cropsById = new Map(crops.map((crop) => [crop.id, crop]));
   const cropFits = new Map(crops.map((crop) => [crop.id, getCropSeasonFit(season, crop)]));
   const placementsByCell = new Map(
@@ -216,7 +220,8 @@ function GardenGrid({
   const selectedCropFit = cropFits.get(selectedCropId);
 
   async function updateCell(cellIndex: number) {
-    if (isSaving) return;
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
     setError("");
     setIsSaving(true);
     try {
@@ -233,11 +238,13 @@ function GardenGrid({
       setError(updateError instanceof Error ? updateError.message : "작물을 배치하지 못했습니다.");
     } finally {
       setIsSaving(false);
+      isRunningRef.current = false;
     }
   }
 
   async function recreateGrid() {
-    if (isSaving) return;
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
     setIsSaving(true);
     try {
       await deleteGardenLayout(layout);
@@ -247,6 +254,7 @@ function GardenGrid({
       setError(deleteError instanceof Error ? deleteError.message : "격자를 삭제하지 못했습니다.");
     } finally {
       setIsSaving(false);
+      isRunningRef.current = false;
     }
   }
 
@@ -432,6 +440,7 @@ function LayoutNextStep({
 }) {
   const [isApplyingSuggestion, setIsApplyingSuggestion] = useState(false);
   const [applyError, setApplyError] = useState("");
+  const isRunningRef = useRef(false);
 
   if (layout.placements.length === 0) {
     return (
@@ -456,7 +465,8 @@ function LayoutNextStep({
     const suggestion = suggestSeasonPeriodCoveringCrops(season, scheduleIssues.map((issue) => issue.crop));
 
     async function applySuggestion() {
-      if (!suggestion || isApplyingSuggestion) return;
+      if (!suggestion || isRunningRef.current) return;
+      isRunningRef.current = true;
       setApplyError("");
       setIsApplyingSuggestion(true);
       try {
@@ -472,6 +482,7 @@ function LayoutNextStep({
         setApplyError(error instanceof Error ? error.message : "시즌 기간을 바꾸지 못했습니다.");
       } finally {
         setIsApplyingSuggestion(false);
+        isRunningRef.current = false;
       }
     }
 

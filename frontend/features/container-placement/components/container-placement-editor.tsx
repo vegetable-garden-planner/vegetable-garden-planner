@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { GROWING_SPACE_LABELS } from "@/features/crop-catalog/data/crop-labels";
 import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
@@ -92,6 +92,7 @@ function PlacementForm({
   );
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const isRunningRef = useRef(false);
 
   function addRow() {
     const defaultSpace = containerSpaces.find((item) => item.id === season.spaceId) ?? containerSpaces[0];
@@ -110,6 +111,7 @@ function PlacementForm({
   }
 
   async function save() {
+    if (isRunningRef.current) return;
     setError("");
     const message = validatePlacementRows(rows);
     if (message) {
@@ -117,6 +119,7 @@ function PlacementForm({
       return;
     }
 
+    isRunningRef.current = true;
     setIsSaving(true);
     try {
       await putContainerPlacements(season.id, placements.version, toPlacementInputs(rows));
@@ -125,6 +128,7 @@ function PlacementForm({
       setError(saveError instanceof Error ? saveError.message : "화분 배치를 저장하지 못했습니다.");
     } finally {
       setIsSaving(false);
+      isRunningRef.current = false;
     }
   }
 

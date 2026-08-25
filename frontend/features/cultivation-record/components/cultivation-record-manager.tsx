@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ApiError } from "@/shared/infrastructure/api-client";
 import { useGrowingSeasons } from "../../growing-season/hooks/use-growing-seasons";
 import { useSeasonSummary } from "../../growing-season/hooks/use-season-summary";
@@ -34,6 +34,7 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
   const [deletingId, setDeletingId] = useState("");
   const [busyKey, setBusyKey] = useState("");
   const [actionError, setActionError] = useState("");
+  const isRunningRef = useRef(false);
 
   if (seasonsState.status === "error") return <CultivationRecordLoadError message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
   if (spacesState.status === "error") return <CultivationRecordLoadError message={spacesState.message} onRetry={() => void spacesState.reload()} />;
@@ -48,6 +49,8 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
   if (!space) return <CultivationRecordLoadError message="시즌에 연결된 재배 공간을 찾을 수 없습니다." />;
 
   async function runAction(key: string, action: () => Promise<void>): Promise<boolean> {
+    if (isRunningRef.current) return false;
+    isRunningRef.current = true;
     setBusyKey(key);
     setActionError("");
     try {
@@ -59,6 +62,7 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
       return false;
     } finally {
       setBusyKey("");
+      isRunningRef.current = false;
     }
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { validateSpaceMemoBody, type SpaceMemo } from "@/features/space-memo/domain/space-memo";
 import { createSpaceMemo, deleteSpaceMemo } from "@/features/space-memo/infrastructure/space-memo-api";
 import { useSpaceMemos } from "@/features/space-memo/hooks/use-space-memos";
@@ -10,6 +10,7 @@ export function SpaceMemoPanel({ spaceId }: { spaceId: string }) {
   const [body, setBody] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const isRunningRef = useRef(false);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -18,6 +19,8 @@ export function SpaceMemoPanel({ spaceId }: { spaceId: string }) {
       setError(validationError);
       return;
     }
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
 
     setBusy(true);
     setError("");
@@ -29,10 +32,14 @@ export function SpaceMemoPanel({ spaceId }: { spaceId: string }) {
       setError(submitError instanceof Error ? submitError.message : "메모를 저장하지 못했습니다.");
     } finally {
       setBusy(false);
+      isRunningRef.current = false;
     }
   }
 
   async function remove(memo: SpaceMemo) {
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
+
     setBusy(true);
     setError("");
     try {
@@ -42,6 +49,7 @@ export function SpaceMemoPanel({ spaceId }: { spaceId: string }) {
       setError(deleteError instanceof Error ? deleteError.message : "메모를 삭제하지 못했습니다.");
     } finally {
       setBusy(false);
+      isRunningRef.current = false;
     }
   }
 
