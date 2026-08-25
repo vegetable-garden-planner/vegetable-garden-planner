@@ -104,20 +104,11 @@ abstract class GrowingSeasonRequest extends StrictJsonRequest
                 $existingSeason = $season instanceof GrowingSeason ? $season : null;
                 $spaceId = $this->input('spaceId', $existingSeason?->growing_space_id);
                 $cropId = $this->input('featuredCropId', $existingSeason?->featured_crop_id);
-                if (! is_string($spaceId)) {
+                if (! is_string($spaceId) || ! is_string($cropId) || $cropId === '') {
                     return;
                 }
 
                 $space = GrowingSpace::query()->find($spaceId);
-                if ($space !== null && $space->type->value !== 'garden' && (! is_string($cropId) || $cropId === '')) {
-                    $validator->errors()->add('featuredCropId', '화분·베란다 시즌에서 키울 작물을 선택해 주세요.');
-
-                    return;
-                }
-                if (! is_string($cropId) || $cropId === '') {
-                    return;
-                }
-
                 $crop = Crop::query()->find($cropId);
                 if ($space !== null
                     && $crop !== null
