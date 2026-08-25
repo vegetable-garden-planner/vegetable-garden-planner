@@ -15,6 +15,7 @@ const navigation = [
   { label: "재배 홈", href: "/dashboard" },
   { label: "공간·시즌", href: "/spaces" },
   { label: "작물관리", href: "/crops" },
+  { label: "요금제", href: "/plans" },
   { label: "가이드", href: "/start" },
 ];
 
