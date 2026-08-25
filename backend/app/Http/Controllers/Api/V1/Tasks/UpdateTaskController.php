@@ -11,7 +11,6 @@ use App\Http\Resources\Api\V1\CultivationTaskResource;
 use App\Http\Responses\VersionedResourceResponse;
 use App\Models\CultivationTask;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 
 class UpdateTaskController extends Controller
 {
@@ -20,7 +19,6 @@ class UpdateTaskController extends Controller
         CultivationTask $cultivationTask,
         UpdateCultivationTask $updateTask,
     ): JsonResponse {
-        Gate::authorize('update', $cultivationTask->growingSeason);
         $task = $updateTask->execute(
             $cultivationTask,
             $request->persistenceAttributes(),

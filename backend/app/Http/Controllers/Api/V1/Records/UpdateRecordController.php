@@ -11,7 +11,6 @@ use App\Http\Resources\Api\V1\CultivationRecordResource;
 use App\Http\Responses\VersionedResourceResponse;
 use App\Models\CultivationRecord;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 
 class UpdateRecordController extends Controller
 {
@@ -20,7 +19,6 @@ class UpdateRecordController extends Controller
         CultivationRecord $cultivationRecord,
         UpdateCultivationRecord $updateRecord,
     ): JsonResponse {
-        Gate::authorize('update', $cultivationRecord->growingSeason);
         $record = $updateRecord->execute(
             $cultivationRecord,
             $request->persistenceAttributes(),

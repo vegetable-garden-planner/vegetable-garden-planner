@@ -11,7 +11,6 @@ use App\Http\Resources\Api\V1\GrowingSeasonResource;
 use App\Http\Responses\VersionedResourceResponse;
 use App\Models\GrowingSpace;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 use LogicException;
 
 class StoreSeasonController extends Controller
@@ -27,8 +26,6 @@ class StoreSeasonController extends Controller
         }
 
         $space = GrowingSpace::query()->findOrFail($spaceId);
-        Gate::authorize('view', $space);
-
         $season = $createGrowingSeason->execute($space, $request->persistenceAttributes());
 
         return VersionedResourceResponse::make(

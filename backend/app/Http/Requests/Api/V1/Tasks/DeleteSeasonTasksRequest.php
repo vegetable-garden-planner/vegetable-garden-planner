@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace App\Http\Requests\Api\V1\Tasks;
 
 use App\Http\Requests\Api\V1\StrictJsonRequest;
+use App\Models\GrowingSeason;
 
 class DeleteSeasonTasksRequest extends StrictJsonRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $season = $this->route('growingSeason');
+
+        return $season instanceof GrowingSeason && $this->user()?->can('update', $season) === true;
     }
 
     /** @return array<string, mixed> */

@@ -164,6 +164,19 @@ class GrowingSeasonApiTest extends TestCase
             ->assertNotFound();
     }
 
+    public function test_create_rejects_malformed_space_id_as_validation_error(): void
+    {
+        $user = User::factory()->create();
+        $space = GrowingSpace::factory()->for($user, 'owner')->create();
+
+        $this->actingAs($user)->postJson('/api/v1/seasons', [
+            ...$this->validPayload($space),
+            'spaceId' => 'not-a-uuid',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['spaceId'], 'error.fields');
+    }
+
     public function test_same_space_cannot_have_inclusive_overlapping_periods(): void
     {
         $user = User::factory()->create();

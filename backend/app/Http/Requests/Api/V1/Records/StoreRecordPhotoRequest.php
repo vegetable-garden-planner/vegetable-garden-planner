@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1\Records;
 
+use App\Models\CultivationRecord;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\UploadedFile;
 
@@ -13,7 +14,9 @@ class StoreRecordPhotoRequest extends FormRequest
 
     public function authorize(): bool
     {
-        return true;
+        $record = $this->route('cultivationRecord');
+
+        return $record instanceof CultivationRecord && $this->user()?->can('update', $record->growingSeason) === true;
     }
 
     /** @return array<string, mixed> */

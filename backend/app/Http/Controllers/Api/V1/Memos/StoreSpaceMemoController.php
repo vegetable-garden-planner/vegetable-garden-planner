@@ -11,7 +11,6 @@ use App\Http\Resources\Api\V1\SpaceMemoResource;
 use App\Http\Responses\VersionedResourceResponse;
 use App\Models\GrowingSpace;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 
 class StoreSpaceMemoController extends Controller
 {
@@ -20,7 +19,6 @@ class StoreSpaceMemoController extends Controller
         GrowingSpace $growingSpace,
         CreateSpaceMemo $createSpaceMemo,
     ): JsonResponse {
-        Gate::authorize('update', $growingSpace);
         $memo = $createSpaceMemo->execute($growingSpace, $request->persistenceAttributes());
 
         return VersionedResourceResponse::make(
