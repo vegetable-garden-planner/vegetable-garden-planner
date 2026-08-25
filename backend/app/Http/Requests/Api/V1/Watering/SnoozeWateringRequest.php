@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1\Watering;
 
+use App\Models\WateringSchedule;
 use Carbon\CarbonImmutable;
 use Illuminate\Validation\Validator;
 
@@ -11,9 +12,9 @@ class SnoozeWateringRequest extends WateringScheduleRequest
 {
     public function authorize(): bool
     {
-        $season = $this->scheduleSeason();
+        $schedule = $this->route('wateringSchedule');
 
-        return $season !== null && $this->user()?->can('update', $season) === true;
+        return $schedule instanceof WateringSchedule && $this->user()?->can('update', $schedule) === true;
     }
 
     /** @return array<string, mixed> */

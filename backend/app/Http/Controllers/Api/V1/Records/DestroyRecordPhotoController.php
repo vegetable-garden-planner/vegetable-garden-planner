@@ -20,7 +20,7 @@ class DestroyRecordPhotoController extends Controller
         CultivationRecord $cultivationRecord,
         ReplaceCultivationRecordPhoto $replacePhoto,
     ): JsonResponse {
-        Gate::authorize('update', $cultivationRecord->growingSeason);
+        Gate::authorize('update', $cultivationRecord);
         $record = $replacePhoto->execute(
             $cultivationRecord,
             null,

@@ -24,7 +24,7 @@ class UpdateTaskRequest extends StrictJsonRequest
     {
         $task = $this->route('cultivationTask');
 
-        return $task instanceof CultivationTask && $this->user()?->can('update', $task->growingSeason) === true;
+        return $task instanceof CultivationTask && $this->user()?->can('update', $task) === true;
     }
 
     /** @return array<string, mixed> */

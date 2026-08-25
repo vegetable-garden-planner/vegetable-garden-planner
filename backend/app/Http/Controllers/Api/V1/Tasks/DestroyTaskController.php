@@ -18,7 +18,7 @@ class DestroyTaskController extends Controller
         CultivationTask $cultivationTask,
         DeleteCultivationTask $deleteTask,
     ): Response {
-        Gate::authorize('update', $cultivationTask->growingSeason);
+        Gate::authorize('update', $cultivationTask);
         $deleteTask->execute($cultivationTask, $request->header('If-Match'));
 
         return response()->noContent();

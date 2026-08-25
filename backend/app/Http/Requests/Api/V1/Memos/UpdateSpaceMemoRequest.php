@@ -4,10 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1\Memos;
 
+use App\Models\SpaceMemo;
 use Illuminate\Validation\Validator;
 
 class UpdateSpaceMemoRequest extends SpaceMemoRequest
 {
+    public function authorize(): bool
+    {
+        $memo = $this->route('spaceMemo');
+
+        return $memo instanceof SpaceMemo && $this->user()?->can('update', $memo) === true;
+    }
+
     /** @return array<string, mixed> */
     public function rules(): array
     {

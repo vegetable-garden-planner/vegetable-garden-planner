@@ -17,7 +17,7 @@ class IndexWateringLogController extends Controller
 {
     public function __invoke(PaginationRequest $request, WateringSchedule $wateringSchedule): JsonResponse
     {
-        Gate::authorize('view', $wateringSchedule->growingSeason);
+        Gate::authorize('view', $wateringSchedule);
         $paginator = $wateringSchedule->logs()
             ->latest('watered_at')
             ->latest('created_at')

@@ -4,10 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1\Records;
 
+use App\Models\CultivationRecord;
 use Illuminate\Validation\Validator;
 
 class UpdateRecordRequest extends CultivationRecordRequest
 {
+    public function authorize(): bool
+    {
+        $record = $this->route('cultivationRecord');
+
+        return $record instanceof CultivationRecord && $this->user()?->can('update', $record) === true;
+    }
+
     /** @return array<string, mixed> */
     public function rules(): array
     {

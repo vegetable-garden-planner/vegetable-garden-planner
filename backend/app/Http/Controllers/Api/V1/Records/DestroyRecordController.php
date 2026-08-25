@@ -18,7 +18,7 @@ class DestroyRecordController extends Controller
         CultivationRecord $cultivationRecord,
         DeleteCultivationRecord $deleteRecord,
     ): Response {
-        Gate::authorize('update', $cultivationRecord->growingSeason);
+        Gate::authorize('update', $cultivationRecord);
         $deleteRecord->execute($cultivationRecord, $request->header('If-Match'));
 
         return response()->noContent();

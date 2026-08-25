@@ -18,7 +18,7 @@ class DestroySpaceMemoController extends Controller
         SpaceMemo $spaceMemo,
         DeleteSpaceMemo $deleteSpaceMemo,
     ): Response {
-        Gate::authorize('update', $spaceMemo->growingSpace);
+        Gate::authorize('update', $spaceMemo);
         $deleteSpaceMemo->execute($spaceMemo, $request->header('If-Match'));
 
         return response()->noContent();
