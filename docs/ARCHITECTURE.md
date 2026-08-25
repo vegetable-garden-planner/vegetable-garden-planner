@@ -27,7 +27,7 @@ features/<domain>/domain
   → 프레임워크와 네트워크에 의존하지 않는 타입·계산·검증
 ```
 
-주요 도메인은 `auth`, `crop-catalog`, `growing-space`, `growing-season`, `garden-layout`, `cultivation-schedule`, `cultivation-record`, `watering`, `dashboard`, `billing`입니다.
+주요 도메인은 `auth`, `crop-catalog`, `growing-space`, `growing-season`, `garden-layout`, `container-placement`, `cultivation-schedule`, `cultivation-record`, `watering`, `dashboard`, `billing`입니다.
 
 - 도메인 규칙은 컴포넌트 안에 중복 구현하지 않습니다.
 - 한 도메인 전용 코드는 `shared`로 올리지 않습니다.
@@ -77,7 +77,7 @@ routes/web.php
 - 사용자, 세션, 캐시, 큐, Sanctum 토큰
 - 주소 좌표·공간 방향·예상 일조 시간을 포함한 재배 공간과 재배 시즌
 - 작물·과·분류·재배 기준정보와 출처
-- 텃밭 격자와 작물 배치(`garden_layouts`), 화분·베란다의 시즌 대표 작물(`featured_crop_id`)과 화분별·작물별 배치(`container_placements`, 화분 여러 개·작물 여러 종 지원, 위치 형식은 프론트가 정함)
+- 텃밭 격자와 작물 배치(`garden_layouts`), 화분·베란다의 화분별·작물별 배치(`container_placements`, 화분 여러 개·작물 여러 종 지원, `position`은 프론트가 표시 순서만 저장). `featured_crop_id`는 배치 이전 시즌과의 하위 호환용으로만 남아 있고 새 화분·베란다 시즌은 더 이상 이 값을 채우지 않음
 - 재배 일정
 - 시즌 활동 기록과 기록마다 한 장까지 붙는 사진 경로(`cultivation_records.photo_path`)
 - 물주기 일정·완료 기록·미루기 기록

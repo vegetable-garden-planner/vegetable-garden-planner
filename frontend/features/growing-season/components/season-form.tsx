@@ -72,15 +72,10 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
       setErrors(result.errors);
       return;
     }
-    const cropSelection = resolveCropSelection(selectedSpace, compatibleCrops, featuredCropId);
-    if (cropSelection.error) {
-      setFormError(cropSelection.error);
-      return;
-    }
-
+    const isCompatible = compatibleCrops.some((crop) => crop.id === featuredCropId);
     const input = {
       ...result.value,
-      featuredCropId: cropSelection.cropId,
+      featuredCropId: isCompatible ? featuredCropId : null,
     };
 
     try {
@@ -213,12 +208,13 @@ function SeasonFormView(props: SeasonFormViewProps) {
               ))}
             </select>
           </SeasonField>
-          <SeasonCropField
-            crops={props.compatibleCrops}
-            onChange={props.onCropChange}
-            selectedCropId={props.featuredCropId}
-            space={props.selectedSpace}
-          />
+          {props.selectedSpace?.type === "garden" && (
+            <SeasonCropField
+              crops={props.compatibleCrops}
+              onChange={props.onCropChange}
+              selectedCropId={props.featuredCropId}
+            />
+          )}
         </section>
         <section className={styles.formSection}>
           <SeasonSectionHeading
@@ -351,14 +347,14 @@ function SeasonFormSummary({
 function getSummaryCropName(space: GrowingSpace | undefined, cropName: string | undefined) {
   if (cropName) return cropName;
   if (! space) return "공간 선택 전";
-  return space.type === "garden" ? "배치 단계에서 선택" : "선택 전";
+  return "배치 단계에서 선택";
 }
 
 function getNextStepGuide(space: GrowingSpace | undefined) {
   if (! space) return "공간을 선택하면 유형에 맞는 다음 재배 단계를 안내합니다.";
   return space.type === "garden"
     ? "격자를 만들고 여러 작물을 배치한 뒤 재배 일정을 준비합니다."
-    : "선택한 대표 작물로 격자 없이 재배 일정을 준비합니다.";
+    : "화분마다 작물과 수량을 배치한 뒤 재배 일정을 준비합니다.";
 }
 
 function getStartDateLabel(crop: CropReference | undefined) {
@@ -430,59 +426,33 @@ function SeasonCropField({
   crops,
   onChange,
   selectedCropId,
-  space,
 }: {
   crops: readonly CropReference[];
   onChange: (cropId: string) => void;
   selectedCropId: string;
-  space: GrowingSpace | undefined;
 }) {
   const selectedValue = crops.some((crop) => crop.id === selectedCropId) ? selectedCropId : "";
-  const hasSpace = Boolean(space);
-  const isGarden = space?.type === "garden";
   return (
-    <SeasonField id="season-crop" label={isGarden ? "대표 작물 (선택)" : "키울 작물"}>
+    <SeasonField id="season-crop" label="대표 작물 (선택)">
       <select
         className={styles.input}
-        disabled={! hasSpace}
         id="season-crop"
         onChange={(event) => onChange(event.target.value)}
         value={selectedValue}
       >
-        <option value="">{hasSpace ? "작물 선택" : "공간을 먼저 선택해 주세요"}</option>
-        {hasSpace && crops.map((crop) => (
+        <option value="">작물 선택</option>
+        {crops.map((crop) => (
           <option key={crop.id} value={crop.id}>{crop.name} · 권장 심기 {crop.plantingPeriod.label}</option>
         ))}
       </select>
-      <p className={styles.fieldHelp}>
-        {getCropFieldHelp(space)}
-      </p>
+      <p className={styles.fieldHelp}>텃밭은 다음 단계의 격자에서 여러 작물을 배치할 수 있습니다.</p>
     </SeasonField>
   );
-}
-
-function getCropFieldHelp(space: GrowingSpace | undefined) {
-  if (! space) return "공간을 선택하면 해당 환경에서 키울 수 있는 작물만 보여 드립니다.";
-  return space.type === "garden"
-    ? "텃밭은 다음 단계의 격자에서 여러 작물을 배치할 수 있습니다."
-    : "화분·베란다는 격자 없이 선택한 작물로 재배 일정을 만듭니다.";
 }
 
 function cropsForSpace(crops: readonly CropReference[], space: GrowingSpace | undefined) {
   if (!space) return crops;
   return crops.filter((crop) => crop.supportedSpaces.includes(space.type));
-}
-
-function resolveCropSelection(
-  space: GrowingSpace | undefined,
-  crops: readonly CropReference[],
-  cropId: string,
-): { cropId: string | null; error: string } {
-  const isCompatible = crops.some((crop) => crop.id === cropId);
-  if (space?.type !== "garden" && !isCompatible) {
-    return { cropId: null, error: "화분·베란다 시즌에서 키울 작물을 선택해 주세요." };
-  }
-  return { cropId: isCompatible ? cropId : null, error: "" };
 }
 
 function createEmptyValues(

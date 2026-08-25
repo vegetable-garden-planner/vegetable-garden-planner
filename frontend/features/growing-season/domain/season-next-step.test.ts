@@ -45,16 +45,9 @@ test("작물 배치가 있으면 재배 일정 생성을 안내한다", () => {
   assert.equal(nextStep.label, "재배 일정 만들기");
 });
 
-test("작물을 선택한 베란다 시즌은 격자 없이 재배 일정으로 안내한다", () => {
-  const nextStep = getSeasonNextStep({ ...season, featuredCropId: "lettuce" }, "balcony", undefined);
-
-  assert.equal(nextStep.href, "/seasons/season-1/tasks");
-  assert.equal(nextStep.label, "재배 일정 만들기");
-});
-
-test("작물을 선택하지 않은 화분 시즌은 시즌 수정으로 안내한다", () => {
+test("화분·베란다 시즌은 화분 배치를 다음 단계로 안내한다", () => {
   const nextStep = getSeasonNextStep(season, "indoor", undefined);
 
-  assert.equal(nextStep.href, "/seasons/season-1/edit");
-  assert.equal(nextStep.label, "작물 선택하기");
+  assert.equal(nextStep.href, "/seasons/season-1/placements");
+  assert.equal(nextStep.label, "화분 배치하기");
 });

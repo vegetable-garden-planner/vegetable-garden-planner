@@ -101,7 +101,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
               </div>
               <dl className={styles.cardFacts}>
                 <div><dt>재배 기간</dt><dd>{season.startDate}<span>~</span>{season.endDate}</dd></div>
-                <div><dt>재배 방식</dt><dd>{linkedSpace?.type === "garden" ? "격자 작물 배치" : "대표 작물 관리"}</dd></div>
+                <div><dt>재배 방식</dt><dd>{linkedSpace?.type === "garden" ? "격자 작물 배치" : "화분별 작물 배치"}</dd></div>
               </dl>
               {featuredCrop && <Link className={styles.cropLink} href={`/crops/${featuredCrop.id}`}>선택 식물 · {featuredCrop.name} →</Link>}
               {season.notes && <p className={styles.cardNotes}>{season.notes}</p>}
@@ -110,7 +110,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
                 <Link href={nextStep.href}>{nextStep.label} →</Link>
               </section>
               <div className={styles.cardLinks}>
-                {linkedSpace?.type === "garden" && <Link href={`/seasons/${season.id}/layout`}>작물 배치</Link>}
+                <Link href={linkedSpace?.type === "garden" ? `/seasons/${season.id}/layout` : `/seasons/${season.id}/placements`}>작물 배치</Link>
                 <Link href={`/seasons/${season.id}/tasks`}>재배 일정</Link>
                 <Link href={`/seasons/${season.id}/watering`}>물주기</Link>
                 <Link href={`/seasons/${season.id}/records`}>시즌 기록</Link>
