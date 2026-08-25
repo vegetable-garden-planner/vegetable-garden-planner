@@ -120,7 +120,7 @@ export function WateringWorkspace(props: WateringWorkspaceProps) {
                 : "새 작물을 배치하면 추가 일정 입력이 다시 나타납니다."}</span>
             </section>
           )}
-          <WateringGuide seasonId={props.season.id} />
+          <WateringGuide placementHref={props.space.type === "garden" ? `/seasons/${props.season.id}/layout` : `/seasons/${props.season.id}/placements`} seasonId={props.season.id} />
         </aside>
       </div>
     </div>
@@ -165,7 +165,7 @@ export function WateringEmptyState({
   );
 }
 
-function WateringGuide({ seasonId }: { seasonId: string }) {
+function WateringGuide({ placementHref, seasonId }: { placementHref: string; seasonId: string }) {
   return (
     <section className={styles.guidePanel}>
       <p>관리 가이드</p>
@@ -176,7 +176,7 @@ function WateringGuide({ seasonId }: { seasonId: string }) {
         <li>한 번 미룬 일정과 완료 취소는 이력에서 확인할 수 있습니다.</li>
       </ul>
       <nav aria-label="시즌 관련 화면">
-        <Link href={`/seasons/${seasonId}/layout`}><span>배치 확인</span><strong>이동 →</strong></Link>
+        <Link href={placementHref}><span>배치 확인</span><strong>이동 →</strong></Link>
         <Link href={`/seasons/${seasonId}/tasks`}><span>재배 일정</span><strong>이동 →</strong></Link>
         <Link href={`/seasons/${seasonId}/records`}><span>시즌 기록</span><strong>이동 →</strong></Link>
       </nav>

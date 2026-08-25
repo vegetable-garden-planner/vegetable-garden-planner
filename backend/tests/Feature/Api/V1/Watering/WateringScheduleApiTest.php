@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Api\V1\Watering;
 
+use App\Enums\GrowingSpaceType;
 use App\Models\GardenLayout;
 use App\Models\GrowingSeason;
 use App\Models\GrowingSpace;
@@ -88,6 +89,25 @@ class WateringScheduleApiTest extends TestCase
             ->getJson("/api/v1/watering-schedules/{$scheduleId}")
             ->assertOk()
             ->assertHeader('ETag', '"1"');
+    }
+
+    public function test_owner_can_create_a_schedule_for_a_crop_placed_in_a_container_season(): void
+    {
+        $owner = User::factory()->create();
+        $pot = GrowingSpace::factory()->for($owner, 'owner')->create(['type' => GrowingSpaceType::Balcony]);
+        $season = GrowingSeason::factory()->for($pot, 'growingSpace')->create();
+
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"1"')
+            ->putJson("/api/v1/seasons/{$season->id}/container-placements", [
+                'placements' => [['spaceId' => $pot->id, 'cropId' => 'lettuce', 'quantity' => 2]],
+            ])
+            ->assertOk();
+
+        $this->actingAs($owner)
+            ->postJson("/api/v1/seasons/{$season->id}/watering-schedules", $this->validPayload())
+            ->assertCreated()
+            ->assertJsonPath('data.cropId', 'lettuce');
     }
 
     public function test_create_rejects_unplaced_duplicate_and_invalid_input_without_side_effects(): void

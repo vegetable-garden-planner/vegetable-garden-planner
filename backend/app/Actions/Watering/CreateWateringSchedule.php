@@ -21,11 +21,15 @@ final class CreateWateringSchedule
             $cropIsPlaced = DB::table('garden_layout_placements')
                 ->where('growing_season_id', $lockedSeason->id)
                 ->where('crop_id', $cropId)
-                ->exists();
+                ->exists()
+                || DB::table('container_placements')
+                    ->where('growing_season_id', $lockedSeason->id)
+                    ->where('crop_id', $cropId)
+                    ->exists();
             if (! $cropIsPlaced) {
                 throw new ApiConflictException(
                     'WATERING_CROP_NOT_PLACED',
-                    '해당 시즌의 텃밭에 배치된 작물만 물주기 일정을 만들 수 있습니다.',
+                    '해당 시즌에 배치된 작물만 물주기 일정을 만들 수 있습니다.',
                 );
             }
 
