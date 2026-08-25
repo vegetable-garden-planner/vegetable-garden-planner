@@ -39,6 +39,7 @@ export function createRegisteredPlantSummaries(
   attentionSeasonIds: ReadonlySet<string>,
   today: string,
   limit = 4,
+  representativeCropIdBySeasonId: ReadonlyMap<string, string> = new Map(),
 ): RegisteredPlantSummary[] {
   if (!Number.isInteger(limit) || limit < 0) {
     throw new RangeError("표시할 식물 수는 0 이상의 정수여야 합니다.");
@@ -50,7 +51,7 @@ export function createRegisteredPlantSummaries(
   const latestRecordBySeasonId = buildLatestRecordIndex(records);
 
   return seasons
-    .filter((season) => Boolean(season.featuredCropId))
+    .filter((season) => Boolean(season.featuredCropId) || representativeCropIdBySeasonId.has(season.id))
     .map((season) => toSummary(
       season,
       cropsById,
@@ -58,6 +59,7 @@ export function createRegisteredPlantSummaries(
       nextTaskBySeasonId,
       latestRecordBySeasonId,
       attentionSeasonIds,
+      representativeCropIdBySeasonId,
       today,
     ))
     .sort(compareSummaries)
@@ -71,9 +73,10 @@ function toSummary(
   nextTaskBySeasonId: ReadonlyMap<string, CultivationTask>,
   latestRecordBySeasonId: ReadonlyMap<string, CultivationRecord>,
   attentionSeasonIds: ReadonlySet<string>,
+  representativeCropIdBySeasonId: ReadonlyMap<string, string>,
   today: string,
 ): RegisteredPlantSummary {
-  const cropId = season.featuredCropId ?? "";
+  const cropId = season.featuredCropId ?? representativeCropIdBySeasonId.get(season.id) ?? "";
   const crop = cropsById.get(cropId);
   const space = spacesById.get(season.spaceId);
 

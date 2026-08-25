@@ -77,6 +77,23 @@ test("기준 정보가 사라진 식물을 조용히 제외하지 않고 복구 
   assert.equal(summaries[0]?.cropHref, null);
 });
 
+test("대표 작물이 없어도 화분 배치가 있으면 목록에 포함한다", () => {
+  const season: GrowingSeason = { ...activeSeason, id: "placed", featuredCropId: undefined };
+  const summaries = createRegisteredPlantSummaries(
+    [season],
+    CROP_REFERENCES,
+    [space],
+    [],
+    [],
+    new Set(),
+    "2026-08-07",
+    4,
+    new Map([["placed", "african-violet"]]),
+  );
+
+  assert.equal(summaries[0]?.cropId, "african-violet");
+});
+
 test("빈 입력과 표시 개수 경계를 처리한다", () => {
   assert.deepEqual(call([], "2026-08-07"), []);
   assert.deepEqual(call([activeSeason], "2026-08-07", 0), []);

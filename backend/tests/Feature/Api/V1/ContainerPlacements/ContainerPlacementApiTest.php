@@ -23,6 +23,46 @@ class ContainerPlacementApiTest extends TestCase
         $this->getJson("/api/v1/seasons/{$season->id}/container-placements")->assertUnauthorized();
         $this->putJson("/api/v1/seasons/{$season->id}/container-placements", ['placements' => []])
             ->assertUnauthorized();
+        $this->getJson('/api/v1/container-placements')->assertUnauthorized();
+    }
+
+    public function test_index_lists_only_the_owners_placements_across_seasons_and_pots(): void
+    {
+        [$owner, $pot, $season] = $this->ownedSeason(type: GrowingSpaceType::Balcony);
+        $secondPot = GrowingSpace::factory()->for($owner, 'owner')->create(['type' => GrowingSpaceType::Indoor]);
+        $secondSeason = GrowingSeason::factory()->for($secondPot, 'growingSpace')->create();
+
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"1"')
+            ->putJson("/api/v1/seasons/{$season->id}/container-placements", [
+                'placements' => [
+                    ['spaceId' => $pot->id, 'cropId' => 'lettuce', 'quantity' => 3],
+                    ['spaceId' => $secondPot->id, 'cropId' => 'moth-orchid', 'quantity' => 1],
+                ],
+            ])
+            ->assertOk();
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"1"')
+            ->putJson("/api/v1/seasons/{$secondSeason->id}/container-placements", [
+                'placements' => [['spaceId' => $secondPot->id, 'cropId' => 'african-violet', 'quantity' => 1]],
+            ])
+            ->assertOk();
+
+        [$otherOwner, $otherPot, $otherSeason] = $this->ownedSeason(type: GrowingSpaceType::Balcony);
+        $this->actingAs($otherOwner)
+            ->withHeader('If-Match', '"1"')
+            ->putJson("/api/v1/seasons/{$otherSeason->id}/container-placements", [
+                'placements' => [['spaceId' => $otherPot->id, 'cropId' => 'carrot', 'quantity' => 1]],
+            ])
+            ->assertOk();
+
+        $response = $this->actingAs($owner)->getJson('/api/v1/container-placements?perPage=100');
+
+        $response->assertOk()->assertJsonCount(3, 'data');
+        $seasonIds = collect($response->json('data'))->pluck('seasonId')->all();
+        $this->assertContains($season->id, $seasonIds);
+        $this->assertContains($secondSeason->id, $seasonIds);
+        $this->assertNotContains($otherSeason->id, $seasonIds);
     }
 
     public function test_owner_can_place_several_crops_in_one_pot_and_span_several_pots(): void

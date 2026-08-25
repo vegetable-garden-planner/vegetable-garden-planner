@@ -40,6 +40,27 @@ test("홈 요약은 실제 시즌·배치·미완료 일정에서 계산한다",
   assert.equal(model.tasks[0]?.title, "상추 수확");
 });
 
+test("대표 작물 없이 화분 배치만 있는 시즌도 관리 작물로 센다", () => {
+  const space: GrowingSpace = {
+    id: "space-1", name: "거실 화분", type: "indoor", sunlight: "partial",
+    address: null, latitude: null, longitude: null, orientation: null, estimatedSunlightHours: null,
+    widthCm: 60, lengthCm: 30, depthCm: null, shadeLevel: null, notes: "", version: 1,
+    createdAt: "2026-08-01T00:00:00Z", updatedAt: "2026-08-01T00:00:00Z",
+  };
+  const season: GrowingSeason = {
+    id: "season-1", spaceId: space.id, name: "가을", startDate: "2026-08-01",
+    endDate: "2026-11-30", notes: "", featuredCropId: undefined, createdAt: "2026-08-01T00:00:00Z",
+  };
+
+  const model = createHomeDashboardModel(
+    [space], [season], [], [], CROP_REFERENCES, "2026-08-10",
+    [{ seasonId: season.id, cropId: "african-violet" }],
+  );
+
+  assert.equal(model.primaryCrop?.id, "african-violet");
+  assert.equal(model.cropCount, 1);
+});
+
 test("지난 수확 일정은 경과 일수를 음수로 유지한다", () => {
   const season: GrowingSeason = {
     id: "season-1", spaceId: "space-1", name: "여름", startDate: "2026-08-01",

@@ -40,6 +40,7 @@ export function createDashboardSummary(
   layouts: readonly GardenLayout[],
   tasks: readonly CultivationTask[],
   today: string,
+  containerPlacementSeasonIds: ReadonlySet<string> = new Set(),
 ): DashboardSummary {
   const spacesById = new Map(spaces.map((space) => [space.id, space]));
   const layoutsBySeasonId = new Map(
@@ -47,7 +48,7 @@ export function createDashboardSummary(
   );
   const taskSeasonIds = new Set(tasks.map((task) => task.seasonId));
   const dashboardSeasons = seasons
-    .map((season) => toDashboardSeason(season, spacesById, layoutsBySeasonId, today))
+    .map((season) => toDashboardSeason(season, spacesById, layoutsBySeasonId, containerPlacementSeasonIds, today))
     .sort(compareDashboardSeasons);
   const activeSeasonCount = dashboardSeasons.filter(
     (season) => season.status === "active",
@@ -58,15 +59,23 @@ export function createDashboardSummary(
     seasonCount: seasons.length,
     activeSeasonCount,
     layoutCount: layouts.length,
-    nextAction: getNextAction(spaces, seasons, layoutsBySeasonId, taskSeasonIds),
+    nextAction: getNextAction(spaces, seasons, layoutsBySeasonId, taskSeasonIds, containerPlacementSeasonIds),
     recentSeasons: dashboardSeasons.slice(0, 3),
   };
+}
+
+function hasCropSource(
+  season: GrowingSeason,
+  containerPlacementSeasonIds: ReadonlySet<string>,
+): boolean {
+  return Boolean(season.featuredCropId) || containerPlacementSeasonIds.has(season.id);
 }
 
 function toDashboardSeason(
   season: GrowingSeason,
   spacesById: ReadonlyMap<string, GrowingSpace>,
   layoutsBySeasonId: ReadonlyMap<string, GardenLayout>,
+  containerPlacementSeasonIds: ReadonlySet<string>,
   today: string,
 ): DashboardSeason {
   const space = spacesById.get(season.spaceId);
@@ -74,7 +83,7 @@ function toDashboardSeason(
     && space.type === "garden"
     && !layoutsBySeasonId.has(season.id);
   const canManageSchedule = space !== undefined
-    && (space.type !== "garden" ? Boolean(season.featuredCropId) : layoutsBySeasonId.has(season.id));
+    && (space.type !== "garden" ? hasCropSource(season, containerPlacementSeasonIds) : layoutsBySeasonId.has(season.id));
 
   return {
     id: season.id,
@@ -93,6 +102,7 @@ function getNextAction(
   seasons: readonly GrowingSeason[],
   layoutsBySeasonId: ReadonlyMap<string, GardenLayout>,
   taskSeasonIds: ReadonlySet<string>,
+  containerPlacementSeasonIds: ReadonlySet<string>,
 ): DashboardNextAction {
   if (spaces.length === 0) {
     return {
@@ -114,14 +124,15 @@ function getNextAction(
 
   const spacesById = new Map(spaces.map((space) => [space.id, space]));
   const containerSeasonWithoutCrop = seasons.find(
-    (season) => spacesById.get(season.spaceId)?.type !== "garden" && !season.featuredCropId,
+    (season) => spacesById.get(season.spaceId)?.type !== "garden"
+      && !hasCropSource(season, containerPlacementSeasonIds),
   );
   if (containerSeasonWithoutCrop) {
     return {
-      title: `‘${containerSeasonWithoutCrop.name}’에서 키울 작물을 골라 주세요`,
-      description: "화분·베란다는 격자 없이 선택한 작물을 기준으로 재배 일정을 만듭니다.",
-      href: `/seasons/${containerSeasonWithoutCrop.id}/edit`,
-      label: "작물 선택하기",
+      title: `‘${containerSeasonWithoutCrop.name}’에 작물을 배치해 주세요`,
+      description: "화분·베란다는 격자 없이 화분마다 키울 작물을 배치해 재배 일정을 만듭니다.",
+      href: `/seasons/${containerSeasonWithoutCrop.id}/placements`,
+      label: "화분 배치하기",
     };
   }
 
@@ -143,7 +154,7 @@ function getNextAction(
       const space = spacesById.get(season.spaceId);
       const sourceIsReady = space?.type === "garden"
         ? layoutsBySeasonId.has(season.id)
-        : Boolean(season.featuredCropId);
+        : hasCropSource(season, containerPlacementSeasonIds);
       return sourceIsReady && !taskSeasonIds.has(season.id);
     },
   );

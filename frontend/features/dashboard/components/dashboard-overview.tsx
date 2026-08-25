@@ -4,17 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { encodeNextPath } from "@/features/auth/domain/auth";
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
-import { useAllCultivationRecords } from "@/features/cultivation-record/hooks/use-all-cultivation-records";
-import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
+import { useAllCultivationRecords, type AllCultivationRecordsState } from "@/features/cultivation-record/hooks/use-all-cultivation-records";
+import {
+  useAllContainerPlacements,
+  type AllContainerPlacementsState,
+} from "@/features/container-placement/hooks/use-all-container-placements";
+import { useCultivationTasks, type CultivationTasksState } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
 import { DashboardAlertList } from "@/features/dashboard/components/dashboard-alert-list";
 import {
   createDashboardAlerts,
   formatLocalDateOnly,
 } from "@/features/dashboard/domain/dashboard-alert";
-import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
-import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
+import { useGardenLayouts, type GardenLayoutsState } from "@/features/garden-layout/hooks/use-garden-layouts";
+import { useGrowingSeasons, type GrowingSeasonsState } from "@/features/growing-season/hooks/use-growing-seasons";
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
-import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
+import { useGrowingSpaces, type GrowingSpacesState } from "@/features/growing-space/hooks/use-growing-spaces";
 import {
   createDashboardSummary,
   type DashboardSeason,
@@ -23,7 +27,14 @@ import {
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { RegisteredPlantList } from "@/features/dashboard/components/registered-plant-list";
 import { createRegisteredPlantSummaries } from "@/features/dashboard/domain/registered-plant-summary";
-import { useAllWateringSchedules } from "@/features/watering/hooks/use-all-watering-schedules";
+import { useAllWateringSchedules, type AllWateringSchedulesState } from "@/features/watering/hooks/use-all-watering-schedules";
+import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
+import type { PersistedGrowingSeason } from "@/features/growing-season/domain/growing-season";
+import type { GardenLayout } from "@/features/garden-layout/domain/garden-layout";
+import type { CultivationTask } from "@/features/cultivation-schedule/domain/cultivation-task";
+import type { WateringSchedule } from "@/features/watering/domain/watering";
+import type { CultivationRecord } from "@/features/cultivation-record/domain/cultivation-record";
+import type { ContainerPlacementListItem } from "@/features/container-placement/domain/container-placement";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   planned: "예정",
@@ -46,54 +57,68 @@ export function DashboardOverview() {
   const wateringState = useAllWateringSchedules();
   const cropCatalog = useCropCatalog();
   const recordsState = useAllCultivationRecords();
+  const containerPlacementsState = useAllContainerPlacements();
 
-  if (auth.state.status === "error") return <DashboardLoadError detail={auth.state.message} />;
-  if (spacesState.status === "error") return <DashboardLoadError detail={spacesState.message} />;
-  if (seasonsState.status === "error") return <DashboardLoadError detail={seasonsState.message} />;
-  if (layoutsState.status === "error") return <DashboardLoadError detail={layoutsState.message} />;
-  if (tasksState.status === "error") return <DashboardLoadError detail={tasksState.message} />;
-  if (wateringState.status === "error") return <DashboardLoadError detail={wateringState.message} />;
-  if (cropCatalog.status === "error") return <DashboardLoadError detail={cropCatalog.message} />;
-  if (recordsState.status === "error") return <DashboardLoadError detail={recordsState.message} />;
-  if (
-    spacesState.status === "loading"
-    || seasonsState.status === "loading"
-    || layoutsState.status === "loading"
-    || tasksState.status === "loading"
-    || wateringState.status === "loading"
-    || cropCatalog.status === "loading"
-    || recordsState.status === "loading"
-  ) {
-    return <DashboardLoading />;
-  }
+  const resourceStates = [
+    spacesState,
+    seasonsState,
+    layoutsState,
+    tasksState,
+    wateringState,
+    cropCatalog,
+    recordsState,
+    containerPlacementsState,
+  ];
+  const loadErrorMessage = auth.state.status === "error"
+    ? auth.state.message
+    : resourceStates.find((state) => state.status === "error")?.message;
+  if (loadErrorMessage) return <DashboardLoadError detail={loadErrorMessage} />;
+  if (resourceStates.some((state) => state.status === "loading")) return <DashboardLoading />;
   if (auth.state.status !== "authenticated") return null;
 
+  const spaces = requireSpaces(spacesState);
+  const seasons = requireSeasons(seasonsState);
+  const layouts = requireLayouts(layoutsState);
+  const tasks = requireTasks(tasksState);
+  const wateringSchedules = requireWateringSchedules(wateringState);
+  const crops = cropCatalog.crops;
+  const records = requireRecords(recordsState);
+  const containerPlacements = requireContainerPlacements(containerPlacementsState);
+
   const today = formatLocalDateOnly(new Date());
+  const containerPlacementSeasonIds = new Set(
+    containerPlacements.map((placement) => placement.seasonId),
+  );
+  const representativeCropIdBySeasonId = new Map<string, string>();
+  for (const placement of containerPlacements) {
+    if (!representativeCropIdBySeasonId.has(placement.seasonId)) {
+      representativeCropIdBySeasonId.set(placement.seasonId, placement.cropId);
+    }
+  }
   const summary = createDashboardSummary(
-    spacesState.spaces,
-    seasonsState.seasons,
-    layoutsState.layouts,
-    tasksState.tasks,
+    spaces,
+    seasons,
+    layouts,
+    tasks,
     today,
+    containerPlacementSeasonIds,
   );
   let alerts;
   try {
-    alerts = createDashboardAlerts({
-      tasks: tasksState.tasks,
-      wateringSchedules: wateringState.schedules,
-      crops: cropCatalog.crops,
-    }, today);
+    alerts = createDashboardAlerts({ tasks, wateringSchedules, crops }, today);
   } catch (error) {
     return <DashboardLoadError detail={error instanceof Error ? error.message : "대시보드 알림을 계산하지 못했습니다."} />;
   }
   const registeredPlants = createRegisteredPlantSummaries(
-    seasonsState.seasons,
-    cropCatalog.crops,
-    spacesState.spaces,
-    tasksState.tasks,
-    recordsState.records,
+    seasons,
+    crops,
+    spaces,
+    tasks,
+    records,
     new Set(alerts.alerts.map((alert) => alert.seasonId)),
     today,
+    4,
+    representativeCropIdBySeasonId,
   );
 
   if (summary.spaceCount === 0 || summary.seasonCount === 0) {
@@ -388,4 +413,39 @@ function DashboardLoadError({ detail }: { detail: string }) {
       </div>
     </section>
   );
+}
+
+function requireSpaces(state: GrowingSpacesState): GrowingSpace[] {
+  if (state.status !== "ready") throw new Error("공간 정보를 불러오지 못했습니다.");
+  return state.spaces;
+}
+
+function requireSeasons(state: GrowingSeasonsState): PersistedGrowingSeason[] {
+  if (state.status !== "ready") throw new Error("시즌 정보를 불러오지 못했습니다.");
+  return state.seasons;
+}
+
+function requireLayouts(state: GardenLayoutsState): GardenLayout[] {
+  if (state.status !== "ready") throw new Error("격자 정보를 불러오지 못했습니다.");
+  return state.layouts;
+}
+
+function requireTasks(state: CultivationTasksState): CultivationTask[] {
+  if (state.status !== "ready") throw new Error("일정 정보를 불러오지 못했습니다.");
+  return state.tasks;
+}
+
+function requireWateringSchedules(state: AllWateringSchedulesState): WateringSchedule[] {
+  if (state.status !== "ready") throw new Error("물주기 정보를 불러오지 못했습니다.");
+  return state.schedules;
+}
+
+function requireRecords(state: AllCultivationRecordsState): CultivationRecord[] {
+  if (state.status !== "ready") throw new Error("기록 정보를 불러오지 못했습니다.");
+  return state.records;
+}
+
+function requireContainerPlacements(state: AllContainerPlacementsState): ContainerPlacementListItem[] {
+  if (state.status !== "ready") throw new Error("화분 배치 정보를 불러오지 못했습니다.");
+  return state.placements;
 }

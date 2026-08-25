@@ -12,6 +12,15 @@ export interface ContainerPlacements {
   version: number;
 }
 
+export interface ContainerPlacementListItem {
+  id: string;
+  seasonId: string;
+  spaceId: string;
+  cropId: string;
+  quantity: number;
+  position: unknown;
+}
+
 export interface ContainerPlacementRow {
   key: string;
   spaceId: string;

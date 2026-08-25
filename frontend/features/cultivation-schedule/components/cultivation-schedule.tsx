@@ -14,6 +14,7 @@ import {
   generateCultivationTasks,
   updateCultivationTask,
 } from "@/features/cultivation-schedule/infrastructure/cultivation-task-api";
+import { useContainerPlacements } from "@/features/container-placement/hooks/use-container-placements";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { useGrowingSpaces } from "@/features/growing-space/hooks/use-growing-spaces";
@@ -45,6 +46,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   const seasonsState = useGrowingSeasons();
   const spacesState = useGrowingSpaces();
   const layoutsState = useGardenLayouts();
+  const containerPlacementsState = useContainerPlacements(seasonId);
   const tasksState = useCultivationTasks();
   const [actionError, setActionError] = useState("");
   const [actionErrorCode, setActionErrorCode] = useState("");
@@ -56,8 +58,9 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   if (seasonsState.status === "error") return <Message message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
   if (spacesState.status === "error") return <Message message={spacesState.message} onRetry={() => void spacesState.reload()} />;
   if (layoutsState.status === "error") return <Message message={layoutsState.message} onRetry={() => void layoutsState.reload()} />;
+  if (containerPlacementsState.status === "error") return <Message message={containerPlacementsState.message} onRetry={() => void containerPlacementsState.reload()} />;
   if (tasksState.status === "error") return <Message message={tasksState.message} onRetry={() => void tasksState.reload()} />;
-  if (layoutsState.status === "loading" || tasksState.status === "loading") {
+  if (layoutsState.status === "loading" || containerPlacementsState.status === "loading" || tasksState.status === "loading") {
     return <p className="surface-panel p-5 text-muted" role="status">재배 일정을 불러오고 있습니다.</p>;
   }
 
@@ -69,6 +72,10 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   const currentSpace = space;
 
   const layout = layoutsState.layouts.find((item) => item.seasonId === seasonId);
+  const containerPlacements = containerPlacementsState.placements.placements;
+  const hasCropSource = space.type === "garden"
+    ? Boolean(layout && layout.placements.length > 0)
+    : containerPlacements.length > 0 || Boolean(season.featuredCropId);
   const tasks = tasksState.tasks
     .filter((task) => task.seasonId === seasonId)
     .sort(compareTasks);
@@ -78,7 +85,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
     : false;
   const emptyState = getScheduleEmptyState(
     space.type,
-    Boolean(season.featuredCropId),
+    hasCropSource,
     layout?.placements.length,
     seasonId,
   );
@@ -86,7 +93,9 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   const pendingCount = tasks.length - completedCount;
   const cropCount = space.type === "garden"
     ? new Set(layout?.placements.map((item) => item.cropId)).size
-    : season.featuredCropId ? 1 : 0;
+    : containerPlacements.length > 0
+      ? new Set(containerPlacements.map((item) => item.cropId)).size
+      : season.featuredCropId ? 1 : 0;
 
   async function runAction(action: () => Promise<void>): Promise<void> {
     setActionError("");
@@ -110,8 +119,8 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
       setActionError("먼저 텃밭 격자를 만들고 작물을 배치해 주세요.");
       return;
     }
-    if (currentSpace.type !== "garden" && !currentSeason.featuredCropId) {
-      setActionError("먼저 이번 시즌에 키울 작물을 선택해 주세요.");
+    if (currentSpace.type !== "garden" && !hasCropSource) {
+      setActionError("먼저 화분에 키울 작물을 배치해 주세요.");
       return;
     }
     if (tasks.length > 0) {
@@ -247,12 +256,10 @@ function ScheduleView(props: ScheduleViewProps) {
 
 function ScheduleReadyContent(props: ScheduleViewProps) {
   const hasTasks = props.tasks.length > 0;
-  const sourceTitle = props.spaceType === "garden"
-    ? `배치 작물 ${props.cropCount}종`
-    : "선택한 작물로 일정 준비";
+  const sourceTitle = `배치 작물 ${props.cropCount}종`;
   const planHref = props.spaceType === "garden"
     ? `/seasons/${props.seasonId}/layout`
-    : `/seasons/${props.seasonId}/edit`;
+    : `/seasons/${props.seasonId}/placements`;
 
   return (
     <div className={styles.scheduleLayout}>
@@ -361,16 +368,16 @@ function ScheduleProgress({ completed, total }: { completed: number; total: numb
 
 function getScheduleEmptyState(
   spaceType: GrowingSpaceType,
-  hasFeaturedCrop: boolean,
+  hasCropSource: boolean,
   placementCount: number | undefined,
   seasonId: string,
 ): ScheduleEmptyState | null {
   if (spaceType !== "garden") {
-    return hasFeaturedCrop ? null : {
-      description: "화분·베란다는 격자를 만들지 않습니다. 이번 시즌에 키울 작물을 선택하면 바로 일정을 만들 수 있어요.",
-      href: `/seasons/${seasonId}/edit`,
-      label: "키울 작물 선택하기",
-      title: "먼저 키울 작물을 선택해 주세요",
+    return hasCropSource ? null : {
+      description: "화분·베란다는 격자를 만들지 않습니다. 화분마다 키울 작물을 배치하면 바로 일정을 만들 수 있어요.",
+      href: `/seasons/${seasonId}/placements`,
+      label: "화분 배치하러 가기",
+      title: "먼저 화분에 작물을 배치해 주세요",
     };
   }
   if (placementCount === undefined) {
