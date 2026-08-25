@@ -11,7 +11,6 @@ use App\Http\Resources\Api\V1\SpaceMemoResource;
 use App\Http\Responses\VersionedResourceResponse;
 use App\Models\SpaceMemo;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 
 class UpdateSpaceMemoController extends Controller
 {
@@ -20,7 +19,6 @@ class UpdateSpaceMemoController extends Controller
         SpaceMemo $spaceMemo,
         UpdateSpaceMemo $updateSpaceMemo,
     ): JsonResponse {
-        Gate::authorize('update', $spaceMemo->growingSpace);
         $memo = $updateSpaceMemo->execute(
             $spaceMemo,
             $request->persistenceAttributes(),

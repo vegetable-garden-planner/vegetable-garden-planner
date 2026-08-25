@@ -4,13 +4,33 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Api\V1\Seasons;
 
+use App\Models\GrowingSeason;
+use App\Models\GrowingSpace;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Validator;
 
 class UpdateSeasonRequest extends GrowingSeasonRequest
 {
     public function authorize(): bool
     {
-        return true;
+        $season = $this->route('growingSeason');
+        if (! $season instanceof GrowingSeason || $this->user()?->can('update', $season) !== true) {
+            return false;
+        }
+
+        return $this->authorizeTargetSpace($season);
+    }
+
+    private function authorizeTargetSpace(GrowingSeason $season): bool
+    {
+        $targetSpaceId = $this->input('spaceId');
+        if (! is_string($targetSpaceId) || ! Str::isUuid($targetSpaceId) || $targetSpaceId === $season->growing_space_id) {
+            return true;
+        }
+
+        $targetSpace = GrowingSpace::query()->findOrFail($targetSpaceId);
+
+        return $this->user()?->can('view', $targetSpace) === true;
     }
 
     /**

@@ -22,7 +22,9 @@ class UpdateTaskRequest extends StrictJsonRequest
 
     public function authorize(): bool
     {
-        return true;
+        $task = $this->route('cultivationTask');
+
+        return $task instanceof CultivationTask && $this->user()?->can('update', $task->growingSeason) === true;
     }
 
     /** @return array<string, mixed> */

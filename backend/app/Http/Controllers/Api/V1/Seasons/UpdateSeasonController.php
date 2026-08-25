@@ -10,9 +10,7 @@ use App\Http\Requests\Api\V1\Seasons\UpdateSeasonRequest;
 use App\Http\Resources\Api\V1\GrowingSeasonResource;
 use App\Http\Responses\VersionedResourceResponse;
 use App\Models\GrowingSeason;
-use App\Models\GrowingSpace;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 
 class UpdateSeasonController extends Controller
 {
@@ -21,15 +19,6 @@ class UpdateSeasonController extends Controller
         GrowingSeason $growingSeason,
         UpdateGrowingSeason $updateGrowingSeason,
     ): JsonResponse {
-        Gate::authorize('update', $growingSeason);
-
-        $targetSpaceId = $request->spaceId();
-
-        if ($targetSpaceId !== null && $targetSpaceId !== $growingSeason->growing_space_id) {
-            $targetSpace = GrowingSpace::query()->findOrFail($targetSpaceId);
-            Gate::authorize('view', $targetSpace);
-        }
-
         $season = $updateGrowingSeason->execute(
             $growingSeason,
             $request->persistenceAttributes(),

@@ -321,6 +321,20 @@ class CultivationTaskApiTest extends TestCase
         $this->assertDatabaseCount('cultivation_tasks', 0);
     }
 
+    public function test_other_owner_cannot_bulk_delete_tasks(): void
+    {
+        [, , $season] = $this->ownedSeason();
+        $task = CultivationTask::factory()->for($season, 'growingSeason')->create();
+
+        $this->actingAs(User::factory()->create())
+            ->deleteJson("/api/v1/seasons/{$season->id}/tasks", ['tasks' => [
+                ['id' => $task->id, 'version' => 1],
+            ]])
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('cultivation_tasks', ['id' => $task->id]);
+    }
+
     public function test_season_with_tasks_cannot_be_deleted_until_tasks_are_removed(): void
     {
         [$owner, , $season] = $this->ownedSeason();
