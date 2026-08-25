@@ -26,6 +26,8 @@ class Subscription extends Model
         'current_period_start',
         'current_period_end',
         'canceled_at',
+        'past_due_retry_count',
+        'next_retry_at',
         'version',
     ];
 
@@ -51,6 +53,7 @@ class Subscription extends Model
             'current_period_start' => 'datetime',
             'current_period_end' => 'datetime',
             'canceled_at' => 'datetime',
+            'next_retry_at' => 'datetime',
         ];
     }
 }

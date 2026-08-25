@@ -18,13 +18,23 @@ final class ChargeDueSubscriptions
 
     private const ORDER_NAME = '심어봄 프로 요금제';
 
-    public function __construct(private readonly PaymentGateway $gateway) {}
+    public function __construct(
+        private readonly PaymentGateway $gateway,
+        private readonly RecordFailedSubscriptionCharge $recordFailedCharge,
+    ) {}
 
     public function execute(): int
     {
         $dueSubscriptions = Subscription::query()
-            ->where('status', SubscriptionStatus::Active)
-            ->where('current_period_end', '<=', now())
+            ->where(function ($query) {
+                $query->where(function ($q) {
+                    $q->where('status', SubscriptionStatus::Active)
+                        ->where('current_period_end', '<=', now());
+                })->orWhere(function ($q) {
+                    $q->where('status', SubscriptionStatus::PastDue)
+                        ->where('next_retry_at', '<=', now());
+                });
+            })
             ->get();
 
         foreach ($dueSubscriptions as $subscription) {
@@ -47,14 +57,14 @@ final class ChargeDueSubscriptions
 
         if ($result->success) {
             $subscription->update([
+                'status' => SubscriptionStatus::Active,
                 'current_period_end' => $subscription->current_period_end->addMonth(),
+                'past_due_retry_count' => 0,
+                'next_retry_at' => null,
                 'version' => DB::raw('version + 1'),
             ]);
         } else {
-            $subscription->update([
-                'status' => SubscriptionStatus::PastDue,
-                'version' => DB::raw('version + 1'),
-            ]);
+            $this->recordFailedCharge->execute($subscription);
         }
 
         SubscriptionPayment::query()->create([

@@ -18,6 +18,7 @@
             <a class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><span>⌂</span>운영 대시보드</a>
             <a class="{{ request()->routeIs('admin.users.*') ? 'active' : '' }}" href="{{ route('admin.users.index') }}"><span>◎</span>회원 관리</a>
             <a class="{{ request()->routeIs('admin.catalog') ? 'active' : '' }}" href="{{ route('admin.catalog') }}"><span>▦</span>작물 기준정보</a>
+            <a class="{{ request()->routeIs('admin.subscriptions.*') ? 'active' : '' }}" href="{{ route('admin.subscriptions.index') }}"><span>◈</span>구독 현황</a>
         </nav>
         <div class="sidebar-bottom">
             <p><strong>{{ auth()->user()->nickname }}</strong><span>{{ auth()->user()->email }}</span></p>

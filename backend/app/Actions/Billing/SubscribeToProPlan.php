@@ -61,6 +61,8 @@ final class SubscribeToProPlan
                 'current_period_start' => now(),
                 'current_period_end' => now()->addMonth(),
                 'canceled_at' => null,
+                'past_due_retry_count' => 0,
+                'next_retry_at' => null,
                 'version' => ($existing?->version ?? 0) + 1,
             ],
         );
