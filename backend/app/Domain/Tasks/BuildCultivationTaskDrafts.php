@@ -61,6 +61,19 @@ final class BuildCultivationTaskDrafts
                 'completed_at' => null,
                 'version' => 1,
             ];
+
+            if ($crop->needs_support) {
+                $drafts[] = [
+                    'crop_id' => $crop->id,
+                    'type' => CultivationTaskType::Support,
+                    'title' => "{$crop->name} 지지대 설치하기",
+                    'due_date' => $plantingDate->toDateString(),
+                    'notes' => '줄기가 약하거나 덩굴성인 작물이라 심을 때 지지대를 함께 세워야 뿌리와 줄기가 다치지 않습니다.',
+                    'status' => CultivationTaskStatus::Pending,
+                    'completed_at' => null,
+                    'version' => 1,
+                ];
+            }
         }
 
         usort($drafts, static fn (array $left, array $right): int => $left['due_date'] <=> $right['due_date'] ?: strnatcmp($left['title'], $right['title']));
