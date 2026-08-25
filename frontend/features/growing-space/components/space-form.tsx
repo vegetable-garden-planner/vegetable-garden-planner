@@ -212,7 +212,7 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
         </dl>
         <div className={styles.asideGuide}>
           <strong>등록 후 다음 단계</strong>
-          <p>공간에 맞는 시즌을 만들고, 화분·베란다는 대표 작물을 선택합니다. 마당·텃밭은 격자에 작물을 배치해요.</p>
+          <p>공간에 맞는 시즌을 만들고, 화분·베란다는 화분마다 작물과 수량을 배치합니다. 마당·텃밭은 격자에 작물을 배치해요.</p>
         </div>
       </aside>
     </form>

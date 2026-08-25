@@ -79,7 +79,7 @@ export function SpaceList() {
               <div className={styles.cardTopline} aria-hidden="true" />
               <div className={styles.cardHeader}>
                 <div><p>{TYPE_LABELS[space.type]}</p><h3>{space.name}</h3></div>
-                <span>{space.type === "garden" ? "격자형" : "대표 작물형"}</span>
+                <span>{space.type === "garden" ? "격자형" : "화분 배치형"}</span>
               </div>
               <dl className={styles.cardFacts}>
                 <div><dt>공간 크기</dt><dd>{space.widthCm} × {space.lengthCm}{space.depthCm !== null ? ` × ${space.depthCm}` : ""}cm</dd></div>
