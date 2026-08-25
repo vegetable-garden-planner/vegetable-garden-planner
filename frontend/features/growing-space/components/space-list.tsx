@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { InlineConfirm } from "@/components/inline-confirm";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
@@ -35,6 +35,7 @@ export function SpaceList() {
   const [actionErrorCode, setActionErrorCode] = useState("");
   const [deletingId, setDeletingId] = useState("");
   const [busy, setBusy] = useState(false);
+  const isRunningRef = useRef(false);
 
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} onRetry={() => void spacesState.reload()} />;
   if (seasonsState.status === "error") return <ErrorMessage message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
@@ -46,6 +47,9 @@ export function SpaceList() {
   const gardenCount = spaces.filter((space) => space.type === "garden").length;
 
   async function removeSpace(space: GrowingSpace) {
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
+
     setActionError("");
     setActionErrorCode("");
     setBusy(true);
@@ -57,6 +61,7 @@ export function SpaceList() {
       setActionErrorCode(error instanceof ApiError ? error.code : "");
     } finally {
       setBusy(false);
+      isRunningRef.current = false;
     }
   }
 

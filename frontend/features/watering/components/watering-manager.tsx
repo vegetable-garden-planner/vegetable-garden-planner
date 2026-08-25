@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useContainerPlacements } from "../../container-placement/hooks/use-container-placements";
 import { useCropCatalog } from "../../crop-catalog/hooks/use-crop-catalog";
 import { useGardenLayouts } from "../../garden-layout/hooks/use-garden-layouts";
@@ -38,6 +38,7 @@ export function WateringManager({ seasonId }: { seasonId: string }) {
   const [busyKey, setBusyKey] = useState("");
   const [actionError, setActionError] = useState("");
   const [histories, setHistories] = useState<Record<string, WateringHistoryState>>({});
+  const isRunningRef = useRef(false);
 
   if (seasonsState.status === "error") return <WateringLoadError message={seasonsState.message} onRetry={() => void seasonsState.reload()} />;
   if (spacesState.status === "error") return <WateringLoadError message={spacesState.message} onRetry={() => void spacesState.reload()} />;
@@ -112,6 +113,8 @@ export function WateringManager({ seasonId }: { seasonId: string }) {
     action: () => Promise<void>,
     scheduleId?: string,
   ): Promise<boolean> {
+    if (isRunningRef.current) return false;
+    isRunningRef.current = true;
     setBusyKey(key);
     setActionError("");
     try {
@@ -126,6 +129,7 @@ export function WateringManager({ seasonId }: { seasonId: string }) {
       return false;
     } finally {
       setBusyKey("");
+      isRunningRef.current = false;
     }
   }
 

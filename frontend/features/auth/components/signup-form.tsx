@@ -76,18 +76,23 @@ export function SignupForm({ nextPath }: SignupFormProps) {
     }
   }
 
+  const isSubmittingRef = useRef(false);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSubmittingRef.current) return;
     const result = validateSignup(values);
     if (!result.valid) {
       setErrors(result.errors);
       return;
     }
 
+    isSubmittingRef.current = true;
     setSubmitting(true);
     const emailAvailable = emailCheck === "available" || await verifyEmail(result.value.email);
     if (!emailAvailable) {
       setSubmitting(false);
+      isSubmittingRef.current = false;
       return;
     }
 
@@ -99,6 +104,7 @@ export function SignupForm({ nextPath }: SignupFormProps) {
     } catch (error) {
       setErrors(toSignupErrors(error));
       setSubmitting(false);
+      isSubmittingRef.current = false;
     }
   }
 

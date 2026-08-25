@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GROWING_SPACE_LABELS } from "@/features/crop-catalog/data/crop-labels";
@@ -49,6 +49,8 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
   );
   const [errors, setErrors] = useState<GrowingSeasonErrors>({});
   const [formError, setFormError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const isRunningRef = useRef(false);
 
   function update<K extends keyof GrowingSeasonFormValues>(
     key: K,
@@ -60,6 +62,7 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isRunningRef.current) return;
     setFormError("");
     if (spacesState.status !== "ready" || seasonsState.status !== "ready") return;
 
@@ -79,11 +82,15 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
       featuredCropId: isCompatible ? featuredCropId : null,
     };
 
+    isRunningRef.current = true;
+    setIsSaving(true);
     try {
       await persistSeason(season, input);
       router.push(`/seasons?spaceId=${encodeURIComponent(input.spaceId)}`);
     } catch (error) {
       setFormError(error instanceof Error ? error.message : "시즌을 저장하지 못했습니다.");
+      setIsSaving(false);
+      isRunningRef.current = false;
     }
   }
 
@@ -139,6 +146,7 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
       featuredCropId={featuredCropId}
       formError={formError}
       initialCrop={initialCrop}
+      isSaving={isSaving}
       onCropChange={setFeaturedCropId}
       onSubmit={submit}
       onUpdate={update}
@@ -157,6 +165,7 @@ interface SeasonFormViewProps {
   featuredCropId: string;
   formError: string;
   initialCrop: CropReference | undefined;
+  isSaving: boolean;
   onCropChange: (cropId: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => Promise<void>;
   onUpdate: <K extends keyof GrowingSeasonFormValues>(key: K, value: GrowingSeasonFormValues[K]) => void;
@@ -296,7 +305,7 @@ function SeasonFormView(props: SeasonFormViewProps) {
           </SeasonField>
         </section>
         {props.formError && <p className={styles.errorMessage} role="alert">{props.formError}</p>}
-        <button className={styles.submitButton} type="submit">
+        <button className={styles.submitButton} disabled={props.isSaving} type="submit">
           {props.season ? "변경 내용 저장" : "시즌 등록하기"} <span>→</span>
         </button>
       </div>
