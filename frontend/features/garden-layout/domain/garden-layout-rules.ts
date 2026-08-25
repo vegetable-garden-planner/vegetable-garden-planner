@@ -58,6 +58,42 @@ export function getCropSeasonFit(
   };
 }
 
+export interface SeasonPeriodSuggestion {
+  startDate: string;
+  endDate: string;
+}
+
+/**
+ * 심는·수확 권장 시기가 시즌과 맞지 않는 작물들을 모두 포함하는 시즌 기간을 제안한다.
+ * 어느 작물이든 심는 시기가 연말을 넘기면(예: 11월~2월) 하나의 기간으로 묶을 수 없어 제안하지 않는다.
+ */
+export function suggestSeasonPeriodCoveringCrops(
+  season: Pick<GrowingSeason, "startDate">,
+  crops: readonly Pick<CropReference, "plantingPeriod" | "harvestPeriod">[],
+): SeasonPeriodSuggestion | null {
+  if (crops.length === 0) return null;
+
+  const periods = crops.flatMap((crop) => [crop.plantingPeriod, crop.harvestPeriod]);
+  if (periods.some((period) => period.startMonth > period.endMonth)) return null;
+
+  const startMonth = Math.min(...periods.map((period) => period.startMonth));
+  const endMonth = Math.max(...periods.map((period) => period.endMonth));
+  const year = Number(season.startDate.slice(0, 4));
+
+  return {
+    startDate: `${year}-${pad2(startMonth)}-01`,
+    endDate: `${year}-${pad2(endMonth)}-${pad2(lastDayOfMonth(year, endMonth))}`,
+  };
+}
+
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+function lastDayOfMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
 export function getGardenLayoutRuleWarnings(
   layout: GardenLayout,
   season: GrowingSeason,
