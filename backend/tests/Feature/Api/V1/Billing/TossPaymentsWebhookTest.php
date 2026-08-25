@@ -6,10 +6,12 @@ namespace Tests\Feature\Api\V1\Billing;
 
 use App\Enums\SubscriptionPaymentStatus;
 use App\Enums\SubscriptionStatus;
+use App\Mail\SubscriptionCanceledMail;
 use App\Models\Subscription;
 use App\Models\SubscriptionPayment;
 use App\Services\Billing\PaymentGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\Fakes\FakePaymentGateway;
 use Tests\TestCase;
 
@@ -81,5 +83,26 @@ class TossPaymentsWebhookTest extends TestCase
             'id' => $subscription->id,
             'status' => SubscriptionStatus::PastDue->value,
         ]);
+    }
+
+    public function test_repeated_webhook_failures_eventually_cancel_and_notify(): void
+    {
+        Mail::fake();
+        $subscription = Subscription::factory()->create([
+            'status' => SubscriptionStatus::PastDue,
+            'past_due_retry_count' => 2,
+        ]);
+
+        $this->postJson('/api/v1/webhooks/toss-payments', [
+            'eventType' => 'BILLING_DELETED',
+            'data' => ['customerKey' => $subscription->user_id],
+        ])->assertNoContent();
+
+        $this->assertDatabaseHas('subscriptions', [
+            'id' => $subscription->id,
+            'status' => SubscriptionStatus::Canceled->value,
+            'past_due_retry_count' => 3,
+        ]);
+        Mail::assertQueued(SubscriptionCanceledMail::class);
     }
 }

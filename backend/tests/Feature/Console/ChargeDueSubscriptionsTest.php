@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Tests\Feature\Console;
 
 use App\Enums\SubscriptionStatus;
+use App\Mail\SubscriptionCanceledMail;
 use App\Models\Subscription;
 use App\Services\Billing\PaymentGateway;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Mail;
 use Tests\Fakes\FakePaymentGateway;
 use Tests\TestCase;
 
@@ -78,5 +80,67 @@ class ChargeDueSubscriptionsTest extends TestCase
         $this->assertDatabaseHas('subscriptions', ['id' => $notDue->id, 'version' => 1]);
         $this->assertDatabaseCount('subscription_payments', 0);
         $this->assertCount(0, $gateway->charges);
+    }
+
+    public function test_repeated_failures_retry_up_to_the_limit_then_cancel_and_notify(): void
+    {
+        Mail::fake();
+        $gateway = new FakePaymentGateway;
+        $gateway->failingBillingKeys = ['billing-key-declined'];
+        $this->app->instance(PaymentGateway::class, $gateway);
+
+        $subscription = Subscription::factory()->create([
+            'status' => SubscriptionStatus::Active,
+            'current_period_end' => now()->subDay(),
+            'billing_key' => 'billing-key-declined',
+            'version' => 1,
+        ]);
+
+        Artisan::call('subscriptions:charge-due');
+        $subscription->refresh();
+        $this->assertSame(SubscriptionStatus::PastDue, $subscription->status);
+        $this->assertSame(1, $subscription->past_due_retry_count);
+        $this->assertNotNull($subscription->next_retry_at);
+        Mail::assertNothingSent();
+
+        Artisan::call('subscriptions:charge-due');
+        $subscription->refresh();
+        $this->assertSame(1, $subscription->past_due_retry_count, '재시도 시점이 되지 않으면 다시 청구하지 않는다');
+
+        $subscription->forceFill(['next_retry_at' => now()->subMinute()])->save();
+        Artisan::call('subscriptions:charge-due');
+        $subscription->refresh();
+        $this->assertSame(SubscriptionStatus::PastDue, $subscription->status);
+        $this->assertSame(2, $subscription->past_due_retry_count);
+        Mail::assertNothingSent();
+
+        $subscription->forceFill(['next_retry_at' => now()->subMinute()])->save();
+        Artisan::call('subscriptions:charge-due');
+        $subscription->refresh();
+        $this->assertSame(SubscriptionStatus::Canceled, $subscription->status);
+        $this->assertSame(3, $subscription->past_due_retry_count);
+        $this->assertNull($subscription->next_retry_at);
+        Mail::assertQueued(SubscriptionCanceledMail::class);
+    }
+
+    public function test_a_successful_retry_reactivates_a_past_due_subscription(): void
+    {
+        $gateway = new FakePaymentGateway;
+        $this->app->instance(PaymentGateway::class, $gateway);
+
+        $subscription = Subscription::factory()->create([
+            'status' => SubscriptionStatus::PastDue,
+            'current_period_end' => now()->subDays(4),
+            'past_due_retry_count' => 1,
+            'next_retry_at' => now()->subMinute(),
+            'version' => 2,
+        ]);
+
+        Artisan::call('subscriptions:charge-due');
+
+        $subscription->refresh();
+        $this->assertSame(SubscriptionStatus::Active, $subscription->status);
+        $this->assertSame(0, $subscription->past_due_retry_count);
+        $this->assertNull($subscription->next_retry_at);
     }
 }
