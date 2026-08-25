@@ -17,7 +17,6 @@ interface AppPageShellProps {
   children: ReactNode;
   description?: string;
   eyebrow: string;
-  homeHref?: string;
   heroImage?: string;
   heroSize?: "default" | "compact";
   title: string;
@@ -31,7 +30,6 @@ export function AppPageShell({
   children,
   description,
   eyebrow,
-  homeHref,
   heroImage,
   heroSize = "default",
   title,
@@ -39,7 +37,7 @@ export function AppPageShell({
 }: AppPageShellProps) {
   return (
     <main className="app-page">
-      <AppHeader action={action} homeHref={homeHref} />
+      <AppHeader action={action} />
       <div className={`app-page-content mx-auto w-full min-w-0 ${widthClasses[width]}`}>
         {backHref && backLabel && <Link className="back-link" href={backHref}>← {backLabel}</Link>}
         <header className={`page-hero ${heroImage ? "page-hero-photo" : ""} ${heroSize === "compact" ? "page-hero-compact" : ""}`}>

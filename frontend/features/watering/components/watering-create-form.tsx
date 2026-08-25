@@ -53,7 +53,7 @@ export function WateringCreateForm({
         <span aria-hidden="true">01</span>
         <div><p>새 물주기 일정</p><h2>반복 기준을 정해 주세요</h2></div>
       </div>
-      <p className={styles.createDescription}>텃밭에 배치한 작물마다 하나의 반복 일정을 만들 수 있어요.</p>
+      <p className={styles.createDescription}>배치한 작물마다 하나의 반복 일정을 만들 수 있어요.</p>
       <div className={styles.createFields}>
         <Field error={errors.cropId} label="작물">
           <select

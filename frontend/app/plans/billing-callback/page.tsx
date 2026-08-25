@@ -16,7 +16,6 @@ export default async function BillingCallbackPage(props: PageProps<"/plans/billi
       description="카드 등록 결과를 확인하는 동안 잠시만 기다려 주세요."
       eyebrow="프로 구독"
       heroSize="compact"
-      homeHref="/"
       title="구독 처리 중"
     >
       <BillingCallback authKey={authKey} />
