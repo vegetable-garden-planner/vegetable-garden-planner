@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   createGrowingSeason,
   getGrowingSeasonStatus,
+  suggestSeasonPeriodForCrop,
   validateGrowingSeason,
   type GrowingSeasonFormValues,
 } from "./growing-season.ts";
@@ -130,4 +131,46 @@ test("오늘 날짜가 시즌 기간 전, 중, 후인지 상태를 계산한다"
   assert.equal(getGrowingSeasonStatus(season, "2026-03-01"), "active");
   assert.equal(getGrowingSeasonStatus(season, "2026-06-30"), "active");
   assert.equal(getGrowingSeasonStatus(season, "2026-07-01"), "completed");
+});
+
+test("권장 심기 달이 아직 오지 않았으면 올해로 기간을 제안한다", () => {
+  const crop = {
+    plantingPeriod: { startMonth: 4, endMonth: 4 },
+    harvestPeriod: { startMonth: 7, endMonth: 8 },
+  };
+
+  const suggestion = suggestSeasonPeriodForCrop(crop, new Date(2026, 0, 15));
+
+  assert.deepEqual(suggestion, { startDate: "2026-04-01", endDate: "2026-08-31" });
+});
+
+test("권장 심기 달이 이미 지났으면 내년으로 기간을 제안한다", () => {
+  const crop = {
+    plantingPeriod: { startMonth: 4, endMonth: 4 },
+    harvestPeriod: { startMonth: 7, endMonth: 8 },
+  };
+
+  const suggestion = suggestSeasonPeriodForCrop(crop, new Date(2026, 7, 15));
+
+  assert.deepEqual(suggestion, { startDate: "2027-04-01", endDate: "2027-08-31" });
+});
+
+test("권장 심기 달이 이번 달이면 올해로 기간을 제안한다", () => {
+  const crop = {
+    plantingPeriod: { startMonth: 4, endMonth: 4 },
+    harvestPeriod: { startMonth: 7, endMonth: 8 },
+  };
+
+  const suggestion = suggestSeasonPeriodForCrop(crop, new Date(2026, 3, 20));
+
+  assert.deepEqual(suggestion, { startDate: "2026-04-01", endDate: "2026-08-31" });
+});
+
+test("권장 시기가 연말을 넘기면 기간을 제안하지 않는다", () => {
+  const crop = {
+    plantingPeriod: { startMonth: 10, endMonth: 2 },
+    harvestPeriod: { startMonth: 3, endMonth: 4 },
+  };
+
+  assert.equal(suggestSeasonPeriodForCrop(crop, new Date(2026, 0, 15)), null);
 });

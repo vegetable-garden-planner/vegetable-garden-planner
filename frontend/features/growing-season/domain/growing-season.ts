@@ -107,6 +107,46 @@ export function createGrowingSeason(
   return { ...input, id, createdAt };
 }
 
+export interface SeasonPeriodSuggestion {
+  startDate: string;
+  endDate: string;
+}
+
+interface SuggestableCropPeriod {
+  startMonth: number;
+  endMonth: number;
+}
+
+/**
+ * 작물의 권장 심기·수확 달을 모두 포함하는 기간을 오늘 이후 가장 가까운 시점으로 제안한다.
+ * 권장 시기가 연말을 넘기면(예: 11월~2월) 하나의 기간으로 묶을 수 없어 제안하지 않는다.
+ */
+export function suggestSeasonPeriodForCrop(
+  crop: { plantingPeriod: SuggestableCropPeriod; harvestPeriod: SuggestableCropPeriod },
+  today: Date,
+): SeasonPeriodSuggestion | null {
+  const periods = [crop.plantingPeriod, crop.harvestPeriod];
+  if (periods.some((period) => period.startMonth > period.endMonth)) return null;
+
+  const startMonth = Math.min(...periods.map((period) => period.startMonth));
+  const endMonth = Math.max(...periods.map((period) => period.endMonth));
+  const currentYear = today.getFullYear();
+  const year = startMonth >= today.getMonth() + 1 ? currentYear : currentYear + 1;
+
+  return {
+    startDate: `${year}-${pad2(startMonth)}-01`,
+    endDate: `${year}-${pad2(endMonth)}-${pad2(lastDayOfMonth(year, endMonth))}`,
+  };
+}
+
+function pad2(value: number): string {
+  return String(value).padStart(2, "0");
+}
+
+function lastDayOfMonth(year: number, month: number): number {
+  return new Date(year, month, 0).getDate();
+}
+
 function parseDateOnly(value: string): number | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return null;

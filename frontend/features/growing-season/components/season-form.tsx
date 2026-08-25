@@ -8,6 +8,7 @@ import type { CropReference } from "@/features/crop-catalog/domain/crop-referenc
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { SeasonField } from "@/features/growing-season/components/season-field";
 import {
+  suggestSeasonPeriodForCrop,
   validateGrowingSeason,
   type PersistedGrowingSeason,
   type GrowingSeasonErrors,
@@ -171,6 +172,16 @@ function SeasonFormView(props: SeasonFormViewProps) {
     props.onCropChange("");
   }
 
+  const periodSuggestion = props.initialCrop
+    ? suggestSeasonPeriodForCrop(props.initialCrop, new Date())
+    : null;
+
+  function applySuggestedPeriod() {
+    if (!periodSuggestion) return;
+    props.onUpdate("startDate", periodSuggestion.startDate);
+    props.onUpdate("endDate", periodSuggestion.endDate);
+  }
+
   return (
     <form className={styles.formLayout} noValidate onSubmit={props.onSubmit}>
       <div className={styles.formMain}>
@@ -181,10 +192,17 @@ function SeasonFormView(props: SeasonFormViewProps) {
               <h2>{props.initialCrop.name}</h2>
               <span>권장 시기를 포함하도록 시즌 기간을 정하면 자동 일정을 만들 수 있어요.</span>
             </div>
-            <dl>
-              <div><dt>권장 심기</dt><dd>{props.initialCrop.plantingPeriod.label}</dd></div>
-              <div><dt>권장 수확</dt><dd>{props.initialCrop.harvestPeriod.label}</dd></div>
-            </dl>
+            <div className={styles.cropNoticeStats}>
+              <dl>
+                <div><dt>권장 심기</dt><dd>{props.initialCrop.plantingPeriod.label}</dd></div>
+                <div><dt>권장 수확</dt><dd>{props.initialCrop.harvestPeriod.label}</dd></div>
+              </dl>
+              {periodSuggestion && (
+                <button className={styles.cropNoticeAction} onClick={applySuggestedPeriod} type="button">
+                  이 기간으로 바로 입력 · {periodSuggestion.startDate} ~ {periodSuggestion.endDate}
+                </button>
+              )}
+            </div>
           </div>
         )}
         <section className={styles.formSection}>
