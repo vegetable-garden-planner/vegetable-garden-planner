@@ -1,11 +1,13 @@
+"use client";
+
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 import { AuthHeaderMenu } from "@/features/auth/components/auth-header-menu";
+import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
 
 interface AppHeaderProps {
   action?: ReactNode;
-  homeHref?: string;
   variant?: "default" | "overlay";
 }
 
@@ -16,7 +18,10 @@ const navigation = [
   { label: "가이드", href: "/start" },
 ];
 
-export function AppHeader({ action, homeHref = "/", variant = "default" }: AppHeaderProps) {
+export function AppHeader({ action, variant = "default" }: AppHeaderProps) {
+  const auth = useAuthSession();
+  const homeHref = auth.state.status === "authenticated" ? "/dashboard" : "/start";
+
   return (
     <header className={`app-header ${variant === "overlay" ? "app-header-overlay" : ""}`}>
       <div className="app-header-inner">
@@ -30,7 +35,6 @@ export function AppHeader({ action, homeHref = "/", variant = "default" }: AppHe
           ))}
         </nav>
         <div className="app-header-actions">
-          <Link className="app-search-link" href="/crops" aria-label="작물 검색"><span aria-hidden="true" /></Link>
           {action}
           <AuthHeaderMenu />
         </div>

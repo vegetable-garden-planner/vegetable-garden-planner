@@ -23,7 +23,6 @@ export default function PlansPage() {
       description="꽃을 살리고 식물을 시작하는 데 필요한 정보는 무료로 제공합니다. 프로는 날씨와 상태를 반영해 놓치기 쉬운 관리를 먼저 챙겨 주는 요금제로 준비하고 있습니다."
       eyebrow="심어봄의 이용 방식"
       heroSize="compact"
-      homeHref="/"
       title="정보는 무료로, 반복 관리는 더 똑똑하게"
       width="wide"
     >

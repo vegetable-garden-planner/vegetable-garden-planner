@@ -22,7 +22,6 @@ export default function CropsPage() {
       )}
       description="심을 시기부터 필요한 공간, 관리 난이도까지 비교하고 나에게 맞는 작물과 꽃을 찾아보세요."
       eyebrow="작물 관리 가이드 · 13종"
-      homeHref="/"
       heroImage="/figma/planner-hero.webp"
       title="무엇을 심고 어떻게 돌볼지 한눈에"
       width="full"
