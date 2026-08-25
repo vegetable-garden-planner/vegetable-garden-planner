@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuthSession } from "@/features/auth/hooks/use-auth-session";
+import { useAllContainerPlacements } from "@/features/container-placement/hooks/use-all-container-placements";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { useCultivationTasks } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
@@ -19,6 +20,7 @@ export function HomeDashboard() {
   const layoutsState = useGardenLayouts();
   const tasksState = useCultivationTasks();
   const cropCatalog = useCropCatalog();
+  const containerPlacementsState = useAllContainerPlacements();
   const now = new Date();
   const today = formatLocalDate(now);
   const authenticated = auth.state.status === "authenticated";
@@ -26,7 +28,8 @@ export function HomeDashboard() {
     && seasonsState.status === "ready"
     && layoutsState.status === "ready"
     && tasksState.status === "ready"
-    && cropCatalog.status === "ready";
+    && cropCatalog.status === "ready"
+    && containerPlacementsState.status === "ready";
   const model = resourcesReady
     ? createHomeDashboardModel(
         spacesState.spaces,
@@ -35,10 +38,11 @@ export function HomeDashboard() {
         tasksState.tasks,
         cropCatalog.crops,
         today,
+        containerPlacementsState.placements,
       )
     : createHomeDashboardModel([], [], [], [], cropCatalog.crops, today);
   const dataError = authenticated
-    ? [spacesState, seasonsState, layoutsState, tasksState, cropCatalog]
+    ? [spacesState, seasonsState, layoutsState, tasksState, cropCatalog, containerPlacementsState]
         .find((state) => state.status === "error")
     : undefined;
   const resourcesLoading = authenticated && !resourcesReady && !dataError;

@@ -108,13 +108,28 @@ test("작물을 고른 베란다 시즌은 격자 없이 일정으로 안내한�
   assert.equal(summary.recentSeasons[0]?.scheduleHref, "/seasons/season-balcony/tasks");
 });
 
-test("작물을 고르지 않은 화분 시즌은 작물 선택으로 안내한다", () => {
+test("작물을 배치하지 않은 화분 시즌은 화분 배치로 안내한다", () => {
   const indoor = { ...garden, id: "space-indoor", type: "indoor" as const };
   const indoorSeason = { ...activeSeason, id: "season-indoor", spaceId: indoor.id };
   const summary = createDashboardSummary([indoor], [indoorSeason], [], [], "2026-08-06");
 
-  assert.equal(summary.nextAction.href, "/seasons/season-indoor/edit");
-  assert.equal(summary.nextAction.label, "작물 선택하기");
+  assert.equal(summary.nextAction.href, "/seasons/season-indoor/placements");
+  assert.equal(summary.nextAction.label, "화분 배치하기");
+});
+
+test("화분 배치가 있으면 작물 선택 안내를 건너뛴다", () => {
+  const indoor = { ...garden, id: "space-indoor", type: "indoor" as const };
+  const indoorSeason = { ...activeSeason, id: "season-indoor", spaceId: indoor.id, featuredCropId: undefined };
+  const summary = createDashboardSummary(
+    [indoor],
+    [indoorSeason],
+    [],
+    [],
+    "2026-08-06",
+    new Set(["season-indoor"]),
+  );
+
+  assert.notEqual(summary.nextAction.label, "화분 배치하기");
 });
 
 test("격자가 있고 일정이 없으면 일정 자동 생성으로 연결한다", () => {

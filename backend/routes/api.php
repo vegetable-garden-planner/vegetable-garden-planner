@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\Billing\CancelSubscriptionController;
 use App\Http\Controllers\Api\V1\Billing\ShowSubscriptionController;
 use App\Http\Controllers\Api\V1\Billing\StoreSubscriptionController;
 use App\Http\Controllers\Api\V1\Billing\TossPaymentsWebhookController;
+use App\Http\Controllers\Api\V1\ContainerPlacements\IndexContainerPlacementsController;
 use App\Http\Controllers\Api\V1\ContainerPlacements\PutContainerPlacementsController;
 use App\Http\Controllers\Api\V1\ContainerPlacements\ShowContainerPlacementsController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropController;
@@ -107,6 +108,7 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/memos/{spaceMemo}', DestroySpaceMemoController::class);
 
         Route::get('/layouts', IndexGardenLayoutController::class);
+        Route::get('/container-placements', IndexContainerPlacementsController::class);
 
         Route::get('/tasks', IndexTaskController::class);
         Route::patch('/tasks/{cultivationTask}', UpdateTaskController::class);

@@ -104,7 +104,7 @@ class GrowingSeasonApiTest extends TestCase
             ->assertJsonValidationErrors(['endDate'], 'error.fields');
     }
 
-    public function test_container_season_requires_a_crop_supported_by_its_space(): void
+    public function test_container_season_does_not_require_a_featured_crop(): void
     {
         $user = User::factory()->create();
         $space = GrowingSpace::factory()->for($user, 'owner')->create([
@@ -113,8 +113,18 @@ class GrowingSeasonApiTest extends TestCase
 
         $this->actingAs($user)
             ->postJson('/api/v1/seasons', $this->validPayload($space))
-            ->assertUnprocessable()
-            ->assertJsonValidationErrors(['featuredCropId'], 'error.fields');
+            ->assertCreated()
+            ->assertJsonPath('data.featuredCropId', null);
+
+        $this->assertDatabaseCount('growing_seasons', 1);
+    }
+
+    public function test_container_season_requires_a_crop_supported_by_its_space(): void
+    {
+        $user = User::factory()->create();
+        $space = GrowingSpace::factory()->for($user, 'owner')->create([
+            'type' => GrowingSpaceType::Indoor,
+        ]);
 
         $this->actingAs($user)
             ->postJson('/api/v1/seasons', [

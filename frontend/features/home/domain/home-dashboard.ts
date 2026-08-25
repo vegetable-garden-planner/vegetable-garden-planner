@@ -57,6 +57,7 @@ export function createHomeDashboardModel(
   tasks: readonly CultivationTask[],
   crops: readonly CropReference[],
   today: string,
+  containerPlacements: readonly { seasonId: string; cropId: string }[] = [],
 ): HomeDashboardModel {
   const primarySeason = selectPrimarySeason(seasons, today);
   const primarySpace = primarySeason
@@ -65,11 +66,16 @@ export function createHomeDashboardModel(
   const primaryLayout = primarySeason
     ? layouts.find((layout) => layout.seasonId === primarySeason.id)
     : undefined;
+  const primaryContainerCropId = primarySeason
+    ? containerPlacements.find((item) => item.seasonId === primarySeason.id)?.cropId
+    : undefined;
   const plantedCropIds = new Set(layouts.flatMap((layout) => layout.placements.map((item) => item.cropId)));
+  for (const placement of containerPlacements) plantedCropIds.add(placement.cropId);
   for (const season of seasons) {
     if (season.featuredCropId) plantedCropIds.add(season.featuredCropId);
   }
   const primaryCropId = primarySeason?.featuredCropId
+    ?? primaryContainerCropId
     ?? primaryLayout?.placements[0]?.cropId
     ?? "";
   const primaryCrop = crops.find((crop) => crop.id === primaryCropId) ?? null;

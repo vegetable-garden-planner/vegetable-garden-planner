@@ -94,21 +94,19 @@ function PlannerContext({
 }
 
 function ContainerSpaceNextStep({ season, space }: { season: GrowingSeason; space: GrowingSpace }) {
-  const hasCrop = Boolean(season.featuredCropId);
-
   return (
     <section className="surface-panel border-leaf/20 p-7 text-center">
       <p className="text-sm font-bold text-leaf">{space.name} · 화분·베란다 재배</p>
       <h2 className="mt-2 text-2xl font-bold">격자를 만들지 않고 다음 단계로 진행해요</h2>
       <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-muted">
         격자 배치는 여러 구역에 작물을 나누어 심는 마당·텃밭 전용 기능입니다.
-        화분·베란다는 이번 시즌에 키울 작물을 선택한 뒤 바로 재배 일정을 만듭니다.
+        화분·베란다는 화분마다 키울 작물과 수량을 배치한 뒤 재배 일정을 만듭니다.
       </p>
       <Link
         className="mt-6 inline-flex rounded-full bg-leaf px-6 py-3 font-bold text-white"
-        href={hasCrop ? `/seasons/${season.id}/tasks` : `/seasons/${season.id}/edit`}
+        href={`/seasons/${season.id}/placements`}
       >
-        {hasCrop ? "다음 단계 · 재배 일정 만들기" : "다음 단계 · 키울 작물 선택하기"} →
+        다음 단계 · 화분 배치하기 →
       </Link>
     </section>
   );
