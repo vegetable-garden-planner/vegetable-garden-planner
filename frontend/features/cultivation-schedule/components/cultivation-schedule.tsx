@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { InlineConfirm } from "@/components/inline-confirm";
 import type {
   CultivationTask,
@@ -48,6 +48,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   const layoutsState = useGardenLayouts();
   const containerPlacementsState = useContainerPlacements(seasonId);
   const tasksState = useCultivationTasks();
+  const isRunningRef = useRef(false);
   const [actionError, setActionError] = useState("");
   const [actionErrorCode, setActionErrorCode] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -98,6 +99,8 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
       : season.featuredCropId ? 1 : 0;
 
   async function runAction(action: () => Promise<void>): Promise<void> {
+    if (isRunningRef.current) return;
+    isRunningRef.current = true;
     setActionError("");
     setActionErrorCode("");
     setIsSaving(true);
@@ -108,6 +111,7 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
       setActionError(toMessage(error));
       setActionErrorCode(error instanceof ApiError ? error.code : "");
     } finally {
+      isRunningRef.current = false;
       setIsSaving(false);
     }
   }
