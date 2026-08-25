@@ -361,7 +361,7 @@ function DashboardGettingStarted({
     },
     {
       title: "첫 시즌 만들기",
-      description: "공간을 고르고 재배 기간과 대표 작물을 정해요.",
+      description: "공간을 고르고 재배 기간을 정해요.",
       status: hasSpace ? "지금 할 일" : "다음 단계",
     },
     {
