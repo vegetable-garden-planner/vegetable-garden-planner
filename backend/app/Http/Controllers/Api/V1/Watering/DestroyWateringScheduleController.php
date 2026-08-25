@@ -18,7 +18,7 @@ class DestroyWateringScheduleController extends Controller
         WateringSchedule $wateringSchedule,
         DeleteWateringSchedule $deleteSchedule,
     ): Response {
-        Gate::authorize('update', $wateringSchedule->growingSeason);
+        Gate::authorize('update', $wateringSchedule);
         $deleteSchedule->execute($wateringSchedule, $request->header('If-Match'));
 
         return response()->noContent();

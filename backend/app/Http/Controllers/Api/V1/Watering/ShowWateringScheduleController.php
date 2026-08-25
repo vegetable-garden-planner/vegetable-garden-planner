@@ -15,7 +15,7 @@ class ShowWateringScheduleController extends Controller
 {
     public function __invoke(WateringSchedule $wateringSchedule): JsonResponse
     {
-        Gate::authorize('view', $wateringSchedule->growingSeason);
+        Gate::authorize('view', $wateringSchedule);
 
         return VersionedResourceResponse::make(
             WateringScheduleResource::make($wateringSchedule),

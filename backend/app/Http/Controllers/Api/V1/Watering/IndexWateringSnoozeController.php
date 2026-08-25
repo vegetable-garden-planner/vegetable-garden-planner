@@ -17,7 +17,7 @@ class IndexWateringSnoozeController extends Controller
 {
     public function __invoke(PaginationRequest $request, WateringSchedule $wateringSchedule): JsonResponse
     {
-        Gate::authorize('view', $wateringSchedule->growingSeason);
+        Gate::authorize('view', $wateringSchedule);
         $paginator = $wateringSchedule->snoozes()->latest('created_at')->paginate($request->perPage());
         $data = array_map(
             static fn (WateringSnooze $snooze): array => WateringSnoozeResource::make($snooze)->resolve(),

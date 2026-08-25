@@ -22,7 +22,7 @@ class ReopenWateringCompletionController extends Controller
         WateringLog $wateringLog,
         ReopenWateringCompletion $reopenCompletion,
     ): JsonResponse {
-        Gate::authorize('update', $wateringSchedule->growingSeason);
+        Gate::authorize('update', $wateringSchedule);
         $schedule = $reopenCompletion->execute(
             $wateringSchedule,
             $wateringLog,

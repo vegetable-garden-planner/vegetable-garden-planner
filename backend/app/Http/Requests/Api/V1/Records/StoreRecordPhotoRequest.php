@@ -16,7 +16,7 @@ class StoreRecordPhotoRequest extends FormRequest
     {
         $record = $this->route('cultivationRecord');
 
-        return $record instanceof CultivationRecord && $this->user()?->can('update', $record->growingSeason) === true;
+        return $record instanceof CultivationRecord && $this->user()?->can('update', $record) === true;
     }
 
     /** @return array<string, mixed> */

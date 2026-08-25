@@ -24,9 +24,9 @@ abstract class CultivationRecordRequest extends StrictJsonRequest
 
     public function authorize(): bool
     {
-        $season = $this->recordSeason();
+        $season = $this->route('growingSeason');
 
-        return $season === null || $this->user()?->can('update', $season) === true;
+        return $season instanceof GrowingSeason && $this->user()?->can('update', $season) === true;
     }
 
     /** @return array<string, mixed> */

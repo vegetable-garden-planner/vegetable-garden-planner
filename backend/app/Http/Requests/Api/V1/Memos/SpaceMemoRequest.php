@@ -6,7 +6,6 @@ namespace App\Http\Requests\Api\V1\Memos;
 
 use App\Http\Requests\Api\V1\StrictJsonRequest;
 use App\Models\GrowingSpace;
-use App\Models\SpaceMemo;
 
 abstract class SpaceMemoRequest extends StrictJsonRequest
 {
@@ -17,9 +16,9 @@ abstract class SpaceMemoRequest extends StrictJsonRequest
 
     public function authorize(): bool
     {
-        $space = $this->memoSpace();
+        $space = $this->route('growingSpace');
 
-        return $space === null || $this->user()?->can('update', $space) === true;
+        return $space instanceof GrowingSpace && $this->user()?->can('update', $space) === true;
     }
 
     /** @return array<string, mixed> */
@@ -57,17 +56,5 @@ abstract class SpaceMemoRequest extends StrictJsonRequest
     protected function allowedFields(): array
     {
         return array_keys(self::FIELD_TO_COLUMN);
-    }
-
-    private function memoSpace(): ?GrowingSpace
-    {
-        $space = $this->route('growingSpace');
-        if ($space instanceof GrowingSpace) {
-            return $space;
-        }
-
-        $memo = $this->route('spaceMemo');
-
-        return $memo instanceof SpaceMemo ? $memo->growingSpace : null;
     }
 }
