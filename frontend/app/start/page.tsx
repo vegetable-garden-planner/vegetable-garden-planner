@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GuestGate } from "@/features/auth/components/guest-gate";
 import { DiagnosisForm } from "@/features/start-diagnosis/components/diagnosis-form";
 import styles from "./start.module.css";
 
@@ -10,7 +11,9 @@ export const metadata: Metadata = {
 export default function StartPage() {
   return (
     <main className={styles.page}>
-      <DiagnosisForm />
+      <GuestGate authenticatedHref="/dashboard">
+        <DiagnosisForm />
+      </GuestGate>
     </main>
   );
 }
