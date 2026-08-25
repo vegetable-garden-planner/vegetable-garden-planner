@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\ContainerPlacements\ShowContainerPlacementsContr
 use App\Http\Controllers\Api\V1\Crops\IndexCropController;
 use App\Http\Controllers\Api\V1\Crops\IndexCropSourceController;
 use App\Http\Controllers\Api\V1\Crops\ShowCropController;
+use App\Http\Controllers\Api\V1\GrowingContext\ShowGrowingContextController;
 use App\Http\Controllers\Api\V1\HealthCheckController;
 use App\Http\Controllers\Api\V1\Layouts\DestroyGardenLayoutController;
 use App\Http\Controllers\Api\V1\Layouts\IndexGardenLayoutController;
@@ -109,6 +110,7 @@ Route::prefix('v1')->group(function (): void {
 
         Route::get('/layouts', IndexGardenLayoutController::class);
         Route::get('/container-placements', IndexContainerPlacementsController::class);
+        Route::get('/growing-context', ShowGrowingContextController::class);
 
         Route::get('/tasks', IndexTaskController::class);
         Route::patch('/tasks/{cultivationTask}', UpdateTaskController::class);
