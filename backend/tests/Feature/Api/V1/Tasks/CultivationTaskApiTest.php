@@ -224,6 +224,38 @@ class CultivationTaskApiTest extends TestCase
         );
     }
 
+    public function test_generation_adds_support_task_only_for_crops_that_need_it(): void
+    {
+        [$owner, $space, $season] = $this->ownedSeason([
+            'start_date' => '2026-04-01',
+            'end_date' => '2026-06-30',
+        ]);
+        $this->createLayout($owner, $space, $season, [
+            ['cellIndex' => 0, 'cropId' => 'tomato'],
+            ['cellIndex' => 1, 'cropId' => 'lettuce'],
+        ]);
+
+        $this->actingAs($owner)
+            ->withHeader('If-Match', '"1"')
+            ->postJson("/api/v1/seasons/{$season->id}/tasks/generate")
+            ->assertCreated()
+            ->assertJsonCount(5, 'data');
+
+        $this->assertDatabaseHas('cultivation_tasks', [
+            'crop_id' => 'tomato',
+            'type' => 'support',
+            'due_date' => '2026-05-01 00:00:00',
+        ]);
+        $this->assertSame(
+            1,
+            CultivationTask::query()->where('crop_id', 'tomato')->where('type', 'support')->count(),
+        );
+        $this->assertSame(
+            0,
+            CultivationTask::query()->where('crop_id', 'lettuce')->where('type', 'support')->count(),
+        );
+    }
+
     public function test_owner_can_update_completion_and_return_task_to_pending(): void
     {
         [$owner, , $season] = $this->ownedSeason();
