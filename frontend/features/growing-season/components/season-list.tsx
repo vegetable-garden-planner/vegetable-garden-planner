@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { InlineConfirm } from "@/components/inline-confirm";
+import { useAllContainerPlacements } from "@/features/container-placement/hooks/use-all-container-placements";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
@@ -35,6 +36,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   const spacesState = useGrowingSpaces();
   const cropCatalog = useCropCatalog();
   const layoutsState = useGardenLayouts();
+  const containerPlacementsState = useAllContainerPlacements();
   const [actionError, setActionError] = useState("");
   const [actionErrorCode, setActionErrorCode] = useState("");
   const [deletingId, setDeletingId] = useState("");
@@ -45,11 +47,21 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} onRetry={() => void spacesState.reload()} />;
   if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} onRetry={() => window.location.reload()} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} onRetry={() => void layoutsState.reload()} />;
-  if (seasonsState.status === "loading" || spacesState.status === "loading" || cropCatalog.status === "loading" || layoutsState.status === "loading") return <SeasonListLoading />;
+  if (containerPlacementsState.status === "error") return <ErrorMessage message={containerPlacementsState.message} onRetry={() => void containerPlacementsState.reload()} />;
+  if (
+    seasonsState.status === "loading"
+    || spacesState.status === "loading"
+    || cropCatalog.status === "loading"
+    || layoutsState.status === "loading"
+    || containerPlacementsState.status === "loading"
+  ) return <SeasonListLoading />;
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
   const cropsById = new Map(cropCatalog.crops.map((crop) => [crop.id, crop]));
   const layoutsBySeasonId = new Map(
     layoutsState.layouts.map((layout) => [layout.seasonId, layout]),
+  );
+  const containerPlacementSeasonIds = new Set(
+    containerPlacementsState.placements.map((placement) => placement.seasonId),
   );
   const selectedSpace = selectedSpaceId ? spacesById.get(selectedSpaceId) : undefined;
   if (selectedSpaceId && !selectedSpace) {
@@ -116,6 +128,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
             season,
             linkedSpace?.type ?? "garden",
             layoutsBySeasonId.get(season.id),
+            containerPlacementSeasonIds.has(season.id),
           );
           return (
             <li className={styles.seasonCard} key={season.id}>

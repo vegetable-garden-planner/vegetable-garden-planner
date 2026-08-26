@@ -163,7 +163,7 @@ export function DashboardOverview() {
               <DashboardInfoCard
                 rows={[
                   ["등록 공간", `${summary.spaceCount}개`],
-                  ["작물 배치", `${summary.layoutCount}개`],
+                  ["작물 배치", `${summary.placementCount}개`],
                   ["관리할 식물", `${registeredPlants.length}종`],
                 ]}
                 title="계획 현황"

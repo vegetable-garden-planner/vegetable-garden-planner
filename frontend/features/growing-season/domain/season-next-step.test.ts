@@ -51,3 +51,17 @@ test("화분·베란다 시즌은 화분 배치를 다음 단계로 안내한다
   assert.equal(nextStep.href, "/seasons/season-1/placements");
   assert.equal(nextStep.label, "화분 배치하기");
 });
+
+test("화분·베란다 시즌에 작물을 이미 배치했으면 재배 일정 생성을 안내한다", () => {
+  const nextStep = getSeasonNextStep(season, "indoor", undefined, true);
+
+  assert.equal(nextStep.href, "/seasons/season-1/tasks");
+  assert.equal(nextStep.label, "재배 일정 만들기");
+});
+
+test("화분·베란다 시즌에 대표 작물을 선택했으면 재배 일정 생성을 안내한다", () => {
+  const nextStep = getSeasonNextStep({ ...season, featuredCropId: "lettuce" }, "indoor", undefined);
+
+  assert.equal(nextStep.href, "/seasons/season-1/tasks");
+  assert.equal(nextStep.label, "재배 일정 만들기");
+});

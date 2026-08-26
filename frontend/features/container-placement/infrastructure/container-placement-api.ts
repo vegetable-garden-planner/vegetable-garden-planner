@@ -4,6 +4,7 @@ import type {
   ContainerPlacements,
 } from "../domain/container-placement.ts";
 import { apiRequest } from "../../../shared/infrastructure/api-client.ts";
+import { invalidateResource } from "../../../shared/infrastructure/resource-cache.ts";
 
 interface ContainerPlacementsResponse {
   data: ContainerPlacements;
@@ -26,11 +27,14 @@ export async function putContainerPlacements(
   version: number,
   placements: readonly ContainerPlacementInput[],
 ): Promise<ContainerPlacements> {
-  return (await apiRequest<ContainerPlacementsResponse>(placementsPath(seasonId), {
+  const result = (await apiRequest<ContainerPlacementsResponse>(placementsPath(seasonId), {
     method: "PUT",
     headers: { "If-Match": `"${version}"` },
     body: JSON.stringify({ placements }),
   })).data;
+  invalidateResource("seasons");
+  invalidateResource("container-placements");
+  return result;
 }
 
 function placementsPath(seasonId: string): string {
