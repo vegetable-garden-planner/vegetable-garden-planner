@@ -1,24 +1,27 @@
 import type { Metadata } from "next";
+import localFont from "next/font/local";
 import "./globals.css";
 import { AuthSessionProvider } from "@/features/auth/hooks/use-auth-session";
 import { CropCatalogProvider } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { SceneTransitionProvider } from "@/components/scene-transition";
 
 /**
- * 서비스 전체 서체
+ * 서비스 전체 서체 — Pretendard (본문·제목·버튼·입력 등 제품 UI 전부).
  *
- *   Pretendard — 본문·제목·버튼·입력 등 제품 UI 전부
- *   Gugi       — 브랜드명 "심어봄" 로고타이프에만 (globals.css의 --font-brand)
- *
- * 두 서체를 root layout에서 한 번만 로드하고, 이후에는 globals.css의
- * --font-garden / --font-brand 로만 참조한다. (랜딩도 같은 로드를 재사용한다)
- * next/font/google 은 빌드 시 폰트를 내려받아야 해서 네트워크가 막힌 환경에서
- * 빌드가 깨진다. 여기서는 런타임 stylesheet로 불러 그 의존을 없앤다.
+ * 저장소에 폰트 파일을 커밋해 자체 호스팅한다(app/fonts/, OFL 라이선스 재배포
+ * 허용, 출처는 app/fonts/PRETENDARD_LICENSE.txt). 이전에는 CDN(jsdelivr)
+ * stylesheet를 런타임에 불러왔는데, 그 요청이 실패하면 화면 전체가 시스템
+ * 기본 서체로 조용히 되돌아가는 문제가 있었다. next/font/local은 빌드
+ * 시점에 파일을 읽어 자체 도메인에서 서빙하므로 네트워크 요청 자체가
+ * 없어 실패할 일이 없고, next/font/google과 달리 빌드 시 외부 네트워크도
+ * 필요 없다.
  */
-const FONT_STYLESHEETS = [
-  "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css",
-  "https://fonts.googleapis.com/css2?family=Gugi&display=swap",
-];
+const pretendard = localFont({
+  src: "./fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
+  display: "swap",
+  weight: "45 920",
+});
 
 export const metadata: Metadata = {
   title: "심어봄 | 내 밭에 맞는 재배 계획",
@@ -45,15 +48,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="ko" className="antialiased" data-scroll-behavior="smooth">
-      <head>
-        <link href="https://cdn.jsdelivr.net/" rel="preconnect" />
-        <link href="https://fonts.googleapis.com" rel="preconnect" />
-        <link crossOrigin="anonymous" href="https://fonts.gstatic.com" rel="preconnect" />
-        {FONT_STYLESHEETS.map((href) => (
-          <link href={href} key={href} rel="stylesheet" />
-        ))}
-      </head>
+    <html className={`antialiased ${pretendard.variable}`} data-scroll-behavior="smooth" lang="ko">
       <body><AuthSessionProvider><CropCatalogProvider><SceneTransitionProvider>{children}</SceneTransitionProvider></CropCatalogProvider></AuthSessionProvider></body>
     </html>
   );
