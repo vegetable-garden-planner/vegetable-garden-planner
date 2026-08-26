@@ -1,62 +1,106 @@
 .page {
-  min-height: 100vh;
-  padding: 28px;
-  color: var(--color-ink);
-  background:
-    radial-gradient(circle at 88% 16%, rgb(255 194 131 / 24%), transparent 30rem),
-    linear-gradient(145deg, #f4f7f3, #fbf6ed);
-}
-
-.shell {
   display: grid;
-  grid-template-columns: minmax(420px, 0.94fr) minmax(500px, 1.06fr);
-  width: min(100%, 1240px);
-  min-height: calc(100vh - 56px);
-  margin: 0 auto;
-  overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 72%);
-  border-radius: 30px;
-  background: #fff;
-  box-shadow: var(--shadow-md);
-}
-
-.visual {
   position: relative;
-  min-height: 680px;
+  min-height: 100svh;
+  padding: 40px 24px;
+  place-items: center;
   overflow: hidden;
-  color: #fff;
+  color: var(--color-ink);
+  background: #0d2119;
 }
 
-.visualImage { object-fit: cover; }
-.visualShade { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(5 31 22 / 12%), rgb(5 31 22 / 88%)); }
-.visualCopy { position: absolute; right: 0; bottom: 0; left: 0; padding: clamp(36px, 5vw, 64px); }
-.visualCopy > p:first-child { margin: 0; color: #7be0b8; font-size: 0.82rem; font-weight: 800; }
-.visualCopy h2 { max-width: 480px; margin: 14px 0 0; font-size: clamp(2.25rem, 4vw, 3.7rem); line-height: var(--leading-page); letter-spacing: var(--tracking-page); }
-.visualCopy > p:last-of-type { max-width: 460px; margin: 20px 0 0; color: rgb(255 255 255 / 72%); line-height: var(--leading-body); }
-.visualStats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 30px; border-block: 1px solid rgb(255 255 255 / 18%); }
-.visualStats div { padding: 17px 12px 17px 0; }
-.visualStats div + div { padding-left: 18px; border-left: 1px solid rgb(255 255 255 / 18%); }
-.visualStats span { display: block; color: rgb(255 255 255 / 58%); font-size: 0.7rem; }
-.visualStats strong { display: block; margin-top: 5px; font-size: 0.88rem; }
+/* 잎채소 사진을 흐리게 깔아 카드가 떠 보이게 한다. blur가 가장자리를 비우므로
+   scale로 살짝 키워 여백이 생기지 않게 한다. */
+.backdrop {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+}
 
-.content { display: flex; min-width: 0; flex-direction: column; padding: 38px clamp(34px, 5vw, 72px) 52px; }
-.brand { display: inline-flex; align-items: center; align-self: flex-start; gap: 10px; color: var(--color-primary); font-size: 1.15rem; font-weight: 400; letter-spacing: 0; text-decoration: none; }
-/* 브랜드명 "심어봄"만 Gugi. 나머지 제목·본문은 Pretendard를 그대로 쓴다 */
-.brand > span { font-family: var(--font-brand); font-size: 1.15em; line-height: 1.1; }
-.heading { margin: 54px 0 30px; }
-.heading > p:first-child { margin: 0; color: var(--color-primary); font-size: 0.8rem; font-weight: 800; }
-.heading h1 { margin: 10px 0 0; color: var(--color-ink-strong); font-size: clamp(2.2rem, 4vw, 3.25rem); letter-spacing: var(--tracking-page); }
-.heading > p:last-child { max-width: 520px; margin: 14px 0 0; color: var(--color-muted); line-height: var(--leading-body); }
-.formPanel { width: 100%; max-width: 560px; }
+.backdropImage {
+  object-fit: cover;
+  filter: blur(18px) saturate(1.05);
+  transform: scale(1.12);
+}
+
+.backdrop::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(6 26 18 / 28%), rgb(6 26 18 / 42%));
+  content: "";
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 620px);
+  padding: clamp(36px, 5vw, 56px) clamp(24px, 5vw, 64px) clamp(32px, 4vw, 48px);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 32px 80px rgb(3 18 12 / 32%);
+}
+
+.close {
+  display: grid;
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--color-muted);
+  font-size: 1.6rem;
+  line-height: 1;
+  transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+
+.close:hover {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.cardBrand {
+  display: grid;
+  place-items: center;
+  margin-bottom: 18px;
+}
+
+.cardTitle {
+  margin: 0;
+  color: var(--color-ink-strong);
+  font-size: clamp(1.75rem, 3vw, 2.15rem);
+  font-weight: 700;
+  letter-spacing: var(--tracking-page);
+  text-align: center;
+}
+
+.cardSwitch {
+  margin: 8px 0 32px;
+  color: var(--color-muted);
+  font-size: 0.86rem;
+  text-align: center;
+}
+
+.cardSwitch a {
+  color: var(--color-ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.cardSwitch a:hover {
+  color: var(--color-primary);
+}
 
 .form { display: grid; gap: 19px; }
-.notice,
-.error { margin: 0; border-radius: 15px; padding: 14px 16px; font-size: 0.8rem; line-height: var(--leading-body); }
-.notice { color: var(--color-muted); background: var(--color-primary-soft); }
-.error { color: var(--color-danger); background: #fff0ee; font-weight: 700; }
+.error { margin: 0; border-radius: 15px; padding: 14px 16px; color: var(--color-danger); background: #fff0ee; font-size: 0.8rem; font-weight: 700; line-height: var(--leading-body); }
 .field { min-width: 0; }
-.field > label { display: block; margin-bottom: 8px; color: var(--color-ink); font-size: 0.84rem; font-weight: 800; }
-.field input { min-height: 50px; background: #fff; }
+.fieldLabelRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.fieldLabelRow > label { color: var(--color-ink); font-size: 0.86rem; font-weight: 500; }
+.revealButton { display: inline-flex; align-items: center; gap: 6px; border: 0; padding: 0; color: var(--color-muted); background: none; font: inherit; font-size: 0.82rem; cursor: pointer; }
+.revealButton:hover { color: var(--color-ink); }
+.field input { min-height: 52px; background: #fff; }
 .fieldError { margin: 8px 0 0; color: var(--color-danger); font-size: 0.76rem; font-weight: 700; }
 .inputRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
 .secondaryButton { min-width: 104px; border: 1px solid var(--color-primary); border-radius: 15px; padding: 0 16px; color: var(--color-primary); background: #fff; font: inherit; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
@@ -66,19 +110,15 @@
 .primaryButton:hover { background: var(--color-primary-hover); transform: translateY(-1px); }
 .primaryButton:disabled { cursor: not-allowed; opacity: 0.48; }
 
-.socialGroup { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.socialButton { display: flex; min-height: 50px; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--color-border); border-radius: 15px; color: var(--color-ink); background: #fff; font-size: 0.82rem; font-weight: 800; text-align: center; text-decoration: none; transition: transform var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out); }
-.socialButton:hover { border-color: #c9c6bf; transform: translateY(-1px); }
-.kakao { border-color: #fee500; background: #fee500; color: #191919; }
-.kakao:hover { border-color: #f0d900; }
-.kakaoMark { display: grid; width: 22px; height: 22px; place-items: center; border-radius: 50%; color: #fee500; background: #191919; font-size: 0.68rem; font-weight: 900; }
-.divider { display: flex; align-items: center; gap: 12px; color: var(--color-muted); font-size: 0.7rem; }
+.socialGroup { display: grid; gap: 12px; }
+.socialButton { display: flex; min-height: 56px; align-items: center; justify-content: center; gap: 10px; border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-ink); background: #fff; font-size: 0.95rem; font-weight: 500; text-align: center; text-decoration: none; transition: border-color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out); }
+.socialButton:hover { border-color: #c9c6bf; background: var(--color-surface); }
+.kakaoMark { width: 20px; height: 20px; border-radius: 50%; background: #fee500; }
+.divider { display: flex; align-items: center; gap: 16px; color: var(--color-muted); font-size: 0.9rem; }
 .divider::before,
 .divider::after { height: 1px; flex: 1; background: var(--color-border); content: ""; }
 .switchText { margin: 1px 0 0; color: var(--color-muted); font-size: 0.8rem; text-align: center; }
-.switchText a,
-.textButton { color: var(--color-primary); font-weight: 800; text-decoration: none; }
-.textButton { border: 0; padding: 0; background: none; font: inherit; font-size: 0.76rem; cursor: pointer; }
+.switchText a { color: var(--color-primary); font-weight: 800; text-decoration: none; }
 .status { margin: 7px 0 0; color: var(--color-muted); font-size: 0.74rem; }
 .statusSuccess { color: var(--color-primary); font-weight: 700; }
 .passwordChecks { display: flex; flex-wrap: wrap; gap: 5px 12px; margin: 8px 0 0; padding: 0; color: var(--color-muted); font-size: 0.7rem; list-style: none; }
@@ -87,20 +127,9 @@
 .agreement label { display: flex; align-items: flex-start; gap: 10px; color: var(--color-ink); font-size: 0.78rem; line-height: 1.55; cursor: pointer; }
 .agreement input { margin-top: 3px; accent-color: var(--color-primary); }
 
-@media (max-width: 960px) {
-  .page { padding: 0; background: #fff; }
-  .shell { display: block; min-height: 100vh; border: 0; border-radius: 0; box-shadow: none; }
-  .visual { display: none; }
-  .content { min-height: 100vh; padding: 28px max(22px, calc((100vw - 620px) / 2)) 48px; }
-  .heading { margin-top: 50px; }
-  .formPanel { max-width: none; }
-}
-
 @media (max-width: 520px) {
-  .content { padding: 22px 20px 40px; }
-  .heading { margin: 42px 0 26px; }
-  .heading h1 { font-size: 2.25rem; }
-  .socialGroup { grid-template-columns: 1fr; }
+  .page { padding: 0; }
+  .card { width: 100%; min-height: 100svh; padding: 28px 20px 40px; border-radius: 0; }
   .inputRow { grid-template-columns: 1fr; }
   .secondaryButton { min-height: 46px; }
 }

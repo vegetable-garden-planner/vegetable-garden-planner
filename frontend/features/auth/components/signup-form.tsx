@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AuthField } from "@/features/auth/components/auth-field";
+import { AuthField, PasswordRevealButton } from "@/features/auth/components/auth-field";
 import {
   encodeNextPath,
   getPasswordRequirements,
@@ -113,12 +113,9 @@ export function SignupForm({ nextPath }: SignupFormProps) {
 
   return (
     <form className={styles.form} noValidate onSubmit={submit}>
-      <p className={styles.notice}>
-        가입하면 바로 로그인되며 비밀번호는 암호화해 저장합니다.
-      </p>
       {errors.form && <p className={styles.error} role="alert">{errors.form}</p>}
       <SocialLoginButtons nextPath={nextPath} />
-      <div className={styles.divider} aria-hidden="true">또는 이메일로 가입</div>
+      <div className={styles.divider} aria-hidden="true">OR</div>
       <AuthField error={errors.email} id="signup-email" label="이메일">
         <div className={styles.inputRow}>
           <input aria-describedby="signup-email-status signup-email-error" aria-invalid={Boolean(errors.email)} autoCapitalize="none" autoComplete="email" className="form-input min-w-0" id="signup-email" onChange={(event) => update("email", event.target.value)} placeholder="garden@example.com" type="email" value={values.email} />
@@ -131,7 +128,12 @@ export function SignupForm({ nextPath }: SignupFormProps) {
       <AuthField error={errors.nickname} id="signup-nickname" label="닉네임">
         <input aria-describedby="signup-nickname-error" aria-invalid={Boolean(errors.nickname)} autoComplete="nickname" className="form-input" id="signup-nickname" maxLength={20} onChange={(event) => update("nickname", event.target.value)} placeholder="2~20자" value={values.nickname} />
       </AuthField>
-      <AuthField error={errors.password} id="signup-password" label="비밀번호">
+      <AuthField
+        action={<PasswordRevealButton onToggle={() => setShowPassword((current) => !current)} visible={showPassword} />}
+        error={errors.password}
+        id="signup-password"
+        label="비밀번호"
+      >
         <input aria-describedby="signup-password-guide signup-password-error" aria-invalid={Boolean(errors.password)} autoCapitalize="none" autoComplete="new-password" className="form-input" id="signup-password" inputMode="text" lang="en" onChange={(event) => update("password", event.target.value)} spellCheck={false} type={showPassword ? "text" : "password"} value={values.password} />
         <PasswordRequirementList requirements={passwordRequirements} visible={values.password.length > 0} />
       </AuthField>
@@ -142,9 +144,6 @@ export function SignupForm({ nextPath }: SignupFormProps) {
             {confirmationMatches ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다."}
           </p>
         )}
-        <button className={styles.textButton} onClick={() => setShowPassword((current) => !current)} type="button">
-          {showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
-        </button>
       </AuthField>
       <AgreementCheckbox checked={values.termsAccepted} error={errors.termsAccepted} id="terms" label="(필수) 이용약관에 동의합니다." onChange={(checked) => update("termsAccepted", checked)} />
       <AgreementCheckbox checked={values.privacyAccepted} error={errors.privacyAccepted} id="privacy" label="(필수) 개인정보 처리방침에 동의합니다." onChange={(checked) => update("privacyAccepted", checked)} />

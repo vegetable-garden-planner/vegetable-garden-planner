@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { AuthPageShell } from "@/features/auth/components/auth-page-shell";
+import { AuthCardShell } from "@/features/auth/components/auth-card-shell";
 import { LoginForm } from "@/features/auth/components/login-form";
-import { getSafeReturnPath, getSocialLoginErrorMessage } from "@/features/auth/domain/auth";
+import { encodeNextPath, getSafeReturnPath, getSocialLoginErrorMessage } from "@/features/auth/domain/auth";
 
 export const metadata: Metadata = {
   title: "로그인 | 심어봄",
@@ -14,8 +14,13 @@ export default async function LoginPage(props: PageProps<"/login">) {
   const socialError = getSocialLoginErrorMessage(query.socialError);
 
   return (
-    <AuthPageShell description="로그인 후 재배 공간과 계획을 이어서 관리할 수 있습니다." eyebrow="회원 인증" title="다시 만나 반가워요">
+    <AuthCardShell
+      switchHref={`/signup?next=${encodeNextPath(nextPath)}`}
+      switchLabel="Sign up"
+      switchText="아직 회원이 아니신가요?"
+      title="Log in"
+    >
       <LoginForm nextPath={nextPath} socialError={socialError} />
-    </AuthPageShell>
+    </AuthCardShell>
   );
 }
