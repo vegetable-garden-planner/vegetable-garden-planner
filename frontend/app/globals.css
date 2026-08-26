@@ -217,6 +217,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  overflow-x: auto;
   color: #3e4c47;
   font-size: 14px;
   font-weight: 700;
@@ -237,9 +238,11 @@ body {
 
 .app-header-actions {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-self: end;
   gap: 10px;
+  white-space: nowrap;
 }
 
 .page-hero {
