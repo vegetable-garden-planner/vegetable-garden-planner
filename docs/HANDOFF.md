@@ -10,6 +10,7 @@
 - 프론트 운영: https://vegetable-garden-planner.vercel.app — `develop` push 시 자동 배포(반영 여부는 실제로 열어서 확인)
 - 백엔드 운영(닷홈, https://yjwest9.dothome.co.kr): **사용자 지시로 이 단계에서는 관리·확인 대상이 아니다(실사용자가 생기기 전까지).** FileZilla 수동 업로드 방식이라 develop과 자동으로 동기화되지 않으며, 최근 여러 사이클의 백엔드 변경이 반영됐는지 확인되지 않은 채로 남아 있다. 사용자가 먼저 요청하기 전에는 닷홈 반영 여부를 점검하거나 언급하지 않는다.
 - 학교 테스트 서버(스테이징, 사실상 유일한 배포 대상): `wa26b02.yjjob.kr` — Apache가 프론트(Next.js, pm2)와 백엔드(Laravel)를 한 도메인에서 같이 서비스. 실제 사용자 흐름을 브라우저로 확인할 때 이 서버를 쓴다. `develop@f8e2638`까지 배포·마이그레이션·빌드·스모크 테스트(`/dashboard`, `/api/v1/health` 200 확인) 완료. SSH 접속 정보(호스트·계정·비밀번호)는 이 문서에 적지 않는다 — 로컬 Claude Code 메모리(`project_school_server_https.md`, 이 컴퓨터에만 있고 git에는 없음)에 있으니 그 문서를 먼저 확인한다. 상세한 Apache 프록시 설정·트러블슈팅 이력도 같은 메모리 파일에 있다.
+- 학교 서버 결제 설정(2026-08-26 적용): 토스페이먼츠 키가 양쪽 `.env`에 모두 비어 있어 `/plans`의 "프로 구독하기"가 "결제 설정(토스페이먼츠 clientKey)이 되어 있지 않습니다."로 막혀 있었다. 공식 **문서용 테스트 키**(회원가입·계약 불필요, 빌링 지원, 실제 출금 없음)를 넣어 두었다 — 백엔드 `~/laravel_app/backend/.env`에 `TOSS_PAYMENTS_SECRET_KEY`·`TOSS_PAYMENTS_BASE_URL`(`config:clear` 완료), 프론트 `~/laravel_app/frontend/.env.production.local`에 `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY`. 수정 전 두 파일 모두 `.bak.20260826_131147`로 백업했다. **프론트 키는 빌드 시점에 번들로 박히므로 다음 프론트 빌드 전까지는 브라우저에 반영되지 않는다.** 키 값과 근거 URL은 [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md)의 "결제(토스페이먼츠) 테스트 키 설정"에 있다. `TOSS_PAYMENTS_WEBHOOK_SECURITY_KEY`는 계약 상점에만 발급되므로 비어 있고, 그 결과 웹훅 수신만 서명 검증에서 거부된다(카드 등록·구독 생성·정기결제는 정상).
 - 프론트 Production 브랜치: `develop`
 - 프론트 Root Directory: `frontend`
 - DB 스키마 단일 기준: `backend/database/migrations`
