@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\Assistant\AskGardenAssistantController;
 use App\Http\Controllers\Api\V1\Auth\CheckEmailAvailabilityController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
 use App\Http\Controllers\Api\V1\Auth\LoginController;
@@ -141,6 +142,7 @@ Route::prefix('v1')->group(function (): void {
         Route::patch('/seasons/{growingSeason}', UpdateSeasonController::class);
         Route::delete('/seasons/{growingSeason}', DestroySeasonController::class);
         Route::get('/seasons/{growingSeason}/summary', ShowSeasonSummaryController::class);
+        Route::post('/seasons/{growingSeason}/assistant/ask', AskGardenAssistantController::class);
         Route::get('/seasons/{growingSeason}/layout', ShowGardenLayoutController::class);
         Route::put('/seasons/{growingSeason}/layout', PutGardenLayoutController::class);
         Route::delete('/seasons/{growingSeason}/layout', DestroyGardenLayoutController::class);
