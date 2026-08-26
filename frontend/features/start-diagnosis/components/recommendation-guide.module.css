@@ -229,27 +229,32 @@
   background: linear-gradient(180deg, rgba(76, 213, 147, 0.58), rgba(117, 220, 164, 0.34));
 }
 
-.badgeThumbnail,
-.summaryImage {
+.badgeThumbnail {
   position: relative;
   display: inline-block;
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: var(--radius-pill);
-}
-
-.badgeThumbnail {
   width: 1.35rem;
   height: 1.35rem;
 }
 
-.badgeThumbnail img,
-.summaryImage img {
+.badgeThumbnail img {
   object-fit: contain;
 }
 
-.summaryImage img {
-  object-fit: contain;
+.summaryIcon {
+  display: flex;
+  flex: 0 0 auto;
+  width: 2.15rem;
+  height: 2.15rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--color-sunbeam);
+  font-size: 0.85rem;
+  font-weight: 700;
 }
 
 .cropBadge b {
@@ -295,11 +300,6 @@
   width: 1px;
   height: 2.05rem;
   background: rgba(255, 255, 255, 0.2);
-}
-
-.summaryImage {
-  width: 2.15rem;
-  height: 2.15rem;
 }
 
 .summaryBar p {
