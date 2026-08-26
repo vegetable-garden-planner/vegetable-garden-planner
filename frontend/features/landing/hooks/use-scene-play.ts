@@ -58,9 +58,31 @@ export function useScenePlay<T extends HTMLElement = HTMLElement>(
       },
     });
 
+    /*
+      새로고침 직후 브라우저가 스크롤 위치를 곧장 복원하는 경우나 스크롤
+      스냅으로 한 번에 건너뛰는 경우, ScrollTrigger 가 이 구간의 onEnter
+      를 놓칠 수 있다(특히 문서 맨 끝 장면 — 더 스크롤할 여백이 없다).
+      scroll 이벤트 타이밍에 기대지 않도록, 트리거와 같은 조건(화면의
+      55%~45% 구간)을 짧은 간격으로 직접 확인해 재생이 시작되지 않았으면
+      여기서 대신 시작한다. 한 번 시작되면(또는 이미 지나쳤으면) 멈춘다.
+    */
+    const poll = window.setInterval(() => {
+      if (!tween.paused() || state.value !== 0) {
+        window.clearInterval(poll);
+        return;
+      }
+      const rect = element.getBoundingClientRect();
+      const vh = window.innerHeight;
+      if (rect.top < vh * 0.55 && rect.bottom > vh * 0.45) {
+        tween.restart(true);
+        window.clearInterval(poll);
+      }
+    }, 300);
+
     return () => {
       trigger.kill();
       tween.kill();
+      window.clearInterval(poll);
     };
   }, [ref, duration, delay, reduced]);
 

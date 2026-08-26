@@ -81,8 +81,8 @@ export function PlantCta({
             tall ? "h-11 w-11" : "h-9 w-9"
           }`}
         >
-          <Arrow className="transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-[150%]" />
-          <Arrow className="absolute -translate-x-[150%] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0" />
+          <Arrow className="transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-[260%]" />
+          <Arrow className="absolute -translate-x-[260%] transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:translate-x-0" />
         </span>
       </TransitionLink>
     </span>
