@@ -521,7 +521,7 @@
   }
 
   .progress {
-    top: 1.25rem;
+    top: calc(var(--control-lg) + 1.35rem);
     right: 1rem;
     width: 8rem;
   }

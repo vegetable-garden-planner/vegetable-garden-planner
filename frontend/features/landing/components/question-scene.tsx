@@ -22,6 +22,15 @@ export function QuestionScene() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const p = usePinnedProgress(sectionRef, 0.14);
 
+  /*
+    휴대폰에서는 스크롤 제스처만으로 다음 질문 정지점까지 이동시키기가
+    쉽지 않다. 화면을 터치해도 한 걸음 넘어가도록, 다음 정지점까지
+    정확히 한 화면 높이만큼 부드럽게 스크롤해 준다.
+  */
+  function advanceOnTap() {
+    window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+  }
+
   return (
     <section id="about" ref={sectionRef} className="relative z-10 h-[300vh]">
       {/* 정지점 셋 — 화면에는 보이지 않는다 */}
@@ -31,7 +40,10 @@ export function QuestionScene() {
         ))}
       </div>
 
-      <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
+      <div
+        className="sticky top-0 flex h-[100svh] items-center overflow-hidden"
+        onClick={advanceOnTap}
+      >
         <div className="lp-shell-rail lp-shell-wide w-full">
           <p className="lp-type-caption font-medium text-lp-brand-soft">
             처음이라면 당연한 질문
