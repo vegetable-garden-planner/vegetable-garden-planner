@@ -101,6 +101,28 @@ npm.cmd run dev
 
 브라우저에서 `http://localhost:3000`을 엽니다. `frontend/.env.local`의 `BACKEND_URL` 기본값은 `http://127.0.0.1:8000`이며 Next.js가 `/api/v1`과 `/sanctum` 요청을 Laravel로 전달합니다.
 
+### 결제(토스페이먼츠) 테스트 키 설정
+
+`/plans`에서 "프로 구독하기"를 누르면 프론트가 `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY`를 읽습니다(`frontend/features/billing/infrastructure/toss-payments-client.ts`). 값이 비어 있으면 카드 등록 창을 열기 전에 "결제 설정(토스페이먼츠 clientKey)이 되어 있지 않습니다."로 막힙니다.
+
+토스페이먼츠는 회원가입·계약 없이 쓸 수 있는 **문서용 테스트 키**를 공개하고 있습니다. 이 키로 자동결제(빌링)까지 테스트할 수 있고 실제 출금은 일어나지 않습니다.
+
+| 위치 | 키 이름 | 값 |
+| --- | --- | --- |
+| `frontend/.env.local` | `NEXT_PUBLIC_TOSS_PAYMENTS_CLIENT_KEY` | `test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq` |
+| `backend/.env` | `TOSS_PAYMENTS_SECRET_KEY` | `test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R` |
+
+- 두 키는 **반드시 짝으로** 씁니다. 결제위젯용 키(`test_gck_...`/`test_gsk_...`)와 섞으면 토스가 `UNAUTHORIZED_KEY`를 돌려줍니다. 우리 코드는 `payment()` 방식(API 개별 연동)이라 `test_ck_`/`test_sk_` 쌍이 맞습니다.
+- `backend/.env`를 고친 뒤에는 `php artisan config:clear`를 실행합니다.
+- `NEXT_PUBLIC_*`은 빌드 시점에 번들로 들어가므로, 프로덕션 빌드에서는 값을 바꾼 뒤 다시 빌드해야 합니다.
+- `TOSS_PAYMENTS_WEBHOOK_SECURITY_KEY`는 계약한 상점에만 발급됩니다. 비워 두면 웹훅 요청만 서명 검증에서 거부되고, 카드 등록·구독 생성·정기결제 흐름은 정상 동작합니다.
+- **테스트용 국내 카드번호는 없습니다.** 토스 문서 기준으로 본인 실제 카드 정보를 입력해도 테스트 환경에서는 돈이 출금되지 않습니다.
+
+근거:
+- API 키 규칙: <https://docs.tosspayments.com/reference/using-api/api-keys>
+- 회원가입 없이 테스트하기(문서용 테스트 키, 테스트 카드번호 없음): <https://docs.tosspayments.com/blog/how-to-test-toss-payments>
+- 자동결제(빌링) 연동 흐름: <https://docs.tosspayments.com/guides/v2/billing/integration>
+
 ## 7. 다른 팀원의 변경을 받은 뒤
 
 ```powershell
