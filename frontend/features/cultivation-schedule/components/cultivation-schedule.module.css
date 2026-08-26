@@ -29,7 +29,7 @@
   color: var(--color-ink-strong);
   font-size: 26px;
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--tracking-section);
 }
 
 .overviewCopy > span,
@@ -319,7 +319,7 @@
   margin-top: 10px;
   color: var(--color-muted);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .taskActions {
@@ -448,7 +448,7 @@
   margin-top: 18px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .empty {

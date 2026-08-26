@@ -1,30 +1,66 @@
 @import "tailwindcss";
+/* 심어봄 소개 랜딩(/) 전용 스타일 — 전부 `lp-` namespace. 기존 토큰은 건드리지 않는다 */
+@import "../features/landing/landing.css";
 
 :root {
-  --cream: #f7f5ef;
+  --cream: #fbf8f1;
   --paper: #ffffff;
-  --ink: #1c3029;
-  --muted: #6f7772;
-  --leaf: #079568;
-  --leaf-dark: #087653;
-  --leaf-soft: #e9f5f0;
+  --ink: #14251d;
+  --muted: #56675e;
+  --leaf: #0c9769;
+  --leaf-dark: #076f4d;
+  --leaf-soft: #e8f4ef;
   --soil: #ad6848;
   --sun: #ffc283;
   --color-page: #ffffff;
-  --color-surface: #f7f5ef;
+  --color-surface: #fbf8f1;
   --color-surface-warm: #fbf6ed;
-  --color-ink-strong: #17251f;
-  --color-primary: #079568;
-  --color-primary-hover: #087653;
-  --color-primary-soft: #e9f5f0;
+  --color-ink-strong: #14251d;
+  --color-primary: #0c9769;
+  --color-primary-hover: #076f4d;
+  --color-primary-soft: #e8f4ef;
   --color-secondary: #46b18d;
   --color-accent: #ffc283;
-  --color-border: #e8e4dc;
+  --color-border: #e7e1d4;
   --color-on-photo: #ffffff;
   --color-overlay: #0b2118;
   --color-danger: #b84c42;
   --color-focus: #0c9769;
-  --font-garden: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  /* 랜딩과 공유하는 브랜드 톤 (landing.css의 --color-lp-* 와 같은 값) */
+  --color-ink-soft: #56675e;
+  --color-ink-faint: #8d9a92;
+  --color-brand-tint: #e8f4ef;
+  --color-forest: #06170f;
+  --color-forest-soft: #0c2519;
+  /* 제품 UI 전체 서체 — Pretendard (app/layout.tsx에서 한 번만 로드한다) */
+  --font-garden: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  /* 브랜드명 "심어봄" 로고타이프 전용 — 일반 제목에는 쓰지 않는다 */
+  --font-brand: "Gugi", var(--font-garden);
+
+  /* ----------------------------------------------------------------
+     자간 · 행간 — 소개 랜딩과 같은 값을 서비스 전체가 함께 쓴다
+     (landing.css 의 --lp-tracking-* 와 1:1로 대응한다)
+
+     큰 글자일수록 자간을 넓게 열어 두는 심어봄 특유의 리듬이다.
+     화면마다 임의의 letter-spacing 을 새로 만들지 말고 이 토큰을 쓴다.
+  ---------------------------------------------------------------- */
+  --tracking-display: 0.09em;
+  --tracking-hero: 0.08em;
+  --tracking-page: 0.06em;
+  --tracking-section: 0.045em;
+  --tracking-card: 0.03em;
+  --tracking-body: 0.02em;
+  --tracking-caption: 0.015em;
+  --tracking-numeral: 0em;
+  --tracking-label: 0.18em;
+
+  --leading-display: 1.24;
+  --leading-hero: 1.26;
+  --leading-page: 1.28;
+  --leading-section: 1.34;
+  --leading-card: 1.45;
+  --leading-body: 1.68;
+  --leading-caption: 1.5;
   --type-display-size: 48px;
   --type-h1-mobile-size: 40px;
   --type-h2-size: 32px;
@@ -110,7 +146,7 @@
   --color-leaf-soft: var(--leaf-soft);
   --color-soil: var(--soil);
   --color-sun: var(--sun);
-  --font-sans: var(--font-geist), "Pretendard", "Noto Sans KR", sans-serif;
+  --font-sans: var(--font-garden);
 }
 
 * {
@@ -133,6 +169,12 @@ body {
   background: var(--color-page);
   color: var(--ink);
   font-family: var(--font-garden);
+  /* 랜딩과 같은 본문 리듬 */
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+  /* 한글은 어절 단위로 끊어야 큰 타이포가 어색하게 갈라지지 않는다 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 @layer base {
@@ -201,7 +243,7 @@ body {
   color: var(--color-primary);
   font-size: 1.35rem;
   font-weight: 800;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
 }
 
 .app-header .app-brand {
@@ -287,7 +329,8 @@ body {
 }
 
 .page-hero-photo .page-title {
-  max-width: 640px;
+  /* 랜딩과 같은 넓은 자간을 쓰면 줄이 하나 더 생겨 폭을 조금 넓힌다 */
+  max-width: 780px;
   color: white;
   font-size: clamp(2.7rem, 5.6vw, 4.8rem);
 }
@@ -315,7 +358,7 @@ body {
   color: var(--color-primary);
   font-size: var(--type-label-size);
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--tracking-body);
 }
 
 .page-title {
@@ -323,8 +366,8 @@ body {
   color: var(--color-ink-strong);
   font-size: clamp(2.1rem, 5vw, 3.4rem);
   font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1.12;
+  letter-spacing: var(--tracking-page);
+  line-height: var(--leading-page);
   text-wrap: balance;
   word-break: keep-all;
 }
@@ -334,7 +377,7 @@ body {
   margin-top: 18px;
   color: var(--color-muted);
   font-size: 1.05rem;
-  line-height: 1.75;
+  line-height: var(--leading-body);
   word-break: keep-all;
 }
 
@@ -1013,7 +1056,7 @@ body {
   gap: 10px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .planner-guide-card li {
@@ -1105,8 +1148,8 @@ body {
   margin-top: 14px;
   font-size: clamp(2.8rem, 4.6vw, 4rem);
   font-weight: 750;
-  letter-spacing: -0.055em;
-  line-height: 1.12;
+  letter-spacing: var(--tracking-page);
+  line-height: var(--leading-page);
   text-wrap: balance;
 }
 
@@ -1116,7 +1159,7 @@ body {
   margin-top: 22px;
   color: rgba(255, 255, 255, 0.82);
   font-size: 17px;
-  line-height: 1.75;
+  line-height: var(--leading-body);
 }
 
 .dashboard-hero-summary {
@@ -1183,7 +1226,7 @@ body {
   color: var(--color-ink-strong);
   font-size: 30px;
   font-weight: 750;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .dashboard-section-heading > a {
@@ -1394,7 +1437,7 @@ body {
   margin-top: 10px;
   color: var(--color-muted);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .dashboard-guide-card > a {
@@ -1488,7 +1531,7 @@ body {
   color: var(--color-ink-strong);
   font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .dashboard-start-copy span {
@@ -1497,7 +1540,7 @@ body {
   margin-top: 10px;
   color: var(--color-muted);
   font-size: 14px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .dashboard-start-actions {
@@ -1787,4 +1830,32 @@ body {
     border-bottom: 0;
   }
 
+}
+
+/* ==================================================================
+   브랜드 워드마크 — "심어봄" 글자만 Gugi
+
+   일반 제목·본문은 전부 Pretendard(--font-garden)를 쓴다.
+   기존 브랜드 링크 클래스(.app-brand / .app-footer-brand)와
+   새로 쓰는 .brand-wordmark 에만 적용해 전역 요소를 덮어쓰지 않는다.
+   ================================================================== */
+.brand-wordmark,
+.app-brand > span,
+.app-footer-brand > span {
+  font-family: var(--font-brand);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+/* Gugi는 단일 굵기라 기존 800 굵기 자리보다 살짝 크게 잡아야 균형이 맞는다 */
+.app-brand,
+.app-footer-brand {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.app-brand > span,
+.app-footer-brand > span {
+  font-size: 1.15em;
 }

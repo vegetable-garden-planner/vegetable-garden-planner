@@ -69,7 +69,7 @@
   gap: var(--space-2);
   font-size: 22px;
   font-weight: 700;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
   white-space: nowrap;
 }
 
@@ -201,8 +201,8 @@
   margin: 0;
   font-size: var(--type-display-size);
   font-weight: 700;
-  line-height: 1.16;
-  letter-spacing: -0.04em;
+  line-height: var(--leading-page);
+  letter-spacing: var(--tracking-section);
 }
 
 .heroDescription {
@@ -271,7 +271,7 @@
   color: var(--color-primary);
   font-size: 44px;
   font-weight: 600;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
   line-height: 1;
 }
 
@@ -371,7 +371,7 @@
 .cropContent h2 {
   margin: var(--space-8) 0 0;
   font-size: var(--type-h2-size);
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .shortRule {
@@ -386,7 +386,7 @@
 .cropContent > p {
   margin: var(--space-5) 0 0;
   font-size: var(--type-label-size);
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .cropContent > p strong {
@@ -455,7 +455,7 @@
   margin: var(--space-4) 0 0;
   font-size: var(--type-h2-size);
   line-height: 1.25;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .nextStep h2 em {
@@ -530,7 +530,7 @@
   color: var(--color-ink-strong);
   font-size: var(--type-h2-size);
   line-height: 1.2;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .taskList {
@@ -633,7 +633,7 @@
 .dayCount strong {
   font-size: 96px;
   font-weight: 500;
-  letter-spacing: -0.06em;
+  letter-spacing: var(--tracking-page);
   line-height: 0.9;
 }
 
@@ -709,8 +709,8 @@
 .recommendContent h2 {
   margin: var(--space-4) 0 0;
   font-size: var(--type-h2-size);
-  line-height: 1.18;
-  letter-spacing: -0.04em;
+  line-height: var(--leading-page);
+  letter-spacing: var(--tracking-section);
 }
 
 .recommendIntro {

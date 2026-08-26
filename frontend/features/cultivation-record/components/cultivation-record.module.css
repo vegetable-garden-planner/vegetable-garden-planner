@@ -33,7 +33,7 @@
   margin-top: 7px;
   font-size: clamp(1.75rem, 3vw, 2.4rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .overviewCopy > span,
@@ -52,7 +52,7 @@
   margin-top: 15px;
   color: #8ce8c5;
   font-size: 13px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .overviewStats {
@@ -92,7 +92,7 @@
   padding: 16px 19px;
   font-size: 13px;
   font-weight: 750;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .workspace {
@@ -120,7 +120,7 @@
 }
 
 .listHeading p { color: var(--color-primary); }
-.listHeading h2 { margin-top: 5px; font-size: 27px; font-weight: 800; letter-spacing: -0.035em; }
+.listHeading h2 { margin-top: 5px; font-size: 27px; font-weight: 800; letter-spacing: var(--tracking-section); }
 .listHeading > span { flex: 0 0 auto; border-radius: 999px; background: var(--color-primary-soft); padding: 8px 12px; color: var(--color-primary-hover); font-size: 11px; font-weight: 800; }
 
 .filters {
@@ -213,7 +213,7 @@
 .quantity { display: flex; margin-top: 17px; padding: 13px 15px; align-items: center; justify-content: space-between; border-radius: 13px; background: var(--color-surface-warm); color: var(--color-ink-strong); gap: 18px; font-size: 16px; font-weight: 850; }
 .quantity span { color: var(--color-muted); font-size: 10px; font-weight: 700; }
 .notes,
-.emptyNotes { margin-top: 17px; white-space: pre-wrap; font-size: 13px; line-height: 1.75; overflow-wrap: anywhere; }
+.emptyNotes { margin-top: 17px; white-space: pre-wrap; font-size: 13px; line-height: var(--leading-body); overflow-wrap: anywhere; }
 .emptyNotes { color: var(--color-muted); }
 .photo { margin: 17px 0 0; }
 .photo img { display: block; width: 100%; max-height: 320px; border-radius: 13px; background: var(--color-surface-warm); object-fit: cover; }
@@ -242,7 +242,7 @@
 .formHeading { display: flex; align-items: center; gap: 12px; }
 .formHeading > span { display: grid; width: 39px; height: 39px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--color-primary-soft); color: var(--color-primary-hover); font-size: 10px; font-weight: 850; }
 .formHeading h2,
-.guidePanel h2 { margin-top: 4px; font-size: 17px; font-weight: 800; letter-spacing: -0.025em; }
+.guidePanel h2 { margin-top: 4px; font-size: 17px; font-weight: 800; letter-spacing: var(--tracking-card); }
 .typeFieldset { margin-top: 20px; border: 0; }
 .typeFieldset legend,
 .field > span { display: block; color: var(--color-ink); font-size: 11px; font-weight: 800; }
@@ -278,7 +278,7 @@
 
 .guidePanel { background: var(--color-surface-warm); }
 .guidePanel > p { color: #d87524; }
-.guidePanel ul { display: grid; margin-top: 16px; gap: 9px; color: var(--color-muted); font-size: 11px; line-height: 1.65; }
+.guidePanel ul { display: grid; margin-top: 16px; gap: 9px; color: var(--color-muted); font-size: 11px; line-height: var(--leading-body); }
 .guidePanel li { position: relative; padding-left: 13px; }
 .guidePanel li::before { position: absolute; top: 0.7em; left: 0; width: 4px; height: 4px; border-radius: 50%; background: var(--color-primary); content: ""; }
 .guidePanel nav { display: grid; margin-top: 18px; }
@@ -292,7 +292,7 @@
 .emptyState > p,
 .errorState > p { margin-top: 17px; color: var(--color-primary); font-size: 11px; font-weight: 800; }
 .emptyState h3,
-.errorState h2 { margin-top: 7px; font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+.errorState h2 { margin-top: 7px; font-size: 22px; font-weight: 800; letter-spacing: var(--tracking-section); }
 .emptyState > strong { max-width: 470px; margin-top: 11px; color: var(--color-muted); font-size: 12px; font-weight: 500; line-height: 1.7; word-break: keep-all; }
 .emptyState a,
 .errorState a,

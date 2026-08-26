@@ -31,7 +31,7 @@
   margin-top: 7px;
   font-size: clamp(1.65rem, 3vw, 2.25rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .listOverview > div > span {
@@ -92,7 +92,7 @@
   margin-top: 5px;
   font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--tracking-section);
 }
 
 .listHeading > a {
@@ -164,7 +164,7 @@
   margin-top: 8px;
   font-size: 22px;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: var(--tracking-section);
 }
 
 .cardHeader > span {
@@ -405,7 +405,7 @@
   margin-top: 5px;
   color: var(--color-muted);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .sectionDescription {
@@ -600,7 +600,7 @@
   padding: 14px 16px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .measureGuide summary,
@@ -772,7 +772,7 @@
   margin-top: 8px;
   font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--tracking-card);
 }
 
 .formAside > span {
@@ -827,7 +827,7 @@
   margin-top: 7px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 @keyframes loading-sweep {

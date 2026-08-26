@@ -1,0 +1,457 @@
+/* ==================================================================
+   /start · 2단계 — 공간의 빛
+
+   랜딩과 같은 브랜드 언어를 쓴다.
+     짙은 forest 배경 + brand green accent + 랜딩과 같은 자간/행간
+
+   선택지에는 그림을 넣지 않는다. 카드 표면에 드는 빛의 세기와
+   작은 눈금만으로 세 상태의 차이를 읽게 한다.
+   ================================================================== */
+
+.stage {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 100svh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-20) var(--space-6) var(--space-14);
+}
+
+/* 랜딩 히어로와 같은 계열의 깊은 초록 + 부드러운 빛 */
+.ambient {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    radial-gradient(62% 46% at 50% 8%, rgba(70, 177, 141, 0.24), transparent 70%),
+    radial-gradient(80% 55% at 50% 104%, rgba(255, 194, 131, 0.1), transparent 68%),
+    linear-gradient(180deg, var(--color-forest-soft) 0%, var(--color-forest) 62%);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(100%, 1000px);
+  gap: var(--space-10);
+}
+
+/* ---------------------------------------------------------------- 제목 */
+.heading {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--color-secondary);
+  font-size: var(--type-kicker-size);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  line-height: var(--leading-caption);
+}
+
+.heading h1 {
+  max-width: 20ch;
+  margin: 0;
+  color: var(--color-white);
+  font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: var(--tracking-page);
+  line-height: var(--leading-page);
+}
+
+.lead {
+  max-width: 44ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: var(--type-body-size);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+}
+
+/* ------------------------------------------------------------ 빛 선택지 */
+.options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.option {
+  position: relative;
+  display: grid;
+  align-content: end;
+  min-height: 13.5rem;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border: var(--line-thin) solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  background: rgba(251, 248, 241, 0.05);
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition:
+    border-color var(--motion-base) var(--ease-out),
+    background var(--motion-base) var(--ease-out),
+    box-shadow var(--motion-base) var(--ease-out);
+
+  /* 카드에 드는 빛의 세기 — 단계마다 다르고 hover/선택에서 조금 더 분명해진다 */
+  --light: 0.15;
+  --light-warm: 0.05;
+}
+
+.option[data-level="mid"] {
+  --light: 0.32;
+  --light-warm: 0.16;
+}
+
+.option[data-level="high"] {
+  --light: 0.66;
+  --light-warm: 0.36;
+}
+
+.option:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+  --light: 0.18;
+  --light-warm: 0.08;
+}
+
+.option[data-level="mid"]:hover {
+  --light: 0.42;
+  --light-warm: 0.22;
+}
+
+.option[data-level="high"]:hover {
+  --light: 0.78;
+  --light-warm: 0.44;
+}
+
+.option[aria-checked="true"] {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 1px var(--color-secondary), 0 18px 44px rgba(3, 19, 14, 0.32);
+  --light: 0.26;
+  --light-warm: 0.11;
+}
+
+.option[data-level="mid"][aria-checked="true"] {
+  --light: 0.5;
+  --light-warm: 0.26;
+}
+
+.option[data-level="high"][aria-checked="true"] {
+  --light: 0.9;
+  --light-warm: 0.5;
+}
+
+.option:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+/*
+  빛 자체. 위쪽에서 비스듬히 내려오는 밝은 면 하나와
+  따뜻한 기운이 겹친다. 형태를 그리지 않고 밝기만 다르게 한다.
+*/
+.light {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    radial-gradient(76% 70% at 74% 16%, rgba(255, 247, 224, var(--light)), transparent 78%),
+    radial-gradient(62% 58% at 24% 2%, rgba(255, 231, 178, var(--light-warm)), transparent 76%),
+    linear-gradient(180deg, rgba(255, 244, 214, calc(var(--light) * 0.34)) 0%, transparent 64%);
+  pointer-events: none;
+  transition: background var(--motion-slow) var(--ease-out);
+}
+
+/* ------------------------------------------------------------ 빛 눈금 */
+.meter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+}
+
+.meter i {
+  display: block;
+  width: 22px;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  transition: background var(--motion-base) var(--ease-out);
+}
+
+.meter[data-steps="1"] i:nth-child(-n + 1),
+.meter[data-steps="2"] i:nth-child(-n + 2),
+.meter[data-steps="3"] i:nth-child(-n + 3) {
+  background: var(--color-secondary);
+}
+
+.option[aria-checked="true"] .meter[data-steps="1"] i:nth-child(-n + 1),
+.option[aria-checked="true"] .meter[data-steps="2"] i:nth-child(-n + 2),
+.option[aria-checked="true"] .meter[data-steps="3"] i:nth-child(-n + 3) {
+  background: var(--color-leaf-bright);
+}
+
+/* ----------------------------------------------------------- 카드 텍스트 */
+.optionCopy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.optionCopy strong {
+  color: var(--color-white);
+  font-size: var(--type-body-lg-size);
+  font-weight: 600;
+  letter-spacing: var(--tracking-card);
+  line-height: var(--leading-card);
+}
+
+.optionCopy small {
+  color: rgba(255, 255, 255, 0.58);
+  font-size: var(--type-body-sm-size);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+}
+
+.check {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-5);
+  right: var(--space-5);
+  width: 22px;
+  height: 22px;
+  border: var(--line-thin) solid rgba(255, 255, 255, 0.24);
+  border-radius: var(--radius-pill);
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease-out);
+}
+
+.option[aria-checked="true"] .check {
+  border-color: transparent;
+  background: var(--color-primary);
+  opacity: 1;
+}
+
+.option[aria-checked="true"] .check::after {
+  position: absolute;
+  top: 4px;
+  left: 7px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--color-white);
+  border-width: 0 2px 2px 0;
+  content: "";
+  transform: rotate(45deg);
+}
+
+/* -------------------------------------------------------- 보조: 위치 선택 */
+.placement {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.placement legend {
+  width: 100%;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: var(--type-body-sm-size);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+  text-align: center;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 4px;
+  border: var(--line-thin) solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-pill);
+  background: rgba(251, 248, 241, 0.06);
+}
+
+.segment input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.segment span {
+  display: grid;
+  min-width: 88px;
+  height: var(--control-sm);
+  place-items: center;
+  border-radius: var(--radius-pill);
+  color: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  font-size: var(--type-body-sm-size);
+  font-weight: 500;
+  letter-spacing: var(--tracking-body);
+  transition: background var(--motion-base) var(--ease-out), color var(--motion-base) var(--ease-out);
+}
+
+.segment span:hover {
+  color: var(--color-white);
+}
+
+.segment input:checked + span {
+  background: var(--color-white);
+  color: var(--color-forest);
+  font-weight: 600;
+}
+
+.segment input:focus-visible + span {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.placementHint {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--type-caption-size);
+  letter-spacing: var(--tracking-caption);
+  line-height: var(--leading-caption);
+}
+
+/* --------------------------------------------------------------- 버튼 */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.back,
+.next {
+  display: inline-flex;
+  min-width: 148px;
+  height: var(--control-lg);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: var(--line-thin) solid transparent;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: var(--type-body-size);
+  font-weight: 600;
+  letter-spacing: var(--tracking-body);
+  transition:
+    background var(--motion-base) var(--ease-out),
+    border-color var(--motion-base) var(--ease-out),
+    color var(--motion-base) var(--ease-out);
+}
+
+.back {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.back:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  color: var(--color-white);
+}
+
+.next {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.next:not(:disabled):hover {
+  background: var(--color-primary-hover);
+}
+
+.next:disabled {
+  background: rgba(251, 248, 241, 0.14);
+  color: rgba(255, 255, 255, 0.38);
+  cursor: not-allowed;
+}
+
+.back:focus-visible,
+.next:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ responsive */
+@media (max-width: 900px) {
+  .options {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .option {
+    min-height: 0;
+    padding: var(--space-5);
+  }
+
+  .light {
+    inset: -60% -20% 0 -20%;
+  }
+
+  .check {
+    top: var(--space-4);
+    right: var(--space-4);
+  }
+
+  .optionCopy {
+    padding-right: var(--space-8);
+  }
+}
+
+@media (max-width: 768px) {
+  .stage {
+    align-items: flex-start;
+    padding: var(--space-20) var(--space-4) var(--space-20);
+  }
+
+  .content {
+    gap: var(--space-8);
+  }
+}
+
+@media (max-width: 480px) {
+  .segmented {
+    width: 100%;
+  }
+
+  .segment {
+    flex: 1;
+  }
+
+  .segment span {
+    min-width: 0;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .back,
+  .next {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option,
+  .light,
+  .meter i,
+  .check,
+  .segment span,
+  .back,
+  .next {
+    transition: none;
+  }
+}

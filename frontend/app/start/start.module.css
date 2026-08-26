@@ -47,8 +47,14 @@
   gap: var(--space-2);
   color: var(--color-primary);
   font-size: var(--type-title-sm-size);
-  font-weight: 700;
-  letter-spacing: -0.04em;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* 브랜드명 "심어봄"만 Gugi. 페이지 제목은 Pretendard를 그대로 쓴다 */
+.brand > span {
+  font-family: var(--font-brand);
+  line-height: 1.1;
 }
 
 @media (min-width: 1025px) {
