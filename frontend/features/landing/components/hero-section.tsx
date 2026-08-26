@@ -38,6 +38,8 @@ export function HeroSection() {
     const root = rootRef.current;
     if (!root) return;
 
+    let fallbackTimer: number | undefined;
+
     const context = gsap.context(() => {
       const q = gsap.utils.selector(root);
       const photo = q("[data-hero-photo]");
@@ -154,6 +156,15 @@ export function HeroSection() {
           "-=0.6"
         );
 
+      /*
+        타임라인 구성 중 예외가 나거나 브라우저 특성으로 재생이 멈추는
+        경우를 대비한 안전망. 자연 재생 시간(약 2.5초)이 지나도 끝나지
+        않았으면 최종 상태로 강제 정리해 텍스트가 영영 숨어 있지 않게 한다.
+      */
+      fallbackTimer = window.setTimeout(() => {
+        if (tl.progress() < 1) tl.progress(1);
+      }, 4000);
+
       /* ------------------------- 멈춰 있어도 살아 있게 ------------------------- */
 
       gsap.to(photo, {
@@ -242,7 +253,10 @@ export function HeroSection() {
       };
     }, root);
 
-    return () => context.revert();
+    return () => {
+      if (fallbackTimer) window.clearTimeout(fallbackTimer);
+      context.revert();
+    };
   }, [reduced]);
 
   return (
