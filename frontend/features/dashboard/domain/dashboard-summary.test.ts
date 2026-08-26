@@ -132,6 +132,22 @@ test("화분 배치가 있으면 작물 선택 안내를 건너뛴다", () => {
   assert.notEqual(summary.nextAction.label, "화분 배치하기");
 });
 
+test("화분 배치는 격자와 별개로 작물 배치 현황에 반영된다", () => {
+  const indoor = { ...garden, id: "space-indoor", type: "indoor" as const };
+  const indoorSeason = { ...activeSeason, id: "season-indoor", spaceId: indoor.id, featuredCropId: undefined };
+  const summary = createDashboardSummary(
+    [indoor],
+    [indoorSeason],
+    [],
+    [],
+    "2026-08-06",
+    new Set(["season-indoor"]),
+  );
+
+  assert.equal(summary.layoutCount, 0);
+  assert.equal(summary.placementCount, 1);
+});
+
 test("격자가 있고 일정이 없으면 일정 자동 생성으로 연결한다", () => {
   const summary = createDashboardSummary(
     [garden],

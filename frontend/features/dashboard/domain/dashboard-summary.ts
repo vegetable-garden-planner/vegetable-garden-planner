@@ -30,6 +30,7 @@ export interface DashboardSummary {
   seasonCount: number;
   activeSeasonCount: number;
   layoutCount: number;
+  placementCount: number;
   nextAction: DashboardNextAction;
   recentSeasons: DashboardSeason[];
 }
@@ -54,11 +55,14 @@ export function createDashboardSummary(
     (season) => season.status === "active",
   ).length;
 
+  const placedSeasonIds = new Set([...layoutsBySeasonId.keys(), ...containerPlacementSeasonIds]);
+
   return {
     spaceCount: spaces.length,
     seasonCount: seasons.length,
     activeSeasonCount,
     layoutCount: layouts.length,
+    placementCount: placedSeasonIds.size,
     nextAction: getNextAction(spaces, seasons, layoutsBySeasonId, taskSeasonIds, containerPlacementSeasonIds),
     recentSeasons: dashboardSeasons.slice(0, 3),
   };
