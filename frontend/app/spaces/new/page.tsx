@@ -16,6 +16,7 @@ export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
   const initialType = typeof requestedType === "string" && isGrowingSpaceType(requestedType)
     ? requestedType
     : "indoor";
+  const skipDiagnosis = query.skipDiagnosis === "1";
   const returnPath = `/spaces/new?type=${initialType}`;
 
   return (
@@ -29,7 +30,7 @@ export default async function NewSpacePage(props: PageProps<"/spaces/new">) {
         title="식물을 키울 공간을 알려주세요"
         width="full"
       >
-        <SpaceForm initialType={initialType} />
+        <SpaceForm initialType={initialType} skipDiagnosis={skipDiagnosis} />
       </AppPageShell>
     </AuthGate>
   );

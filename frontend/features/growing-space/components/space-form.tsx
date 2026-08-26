@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { CROP_REFERENCES } from "@/features/crop-catalog/data/crop-references";
 import { SunlightLocationAssistant } from "@/features/growing-space/components/sunlight-location-assistant";
 import {
   SHADE_OPTIONS,
@@ -19,10 +21,16 @@ import {
   createGrowingSpace,
   updateGrowingSpace,
 } from "@/features/growing-space/infrastructure/space-api";
+import { createGrowingSeason } from "@/features/growing-season/infrastructure/season-api";
+import { putContainerPlacements } from "@/features/container-placement/infrastructure/container-placement-api";
+import type { ContainerPlacementInput } from "@/features/container-placement/domain/container-placement";
+import type { CropId } from "@/features/start-diagnosis/data/crop-selection";
 import {
   clearStoredGardenConfiguration,
   readStoredGardenConfiguration,
+  type GardenConfiguration,
 } from "@/features/start-diagnosis/domain/garden-configuration";
+import { createGardenRecommendation } from "@/features/start-diagnosis/domain/garden-recommendation";
 import {
   isSpaceShade,
   isSunlightExposure,
@@ -34,36 +42,119 @@ import styles from "@/features/growing-space/components/growing-space.module.css
 
 interface SpaceFormProps {
   initialType: GrowingSpaceType;
+  skipDiagnosis?: boolean;
   space?: GrowingSpace;
 }
 
-export function SpaceForm({ initialType, space }: SpaceFormProps) {
+type AutoCreateMode = "loading" | "form" | "error";
+
+const SEASON_DURATION_DAYS = 90;
+
+// 진단 작물 id -> 실제 작물 도감 id. basil·strawberry는 대응하는 실제 작물이
+// 없어 매핑하지 않고, 배치 생성 시 조용히 제외한다.
+const DIAGNOSIS_CROP_TO_CATALOG_ID: Partial<Record<CropId, string>> = {
+  lettuce: "lettuce",
+  spinach: "spinach",
+  "cherry-tomato": "tomato",
+  chili: "pepper",
+};
+
+/**
+ * 세션에 남아 있는 진단 결과를 읽어 공간·시즌·화분 배치를 자동으로 만든다.
+ * skipAutoCreate가 true면(수정 화면이거나 사용자가 직접 입력을 선택한 경우)
+ * 아무 것도 하지 않고 빈 폼을 그대로 보여준다.
+ */
+function useDiagnosisAutoCreate(skipAutoCreate: boolean) {
+  const router = useRouter();
+  const [diagnosis] = useState<GardenConfiguration | null>(() =>
+    skipAutoCreate ? null : readStoredGardenConfiguration(),
+  );
+  const [mode, setMode] = useState<AutoCreateMode>(diagnosis ? "loading" : "form");
+  const [autoCreateError, setAutoCreateError] = useState("");
+  const progressRef = useRef<{ space?: GrowingSpace; seasonId?: string; seasonVersion?: number }>({});
+  const isRunningRef = useRef(false);
+
+  function handleSuccess(seasonId: string) {
+    clearStoredGardenConfiguration();
+    router.push(`/seasons/${seasonId}/placements`);
+  }
+
+  function handleFailure(error: unknown) {
+    setAutoCreateError(
+      error instanceof ApiError ? error.message : "텃밭을 만드는 중 문제가 발생했습니다.",
+    );
+    setMode("error");
+  }
+
+  // effect 안에서 setState를 부르는 함수를 직접 호출하면 렌더링 경고가 발생하므로,
+  // 최초 진입 시점의 생성 체인은 effect 본문 안에서 바로 이어서 처리한다.
+  useEffect(() => {
+    if (!diagnosis || isRunningRef.current) return;
+    isRunningRef.current = true;
+    createSpaceSeasonAndPlacements(diagnosis, progressRef.current)
+      .then(handleSuccess, handleFailure)
+      .finally(() => { isRunningRef.current = false; });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [diagnosis]);
+
+  // 버튼 클릭으로 재시도할 때는 effect 제약이 없어 일반적인 async 함수로 호출한다.
+  async function retryAutoCreate() {
+    if (!diagnosis || isRunningRef.current) return;
+    isRunningRef.current = true;
+    setMode("loading");
+    setAutoCreateError("");
+
+    try {
+      const seasonId = await createSpaceSeasonAndPlacements(diagnosis, progressRef.current);
+      handleSuccess(seasonId);
+    } catch (error) {
+      handleFailure(error);
+    } finally {
+      isRunningRef.current = false;
+    }
+  }
+
+  return { autoCreateError, mode, retryAutoCreate };
+}
+
+function AutoCreateLoadingNotice() {
+  return (
+    <p className={styles.diagnosisNotice} role="status">
+      진단한 내용으로 텃밭을 만들고 있어요… 잠시만 기다려 주세요.
+    </p>
+  );
+}
+
+function AutoCreateErrorNotice({
+  message,
+  onRetry,
+  skipHref,
+}: {
+  message: string;
+  onRetry: () => void;
+  skipHref: string;
+}) {
+  return (
+    <p className={styles.errorMessage} role="alert">
+      {message || "텃밭을 만드는 중 문제가 발생했습니다."}
+      {" "}
+      <button onClick={onRetry} type="button">다시 시도</button>
+      {" "}
+      <Link href={skipHref}>직접 입력해서 만들기</Link>
+    </p>
+  );
+}
+
+export function SpaceForm({ initialType, skipDiagnosis = false, space }: SpaceFormProps) {
   const router = useRouter();
   const [values, setValues] = useState<GrowingSpaceFormValues>(() =>
     space ? toFormValues(space) : createEmptyValues(initialType),
   );
   const [errors, setErrors] = useState<GrowingSpaceErrors>({});
   const [formError, setFormError] = useState("");
-  const [diagnosisApplied, setDiagnosisApplied] = useState(false);
-
-  useEffect(() => {
-    if (space) return;
-    const frame = window.requestAnimationFrame(() => {
-      const diagnosis = readStoredGardenConfiguration();
-      if (!diagnosis) return;
-      setValues((current) => ({
-        ...current,
-        type: diagnosisSpaceType(diagnosis.sunlight.location),
-        sunlight: diagnosisSunlightExposure(diagnosis.sunlight.duration),
-        widthCm: String(diagnosis.planter.widthCm),
-        lengthCm: String(diagnosis.planter.heightCm),
-        depthCm: String(diagnosis.planter.depthCm),
-      }));
-      setDiagnosisApplied(true);
-      clearStoredGardenConfiguration();
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [space]);
+  const { autoCreateError, mode, retryAutoCreate } = useDiagnosisAutoCreate(
+    Boolean(space) || skipDiagnosis,
+  );
 
   function update<K extends keyof GrowingSpaceFormValues>(
     key: K,
@@ -94,14 +185,20 @@ export function SpaceForm({ initialType, space }: SpaceFormProps) {
     }
   }
 
+  if (mode === "loading") return <AutoCreateLoadingNotice />;
+  if (mode === "error") {
+    return (
+      <AutoCreateErrorNotice
+        message={autoCreateError}
+        onRetry={retryAutoCreate}
+        skipHref={`/spaces/new?type=${initialType}&skipDiagnosis=1`}
+      />
+    );
+  }
+
   return (
     <form className={styles.formLayout} noValidate onSubmit={submit}>
       <div className={styles.formMain}>
-      {diagnosisApplied && (
-        <p className={styles.diagnosisNotice} role="status">
-          방금 진단한 화분 크기와 햇빛 조건을 아래에 미리 채워 넣었어요. 내용을 확인하고 이름을 정한 뒤 저장해 주세요.
-        </p>
-      )}
       <fieldset className={styles.formSection}>
         <legend><span>01</span><strong>공간 유형</strong></legend>
         <p className={styles.sectionDescription}>실제 재배 방식과 가장 가까운 환경을 선택해 주세요.</p>
@@ -264,6 +361,102 @@ function diagnosisSunlightExposure(duration: "2h" | "3-5h" | "6h+"): SunlightExp
   if (duration === "2h") return "low";
   if (duration === "6h+") return "full";
   return "partial";
+}
+
+function diagnosisSpaceName(location: "balcony" | "window" | "indoor"): string {
+  if (location === "balcony") return "베란다 텃밭";
+  if (location === "window") return "창가 텃밭";
+  return "실내 텃밭";
+}
+
+function diagnosisSeasonName(location: "balcony" | "window" | "indoor"): string {
+  return `${diagnosisSpaceName(location)} 첫 시즌`;
+}
+
+function formatDateOnly(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+/**
+ * 진단 추천에 등장한 화분별 작물을 실제 작물 도감 id 기준으로 합산해
+ * 화분 배치 입력을 만든다. 실제 도감에 대응 작물이 없거나(basil·strawberry),
+ * 만들어진 공간 유형이 그 작물을 지원하지 않으면(예: 실내 화분의 토마토·고추)
+ * 조용히 제외한다.
+ */
+function buildDiagnosisPlacements(
+  recommendation: ReturnType<typeof createGardenRecommendation>,
+  spaceId: string,
+  spaceType: GrowingSpaceType,
+): ContainerPlacementInput[] {
+  const totals = new Map<string, number>();
+
+  for (const planter of recommendation.planters) {
+    for (const crop of planter.crops) {
+      const catalogId = DIAGNOSIS_CROP_TO_CATALOG_ID[crop.cropId];
+      if (!catalogId) continue;
+      const reference = CROP_REFERENCES.find((item) => item.id === catalogId);
+      if (!reference || !reference.supportedSpaces.includes(spaceType)) continue;
+      totals.set(catalogId, (totals.get(catalogId) ?? 0) + crop.seedlingCount);
+    }
+  }
+
+  return [...totals.entries()].map(([cropId, quantity], index) => ({
+    spaceId,
+    cropId,
+    quantity: Math.min(quantity, 500),
+    position: { order: index },
+  }));
+}
+
+/**
+ * 화분·시즌·배치를 순서대로 만든다. progress에 이미 만들어진 공간·시즌이
+ * 있으면(재시도) 다시 만들지 않고 이어서 진행해, 실패 후 재시도할 때
+ * 중복 공간·시즌이 쌓이지 않도록 한다.
+ */
+async function createSpaceSeasonAndPlacements(
+  diagnosis: GardenConfiguration,
+  progress: { space?: GrowingSpace; seasonId?: string; seasonVersion?: number },
+): Promise<string> {
+  const spaceType = diagnosisSpaceType(diagnosis.sunlight.location);
+  const recommendation = createGardenRecommendation(diagnosis);
+
+  const space = progress.space ?? await createGrowingSpace({
+    name: diagnosisSpaceName(diagnosis.sunlight.location),
+    type: spaceType,
+    sunlight: diagnosisSunlightExposure(diagnosis.sunlight.duration),
+    widthCm: diagnosis.planter.widthCm,
+    lengthCm: diagnosis.planter.heightCm,
+    depthCm: diagnosis.planter.depthCm,
+    address: null,
+    latitude: null,
+    longitude: null,
+    orientation: null,
+    shadeLevel: null,
+    estimatedSunlightHours: null,
+    notes: "",
+  });
+  progress.space = space;
+
+  const placements = buildDiagnosisPlacements(recommendation, space.id, spaceType);
+
+  if (!progress.seasonId) {
+    const today = new Date();
+    const endDate = new Date(today.getTime() + SEASON_DURATION_DAYS * 86_400_000);
+    const season = await createGrowingSeason({
+      spaceId: space.id,
+      name: diagnosisSeasonName(diagnosis.sunlight.location),
+      startDate: formatDateOnly(today),
+      endDate: formatDateOnly(endDate),
+      notes: "",
+      featuredCropId: placements[0]?.cropId ?? null,
+    });
+    progress.seasonId = season.id;
+    progress.seasonVersion = season.version;
+  }
+
+  await putContainerPlacements(progress.seasonId, progress.seasonVersion!, placements);
+
+  return progress.seasonId;
 }
 
 function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValues {
