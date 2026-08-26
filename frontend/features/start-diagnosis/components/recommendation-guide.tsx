@@ -113,21 +113,12 @@ export function RecommendationGuide({
 
         <section aria-label="추천 준비물 합계" className={styles.summaryBar}>
           <div>
-            <span className={styles.summaryImage}>
-              <Image
-                alt=""
-                fill
-                sizes="30px"
-                src="/figma/summary-soil-mark-v2.png"
-              />
-            </span>
+            <span aria-hidden="true" className={styles.summaryIcon}>흙</span>
             <p>필요한 흙 <strong>약 {formatNumber(recommendation.totalSoilLiters)}L</strong></p>
           </div>
           <i aria-hidden="true" />
           <div>
-            <span className={styles.summaryImage}>
-              <Image alt="" fill sizes="30px" src="/figma/summary-seedling-mark-v2.png" />
-            </span>
+            <span aria-hidden="true" className={styles.summaryIcon}>모</span>
             <p>모종 <strong>{recommendation.totalSeedlings}개</strong></p>
           </div>
         </section>
