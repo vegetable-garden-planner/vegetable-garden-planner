@@ -4,6 +4,8 @@ import type { CropCategory, CropReference } from "@/features/crop-catalog/domain
 export const CROP_IMAGES: Partial<Record<string, string>> = {
   lettuce: "/figma/image3.webp",
   tomato: "/figma/image7.webp",
+  spinach: "/figma/crop-spinach-v1.png",
+  pepper: "/figma/crop-chili-v1.png",
 };
 
 const CATEGORY_CLASSES: Record<CropCategory, string> = {
