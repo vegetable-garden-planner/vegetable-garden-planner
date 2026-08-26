@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import { AuthPageShell } from "@/features/auth/components/auth-page-shell";
+import { AuthCardShell } from "@/features/auth/components/auth-card-shell";
 import { SignupForm } from "@/features/auth/components/signup-form";
-import { getSafeReturnPath } from "@/features/auth/domain/auth";
+import { encodeNextPath, getSafeReturnPath } from "@/features/auth/domain/auth";
 
 export const metadata: Metadata = {
   title: "회원가입 | 심어봄",
@@ -13,8 +13,13 @@ export default async function SignupPage(props: PageProps<"/signup">) {
   const nextPath = getSafeReturnPath(query.next);
 
   return (
-    <AuthPageShell description="계정을 만들고 나에게 맞는 재배 계획을 저장해 보세요." eyebrow="회원가입" title="심어봄을 시작해요">
+    <AuthCardShell
+      switchHref={`/login?next=${encodeNextPath(nextPath)}`}
+      switchLabel="Log in"
+      switchText="이미 계정이 있으신가요?"
+      title="Sign up"
+    >
       <SignupForm nextPath={nextPath} />
-    </AuthPageShell>
+    </AuthCardShell>
   );
 }

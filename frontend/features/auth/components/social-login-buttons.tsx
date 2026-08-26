@@ -6,13 +6,13 @@ export function SocialLoginButtons({ nextPath }: { nextPath: string }) {
 
   return (
     <div className={styles.socialGroup} aria-label="소셜 로그인">
+      <a className={styles.socialButton} href={`/auth/kakao/redirect?next=${encodedNext}`}>
+        <span className={styles.kakaoMark} aria-hidden="true" />
+        Kakaotalk 으로 로그인
+      </a>
       <a className={styles.socialButton} href={`/auth/google/redirect?next=${encodedNext}`}>
         <GoogleMark />
-        Google로 계속하기
-      </a>
-      <a className={`${styles.socialButton} ${styles.kakao}`} href={`/auth/kakao/redirect?next=${encodedNext}`}>
-        <span className={styles.kakaoMark} aria-hidden="true">K</span>
-        카카오로 계속하기
+        Google로 로그인
       </a>
     </div>
   );
