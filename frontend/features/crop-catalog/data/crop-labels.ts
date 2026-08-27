@@ -3,7 +3,7 @@ import type {
   CropDifficulty,
   PlantingMaterial,
 } from "@/features/crop-catalog/domain/crop-reference";
-import type { GrowingSpaceType } from "@/shared/domain/growing-environment";
+import type { GrowingSpaceType, SunlightExposure } from "@/shared/domain/growing-environment";
 
 export const CROP_CATEGORY_LABELS: Record<CropCategory, string> = {
   leaf: "잎채소",
@@ -32,4 +32,10 @@ export const GROWING_SPACE_LABELS: Record<GrowingSpaceType, string> = {
   indoor: "실내 화분",
   balcony: "베란다",
   garden: "마당·텃밭",
+};
+
+export const SUNLIGHT_LABELS: Record<SunlightExposure, string> = {
+  low: "2시간 미만",
+  partial: "2~5시간",
+  full: "6시간 이상",
 };
