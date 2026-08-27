@@ -35,7 +35,7 @@ export interface ContainerPlacementInput {
   position: unknown;
 }
 
-const MAX_QUANTITY = 500;
+export const MAX_QUANTITY = 500;
 
 /**
  * 서버는 저장 순서를 보장하지 않으므로(id 정렬), 화면에서 보여준 순서를
@@ -70,6 +70,48 @@ export function validatePlacementRows(rows: readonly ContainerPlacementRow[]): s
     }
   }
   return "";
+}
+
+/** 아직 화분에 안 넣은(미배정) 채소인지 — 배치 캔버스의 "선택한 채소" 풀에 남는다. */
+export function isPlacedRow(row: Pick<ContainerPlacementRow, "spaceId">): boolean {
+  return row.spaceId !== "";
+}
+
+export interface PlaceableCrop {
+  id: string;
+  supportedSpaces: readonly string[];
+}
+
+export interface PlaceableSpace {
+  id: string;
+  type: string;
+}
+
+/**
+ * 미배정 채소만 호환되는 화분에 순서대로(라운드로빈) 채워 넣는다.
+ * 이미 화분에 배치된 항목은 건드리지 않는다.
+ */
+export function autoPlaceRows(
+  rows: readonly ContainerPlacementRow[],
+  crops: readonly PlaceableCrop[],
+  spaces: readonly PlaceableSpace[],
+): ContainerPlacementRow[] {
+  let cursor = 0;
+  return rows.map((row) => {
+    if (isPlacedRow(row)) return row;
+
+    const crop = crops.find((item) => item.id === row.cropId);
+    const compatible = crop ? spaces.filter((space) => crop.supportedSpaces.includes(space.type)) : [];
+    if (compatible.length === 0) return row;
+
+    const target = compatible[cursor % compatible.length];
+    cursor += 1;
+    return { ...row, spaceId: target.id };
+  });
+}
+
+export function canPlaceCropInSpace(crop: PlaceableCrop, space: PlaceableSpace): boolean {
+  return crop.supportedSpaces.includes(space.type);
 }
 
 function placementOrder(placement: ContainerPlacement): number {

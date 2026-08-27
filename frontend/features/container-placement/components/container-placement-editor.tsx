@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { GROWING_SPACE_LABELS } from "@/features/crop-catalog/data/crop-labels";
 import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import {
+  autoPlaceRows,
+  isPlacedRow,
+  MAX_QUANTITY,
   toEditableRows,
   toPlacementInputs,
   validatePlacementRows,
@@ -74,6 +77,17 @@ export function ContainerPlacementEditor({ seasonId }: { seasonId: string }) {
   );
 }
 
+/**
+ * 화분 배치 캔버스
+ *
+ * 왼쪽 "선택한 채소"는 아직 화분에 안 넣은(spaceId === "") 채소 풀이고,
+ * 오른쪽은 화분마다 이미 배치된 채소를 보여준다. 같은 rows 배열 안에서
+ * spaceId 유무로만 두 영역을 나눈다 — 별도 자료구조를 두지 않는다.
+ *
+ * 데스크톱은 칩을 직접 드래그해서 화분에 놓을 수 있고(포인터 이벤트 직접
+ * 구현, 라이브러리 없음), 모바일을 포함해 어디서든 칩을 탭해 선택한 뒤
+ * 화분(또는 되돌리려면 풀)을 탭해도 같은 결과가 된다.
+ */
 function PlacementForm({
   containerSpaces,
   crops,
@@ -90,30 +104,64 @@ function PlacementForm({
   const [rows, setRows] = useState<ContainerPlacementRow[]>(() =>
     toEditableRows(placements.placements).map((row) => ({ ...row, key: nextRowKey() })),
   );
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const isRunningRef = useRef(false);
+  const canvasRef = useRef<HTMLDivElement | null>(null);
 
-  function addRow() {
-    const defaultSpace = containerSpaces.find((item) => item.id === season.spaceId) ?? containerSpaces[0];
-    setRows((current) => [
-      ...current,
-      { key: nextRowKey(), spaceId: defaultSpace?.id ?? "", cropId: "", quantity: 1 },
-    ]);
+  const poolRows = rows.filter((row) => !isPlacedRow(row));
+
+  function cropOf(cropId: string) {
+    return crops.find((crop) => crop.id === cropId);
   }
 
-  function updateRow(key: string, patch: Partial<Omit<ContainerPlacementRow, "key">>) {
-    setRows((current) => current.map((row) => (row.key === key ? { ...row, ...patch } : row)));
+  function addToPool(cropId: string, quantity: number) {
+    setRows((current) => [...current, { key: nextRowKey(), spaceId: "", cropId, quantity }]);
   }
 
-  function removeRow(key: string) {
-    setRows((current) => current.filter((row) => row.key !== key));
+  function assign(rowKey: string, spaceId: string) {
+    const row = rows.find((item) => item.key === rowKey);
+    const space = containerSpaces.find((item) => item.id === spaceId);
+    const crop = row ? cropOf(row.cropId) : undefined;
+    if (space && crop && !crop.supportedSpaces.includes(space.type)) {
+      setError(`${crop.name}은(는) ${GROWING_SPACE_LABELS[space.type]}에는 배치할 수 없어요.`);
+      return;
+    }
+    setError("");
+    setRows((current) => current.map((item) => (item.key === rowKey ? { ...item, spaceId } : item)));
+    setSelectedKey(null);
+  }
+
+  function updateQuantity(rowKey: string, quantity: number) {
+    setRows((current) => current.map((item) => (item.key === rowKey ? { ...item, quantity } : item)));
+  }
+
+  function removeRow(rowKey: string) {
+    setRows((current) => current.filter((item) => item.key !== rowKey));
+    setSelectedKey((current) => (current === rowKey ? null : current));
+  }
+
+  function toggleSelect(rowKey: string) {
+    setSelectedKey((current) => (current === rowKey ? null : rowKey));
+  }
+
+  function autoPlace() {
+    setError("");
+    setRows((current) => autoPlaceRows(current, crops, containerSpaces));
+  }
+
+  function resetToSaved() {
+    setRows(toEditableRows(placements.placements).map((row) => ({ ...row, key: nextRowKey() })));
+    setSelectedKey(null);
+    setError("");
   }
 
   async function save() {
     if (isRunningRef.current) return;
     setError("");
-    const message = validatePlacementRows(rows);
+    const placedRows = rows.filter(isPlacedRow);
+    const message = validatePlacementRows(placedRows);
     if (message) {
       setError(message);
       return;
@@ -122,7 +170,7 @@ function PlacementForm({
     isRunningRef.current = true;
     setIsSaving(true);
     try {
-      await putContainerPlacements(season.id, placements.version, toPlacementInputs(rows));
+      await putContainerPlacements(season.id, placements.version, toPlacementInputs(placedRows));
       await reload();
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "화분 배치를 저장하지 못했습니다.");
@@ -132,128 +180,457 @@ function PlacementForm({
     }
   }
 
+  // 데스크톱 전용 드래그. 모바일은 탭-선택 → 탭-배치로 충분해 포인터 드래그를 켜지 않는다.
+  const drag = useContainerDrag(canvasRef, assign);
+
   return (
     <div className="min-w-0 max-w-full">
       <section className="surface-panel p-6">
-        <h2 className="text-xl font-bold">{season.name} · 화분 배치</h2>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          화분마다 키울 작물과 수량을 추가해 주세요. 한 시즌 안에서 여러 화분에 나눠 배치할 수 있어요.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold">{season.name} · 화분 배치</h2>
+            <p className="mt-2 text-sm leading-6 text-muted">
+              작물을 화분으로 끌어서 놓거나, 작물을 탭한 뒤 놓을 화분을 탭해 주세요.
+            </p>
+          </div>
+          {containerSpaces.length > 0 && (
+            <PlacementToolbar
+              canAutoPlace={poolRows.length > 0}
+              onAutoPlace={autoPlace}
+              onReset={resetToSaved}
+            />
+          )}
+        </div>
 
         {containerSpaces.length === 0 ? (
           <p className="mt-4 text-sm text-muted">배치할 수 있는 화분·베란다 공간이 없습니다.</p>
         ) : (
-          <div className="mt-5 flex flex-col gap-3">
-            {rows.map((row) => (
-              <PlacementRowFields
-                containerSpaces={containerSpaces}
-                crops={crops}
-                key={row.key}
-                onChange={(patch) => updateRow(row.key, patch)}
-                onRemove={() => removeRow(row.key)}
-                row={row}
-              />
-            ))}
+          <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]" ref={canvasRef}>
+            <CropPool
+              crops={crops}
+              draggingKey={drag.draggingKey}
+              onAdd={addToPool}
+              onQuantityChange={updateQuantity}
+              onRemove={removeRow}
+              onSelect={toggleSelect}
+              rows={poolRows}
+              selectedKey={selectedKey}
+            />
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {containerSpaces.map((space) => (
+                <ContainerCard
+                  crops={crops}
+                  draggingKey={drag.draggingKey}
+                  isDropHover={drag.dropHoverSpaceId === space.id}
+                  key={space.id}
+                  onDropZoneClick={() => selectedKey && assign(selectedKey, space.id)}
+                  onQuantityChange={updateQuantity}
+                  onRemoveRow={removeRow}
+                  onSelectChip={toggleSelect}
+                  rows={rows.filter((row) => row.spaceId === space.id)}
+                  selectedKey={selectedKey}
+                  space={space}
+                />
+              ))}
+            </div>
           </div>
         )}
 
-        <button
-          className="mt-4 rounded-full border border-leaf px-5 py-2.5 text-sm font-bold text-leaf disabled:opacity-60"
-          disabled={containerSpaces.length === 0}
-          onClick={addRow}
-          type="button"
-        >
-          + 작물 추가
-        </button>
-
-        {error && (
-          <p className="mt-4 rounded-xl bg-[#fff4f2] p-4 text-sm font-bold text-[var(--color-danger)]" role="alert">
-            {error}
-          </p>
-        )}
-
-        <button
-          className="mt-6 w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white disabled:opacity-60"
-          disabled={isSaving}
-          onClick={() => void save()}
-          type="button"
-        >
-          {isSaving ? "저장 중" : "배치 저장"}
-        </button>
+        <PlacementFooter
+          error={error}
+          isSaving={isSaving}
+          onSave={() => void save()}
+          unplacedCount={poolRows.length}
+        />
       </section>
 
-      <PlacementNextStep placementCount={placements.placements.length} season={season} />
+      <DragGhost label={chipLabel(rows.find((row) => row.key === drag.draggingKey), crops)} point={drag.dragPoint} />
+
+      <PlacementNextStep placementCount={placements.placements.filter(isPlacedRow).length} season={season} />
     </div>
   );
 }
 
-function PlacementRowFields({
-  containerSpaces,
-  crops,
-  onChange,
-  onRemove,
-  row,
-}: {
-  containerSpaces: readonly GrowingSpace[];
-  crops: readonly CropReference[];
-  onChange: (patch: Partial<Omit<ContainerPlacementRow, "key">>) => void;
-  onRemove: () => void;
-  row: ContainerPlacementRow;
-}) {
-  const selectedSpace = containerSpaces.find((space) => space.id === row.spaceId);
-  const compatibleCrops = selectedSpace
-    ? crops.filter((crop) => crop.supportedSpaces.includes(selectedSpace.type))
-    : crops;
+/**
+ * 화분 배치 캔버스의 데스크톱 드래그 처리.
+ *
+ * pointer:fine 환경에서만 켠다(모바일은 탭-선택/탭-배치로 충분). 캔버스
+ * ref는 호출자가 만들어 넘긴다 — 이 훅은 반응형 상태만 돌려준다. 최신
+ * onDrop 콜백은 effect에서 ref에 옮겨 두어 rows가 바뀔 때마다 리스너를
+ * 다시 붙이지 않는다 — 리스너 자체는 마운트 시 한 번만 등록한다.
+ */
+function useContainerDrag(
+  canvasRef: RefObject<HTMLDivElement | null>,
+  onDrop: (rowKey: string, spaceId: string) => void,
+) {
+  const [draggingKey, setDraggingKey] = useState<string | null>(null);
+  const [dragPoint, setDragPoint] = useState<{ x: number; y: number } | null>(null);
+  const [dropHoverSpaceId, setDropHoverSpaceId] = useState<string | null>(null);
+  const onDropRef = useRef(onDrop);
 
+  useEffect(() => {
+    onDropRef.current = onDrop;
+  }, [onDrop]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || !window.matchMedia("(pointer: fine)").matches) return;
+
+    let down: { key: string; x: number; y: number } | null = null;
+    let dragging = false;
+
+    function findDropSpace(x: number, y: number) {
+      const element = document.elementFromPoint(x, y);
+      return element?.closest<HTMLElement>("[data-drop-space]") ?? null;
+    }
+
+    function onPointerDown(event: PointerEvent) {
+      const chip = (event.target as Element).closest<HTMLElement>("[data-chip-key]");
+      if (!chip) return;
+      down = { key: chip.dataset.chipKey ?? "", x: event.clientX, y: event.clientY };
+      dragging = false;
+    }
+
+    function onPointerMove(event: PointerEvent) {
+      if (!down) return;
+      if (!dragging && Math.hypot(event.clientX - down.x, event.clientY - down.y) > 4) {
+        dragging = true;
+        setDraggingKey(down.key);
+        document.body.style.userSelect = "none";
+      }
+      if (dragging) {
+        setDragPoint({ x: event.clientX, y: event.clientY });
+        setDropHoverSpaceId(findDropSpace(event.clientX, event.clientY)?.dataset.dropSpace ?? null);
+      }
+    }
+
+    function onPointerUp(event: PointerEvent) {
+      if (down && dragging) {
+        const zone = findDropSpace(event.clientX, event.clientY);
+        if (zone) onDropRef.current(down.key, zone.dataset.dropSpace ?? "");
+      }
+      down = null;
+      dragging = false;
+      document.body.style.removeProperty("user-select");
+      setDraggingKey(null);
+      setDragPoint(null);
+      setDropHoverSpaceId(null);
+    }
+
+    canvas.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("pointerup", onPointerUp);
+    return () => {
+      canvas.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerup", onPointerUp);
+      document.body.style.removeProperty("user-select");
+    };
+  }, [canvasRef]);
+
+  return { draggingKey, dragPoint, dropHoverSpaceId };
+}
+
+function chipLabel(row: ContainerPlacementRow | undefined, crops: readonly CropReference[]): string {
+  if (!row) return "";
+  const crop = crops.find((item) => item.id === row.cropId);
+  return `${crop?.name ?? "작물"} ${row.quantity}포기`;
+}
+
+function DragGhost({ label, point }: { label: string; point: { x: number; y: number } | null }) {
+  if (!point) return null;
   return (
-    <div className="grid grid-cols-1 gap-3 rounded-2xl border border-black/10 p-4 sm:grid-cols-[1fr_1fr_6rem_auto] sm:items-end">
-      <label className="block text-sm">
-        <span className="mb-1 block font-bold">화분</span>
-        <select
-          className="form-input"
-          onChange={(event) => onChange({ spaceId: event.target.value, cropId: "" })}
-          value={row.spaceId}
-        >
-          <option value="">화분 선택</option>
-          {containerSpaces.map((space) => (
-            <option key={space.id} value={space.id}>
-              {space.name} · {GROWING_SPACE_LABELS[space.type]}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block font-bold">작물</span>
-        <select
-          className="form-input"
-          disabled={!row.spaceId}
-          onChange={(event) => onChange({ cropId: event.target.value })}
-          value={row.cropId}
-        >
-          <option value="">{row.spaceId ? "작물 선택" : "화분을 먼저 선택해 주세요"}</option>
-          {compatibleCrops.map((crop) => (
-            <option key={crop.id} value={crop.id}>{crop.name}</option>
-          ))}
-        </select>
-      </label>
-      <label className="block text-sm">
-        <span className="mb-1 block font-bold">수량</span>
-        <input
-          className="form-input"
-          max={500}
-          min={1}
-          onChange={(event) => onChange({ quantity: Number(event.target.value) })}
-          type="number"
-          value={row.quantity}
-        />
-      </label>
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-1/2 rounded-full bg-leaf px-4 py-2 text-sm font-bold text-white shadow-lg"
+      style={{ left: point.x, top: point.y }}
+    >
+      {label}
+    </div>
+  );
+}
+
+function PlacementToolbar({
+  canAutoPlace,
+  onAutoPlace,
+  onReset,
+}: {
+  canAutoPlace: boolean;
+  onAutoPlace: () => void;
+  onReset: () => void;
+}) {
+  return (
+    <div className="flex shrink-0 gap-2">
       <button
-        className="rounded-full border border-black/10 px-4 py-2.5 text-sm font-bold"
-        onClick={onRemove}
+        className="rounded-full border border-leaf px-4 py-2 text-sm font-bold text-leaf disabled:opacity-60"
+        disabled={!canAutoPlace}
+        onClick={onAutoPlace}
+        type="button"
+      >
+        자동 배치
+      </button>
+      <button
+        className="rounded-full border border-black/10 px-4 py-2 text-sm font-bold"
+        onClick={onReset}
+        type="button"
+      >
+        되돌리기
+      </button>
+    </div>
+  );
+}
+
+function CropPool({
+  crops,
+  draggingKey,
+  onAdd,
+  onQuantityChange,
+  onRemove,
+  onSelect,
+  rows,
+  selectedKey,
+}: {
+  crops: readonly CropReference[];
+  draggingKey: string | null;
+  onAdd: (cropId: string, quantity: number) => void;
+  onQuantityChange: (rowKey: string, quantity: number) => void;
+  onRemove: (rowKey: string) => void;
+  onSelect: (rowKey: string) => void;
+  rows: readonly ContainerPlacementRow[];
+  selectedKey: string | null;
+}) {
+  return (
+    <div className="rounded-2xl border border-black/10 p-4" data-drop-space="">
+      <h3 className="font-bold">선택한 채소</h3>
+      {rows.length === 0 ? (
+        <p className="mt-3 text-sm text-muted">아직 화분에 넣지 않은 작물이 없어요.</p>
+      ) : (
+        <div className="mt-3 flex flex-col gap-2">
+          {rows.map((row) => (
+            <CropChip
+              crop={crops.find((crop) => crop.id === row.cropId)}
+              dragging={draggingKey === row.key}
+              key={row.key}
+              onQuantityChange={(quantity) => onQuantityChange(row.key, quantity)}
+              onRemove={() => onRemove(row.key)}
+              onSelect={() => onSelect(row.key)}
+              row={row}
+              selected={selectedKey === row.key}
+            />
+          ))}
+        </div>
+      )}
+      <AddCropControl crops={crops} onAdd={onAdd} />
+    </div>
+  );
+}
+
+function PlacementFooter({
+  error,
+  isSaving,
+  onSave,
+  unplacedCount,
+}: {
+  error: string;
+  isSaving: boolean;
+  onSave: () => void;
+  unplacedCount: number;
+}) {
+  return (
+    <>
+      {unplacedCount > 0 && (
+        <p className="mt-4 rounded-xl bg-[#fff8ec] p-4 text-sm text-muted" role="status">
+          아직 화분에 넣지 않은 작물이 {unplacedCount}종 있어요. 지금 저장하면 이 작물은 배치에서 빠집니다.
+        </p>
+      )}
+      {error && (
+        <p className="mt-4 rounded-xl bg-[#fff4f2] p-4 text-sm font-bold text-[var(--color-danger)]" role="alert">
+          {error}
+        </p>
+      )}
+      <button
+        className="mt-6 w-full rounded-full bg-leaf px-6 py-3.5 font-bold text-white disabled:opacity-60"
+        disabled={isSaving}
+        onClick={onSave}
+        type="button"
+      >
+        {isSaving ? "저장 중" : "배치 저장"}
+      </button>
+    </>
+  );
+}
+
+function ContainerCard({
+  crops,
+  draggingKey,
+  isDropHover,
+  onDropZoneClick,
+  onQuantityChange,
+  onRemoveRow,
+  onSelectChip,
+  rows,
+  selectedKey,
+  space,
+}: {
+  crops: readonly CropReference[];
+  draggingKey: string | null;
+  isDropHover: boolean;
+  onDropZoneClick: () => void;
+  onQuantityChange: (rowKey: string, quantity: number) => void;
+  onRemoveRow: (rowKey: string) => void;
+  onSelectChip: (rowKey: string) => void;
+  rows: readonly ContainerPlacementRow[];
+  selectedKey: string | null;
+  space: GrowingSpace;
+}) {
+  return (
+    <div
+      className={`rounded-2xl border p-4 transition-colors ${
+        isDropHover ? "border-leaf bg-[#eef8f3]" : "border-black/10 bg-white"
+      }`}
+      data-drop-space={space.id}
+    >
+      <p className="font-bold">{space.name}</p>
+      <p className="text-xs text-muted">
+        {GROWING_SPACE_LABELS[space.type]} · {space.widthCm}×{space.lengthCm}cm
+      </p>
+
+      <div className="mt-3 flex flex-col gap-2">
+        {rows.map((row) => (
+          <CropChip
+            crop={crops.find((crop) => crop.id === row.cropId)}
+            dragging={draggingKey === row.key}
+            key={row.key}
+            onQuantityChange={(quantity) => onQuantityChange(row.key, quantity)}
+            onRemove={() => onRemoveRow(row.key)}
+            onSelect={() => onSelectChip(row.key)}
+            row={row}
+            selected={selectedKey === row.key}
+          />
+        ))}
+      </div>
+
+      <button
+        className="mt-3 w-full rounded-2xl border border-dashed border-black/20 p-3 text-center text-sm text-muted hover:border-leaf hover:text-leaf"
+        onClick={onDropZoneClick}
+        type="button"
+      >
+        {rows.length === 0 ? "여기에 놓기" : "+ 여기에 추가"}
+      </button>
+    </div>
+  );
+}
+
+function CropChip({
+  crop,
+  dragging,
+  onQuantityChange,
+  onRemove,
+  onSelect,
+  row,
+  selected,
+}: {
+  crop: CropReference | undefined;
+  dragging: boolean;
+  onQuantityChange: (quantity: number) => void;
+  onRemove: () => void;
+  onSelect: () => void;
+  row: ContainerPlacementRow;
+  selected: boolean;
+}) {
+  return (
+    <div
+      className={`flex items-center gap-2 rounded-2xl border p-3 ${
+        selected ? "border-leaf bg-[#eef8f3]" : "border-black/10 bg-white"
+      } ${dragging ? "opacity-40" : ""}`}
+      data-chip-key={row.key}
+    >
+      <button
+        aria-pressed={selected}
+        className="flex-1 text-left font-bold"
+        onClick={(event) => {
+          event.stopPropagation();
+          onSelect();
+        }}
+        type="button"
+      >
+        {crop?.name ?? "알 수 없는 작물"}
+      </button>
+      <input
+        aria-label={`${crop?.name ?? "작물"} 수량`}
+        className="form-input w-16 px-2 py-1.5 text-center text-sm"
+        max={MAX_QUANTITY}
+        min={1}
+        onChange={(event) => onQuantityChange(Number(event.target.value))}
+        onClick={(event) => event.stopPropagation()}
+        type="number"
+        value={row.quantity}
+      />
+      <span className="text-sm text-muted">포기</span>
+      <button
+        aria-label={`${crop?.name ?? "작물"} 삭제`}
+        className="rounded-full border border-black/10 px-3 py-1.5 text-xs font-bold"
+        onClick={(event) => {
+          event.stopPropagation();
+          onRemove();
+        }}
         type="button"
       >
         삭제
       </button>
+    </div>
+  );
+}
+
+function AddCropControl({
+  crops,
+  onAdd,
+}: {
+  crops: readonly CropReference[];
+  onAdd: (cropId: string, quantity: number) => void;
+}) {
+  const [cropId, setCropId] = useState("");
+  const [quantity, setQuantity] = useState(1);
+
+  function submit() {
+    if (!cropId) return;
+    onAdd(cropId, quantity);
+    setCropId("");
+    setQuantity(1);
+  }
+
+  return (
+    <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-dashed border-black/15 p-3">
+      <select
+        className="form-input"
+        onChange={(event) => setCropId(event.target.value)}
+        value={cropId}
+      >
+        <option value="">작물 선택</option>
+        {crops.map((crop) => (
+          <option key={crop.id} value={crop.id}>{crop.name}</option>
+        ))}
+      </select>
+      <div className="flex items-center gap-2">
+        <input
+          aria-label="수량"
+          className="form-input flex-1"
+          max={MAX_QUANTITY}
+          min={1}
+          onChange={(event) => setQuantity(Number(event.target.value))}
+          type="number"
+          value={quantity}
+        />
+        <button
+          className="shrink-0 rounded-full border border-leaf px-4 py-2 text-sm font-bold text-leaf disabled:opacity-60"
+          disabled={!cropId}
+          onClick={submit}
+          type="button"
+        >
+          + 추가
+        </button>
+      </div>
     </div>
   );
 }

@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  autoPlaceRows,
+  canPlaceCropInSpace,
+  isPlacedRow,
   toEditableRows,
   toPlacementInputs,
   validatePlacementRows,
   type ContainerPlacement,
+  type ContainerPlacementRow,
 } from "./container-placement.ts";
 
 test("배치를 position.order 기준으로 정렬해 편집 행으로 바꾼다", () => {
@@ -66,4 +70,47 @@ test("빈 목록과 정상 행은 통과한다", () => {
     validatePlacementRows([{ key: "1", spaceId: "space-1", cropId: "lettuce", quantity: 3 }]),
     "",
   );
+});
+
+test("화분(spaceId)이 비어 있으면 미배정 채소 풀에 남은 것으로 본다", () => {
+  assert.equal(isPlacedRow({ spaceId: "" }), false);
+  assert.equal(isPlacedRow({ spaceId: "space-1" }), true);
+});
+
+test("작물의 지원 공간에 화분 유형이 포함되어야 배치 가능하다", () => {
+  const lettuce = { id: "lettuce", supportedSpaces: ["balcony", "indoor"] };
+  assert.equal(canPlaceCropInSpace(lettuce, { id: "space-1", type: "balcony" }), true);
+  assert.equal(canPlaceCropInSpace(lettuce, { id: "space-2", type: "garden" }), false);
+});
+
+test("자동 배치는 미배정 채소만 호환 화분에 순서대로 채운다", () => {
+  const crops = [
+    { id: "lettuce", supportedSpaces: ["balcony"] },
+    { id: "basil", supportedSpaces: ["indoor", "balcony"] },
+  ];
+  const spaces = [
+    { id: "pot-a", type: "balcony" },
+    { id: "pot-b", type: "balcony" },
+  ];
+  const rows: ContainerPlacementRow[] = [
+    { key: "1", spaceId: "pot-b", cropId: "lettuce", quantity: 4 }, // 이미 배치됨 — 그대로 유지
+    { key: "2", spaceId: "", cropId: "basil", quantity: 2 },
+    { key: "3", spaceId: "", cropId: "basil", quantity: 1 },
+  ];
+
+  const result = autoPlaceRows(rows, crops, spaces);
+
+  assert.deepEqual(result.map((row) => row.spaceId), ["pot-b", "pot-a", "pot-b"]);
+});
+
+test("호환되는 화분이 없는 미배정 채소는 그대로 미배정으로 남는다", () => {
+  const crops = [{ id: "tomato", supportedSpaces: ["garden"] }];
+  const spaces = [{ id: "pot-a", type: "balcony" }];
+  const rows: ContainerPlacementRow[] = [
+    { key: "1", spaceId: "", cropId: "tomato", quantity: 1 },
+  ];
+
+  const result = autoPlaceRows(rows, crops, spaces);
+
+  assert.equal(result[0].spaceId, "");
 });
