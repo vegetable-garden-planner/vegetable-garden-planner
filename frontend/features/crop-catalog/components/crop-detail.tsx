@@ -6,9 +6,13 @@ import {
   CROP_DIFFICULTY_LABELS,
   GROWING_SPACE_LABELS,
   PLANTING_MATERIAL_LABELS,
+  SUNLIGHT_LABELS,
 } from "@/features/crop-catalog/data/crop-labels";
-import type { CropReference, CropSource } from "@/features/crop-catalog/domain/crop-reference";
+import { isYearRoundPeriod, monthsInRange } from "@/features/crop-catalog/domain/crop-calendar";
+import type { CropPeriod, CropReference, CropSource } from "@/features/crop-catalog/domain/crop-reference";
 import styles from "./crop-detail.module.css";
+
+const MONTHS = Array.from({ length: 12 }, (_, index) => index + 1);
 
 export function CropDetail({ crop, source }: { crop: CropReference; source?: CropSource }) {
   const startPath = `/seasons/new?cropId=${encodeURIComponent(crop.id)}`;
@@ -29,6 +33,8 @@ export function CropDetail({ crop, source }: { crop: CropReference; source?: Cro
             <Fact label="시작 시기" value={crop.plantingPeriod.label} />
             <Fact label="수확·감상" value={crop.harvestPeriod.label} />
             <Fact label="권장 간격" value={`${crop.plantSpacingCm}cm`} />
+            {crop.sunRequirement && <Fact label="필요한 햇빛" value={`하루 ${SUNLIGHT_LABELS[crop.sunRequirement]}`} />}
+            {crop.minPotDepthCm !== null && <Fact label="권장 화분 깊이" value={`${crop.minPotDepthCm}cm 이상`} />}
           </dl>
           <div className={styles.spaceTags} aria-label="지원 재배 공간">
             {crop.supportedSpaces.map((space) => <span key={space}>{GROWING_SPACE_LABELS[space]}</span>)}
@@ -39,6 +45,7 @@ export function CropDetail({ crop, source }: { crop: CropReference; source?: Cro
       <div className={styles.workspace}>
         <div className={styles.mainColumn}>
           <GrowingSteps crop={crop} />
+          <GrowingCalendar crop={crop} />
           {crop.careGuide && <CareGuide crop={crop} />}
         </div>
         <aside className={styles.sideColumn}>
@@ -65,6 +72,49 @@ function GrowingSteps({ crop }: { crop: CropReference }) {
 
 function Step({ description, index, title }: { description: string; index: number; title: string }) {
   return <li><span>{index}</span><div><h3>{title}</h3><p>{description}</p></div></li>;
+}
+
+function GrowingCalendar({ crop }: { crop: CropReference }) {
+  const yearRound = isYearRoundPeriod(crop.plantingPeriod) && isYearRoundPeriod(crop.harvestPeriod);
+
+  return (
+    <section className={styles.calendar} aria-labelledby="crop-calendar-title">
+      <div className={styles.sectionHeading}>
+        <p>성장 시기</p>
+        <h2 id="crop-calendar-title">언제 심고 언제 거둘까요</h2>
+        <span>실제 시기는 지역과 환경에 따라 달라질 수 있어요.</span>
+      </div>
+
+      {yearRound ? (
+        <p className={styles.calendarYearRound}>실내에서는 연중 심고 거둘 수 있어요.</p>
+      ) : (
+        <div className={styles.calendarChart}>
+          <div className={styles.calendarMonths} aria-hidden="true">
+            {MONTHS.map((month) => <span key={month}>{month}</span>)}
+          </div>
+          <CalendarRow label="파종" period={crop.plantingPeriod} />
+          <CalendarRow label="수확" period={crop.harvestPeriod} />
+        </div>
+      )}
+    </section>
+  );
+}
+
+function CalendarRow({ label, period }: { label: string; period: CropPeriod }) {
+  const activeMonths = new Set(monthsInRange(period));
+
+  return (
+    <div className={styles.calendarRow}>
+      <span className={styles.calendarRowLabel}>{label}</span>
+      {MONTHS.map((month) => (
+        <span
+          className={activeMonths.has(month) ? styles.calendarCellOn : styles.calendarCellOff}
+          key={month}
+        />
+      ))}
+      <span className={styles.calendarRowNote}>{period.label}</span>
+    </div>
+  );
 }
 
 function CareGuide({ crop }: { crop: CropReference }) {
