@@ -29,6 +29,7 @@ class CropResource extends JsonResource
             'summary' => $this->resource->summary,
             'sourceId' => $this->resource->source_id,
             'careGuide' => $this->whenNotNull($this->resource->care_guide),
+            'companions' => $this->whenNotNull($this->resource->companions),
         ];
     }
 }
