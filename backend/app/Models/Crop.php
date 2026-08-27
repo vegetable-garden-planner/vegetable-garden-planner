@@ -32,6 +32,7 @@ class Crop extends Model
             'min_pot_depth_cm' => 'integer',
             'needs_support' => 'boolean',
             'care_guide' => 'array',
+            'companions' => 'array',
         ];
     }
 }

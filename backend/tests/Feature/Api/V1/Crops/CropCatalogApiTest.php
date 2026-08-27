@@ -67,6 +67,23 @@ class CropCatalogApiTest extends TestCase
             ->assertJsonPath('data.careGuide.actions.0', '뿌리가 계속 젖어 있지 않도록 물을 준 뒤 완전히 빼 주세요.');
     }
 
+    public function test_companion_crops_are_mirrored_on_both_sides_and_omitted_when_absent(): void
+    {
+        $this->getJson('/api/v1/crops/green-onion')
+            ->assertOk()
+            ->assertJsonPath('data.companions.0.cropId', 'cucumber')
+            ->assertJsonPath('data.companions.0.sourceId', 'rda-companion-planting-2018')
+            ->assertJsonCount(3, 'data.companions');
+
+        $this->getJson('/api/v1/crops/cucumber')
+            ->assertOk()
+            ->assertJsonPath('data.companions.0.cropId', 'green-onion');
+
+        $this->getJson('/api/v1/crops/potato')
+            ->assertOk()
+            ->assertJsonMissingPath('data.companions');
+    }
+
     public function test_missing_crop_returns_standard_not_found_error(): void
     {
         $this->getJson('/api/v1/crops/not-a-crop')
@@ -78,7 +95,7 @@ class CropCatalogApiTest extends TestCase
     {
         $this->getJson('/api/v1/crop-sources')
             ->assertOk()
-            ->assertJsonCount(4, 'data')
+            ->assertJsonCount(6, 'data')
             ->assertJsonFragment([
                 'id' => 'nongsaro-beginner-garden-manual',
                 'organization' => '농촌진흥청 농사로',
@@ -89,6 +106,11 @@ class CropCatalogApiTest extends TestCase
                 'organization' => 'Iowa State University Extension and Outreach',
                 'url' => 'https://yardandgarden.extension.iastate.edu/how-to/how-harvest-condition-and-care-cut-flowers',
                 'reviewedAt' => '2026-08-12',
+            ])
+            ->assertJsonFragment([
+                'id' => 'rda-companion-planting-2018',
+                'organization' => '농촌진흥청 국립원예특작과학원',
+                'reviewedAt' => '2026-08-27',
             ])
             ->assertJsonMissing(['id' => 'penn-state-cut-flower-care']);
     }
