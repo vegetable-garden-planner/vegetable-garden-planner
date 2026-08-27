@@ -46,7 +46,7 @@ interface SpaceFormProps {
   space?: GrowingSpace;
 }
 
-type AutoCreateMode = "loading" | "form" | "error";
+type AutoCreateMode = "loading" | "form" | "error" | "empty";
 
 const SEASON_DURATION_DAYS = 90;
 
@@ -71,11 +71,19 @@ function useDiagnosisAutoCreate(skipAutoCreate: boolean) {
   );
   const [mode, setMode] = useState<AutoCreateMode>(diagnosis ? "loading" : "form");
   const [autoCreateError, setAutoCreateError] = useState("");
+  const [emptySeasonId, setEmptySeasonId] = useState("");
   const progressRef = useRef<{ space?: GrowingSpace; seasonId?: string; seasonVersion?: number }>({});
   const isRunningRef = useRef(false);
 
-  function handleSuccess(seasonId: string) {
+  function handleSuccess({ placementCount, seasonId }: { placementCount: number; seasonId: string }) {
     clearStoredGardenConfiguration();
+    // 추천 작물이 실제 도감과 매칭되지 않아(예: 바질·딸기만 고른 경우) 화분이
+    // 빈 채로 만들어졌으면, 이유도 모른 채 빈 배치 화면으로 넘어가지 않도록 알려준다.
+    if (placementCount === 0) {
+      setEmptySeasonId(seasonId);
+      setMode("empty");
+      return;
+    }
     router.push(`/seasons/${seasonId}/placements`);
   }
 
@@ -105,8 +113,8 @@ function useDiagnosisAutoCreate(skipAutoCreate: boolean) {
     setAutoCreateError("");
 
     try {
-      const seasonId = await createSpaceSeasonAndPlacements(diagnosis, progressRef.current);
-      handleSuccess(seasonId);
+      const result = await createSpaceSeasonAndPlacements(diagnosis, progressRef.current);
+      handleSuccess(result);
     } catch (error) {
       handleFailure(error);
     } finally {
@@ -114,13 +122,24 @@ function useDiagnosisAutoCreate(skipAutoCreate: boolean) {
     }
   }
 
-  return { autoCreateError, mode, retryAutoCreate };
+  return { autoCreateError, emptySeasonId, mode, retryAutoCreate };
 }
 
 function AutoCreateLoadingNotice() {
   return (
     <p className={styles.diagnosisNotice} role="status">
       진단한 내용으로 텃밭을 만들고 있어요… 잠시만 기다려 주세요.
+    </p>
+  );
+}
+
+function AutoCreateEmptyNotice({ seasonId }: { seasonId: string }) {
+  return (
+    <p className={styles.diagnosisNotice} role="status">
+      추천할 수 있는 작물이 없어 화분을 빈 채로 만들었어요. 화분·시즌은 만들어졌으니
+      직접 작물을 배치해 주세요.
+      {" "}
+      <Link href={`/seasons/${seasonId}/placements`}>화분 배치하러 가기</Link>
     </p>
   );
 }
@@ -152,7 +171,7 @@ export function SpaceForm({ initialType, skipDiagnosis = false, space }: SpaceFo
   );
   const [errors, setErrors] = useState<GrowingSpaceErrors>({});
   const [formError, setFormError] = useState("");
-  const { autoCreateError, mode, retryAutoCreate } = useDiagnosisAutoCreate(
+  const { autoCreateError, emptySeasonId, mode, retryAutoCreate } = useDiagnosisAutoCreate(
     Boolean(space) || skipDiagnosis,
   );
 
@@ -186,6 +205,7 @@ export function SpaceForm({ initialType, skipDiagnosis = false, space }: SpaceFo
   }
 
   if (mode === "loading") return <AutoCreateLoadingNotice />;
+  if (mode === "empty") return <AutoCreateEmptyNotice seasonId={emptySeasonId} />;
   if (mode === "error") {
     return (
       <AutoCreateErrorNotice
@@ -416,7 +436,7 @@ function buildDiagnosisPlacements(
 async function createSpaceSeasonAndPlacements(
   diagnosis: GardenConfiguration,
   progress: { space?: GrowingSpace; seasonId?: string; seasonVersion?: number },
-): Promise<string> {
+): Promise<{ placementCount: number; seasonId: string }> {
   const spaceType = diagnosisSpaceType(diagnosis.sunlight.location);
   const recommendation = createGardenRecommendation(diagnosis);
 
@@ -456,7 +476,7 @@ async function createSpaceSeasonAndPlacements(
 
   await putContainerPlacements(progress.seasonId, progress.seasonVersion!, placements);
 
-  return progress.seasonId;
+  return { placementCount: placements.length, seasonId: progress.seasonId };
 }
 
 function createEmptyValues(initialType: GrowingSpaceType): GrowingSpaceFormValues {
