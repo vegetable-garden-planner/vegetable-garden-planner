@@ -34,6 +34,7 @@ export async function putContainerPlacements(
   })).data;
   invalidateResource("seasons");
   invalidateResource("container-placements");
+  invalidateResource(`container-placements:${seasonId}`);
   return result;
 }
 
