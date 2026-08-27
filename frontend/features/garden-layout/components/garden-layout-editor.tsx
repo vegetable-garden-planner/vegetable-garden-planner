@@ -508,6 +508,7 @@ function LayoutNextStep({
           )}
           <Link className="rounded-full border border-amber-400 bg-white px-5 py-3 text-sm font-bold text-amber-950" href={`/seasons/${season.id}/edit`}>직접 기간 수정하기</Link>
           <Link className="rounded-full border border-amber-400 bg-white px-5 py-3 text-sm font-bold text-amber-950" href="#crop-selector-title">다른 작물 선택하기</Link>
+          <Link className="rounded-full border border-amber-400 bg-white px-5 py-3 text-sm font-bold text-amber-950" href={`/seasons/${season.id}/layout/summary`}>배치 결과 보기</Link>
         </div>
       </section>
     );
@@ -520,12 +521,20 @@ function LayoutNextStep({
         <h2 className="mt-2 text-2xl font-bold" id="layout-next-step-title">작물별 재배 일정을 만들어 보세요</h2>
         <p className="mt-2 text-sm leading-6 text-white/80">배치한 작물과 시즌 기간을 기준으로 심기와 수확 일정을 자동으로 준비합니다.</p>
       </div>
-      <Link
-        className="mt-5 inline-flex shrink-0 items-center justify-center rounded-full bg-white px-6 py-3.5 font-bold text-[#0f513f] transition hover:bg-[#eef8f3] sm:mt-0"
-        href={`/seasons/${season.id}/tasks`}
-      >
-        작물별 일정 만들기 →
-      </Link>
+      <div className="mt-5 flex shrink-0 flex-wrap gap-3 sm:mt-0">
+        <Link
+          className="inline-flex items-center justify-center rounded-full border border-white/40 px-6 py-3.5 font-bold text-white transition hover:bg-white/10"
+          href={`/seasons/${season.id}/layout/summary`}
+        >
+          배치 결과 보기
+        </Link>
+        <Link
+          className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3.5 font-bold text-[#0f513f] transition hover:bg-[#eef8f3]"
+          href={`/seasons/${season.id}/tasks`}
+        >
+          작물별 일정 만들기 →
+        </Link>
+      </div>
     </section>
   );
 }

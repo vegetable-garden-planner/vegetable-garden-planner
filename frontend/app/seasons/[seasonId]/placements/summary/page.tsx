@@ -24,7 +24,7 @@ export default async function SeasonPlacementSummaryPage({
         backLabel="화분 배치 조정"
         description="내 화분에 무엇을 어디에 심을지 한눈에 확인해보세요."
         eyebrow="화분 배치 결과"
-        heroSize="compact"
+        heroImage="/figma/planner-hero.webp"
         title="화분 배치·재배 계획"
         width="full"
       >
