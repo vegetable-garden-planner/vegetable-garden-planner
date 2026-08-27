@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type RefObject } from "react";
 import { GROWING_SPACE_LABELS } from "@/features/crop-catalog/data/crop-labels";
 import type { CropReference } from "@/features/crop-catalog/domain/crop-reference";
@@ -101,6 +102,7 @@ function PlacementForm({
   reload: () => Promise<void>;
   season: PersistedGrowingSeason;
 }) {
+  const router = useRouter();
   const [rows, setRows] = useState<ContainerPlacementRow[]>(() =>
     toEditableRows(placements.placements).map((row) => ({ ...row, key: nextRowKey() })),
   );
@@ -171,6 +173,10 @@ function PlacementForm({
     setIsSaving(true);
     try {
       await putContainerPlacements(season.id, placements.version, toPlacementInputs(placedRows));
+      if (placedRows.length > 0) {
+        router.push(`/seasons/${season.id}/placements/summary`);
+        return;
+      }
       await reload();
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : "화분 배치를 저장하지 못했습니다.");
@@ -455,7 +461,7 @@ function PlacementFooter({
         onClick={onSave}
         type="button"
       >
-        {isSaving ? "저장 중" : "배치 저장"}
+        {isSaving ? "저장 중" : "이 배치로 계속하기 →"}
       </button>
     </>
   );
