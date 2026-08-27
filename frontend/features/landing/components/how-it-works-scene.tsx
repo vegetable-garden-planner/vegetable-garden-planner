@@ -59,10 +59,20 @@ export function HowItWorksScene() {
     setBuildProgress(grow);
   }, [grow]);
 
+  /*
+    휴대폰에서는 스크롤 제스처만으로 다음 장면까지 이동시키기가 쉽지 않다.
+    question-scene 과 같은 방식으로, 화면을 터치해도 한 화면 높이만큼
+    부드럽게 스크롤해 다음 장면으로 넘어가게 한다.
+  */
+  function advanceOnTap() {
+    window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+  }
+
   return (
     <section
       id="scene-how"
       ref={sectionRef}
+      onClick={advanceOnTap}
       className="lp-snap-scene relative z-10 flex h-[100svh] items-center overflow-hidden"
     >
       <div className="lp-shell-rail lp-shell-wide w-full">
@@ -231,11 +241,12 @@ export function HowItWorksScene() {
               <span className="block h-[3px] w-full overflow-hidden rounded-full bg-white/12">
                 <span
                   className="block h-full origin-left rounded-full bg-lp-brand-soft"
-                  style={{ transform: `scaleX(${fill})` }}
+                  style={{ transform: `scaleX(${calculated ? grow : fill})` }}
                 />
               </span>
               <p className="mt-3 lp-type-caption tabular-nums text-white/40">
-                계산 중 {Math.round(fill * 100)}%
+                {calculated ? "심는 중" : "계산 중"}{" "}
+                {Math.round((calculated ? grow : fill) * 100)}%
               </p>
             </div>
 
