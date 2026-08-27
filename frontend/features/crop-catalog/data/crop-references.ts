@@ -32,6 +32,20 @@ export const CROP_SOURCES = [
     url: "https://www.rhs.org.uk/plants/african-violets/growing-guide",
     reviewedAt: "2026-08-07",
   },
+  {
+    id: "rda-companion-planting-2018",
+    organization: "농촌진흥청 국립원예특작과학원",
+    title: "식물에도 '궁합'이 있다... 함께 심으면 좋은 '동반식물'",
+    url: "https://www.rda.go.kr/board/board.do?mode=view&prgId=day_farmprmninfoEntry&dataNo=100000744525",
+    reviewedAt: "2026-08-27",
+  },
+  {
+    id: "nongsaro-crop-companion-curation",
+    organization: "농촌진흥청 농사로",
+    title: "작지만 알찬 텃밭 꾸미려면 심을 작물들 궁합 먼저 보세요",
+    url: "https://www.nongsaro.go.kr/portal/ps/psv/psvr/psvre/curationDtl.ps?menuId=PS03352&srchCurationNo=1678",
+    reviewedAt: "2026-08-27",
+  },
 ] satisfies readonly CropSource[];
 
 export const CROP_REFERENCES: readonly CropReference[] = [
@@ -119,6 +133,13 @@ export const CROP_REFERENCES: readonly CropReference[] = [
     needsSupport: false,
     summary: "줄뿌림 후 솎아주며 기르는 대표적인 잎채소입니다.",
     sourceId: "nongsaro-beginner-garden-manual",
+    companions: [
+      {
+        cropId: "green-onion",
+        reason: "대파와 시금치는 함께 심으면 잘 어울리는 궁합이에요.",
+        sourceId: "nongsaro-crop-companion-curation",
+      },
+    ],
   },
   {
     id: "green-onion",
@@ -136,6 +157,23 @@ export const CROP_REFERENCES: readonly CropReference[] = [
     needsSupport: false,
     summary: "모종이나 씨앗으로 시작해 필요한 만큼 나누어 수확할 수 있습니다.",
     sourceId: "nongsaro-beginner-garden-manual",
+    companions: [
+      {
+        cropId: "cucumber",
+        reason: "대파 뿌리의 천연 항생물질이 오이 덩굴쪼김병을 예방하는 데 도움이 돼요.",
+        sourceId: "rda-companion-planting-2018",
+      },
+      {
+        cropId: "tomato",
+        reason: "대파 뿌리에 사는 미생물이 만든 천연 항생물질이 병해충을 막아줘요.",
+        sourceId: "nongsaro-crop-companion-curation",
+      },
+      {
+        cropId: "spinach",
+        reason: "대파와 시금치는 함께 심으면 잘 어울리는 궁합이에요.",
+        sourceId: "nongsaro-crop-companion-curation",
+      },
+    ],
   },
   {
     id: "carrot",
@@ -170,6 +208,13 @@ export const CROP_REFERENCES: readonly CropReference[] = [
     needsSupport: true,
     summary: "햇빛과 지지대가 필요하며 곁순 관리가 중요한 열매채소입니다.",
     sourceId: "nongsaro-beginner-garden-manual",
+    companions: [
+      {
+        cropId: "green-onion",
+        reason: "대파 뿌리에 사는 미생물이 만든 천연 항생물질이 병해충을 막아줘요.",
+        sourceId: "nongsaro-crop-companion-curation",
+      },
+    ],
   },
   {
     id: "cucumber",
@@ -187,6 +232,13 @@ export const CROP_REFERENCES: readonly CropReference[] = [
     needsSupport: true,
     summary: "덩굴을 유인할 지지 구조와 꾸준한 물 관리가 필요합니다.",
     sourceId: "nongsaro-beginner-garden-manual",
+    companions: [
+      {
+        cropId: "green-onion",
+        reason: "대파 뿌리의 천연 항생물질이 덩굴쪼김병을 예방하는 데 도움이 돼요.",
+        sourceId: "rda-companion-planting-2018",
+      },
+    ],
   },
   {
     id: "pepper",

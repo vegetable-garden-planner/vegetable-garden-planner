@@ -32,6 +32,14 @@ export interface CropReference {
   summary: string;
   sourceId: string;
   careGuide?: PlantCareGuide;
+  companions?: readonly CompanionCrop[];
+}
+
+/** 공식 출처가 실제로 뒷받침하는 동반작물만 담는다 — 근거 없는 조합은 넣지 않는다 */
+export interface CompanionCrop {
+  cropId: string;
+  reason: string;
+  sourceId: string;
 }
 
 export interface PlantCareGuide {
@@ -118,6 +126,17 @@ export function validateCropReferenceData(
     }
     if (crop.category === "flower" && !isValidCareGuide(crop.careGuide)) {
       errors.push(`${crop.name}: 꽃 관리 안내가 필요합니다.`);
+    }
+    for (const companion of crop.companions ?? []) {
+      if (companion.cropId === crop.id) {
+        errors.push(`${crop.name}: 자기 자신을 동반작물로 지정할 수 없습니다.`);
+      }
+      if (!crops.some((candidate) => candidate.id === companion.cropId)) {
+        errors.push(`${crop.name}: 동반작물 ${companion.cropId}를 카탈로그에서 찾을 수 없습니다.`);
+      }
+      if (!sourceIds.has(companion.sourceId)) {
+        errors.push(`${crop.name}: 동반작물 ${companion.cropId}의 출처를 찾을 수 없습니다.`);
+      }
     }
 
     cropIds.add(crop.id);

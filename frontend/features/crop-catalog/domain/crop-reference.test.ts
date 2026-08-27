@@ -79,6 +79,44 @@ test("꽃과 꽃다발 관리 내용도 검색하고 꽃 관리 안내 누락을
   );
 });
 
+test("동반작물은 자기 자신이거나 카탈로그·출처에 없으면 거부한다", () => {
+  const base = CROP_REFERENCES[0];
+  const other = CROP_REFERENCES[1];
+  const knownSourceId = CROP_SOURCES[0].id;
+
+  assert.deepEqual(
+    validateCropReferenceData(
+      [
+        { ...base, companions: [{ cropId: other.id, reason: "궁합이 좋아요.", sourceId: knownSourceId }] },
+        other,
+      ],
+      CROP_SOURCES,
+    ),
+    [],
+  );
+
+  const selfReference = validateCropReferenceData(
+    [{ ...base, companions: [{ cropId: base.id, reason: "", sourceId: knownSourceId }] }],
+    CROP_SOURCES,
+  );
+  assert.ok(selfReference.some((error) => error.includes("자기 자신을 동반작물로 지정")));
+
+  const unknownCrop = validateCropReferenceData(
+    [{ ...base, companions: [{ cropId: "no-such-crop", reason: "", sourceId: knownSourceId }] }],
+    CROP_SOURCES,
+  );
+  assert.ok(unknownCrop.some((error) => error.includes("카탈로그에서 찾을 수 없습니다")));
+
+  const unknownSource = validateCropReferenceData(
+    [
+      { ...base, companions: [{ cropId: other.id, reason: "", sourceId: "no-such-source" }] },
+      other,
+    ],
+    CROP_SOURCES,
+  );
+  assert.ok(unknownSource.some((error) => error.includes("출처를 찾을 수 없습니다")));
+});
+
 test("연도를 넘는 심는 시기와 수확 시기를 허용한다", () => {
   const winterCrop: CropReference = {
     ...CROP_REFERENCES[0],

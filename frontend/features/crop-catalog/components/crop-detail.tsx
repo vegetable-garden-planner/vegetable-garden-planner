@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SessionAwareLink } from "@/components/session-aware-link";
 import { encodeNextPath } from "@/features/auth/domain/auth";
 import { CropArtwork } from "@/features/crop-catalog/components/crop-artwork";
@@ -9,12 +10,22 @@ import {
   SUNLIGHT_LABELS,
 } from "@/features/crop-catalog/data/crop-labels";
 import { isYearRoundPeriod, monthsInRange } from "@/features/crop-catalog/domain/crop-calendar";
-import type { CropPeriod, CropReference, CropSource } from "@/features/crop-catalog/domain/crop-reference";
+import type { CompanionCrop, CropPeriod, CropReference, CropSource } from "@/features/crop-catalog/domain/crop-reference";
 import styles from "./crop-detail.module.css";
 
 const MONTHS = Array.from({ length: 12 }, (_, index) => index + 1);
 
-export function CropDetail({ crop, source }: { crop: CropReference; source?: CropSource }) {
+export function CropDetail({
+  crop,
+  crops,
+  source,
+  sources,
+}: {
+  crop: CropReference;
+  crops: readonly CropReference[];
+  source?: CropSource;
+  sources: readonly CropSource[];
+}) {
   const startPath = `/seasons/new?cropId=${encodeURIComponent(crop.id)}`;
   const startLabel = crop.plantingMaterial === "cut-flower" ? "꽃 관리 시작하기" : `${crop.name} 키우기 시작`;
 
@@ -47,6 +58,9 @@ export function CropDetail({ crop, source }: { crop: CropReference; source?: Cro
           <GrowingSteps crop={crop} />
           <GrowingCalendar crop={crop} />
           {crop.careGuide && <CareGuide crop={crop} />}
+          {crop.companions && crop.companions.length > 0 && (
+            <CompanionCrops companions={crop.companions} crops={crops} sources={sources} />
+          )}
         </div>
         <aside className={styles.sideColumn}>
           <StartCard crop={crop} startLabel={startLabel} startPath={startPath} />
@@ -132,6 +146,41 @@ function CareGuide({ crop }: { crop: CropReference }) {
 
 function CareFact({ label, value }: { label: string; value: string }) {
   return <div><dt>{label}</dt><dd>{value}</dd></div>;
+}
+
+function CompanionCrops({
+  companions,
+  crops,
+  sources,
+}: {
+  companions: readonly CompanionCrop[];
+  crops: readonly CropReference[];
+  sources: readonly CropSource[];
+}) {
+  return (
+    <section className={styles.companions} aria-labelledby="companion-crops-title">
+      <div className={styles.sectionHeading}>
+        <p>궁합이 좋은 작물</p>
+        <h2 id="companion-crops-title">함께 심으면 좋은 작물</h2>
+        <span>공식 재배 자료가 실제로 확인한 조합만 보여드려요.</span>
+      </div>
+      <ul>
+        {companions.map((companion) => {
+          const companionCrop = crops.find((candidate) => candidate.id === companion.cropId);
+          if (!companionCrop) return null;
+          const source = sources.find((candidate) => candidate.id === companion.sourceId);
+
+          return (
+            <li key={companion.cropId}>
+              <Link href={`/crops/${companionCrop.id}`}>{companionCrop.name}</Link>
+              <p>{companion.reason}</p>
+              {source && <span>{source.organization}</span>}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
 }
 
 function StartCard({ crop, startLabel, startPath }: { crop: CropReference; startLabel: string; startPath: string }) {

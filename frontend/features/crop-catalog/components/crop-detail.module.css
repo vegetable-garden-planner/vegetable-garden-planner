@@ -39,11 +39,13 @@
 .steps,
 .calendar,
 .care,
+.companions,
 .startCard,
 .sourceCard { border: 1px solid var(--color-border); border-radius: 22px; background: #fff; box-shadow: var(--shadow-sm); }
 .steps,
 .calendar,
-.care { padding: 34px; }
+.care,
+.companions { padding: 34px; }
 .sectionHeading h2 { font-size: 1.6rem; }
 .sectionHeading > span { display: block; margin-top: 9px; color: var(--color-muted); font-size: 0.86rem; line-height: 1.6; }
 .steps > ol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 28px 0 0; padding: 0; list-style: none; }
@@ -65,6 +67,13 @@
 .calendarCellOff { display: block; height: 10px; border-radius: 999px; }
 .calendarCellOn { background: var(--color-primary); }
 .calendarCellOff { background: var(--color-surface); }
+
+.companions > ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin: 26px 0 0; padding: 0; list-style: none; }
+.companions li { border: 1px solid var(--color-border); border-radius: 16px; padding: 18px; background: var(--color-surface); }
+.companions a { color: var(--color-primary); font-weight: 800; text-decoration: none; }
+.companions a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.companions li p { margin: 8px 0 0; color: var(--color-ink); font-size: 0.86rem; line-height: var(--leading-body); }
+.companions li > span { display: block; margin-top: 10px; color: var(--color-muted); font-size: 0.72rem; }
 
 .care > dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 26px 0 0; }
 .care > dl > div { border: 1px solid var(--color-border); border-radius: 16px; padding: 18px; background: var(--color-surface); }
@@ -111,7 +120,8 @@
   .sideColumn { grid-template-columns: 1fr; }
   .steps,
   .calendar,
-  .care { padding: 24px 20px; border-radius: 20px; }
+  .care,
+  .companions { padding: 24px 20px; border-radius: 20px; }
   .steps > ol { grid-template-columns: 1fr; gap: 18px; }
   .steps > ol > li,
   .steps > ol > li + li { padding: 0; border-left: 0; }

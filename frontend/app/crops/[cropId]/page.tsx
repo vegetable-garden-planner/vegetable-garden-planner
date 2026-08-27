@@ -29,7 +29,7 @@ export default function CropDetailPage(props: PageProps<"/crops/[cropId]">) {
       title={`${crop.name} 재배 가이드`}
       width="full"
     >
-      <CropDetail crop={crop} source={source} />
+      <CropDetail crop={crop} crops={catalog.crops} source={source} sources={catalog.sources} />
     </AppPageShell>
   );
 }
