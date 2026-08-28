@@ -4,6 +4,10 @@ import dynamic from "next/dynamic";
 import { useEffect, useRef } from "react";
 import { band, useAutoProgress, useReducedMotion } from "../hooks/use-motion";
 import { useSceneActive } from "../hooks/use-scene-play";
+import {
+  advanceScene,
+  useSceneTouchNav,
+} from "../hooks/use-scene-touch-nav";
 import { setBuildProgress } from "../lib/build-signal";
 
 /**
@@ -61,18 +65,19 @@ export function HowItWorksScene() {
 
   /*
     휴대폰에서는 스크롤 제스처만으로 다음 장면까지 이동시키기가 쉽지 않다.
-    question-scene 과 같은 방식으로, 화면을 터치해도 한 화면 높이만큼
-    부드럽게 스크롤해 다음 장면으로 넘어가게 한다.
+    화면을 터치하거나 위로 드래그하면 다음 장면으로, 아래로 드래그하면
+    이전 장면으로 넘어간다. 계산 게이지와 화분이 다 지어지기 전(done)에는
+    다음 장면으로 넘어가지 못한다 — 애니메이션을 끝까지 보여 주기 위해서다.
   */
-  function advanceOnTap() {
-    window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
-  }
+  useSceneTouchNav(sectionRef, done);
 
   return (
     <section
       id="scene-how"
       ref={sectionRef}
-      onClick={advanceOnTap}
+      onClick={() => {
+        if (done) advanceScene();
+      }}
       className="lp-snap-scene relative z-10 flex h-[100svh] items-center overflow-hidden"
     >
       <div className="lp-shell-rail lp-shell-wide w-full">
