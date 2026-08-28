@@ -113,7 +113,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/layouts', IndexGardenLayoutController::class);
         Route::get('/container-placements', IndexContainerPlacementsController::class);
         Route::get('/growing-context', ShowGrowingContextController::class);
-        Route::post('/ai/chat', AskAiChatController::class)->middleware('throttle:20,1');
+        Route::post('/ai/chat', AskAiChatController::class)->middleware('throttle:10,1');
 
         Route::get('/tasks', IndexTaskController::class);
         Route::patch('/tasks/{cultivationTask}', UpdateTaskController::class);
