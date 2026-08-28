@@ -21,6 +21,8 @@ import {
   type HomePlanCard,
   type HomePlanInput,
 } from "@/features/home/domain/home-plan-card";
+import { homeQuickActions } from "@/features/home/domain/home-search";
+import { HomeSearchBar } from "./home-search-bar";
 import styles from "./home-stage.module.css";
 
 /**
@@ -87,7 +89,7 @@ export function HomeStage() {
   }, [count]);
 
   if (loadErrorMessage) return <HomeLoadError detail={loadErrorMessage} />;
-  if (!ready) return <HomeLoading />;
+  if (!ready || !input) return <HomeLoading />;
 
   const todayTaskCount = tasks.filter(
     (task) => task.status === "pending" && task.dueDate <= today,
@@ -105,6 +107,8 @@ export function HomeStage() {
     <div className={styles.stage}>
       <span aria-hidden="true" className={styles.light} />
       <span aria-hidden="true" className={styles.leaves} />
+      <span aria-hidden="true" className={styles.beam} />
+      <span aria-hidden="true" className={styles.motes} />
 
       <div className={styles.content}>
         <div className={styles.intro}>
@@ -112,6 +116,17 @@ export function HomeStage() {
           <h1 className={styles.headline}>{headline}</h1>
           {subline && subline !== headline && <p className={styles.subline}>{subline}</p>}
         </div>
+
+        <HomeSearchBar
+          input={{
+            cropImages: input.cropImages,
+            crops: input.crops,
+            seasons: input.seasons,
+            spaceLabels: input.spaceLabels,
+            spaces: input.spaces,
+          }}
+          quickActions={homeQuickActions(tasks, today)}
+        />
 
         {count === 0
           ? <HomeEmpty />

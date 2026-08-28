@@ -1,0 +1,305 @@
+/* ==================================================================
+   홈 상단 찾기 바
+
+   카드 캐러셀 바로 위. 홈에 들어와서 가장 먼저 손이 가는 자리다.
+   유리처럼 비치게 하지 않고, 창가에 놓인 흰 종이처럼 빛을 받아 살짝 뜬 느낌만 준다.
+   ================================================================== */
+
+.wrap {
+  position: relative;
+  /* 결과 목록이 카드 위로 덮여야 한다. .deck 은 perspective 로 쌓임 맥락을 만들지만
+     z-index 는 auto 라서, 여기서 값을 주면 카드보다 위에 그려진다. */
+  z-index: 30;
+  display: grid;
+  width: min(100%, 720px);
+  gap: 10px;
+  margin: clamp(14px, 2.4vh, 26px) auto 0;
+  padding: 0 24px;
+}
+
+/* ------------------------------------------------------------ 입력 바 */
+.bar {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  height: 58px;
+  align-items: center;
+  grid-template-columns: 46px minmax(0, 1fr) auto;
+  border: 1px solid rgba(20, 37, 29, 0.08);
+  border-radius: var(--radius-pill, 999px);
+  background: linear-gradient(180deg, #fffefb 0%, #fffdf7 100%);
+  box-shadow:
+    0 1px 1px rgba(20, 37, 29, 0.04),
+    0 10px 24px -16px rgba(20, 37, 29, 0.34),
+    0 26px 48px -34px rgba(20, 37, 29, 0.4);
+  transition:
+    box-shadow var(--motion-base, 220ms) var(--ease-out),
+    border-color var(--motion-base, 220ms) var(--ease-out),
+    transform var(--motion-base, 220ms) var(--ease-out);
+}
+
+.bar:focus-within {
+  border-color: rgba(12, 151, 105, 0.42);
+  box-shadow:
+    0 1px 1px rgba(20, 37, 29, 0.04),
+    0 14px 30px -16px rgba(20, 37, 29, 0.3),
+    0 30px 56px -34px rgba(12, 151, 105, 0.45),
+    0 0 0 4px rgba(12, 151, 105, 0.12);
+  transform: translateY(-1px);
+}
+
+.barOpen {
+  border-bottom-left-radius: 22px;
+  border-bottom-right-radius: 22px;
+}
+
+.glyph {
+  display: grid;
+  place-items: center;
+  color: var(--color-primary, #0c9769);
+  padding-left: 6px;
+}
+
+.input {
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  background: none;
+  color: var(--color-ink-strong, #14251d);
+  font-family: inherit;
+  font-size: 15.5px;
+  outline: none;
+  padding: 0;
+}
+
+.input::placeholder {
+  color: var(--color-ink-faint, #8d9a92);
+}
+
+.clear {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  margin-right: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(20, 37, 29, 0.06);
+  color: var(--color-ink-soft, #56675e);
+  cursor: pointer;
+  font-size: 17px;
+  line-height: 1;
+  padding: 0;
+  transition: background var(--motion-fast, 140ms) var(--ease-out);
+}
+
+.clear:hover { background: rgba(20, 37, 29, 0.12); }
+
+.clear:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ 결과 */
+.panel {
+  position: absolute;
+  z-index: 2;
+  top: calc(100% - 4px);
+  right: 24px;
+  left: 24px;
+  overflow-y: auto;
+  max-height: min(46vh, 360px);
+  padding: 8px;
+  border: 1px solid rgba(20, 37, 29, 0.08);
+  border-radius: 22px;
+  background: #fffefb;
+  box-shadow:
+    0 2px 4px rgba(20, 37, 29, 0.05),
+    0 24px 54px -22px rgba(20, 37, 29, 0.36);
+  animation: panelIn 180ms var(--ease-out, cubic-bezier(0.22, 0.72, 0.25, 1)) both;
+  overscroll-behavior: contain;
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.none {
+  margin: 0;
+  padding: 18px 14px;
+  color: var(--color-ink-soft, #56675e);
+  font-size: 13.5px;
+  text-align: center;
+}
+
+.hit {
+  display: grid;
+  align-items: center;
+  gap: 12px;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  padding: 9px 10px;
+  border-radius: 15px;
+  color: inherit;
+  transition: background var(--motion-fast, 140ms) var(--ease-out);
+}
+
+.hitActive { background: rgba(12, 151, 105, 0.09); }
+
+.hitArt {
+  position: relative;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 13px;
+  background: linear-gradient(160deg, #eef6f1 0%, #e2efe7 100%);
+  color: var(--color-primary-hover, #076f4d);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.hitArt img { object-fit: contain; padding: 3px; }
+.hitArt[data-kind="plan"] { background: linear-gradient(160deg, #eaf3ff 0%, #dde9fa 100%); color: #2f5d92; }
+.hitArt[data-kind="space"] { background: linear-gradient(160deg, #fdf1de 0%, #f6e6cb 100%); color: #8a6420; }
+
+.hitText {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.hitText b {
+  overflow: hidden;
+  color: var(--color-ink-strong, #14251d);
+  font-size: 14.5px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hitText small {
+  overflow: hidden;
+  color: var(--color-ink-soft, #56675e);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hitKind {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(20, 37, 29, 0.05);
+  color: var(--color-ink-soft, #56675e);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ 빠른 이동 칩 */
+.chips {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+  padding: 0 13px;
+  border: 1px solid rgba(20, 37, 29, 0.1);
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--color-ink-strong, #14251d);
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    border-color var(--motion-fast, 140ms) var(--ease-out),
+    background var(--motion-fast, 140ms) var(--ease-out),
+    transform var(--motion-fast, 140ms) var(--ease-out);
+}
+
+.chip:hover {
+  border-color: rgba(12, 151, 105, 0.45);
+  background: #fff;
+  transform: translateY(-1px);
+}
+
+.chip:active { transform: translateY(0); }
+
+.chip:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.chip b {
+  display: grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  padding: 0 5px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-primary, #0c9769);
+  color: #fff;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ 모바일 */
+@media (max-width: 760px) {
+  .wrap {
+    width: 100%;
+    gap: 9px;
+    margin-top: 12px;
+    padding: 0 16px;
+  }
+
+  .bar {
+    height: 50px;
+    grid-template-columns: 42px minmax(0, 1fr) auto;
+  }
+
+  /* iOS 는 16px 보다 작은 입력에 초점이 가면 화면을 확대한다 */
+  .input { font-size: 16px; }
+
+  .panel {
+    right: 16px;
+    left: 16px;
+    max-height: min(52vh, 320px);
+  }
+
+  /* 칩은 줄바꿈 대신 가로로 넘긴다. 한 줄 높이를 지켜 카드 자리를 뺏지 않는다 */
+  .chips {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 -16px;
+    padding: 2px 16px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chips::-webkit-scrollbar { display: none; }
+  .chip { min-height: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar,
+  .chip,
+  .hit,
+  .clear { transition: none; }
+
+  .bar:focus-within,
+  .chip:hover { transform: none; }
+
+  .panel { animation: none; }
+}
