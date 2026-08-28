@@ -1,0 +1,136 @@
+.heroStats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  overflow: hidden;
+  margin-top: -44px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 22px;
+  color: #fff;
+  background: linear-gradient(125deg, #153b2e, #0b694c);
+  box-shadow: var(--shadow-md);
+}
+
+.heroStats div {
+  display: grid;
+  gap: 8px;
+  min-height: 112px;
+  padding: 24px 28px;
+  text-align: center;
+  justify-items: center;
+}
+
+.heroStats div + div { border-left: 1px solid rgb(255 255 255 / 15%); }
+.heroStats span { color: rgb(255 255 255 / 68%); font-size: 0.82rem; font-weight: 700; }
+.heroStats strong { color: #79e4bb; font-size: 1.7rem; letter-spacing: var(--tracking-section); }
+
+.prepList {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.prepRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.prepIcon {
+  display: grid;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-leaf-soft);
+  font-size: 1.1rem;
+}
+
+.prepRow dt { color: var(--color-muted); font-size: 0.9rem; }
+.prepRow dd { margin-top: 2px; font-size: 1.05rem; font-weight: 800; }
+
+.plotHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.plotTray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid #e6d9c4;
+  border-radius: 20px;
+  background: linear-gradient(180deg, #6b4a32, #4d3322);
+}
+
+.slotGroup {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  padding-left: 20px;
+}
+
+.slotGroup:first-child { padding-left: 0; }
+
+.slotGroup:not(:first-child)::before {
+  position: absolute;
+  top: 2px;
+  bottom: 20px;
+  left: 0;
+  border-left: 1px dashed rgb(255 255 255 / 30%);
+  content: "";
+}
+
+.slotRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.plotSlot {
+  display: inline-flex;
+  min-width: 52px;
+  height: 52px;
+  padding: 0 10px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--color-leaf);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.plotSlotMore {
+  display: inline-flex;
+  min-width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 18%);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.slotCaption {
+  color: rgb(255 255 255 / 78%);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .heroStats { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: -24px; border-radius: 18px; }
+  .heroStats div { min-height: 88px; padding: 14px; }
+  .heroStats strong { font-size: 1.3rem; }
+  .plotTray { flex-direction: column; gap: 18px; padding: 18px; }
+  .slotGroup:not(:first-child)::before { display: none; }
+  .slotGroup { padding-left: 0; }
+}
