@@ -47,10 +47,10 @@ GOOGLE_CLIENT_SECRET=선택_Google_OAuth_클라이언트_비밀키
 GOOGLE_REDIRECT_URI=http://localhost:3000/auth/google/callback
 
 GEMINI_API_KEY=선택_Gemini_API_키
-GEMINI_MODELS=gemini-2.5-flash-lite,gemini-2.5-flash
+GEMINI_MODELS=gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-2.5-flash-lite,gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash,gemini-2.5-flash,gemini-3.1-pro-preview
 ```
 
-외부 키가 없어도 기본 이메일 로그인과 수동 일조 시간 선택은 동작합니다. 주소 검색은 카카오 REST API 키, Google 로그인은 Google OAuth 키, 카카오 로그인은 카카오 REST API 키·클라이언트 시크릿·등록된 리디렉션 URI가 있어야 실제 외부 서비스까지 완료됩니다. 카카오 로그인은 Kakao Developers의 동의 항목에서 닉네임과 이메일을 제공하도록 설정합니다. `POST /ai/chat`의 정해진 3가지 질문(물주기 시기·잎 노래짐·햇빛 부족) 외의 자유 텍스트 질문에 실제로 답하려면 `GEMINI_API_KEY`가 있어야 합니다 — [aistudio.google.com/apikey](https://aistudio.google.com/apikey)에서 무료로 발급하며, 무료 등급 한도는 계정마다 달라 [aistudio.google.com/rate-limit](https://aistudio.google.com/rate-limit)에서 직접 확인합니다. 키가 없으면 이 3가지 질문 외에는 항상 "답변을 가져오지 못했어요" 안내만 나옵니다(에러가 아니라 의도된 동작). `GEMINI_MODELS`에 쉼표로 나열한 순서대로 시도하며, 앞 모델의 할당량이 초과(429)되면 자동으로 다음 모델로 넘어갑니다.
+외부 키가 없어도 기본 이메일 로그인과 수동 일조 시간 선택은 동작합니다. 주소 검색은 카카오 REST API 키, Google 로그인은 Google OAuth 키, 카카오 로그인은 카카오 REST API 키·클라이언트 시크릿·등록된 리디렉션 URI가 있어야 실제 외부 서비스까지 완료됩니다. 카카오 로그인은 Kakao Developers의 동의 항목에서 닉네임과 이메일을 제공하도록 설정합니다. `POST /ai/chat`의 정해진 3가지 질문(물주기 시기·잎 노래짐·햇빛 부족) 외의 자유 텍스트 질문에 실제로 답하려면 `GEMINI_API_KEY`가 있어야 합니다 — [aistudio.google.com/apikey](https://aistudio.google.com/apikey)에서 무료로 발급하며, 무료 등급 한도는 계정마다 달라 [aistudio.google.com/rate-limit](https://aistudio.google.com/rate-limit)에서 직접 확인합니다. 키가 없으면 이 3가지 질문 외에는 항상 "답변을 가져오지 못했어요" 안내만 나옵니다(에러가 아니라 의도된 동작). `GEMINI_MODELS`에 쉼표로 나열한 순서대로 시도하며, 앞 모델의 할당량이 초과(429)되면 자동으로 다음 모델로 넘어갑니다 — 기본값은 무료 등급이 있는 텍스트 생성 모델을 한도가 넉넉한 순서대로 최대한 나열해둔 것이라 보통 안 바꿔도 됩니다.
 
 ## 4. 빈 데이터베이스 만들기
 
