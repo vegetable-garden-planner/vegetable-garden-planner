@@ -16,6 +16,15 @@ export interface DashboardSeason {
   endDate: string;
   layoutHref?: string;
   scheduleHref?: string;
+  /**
+   * 작물 배치 화면으로 가는 링크. 공간 종류에 따라 격자/화분 배치로 갈린다.
+   * layoutHref는 "아직 격자를 안 만든 텃밭"일 때만 생기므로 화분·베란다 시즌은
+   * 배치로 갈 길이 없었다. 이 값은 항상 채워 두어 어느 시즌이든 배치로 갈 수 있게 한다.
+   * (기존 layoutHref/scheduleHref는 그대로 둔다 — 다른 화면과 테스트가 쓰고 있다.)
+   */
+  placementHref: string;
+  /** 재배 기록 화면. 시즌이 있으면 언제나 열 수 있다. */
+  recordHref: string;
 }
 
 export interface DashboardNextAction {
@@ -30,7 +39,6 @@ export interface DashboardSummary {
   seasonCount: number;
   activeSeasonCount: number;
   layoutCount: number;
-  placementCount: number;
   nextAction: DashboardNextAction;
   recentSeasons: DashboardSeason[];
 }
@@ -55,14 +63,11 @@ export function createDashboardSummary(
     (season) => season.status === "active",
   ).length;
 
-  const placedSeasonIds = new Set([...layoutsBySeasonId.keys(), ...containerPlacementSeasonIds]);
-
   return {
     spaceCount: spaces.length,
     seasonCount: seasons.length,
     activeSeasonCount,
     layoutCount: layouts.length,
-    placementCount: placedSeasonIds.size,
     nextAction: getNextAction(spaces, seasons, layoutsBySeasonId, taskSeasonIds, containerPlacementSeasonIds),
     recentSeasons: dashboardSeasons.slice(0, 3),
   };
@@ -98,6 +103,10 @@ function toDashboardSeason(
     endDate: season.endDate,
     layoutHref: canCreateLayout ? `/seasons/${season.id}/layout` : undefined,
     scheduleHref: canManageSchedule ? `/seasons/${season.id}/tasks` : undefined,
+    placementHref: space?.type === "garden"
+      ? `/seasons/${season.id}/layout`
+      : `/seasons/${season.id}/placements`,
+    recordHref: `/seasons/${season.id}/records`,
   };
 }
 
@@ -119,10 +128,10 @@ function getNextAction(
 
   if (seasons.length === 0) {
     return {
-      title: "재배 시즌을 만들어 보세요",
+      title: "재배 계획을 만들어 보세요",
       description: "언제 키울지 정하면 작물 배치와 관리 계획을 이어서 만들 수 있어요.",
       href: "/seasons/new",
-      label: "시즌 등록하기",
+      label: "재배 시작하기",
     };
   }
 
@@ -165,7 +174,7 @@ function getNextAction(
   if (seasonWithoutTasks) {
     return {
       title: `‘${seasonWithoutTasks.name}’ 재배 일정을 만들어 보세요`,
-      description: "배치한 작물과 시즌 기간을 기준으로 심기와 수확 일정을 준비할 수 있어요.",
+      description: "배치한 작물과 재배 기간을 기준으로 심기와 수확 일정을 준비할 수 있어요.",
       href: `/seasons/${seasonWithoutTasks.id}/tasks`,
       label: "일정 만들기",
     };
@@ -173,9 +182,9 @@ function getNextAction(
 
   return {
     title: "재배 계획을 이어서 관리해요",
-    description: "진행 중인 시즌과 저장된 작물 배치를 확인해 보세요.",
+    description: "진행 중인 재배와 저장된 작물 배치를 확인해 보세요.",
     href: "/seasons",
-    label: "시즌 확인하기",
+    label: "계획 확인하기",
   };
 }
 

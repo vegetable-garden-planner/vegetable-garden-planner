@@ -10,7 +10,6 @@ import {
   type AllContainerPlacementsState,
 } from "@/features/container-placement/hooks/use-all-container-placements";
 import { useCultivationTasks, type CultivationTasksState } from "@/features/cultivation-schedule/hooks/use-cultivation-tasks";
-import { DashboardAlertList } from "@/features/dashboard/components/dashboard-alert-list";
 import {
   createDashboardAlerts,
   formatLocalDateOnly,
@@ -33,8 +32,18 @@ import type { PersistedGrowingSeason } from "@/features/growing-season/domain/gr
 import type { GardenLayout } from "@/features/garden-layout/domain/garden-layout";
 import type { CultivationTask } from "@/features/cultivation-schedule/domain/cultivation-task";
 import type { WateringSchedule } from "@/features/watering/domain/watering";
-import type { CultivationRecord } from "@/features/cultivation-record/domain/cultivation-record";
+import {
+  CULTIVATION_RECORD_TYPE_LABELS,
+  type CultivationRecord,
+} from "@/features/cultivation-record/domain/cultivation-record";
 import type { ContainerPlacementListItem } from "@/features/container-placement/domain/container-placement";
+import {
+  calculateProgress,
+  createHomeDashboardModel,
+  daysBetween,
+  type HomeDashboardModel,
+} from "@/features/home/domain/home-dashboard";
+import homeStyles from "./dashboard-home.module.css";
 
 const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   planned: "예정",
@@ -42,10 +51,10 @@ const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
   completed: "종료",
 };
 
-const STATUS_STYLES: Record<GrowingSeasonStatus, string> = {
-  planned: "bg-sky-50 text-sky-700",
-  active: "bg-leaf-soft text-leaf-dark",
-  completed: "bg-stone-100 text-stone-600",
+const STATUS_STYLE_NAMES: Record<GrowingSeasonStatus, string> = {
+  planned: homeStyles.statusPlanned,
+  active: homeStyles.statusActive,
+  completed: homeStyles.statusCompleted,
 };
 
 export function DashboardOverview() {
@@ -124,7 +133,11 @@ export function DashboardOverview() {
   if (summary.spaceCount === 0 || summary.seasonCount === 0) {
     return (
       <>
-        <DashboardHero alertCount={alerts.totalCount} plantCount={registeredPlants.length} summary={summary} />
+        <DashboardHero
+          overdueCount={alerts.overdueCount}
+          todayCount={alerts.todayCount}
+          summary={summary}
+        />
         <div className="dashboard-content">
           <DashboardGettingStarted hasSpace={summary.spaceCount > 0} nextAction={summary.nextAction} />
         </div>
@@ -132,80 +145,223 @@ export function DashboardOverview() {
     );
   }
 
+  // 재배 일수·진행률·다음 작업 계산은 features/home 의 것을 그대로 쓴다.
+  const homeModel = createHomeDashboardModel(
+    spaces,
+    seasons,
+    layouts,
+    tasks,
+    crops,
+    today,
+    containerPlacements,
+  );
+  const seasonsById = new Map(seasons.map((season) => [season.id, season]));
+  const overdueSeasonIds = new Set(
+    tasks
+      .filter((task) => task.status === "pending" && task.dueDate < today)
+      .map((task) => task.seasonId),
+  );
+  const recentRecords = [...records]
+    .sort((left, right) => right.occurredAt.localeCompare(left.occurredAt))
+    .slice(0, 2);
+
   return (
     <>
-      <DashboardHero alertCount={alerts.totalCount} plantCount={registeredPlants.length} summary={summary} />
+      <DashboardHero
+        overdueCount={alerts.overdueCount}
+        todayCount={alerts.todayCount}
+        summary={summary}
+      />
       <div className="dashboard-content">
-        <section className="dashboard-plan-section" aria-labelledby="dashboard-plan-title">
-          <div className="dashboard-section-heading">
+        <TodayPanel tasks={homeModel.tasks} overdueCount={alerts.overdueCount} />
+
+        <section className={homeStyles.section} aria-labelledby="dashboard-plan-title">
+          <div className={homeStyles.sectionHead}>
             <div>
-              <p>나의 재배 현황</p>
-              <h2 id="dashboard-plan-title">공간별 재배 계획</h2>
+              <p>지금 키우는 것</p>
+              <h2 id="dashboard-plan-title">내 재배 계획</h2>
             </div>
-            <Link href="/seasons">전체 계획 보기 <span aria-hidden="true">→</span></Link>
+            <Link className={homeStyles.sectionMore} href="/seasons">
+              전체 보기 <span aria-hidden="true">→</span>
+            </Link>
           </div>
-
-          <div className="dashboard-plan-layout">
-            <section className="dashboard-season-board" aria-label="최근 재배 시즌">
-              <div className="dashboard-season-board-header">
-                <div>
-                  <p>현재 연결된 공간과 시즌</p>
-                  <strong>{summary.spaceCount}개 공간 · {summary.seasonCount}개 시즌</strong>
-                </div>
-                <span>{summary.activeSeasonCount > 0 ? `${summary.activeSeasonCount}개 진행 중` : "준비 중"}</span>
-              </div>
-              <ul className="dashboard-season-list">
-                {summary.recentSeasons.map((season) => <SeasonPlanCard key={season.id} season={season} />)}
-              </ul>
-            </section>
-
-            <aside className="dashboard-plan-aside" aria-label="재배 계획 보조 정보">
-              <DashboardInfoCard
-                rows={[
-                  ["등록 공간", `${summary.spaceCount}개`],
-                  ["작물 배치", `${summary.placementCount}개`],
-                  ["관리할 식물", `${registeredPlants.length}종`],
-                ]}
-                title="계획 현황"
+          <ul className={homeStyles.cards}>
+            {summary.recentSeasons.map((season) => (
+              <PlanCard
+                key={season.id}
+                needsAttention={overdueSeasonIds.has(season.id)}
+                nextTask={tasks.find((task) => task.seasonId === season.id && task.status === "pending")}
+                season={season}
+                today={today}
+                source={seasonsById.get(season.id)}
               />
-              <section className="dashboard-guide-card">
-                <p>다음 추천 단계</p>
-                <h3>{summary.nextAction.title}</h3>
-                <span>{summary.nextAction.description}</span>
-                <Link href={summary.nextAction.href}>{summary.nextAction.label} <span aria-hidden="true">→</span></Link>
-              </section>
-              <DashboardInfoCard
-                rows={[
-                  ["기한 지난 일", `${alerts.overdueCount}개`],
-                  ["오늘 할 일", `${alerts.todayCount}개`],
-                  ["7일 이내", `${alerts.upcomingCount}개`],
-                ]}
-                title="일정 적합도"
-              />
-            </aside>
-          </div>
+            ))}
+          </ul>
         </section>
 
-        <DashboardJourney />
+        <NextActionBanner nextAction={summary.nextAction} />
 
-        <DashboardAlertList summary={alerts} />
+        {/*
+          "일정 알림"은 위 "해야 할 일"과 같은 작업을 한 번 더 보여 줘서 홈에서 뺐다.
+          컴포넌트(DashboardAlertList)와 계산(dashboard-alert)은 그대로 두었고,
+          기한 지난 개수는 히어로와 오늘 패널에 남아 있다.
+        */}
+
+        {recentRecords.length > 0 && (
+          <section className={homeStyles.section} aria-labelledby="dashboard-records-title">
+            <div className={homeStyles.sectionHead}>
+              <div>
+                <p>남긴 기록</p>
+                <h2 id="dashboard-records-title">최근 재배 기록</h2>
+              </div>
+            </div>
+            <ul className={homeStyles.records}>
+              {recentRecords.map((record) => (
+                <li key={record.id}>
+                  <Link className={homeStyles.recordItem} href={`/seasons/${record.seasonId}/records`}>
+                    <span className={homeStyles.recordCopy}>
+                      <strong>{record.notes || CULTIVATION_RECORD_TYPE_LABELS[record.type]}</strong>
+                      <small>
+                        {seasonsById.get(record.seasonId)?.name ?? "재배 계획"} · {CULTIVATION_RECORD_TYPE_LABELS[record.type]}
+                      </small>
+                    </span>
+                    <span className={homeStyles.recordDate}>{record.occurredAt.slice(0, 10)}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <RegisteredPlantList plants={registeredPlants} />
-
-        <DashboardStartBanner nextAction={summary.nextAction} />
       </div>
     </>
   );
 }
 
-function DashboardHero({
-  alertCount,
-  plantCount,
-  summary,
+/** 오늘 해야 할 일 — 계산은 features/home 의 모델을 그대로 쓴다. */
+function TodayPanel({
+  overdueCount,
+  tasks,
 }: {
-  alertCount: number;
-  plantCount: number;
+  overdueCount: number;
+  tasks: HomeDashboardModel["tasks"];
+}) {
+  // 제목의 숫자는 아래 목록의 개수와 반드시 같아야 한다.
+  // 예전에는 제목이 "오늘까지", 목록이 "이번 주"라 둘이 어긋나 보였다.
+  return (
+    <section className={homeStyles.section} aria-labelledby="dashboard-today-title">
+      <div className={homeStyles.today}>
+        <div className={homeStyles.sectionHead}>
+          <div>
+            <p>{overdueCount > 0 ? `기한 지난 일 ${overdueCount}개` : "이번 주"}</p>
+            <h2 id="dashboard-today-title">
+              {tasks.length > 0 ? `해야 할 일 ${tasks.length}가지` : "급한 일은 없어요"}
+            </h2>
+          </div>
+        </div>
+        {tasks.length > 0 ? (
+          <ul className={homeStyles.todayList}>
+            {tasks.map((task) => (
+              <li key={task.id}>
+                <Link className={homeStyles.todayItem} href={task.href}>
+                  <span aria-hidden="true" className={homeStyles.todayMark}>{task.icon}</span>
+                  <span className={homeStyles.todayCopy}>
+                    <strong>{task.title}</strong>
+                    <small>{task.description}</small>
+                  </span>
+                  <span aria-hidden="true" className={homeStyles.todayGo}>→</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={homeStyles.todayEmpty}>일주일 안에 예정된 작업이 없어요. 기록을 남겨 두면 나중에 도움이 돼요.</p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/** 재배 계획 카드 — 상세는 전용 화면에서 하고, 여기서는 상태와 바로가기만 준다. */
+function PlanCard({
+  needsAttention,
+  nextTask,
+  season,
+  source,
+  today,
+}: {
+  needsAttention: boolean;
+  nextTask: CultivationTask | undefined;
+  season: DashboardSeason;
+  source: PersistedGrowingSeason | undefined;
+  today: string;
+}) {
+  const progress = source ? calculateProgress(source, today) : 0;
+  const growingDay = source ? Math.max(0, daysBetween(source.startDate, today) + 1) : 0;
+
+  return (
+    <li className={`${homeStyles.card} ${needsAttention ? homeStyles.cardAttention : ""}`}>
+      <div className={homeStyles.cardHead}>
+        <div className={homeStyles.cardTitle}>
+          <h3>{season.name}</h3>
+          <p>{season.spaceName}</p>
+        </div>
+        <span className={`${homeStyles.status} ${STATUS_STYLE_NAMES[season.status]}`}>
+          {STATUS_LABELS[season.status]}
+        </span>
+      </div>
+
+      <div>
+        <div className={homeStyles.progressRow}>
+          <span>{season.status === "planned" ? "시작 전" : `재배 ${growingDay}일째`}</span>
+          <b>{progress}%</b>
+        </div>
+        <div className={homeStyles.track}>
+          <i style={{ width: `${progress}%` }} />
+        </div>
+      </div>
+
+      <div className={`${homeStyles.cardNext} ${needsAttention ? homeStyles.cardNextWarn : ""}`}>
+        <span>{needsAttention ? "지난 일이 있어요" : "다음 할 일"}</span>
+        <strong>{nextTask ? `${nextTask.title} · ${nextTask.dueDate}` : "예정된 작업 없음"}</strong>
+      </div>
+
+      <div className={homeStyles.cardLinks}>
+        <Link className={homeStyles.cardLink} href={season.placementHref}>배치 보기</Link>
+        <Link className={homeStyles.cardLink} href={`/seasons/${season.id}/tasks`}>일정 보기</Link>
+        <Link className={homeStyles.cardLink} href={season.recordHref}>기록하기</Link>
+      </div>
+    </li>
+  );
+}
+
+/** 다음 추천 단계 — 화면에 한 번만 둔다. */
+function NextActionBanner({ nextAction }: { nextAction: DashboardSummary["nextAction"] }) {
+  return (
+    <section className={homeStyles.section}>
+      <div className={homeStyles.nextAction}>
+        <div className={homeStyles.nextActionCopy}>
+          <p>다음 추천 단계</p>
+          <strong>{nextAction.title}</strong>
+          <span>{nextAction.description}</span>
+        </div>
+        <Link className={homeStyles.nextActionGo} href={nextAction.href}>
+          {nextAction.label} <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function DashboardHero({
+  overdueCount,
+  summary,
+  todayCount,
+}: {
+  overdueCount: number;
   summary: DashboardSummary;
+  todayCount: number;
 }) {
   return (
     <section className="dashboard-hero">
@@ -213,14 +369,14 @@ function DashboardHero({
       <span className="dashboard-hero-shade" aria-hidden="true" />
       <div className="dashboard-hero-inner">
         <div className="dashboard-hero-copy">
-          <p>나의 재배 홈</p>
-          <h1>배치·재배 계획</h1>
-          <span>내 공간에 무엇을 심고, 오늘 무엇을 관리할지 한눈에 확인해 보세요.</span>
+          <p>마이페이지</p>
+          <h1>오늘의 텃밭</h1>
+          <span>지금 키우는 것과 오늘 해야 할 일을 한곳에서 관리해요.</span>
         </div>
         <div className="dashboard-hero-summary" aria-label="재배 현황 요약">
-          <HeroStat label="재배 공간" value={`${summary.spaceCount}개`} />
-          <HeroStat label="관리 식물" value={`${plantCount}종`} />
-          <HeroStat label="해야 할 일" value={`${alertCount}`} />
+          <HeroStat label="재배 중" value={`${summary.activeSeasonCount}개`} />
+          <HeroStat label="오늘 할 일" value={`${todayCount}개`} />
+          <HeroStat label="지난 일" value={`${overdueCount}개`} />
         </div>
       </div>
     </section>
@@ -236,112 +392,11 @@ function HeroStat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SeasonPlanCard({ season }: { season: DashboardSeason }) {
-  const href = season.layoutHref ?? season.scheduleHref ?? "/seasons";
-  const actionLabel = season.layoutHref ? "작물 배치" : season.scheduleHref ? "재배 일정" : "계획 관리";
-
-  return (
-    <li className="dashboard-season-card">
-      <div className="dashboard-season-card-heading">
-        <div>
-          <h3>{season.name}</h3>
-          <p>{season.spaceName} · {season.startDate} ~ {season.endDate}</p>
-        </div>
-        <span className={STATUS_STYLES[season.status]}>{STATUS_LABELS[season.status]}</span>
-      </div>
-      <div className="dashboard-season-bed" aria-hidden="true">
-        <span>공간</span>
-        <span className={season.layoutHref ? "is-next" : "is-done"}>배치</span>
-        <span className={season.scheduleHref ? "is-next" : ""}>일정</span>
-      </div>
-      <div className="dashboard-season-card-footer">
-        <p>{season.layoutHref ? "텃밭에 작물을 놓을 차례예요." : season.scheduleHref ? "배치에 맞는 재배 일정을 준비해요." : "저장된 계획을 이어서 관리해요."}</p>
-        <Link href={href}>{actionLabel} <span aria-hidden="true">→</span></Link>
-      </div>
-    </li>
-  );
-}
-
-function DashboardInfoCard({
-  rows,
-  title,
-}: {
-  rows: readonly (readonly [string, string])[];
-  title: string;
-}) {
-  return (
-    <section className="dashboard-info-card">
-      <h3>{title}</h3>
-      <dl>
-        {rows.map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
-  );
-}
-
-function DashboardJourney() {
-  const steps = [
-    ["1. 공간 준비", "재배 장소와 햇빛 조건 확인", "공간 등록"],
-    ["2. 작물 계획", "공간에 맞는 작물과 배치 결정", "배치 만들기"],
-    ["3. 재배 관리", "심기부터 수확까지 일정 관리", "오늘 할 일"],
-  ] as const;
-
-  return (
-    <section className="dashboard-journey" aria-labelledby="dashboard-journey-title">
-      <div className="dashboard-section-heading">
-        <div>
-          <p>재배 계획 요약</p>
-          <h2 id="dashboard-journey-title">공간에서 수확까지</h2>
-        </div>
-      </div>
-      <ol>
-        {steps.map(([title, description, caption], index) => (
-          <li key={title}>
-            <span aria-hidden="true">{index + 1}</span>
-            <div>
-              <h3>{title}</h3>
-              <p>{description}</p>
-              <strong>{caption}</strong>
-            </div>
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
-function DashboardStartBanner({
-  nextAction,
-}: {
-  nextAction: DashboardSummary["nextAction"];
-}) {
-  return (
-    <section className="dashboard-start-banner">
-      <div className="dashboard-start-image">
-        <Image alt="창가에서 자라는 여러 화분" fill sizes="(max-width: 720px) 100vw, 34vw" src="/figma/planner-hero.webp" />
-      </div>
-      <div className="dashboard-start-copy">
-        <p>이 계획을 이어갈까요?</p>
-        <span>{nextAction.description}</span>
-      </div>
-      <div className="dashboard-start-actions">
-        <Link href="/seasons">계획 둘러보기</Link>
-        <Link href={nextAction.href}>{nextAction.label}</Link>
-      </div>
-    </section>
-  );
-}
-
 function DashboardLoading() {
   return (
     <div className="dashboard-state surface-panel p-6" role="status">
       <p className="font-bold">재배 홈을 준비하고 있어요</p>
-      <p className="mt-2 text-sm text-muted">공간과 시즌, 오늘 할 일을 차례로 불러오고 있습니다.</p>
+      <p className="mt-2 text-sm text-muted">화분과 재배 계획, 오늘 할 일을 차례로 불러오고 있습니다.</p>
     </div>
   );
 }
@@ -360,7 +415,7 @@ function DashboardGettingStarted({
       status: hasSpace ? "완료" : "지금 할 일",
     },
     {
-      title: "첫 시즌 만들기",
+      title: "첫 재배 시작하기",
       description: "공간을 고르고 재배 기간을 정해요.",
       status: hasSpace ? "지금 할 일" : "다음 단계",
     },
@@ -421,7 +476,7 @@ function requireSpaces(state: GrowingSpacesState): GrowingSpace[] {
 }
 
 function requireSeasons(state: GrowingSeasonsState): PersistedGrowingSeason[] {
-  if (state.status !== "ready") throw new Error("시즌 정보를 불러오지 못했습니다.");
+  if (state.status !== "ready") throw new Error("재배 계획 정보를 불러오지 못했습니다.");
   return state.seasons;
 }
 
