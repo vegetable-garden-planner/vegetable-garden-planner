@@ -9,6 +9,7 @@ use App\Models\GrowingSpace;
 use App\Models\User;
 use App\Models\WateringSchedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
 class AiChatApiTest extends TestCase
@@ -65,14 +66,50 @@ class AiChatApiTest extends TestCase
             ->assertJsonPath('data.answer', fn (string $answer): bool => str_contains($answer, '빛'));
     }
 
-    public function test_unrecognized_question_returns_a_graceful_fallback(): void
+    public function test_unrecognized_question_without_a_gemini_key_returns_a_graceful_fallback(): void
     {
+        config(['services.gemini.key' => null]);
         [$owner] = $this->ownedSeason();
 
         $this->actingAs($owner)
             ->postJson('/api/v1/ai/chat', ['message' => '오늘 저녁 뭐 먹지'])
             ->assertOk()
-            ->assertJsonPath('data.answer', fn (string $answer): bool => str_contains($answer, '아직 답할 수 있는 질문이 아니에요'));
+            ->assertJsonPath('data.answer', fn (string $answer): bool => str_contains($answer, '답변을 가져오지 못했어요'));
+    }
+
+    public function test_unrecognized_question_asks_gemini_and_returns_its_answer(): void
+    {
+        config(['services.gemini.key' => 'test-key']);
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response([
+                'candidates' => [
+                    ['content' => ['parts' => [['text' => '일반적으로 흙 표면이 마르면 물을 주면 돼요.']]]],
+                ],
+            ]),
+        ]);
+        [$owner] = $this->ownedSeason();
+
+        $this->actingAs($owner)
+            ->postJson('/api/v1/ai/chat', ['message' => '오늘 저녁 뭐 먹지'])
+            ->assertOk()
+            ->assertJsonPath('data.answer', '일반적으로 흙 표면이 마르면 물을 주면 돼요.');
+
+        Http::assertSent(fn ($request): bool => str_contains($request->url(), 'generativelanguage.googleapis.com')
+            && $request['contents'][0]['parts'][0]['text'] === '오늘 저녁 뭐 먹지');
+    }
+
+    public function test_gemini_failure_returns_a_graceful_fallback_instead_of_an_error(): void
+    {
+        config(['services.gemini.key' => 'test-key']);
+        Http::fake([
+            'generativelanguage.googleapis.com/*' => Http::response(['error' => 'rate limited'], 429),
+        ]);
+        [$owner] = $this->ownedSeason();
+
+        $this->actingAs($owner)
+            ->postJson('/api/v1/ai/chat', ['message' => '오늘 저녁 뭐 먹지'])
+            ->assertOk()
+            ->assertJsonPath('data.answer', fn (string $answer): bool => str_contains($answer, '답변을 가져오지 못했어요'));
     }
 
     public function test_user_without_any_season_gets_a_setup_hint(): void

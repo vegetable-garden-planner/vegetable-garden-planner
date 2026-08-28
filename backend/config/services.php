@@ -30,6 +30,11 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', 'http://localhost:3000/auth/google/callback'),
     ],
 
+    'gemini' => [
+        'key' => env('GEMINI_API_KEY'),
+        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash-lite'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services
