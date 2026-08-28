@@ -1,0 +1,117 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Tests\Feature\Api\V1\Crops;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
+
+class CropCatalogApiTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_guest_can_list_the_complete_reference_catalog(): void
+    {
+        $this->getJson('/api/v1/crops?perPage=100')
+            ->assertOk()
+            ->assertJsonCount(13, 'data')
+            ->assertJsonPath('meta.total', 13)
+            ->assertJsonFragment([
+                'id' => 'lettuce',
+                'name' => '상추',
+                'familyName' => '국화과',
+                'supportedSpaces' => ['balcony', 'garden'],
+                'plantSpacingCm' => 25,
+                'minPotDepthCm' => 15,
+                'sunRequirement' => 'partial',
+                'needsSupport' => false,
+            ]);
+    }
+
+    public function test_crops_needing_support_and_pot_less_crops_report_correctly(): void
+    {
+        $this->getJson('/api/v1/crops/tomato')
+            ->assertOk()
+            ->assertJsonPath('data.needsSupport', true)
+            ->assertJsonPath('data.minPotDepthCm', 30);
+
+        $this->getJson('/api/v1/crops/gift-bouquet')
+            ->assertOk()
+            ->assertJsonPath('data.needsSupport', false)
+            ->assertJsonPath('data.minPotDepthCm', null);
+    }
+
+    public function test_list_filters_by_category_space_and_search_text(): void
+    {
+        $this->getJson('/api/v1/crops?category=flower&space=indoor&query=간접광&perPage=100')
+            ->assertOk()
+            ->assertJsonCount(2, 'data')
+            ->assertJsonFragment(['id' => 'moth-orchid'])
+            ->assertJsonFragment(['id' => 'african-violet']);
+    }
+
+    public function test_list_rejects_invalid_and_unknown_filters(): void
+    {
+        $this->getJson('/api/v1/crops?category=tree&ownerId=injected')
+            ->assertUnprocessable()
+            ->assertJsonPath('error.code', 'VALIDATION_FAILED')
+            ->assertJsonStructure(['error' => ['fields' => ['category', 'ownerId']]]);
+    }
+
+    public function test_guest_can_read_crop_detail_with_care_guide(): void
+    {
+        $this->getJson('/api/v1/crops/moth-orchid')
+            ->assertOk()
+            ->assertJsonPath('data.name', '호접란')
+            ->assertJsonPath('data.careGuide.actions.0', '뿌리가 계속 젖어 있지 않도록 물을 준 뒤 완전히 빼 주세요.');
+    }
+
+    public function test_companion_crops_are_mirrored_on_both_sides_and_omitted_when_absent(): void
+    {
+        $this->getJson('/api/v1/crops/green-onion')
+            ->assertOk()
+            ->assertJsonPath('data.companions.0.cropId', 'cucumber')
+            ->assertJsonPath('data.companions.0.sourceId', 'rda-companion-planting-2018')
+            ->assertJsonCount(3, 'data.companions');
+
+        $this->getJson('/api/v1/crops/cucumber')
+            ->assertOk()
+            ->assertJsonPath('data.companions.0.cropId', 'green-onion');
+
+        $this->getJson('/api/v1/crops/potato')
+            ->assertOk()
+            ->assertJsonMissingPath('data.companions');
+    }
+
+    public function test_missing_crop_returns_standard_not_found_error(): void
+    {
+        $this->getJson('/api/v1/crops/not-a-crop')
+            ->assertNotFound()
+            ->assertJsonPath('error.code', 'RESOURCE_NOT_FOUND');
+    }
+
+    public function test_guest_can_list_catalog_sources(): void
+    {
+        $this->getJson('/api/v1/crop-sources')
+            ->assertOk()
+            ->assertJsonCount(6, 'data')
+            ->assertJsonFragment([
+                'id' => 'nongsaro-beginner-garden-manual',
+                'organization' => '농촌진흥청 농사로',
+                'reviewedAt' => '2026-08-06',
+            ])
+            ->assertJsonFragment([
+                'id' => 'iowa-state-cut-flower-care',
+                'organization' => 'Iowa State University Extension and Outreach',
+                'url' => 'https://yardandgarden.extension.iastate.edu/how-to/how-harvest-condition-and-care-cut-flowers',
+                'reviewedAt' => '2026-08-12',
+            ])
+            ->assertJsonFragment([
+                'id' => 'rda-companion-planting-2018',
+                'organization' => '농촌진흥청 국립원예특작과학원',
+                'reviewedAt' => '2026-08-27',
+            ])
+            ->assertJsonMissing(['id' => 'penn-state-cut-flower-care']);
+    }
+}

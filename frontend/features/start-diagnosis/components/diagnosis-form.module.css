@@ -1,0 +1,1402 @@
+.diagnosis {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--color-forest-night);
+  color: var(--color-on-photo);
+  perspective: var(--perspective-scene);
+}
+
+.sceneBackdrop,
+.sceneShade,
+.sceneTexture {
+  position: absolute;
+  inset: 0;
+}
+
+.sceneBackdrop {
+  z-index: -4;
+}
+
+.sceneImage {
+  object-fit: cover;
+  object-position: center;
+  animation: scene-in var(--motion-scene) var(--ease-scene) both;
+}
+
+.sceneShade {
+  z-index: -3;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--color-forest-night) 72%, transparent), transparent 58%),
+    linear-gradient(0deg, color-mix(in srgb, var(--color-forest-night) 36%, transparent), transparent 52%);
+}
+
+.sceneTexture {
+  z-index: -2;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-forest-night) 18%, transparent), transparent 44%);
+}
+
+.dimensionStage,
+.cropStage,
+.conditionStage,
+.analysisStage,
+.resultStage {
+  width: min(100%, var(--layout-diagnosis-max));
+  min-height: 100svh;
+  margin: 0 auto;
+  animation: stage-in var(--motion-scene) var(--ease-scene) both;
+}
+
+.stage4 .sceneImage {
+  object-position: center;
+  filter: brightness(0.82) saturate(0.9) contrast(1.05);
+}
+
+.stage4 .sceneShade {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(1, 18, 11, 0.03) 0 32%, rgba(1, 13, 9, 0.23) 78%, rgba(1, 9, 6, 0.48) 100%),
+    linear-gradient(180deg, rgba(1, 14, 9, 0.08), rgba(1, 10, 7, 0.25));
+}
+
+.stage4 .sceneTexture {
+  background: linear-gradient(90deg, rgba(0, 11, 7, 0.16), transparent 46%, rgba(15, 18, 5, 0.08));
+}
+
+.dimensionStage {
+  position: relative;
+  width: 100%;
+  margin: 0;
+  padding: var(--space-20) var(--space-16) var(--space-12);
+}
+
+.dimensionHeading {
+  position: relative;
+  z-index: 6;
+  width: min(38%, var(--layout-question-max));
+}
+
+.clipDefs {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.cropPanel header p,
+.conditionStage > header p,
+.analysisStage > p,
+.resultStage > header p {
+  margin: 0;
+  color: var(--color-leaf-bright);
+  font-size: var(--type-kicker-size);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.dimensionHeading h1,
+.cropPanel h1 {
+  margin: 0;
+  font-size: var(--type-display-compact-size);
+  font-weight: 700;
+  line-height: var(--leading-page);
+  letter-spacing: var(--tracking-section);
+}
+
+.cropPanel h1 {
+  margin-top: var(--space-4);
+}
+
+.dimensionHeading > span,
+.cropPanel header > span,
+.conditionStage > header > span {
+  display: block;
+  margin-top: var(--space-3);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+  line-height: 1.55;
+}
+
+.whiteSweep {
+  position: absolute;
+  z-index: 5;
+  top: 28%;
+  right: auto;
+  bottom: 0;
+  left: 0;
+  width: 44.5%;
+  height: 72%;
+  background: var(--cream);
+  color: var(--color-ink-strong);
+  box-shadow: var(--shadow-panel);
+  clip-path: url("#dimension-sweep-clip");
+}
+
+.measurementGrid {
+  position: absolute;
+  bottom: calc(var(--space-24) + var(--control-xl) + var(--space-10) + var(--space-3));
+  left: var(--space-16);
+  display: grid;
+  width: min(calc(100% - (var(--space-16) * 2)), calc(var(--space-36) * 2 + var(--space-18)));
+}
+
+.measurement {
+  display: grid;
+  min-height: var(--space-20);
+  grid-template-columns: var(--control-sm) var(--space-12) var(--space-10) var(--control-sm) var(--space-14) var(--control-sm);
+  align-items: center;
+  column-gap: var(--space-2);
+  border-bottom: var(--line-thin) solid var(--color-border);
+}
+
+.measurementIcon {
+  position: relative;
+  display: grid;
+  width: var(--control-sm);
+  height: var(--control-sm);
+  place-items: center;
+  border: var(--line-thin) solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-primary);
+  font-size: var(--type-body-lg-size);
+}
+
+.measurementIcon[data-kind="width"]::before {
+  content: "↔";
+}
+
+.measurementIcon[data-kind="length"]::before {
+  content: "↕";
+  transform: rotate(-24deg);
+}
+
+.measurementIcon[data-kind="height"]::before {
+  content: "↕";
+}
+
+.measurementIcon[data-kind="count"] i {
+  position: relative;
+  display: block;
+  width: var(--space-4);
+  height: var(--space-3);
+  border: var(--line-thin) solid currentColor;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+}
+
+.measurementIcon[data-kind="count"] i::before {
+  position: absolute;
+  top: calc(var(--space-1) * -1);
+  left: calc(var(--line-thin) * -1);
+  width: var(--space-4);
+  border-top: var(--line-thin) solid currentColor;
+  content: "";
+}
+
+.measurementLabel {
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.measurement small {
+  color: var(--color-muted);
+  font-size: var(--type-micro-size);
+  white-space: nowrap;
+}
+
+.measurement button {
+  display: grid;
+  width: var(--control-sm);
+  height: var(--control-sm);
+  cursor: pointer;
+  place-items: center;
+  border: var(--line-thin) solid var(--color-border);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-ink-strong);
+  font: inherit;
+}
+
+.measurement button:first-of-type {
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.measurement button:last-of-type {
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.measurement button:hover:not(:disabled) {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.measurement button:disabled {
+  cursor: not-allowed;
+  opacity: 0.32;
+}
+
+.measurement strong {
+  display: grid;
+  height: var(--control-sm);
+  place-items: center;
+  border-block: var(--line-thin) solid var(--color-border);
+  color: var(--color-primary);
+  font-size: var(--type-title-sm-size);
+  line-height: 1;
+}
+
+.dimensionActions {
+  position: absolute;
+  bottom: var(--space-24);
+  left: var(--space-16);
+  display: grid;
+  width: min(calc(100% - (var(--space-16) * 2)), calc(var(--space-36) * 2 + var(--space-18)));
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--space-3);
+}
+
+/* 단계 이동 버튼은 랜딩 CTA · 다른 단계와 같은 모양을 쓴다 */
+.dimensionActions .primaryButton,
+.dimensionActions .backButton {
+  min-height: var(--control-lg);
+  border-radius: var(--radius-pill);
+}
+
+.planterViewport {
+  position: absolute;
+  z-index: 4;
+  right: 0;
+  bottom: var(--space-16);
+  width: 60%;
+  height: 58%;
+  min-height: calc((var(--space-36) * 3) - var(--space-3));
+  overflow: visible;
+  cursor: default;
+  pointer-events: none;
+  touch-action: auto;
+}
+
+.planterViewport::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-forest-deep) 6%, transparent),
+    color-mix(in srgb, var(--color-forest-deep) 16%, transparent)
+  );
+  pointer-events: none;
+}
+
+.planterViewport > div,
+.planterViewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  outline: none;
+}
+
+.planterViewport:focus-within {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+.planterStatus {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  padding: var(--space-2) var(--space-3);
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-white) 28%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-forest-deep) 78%, transparent);
+  color: var(--color-on-photo);
+  font-size: var(--type-body-sm-size);
+  line-height: 1.55;
+  text-align: center;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.planterStatus[data-status="error"] {
+  border-color: var(--color-sunbeam);
+}
+
+.srOnly {
+  position: absolute;
+  width: var(--line-thin);
+  height: var(--line-thin);
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.cropStage {
+  display: grid;
+  grid-template-columns: 49% 51%;
+  align-items: center;
+  padding: var(--space-28) var(--space-18) var(--space-12);
+}
+
+.cropPanel {
+  width: min(100%, calc(var(--layout-question-max) + var(--space-16)));
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 12%, transparent);
+  border-radius: var(--radius-2xl);
+  padding: var(--space-8);
+  background: color-mix(in srgb, var(--color-forest-panel) 90%, transparent);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(var(--blur-panel));
+}
+
+.cropGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.cropCard {
+  position: relative;
+  min-height: var(--space-28);
+  cursor: pointer;
+  overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  border-radius: var(--radius-md);
+  padding: 0;
+  background: var(--color-forest-panel);
+  color: var(--color-on-photo);
+  text-align: left;
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+}
+
+.cropCard::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--color-forest-night), transparent 76%);
+  content: "";
+}
+
+.cropCard img {
+  object-fit: cover;
+  transition: transform var(--motion-slow) var(--ease-out), filter var(--motion-slow) var(--ease-out);
+}
+
+.cropCard:hover {
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
+.cropCard:hover img {
+  transform: scale(1.025);
+}
+
+.cropSelected {
+  border-color: var(--color-leaf-bright);
+}
+
+.cropSelected img {
+  filter: saturate(1.12);
+}
+
+.cropCard > span {
+  position: absolute;
+  z-index: 2;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  left: var(--space-3);
+}
+
+.cropCard strong,
+.cropCard small {
+  display: block;
+}
+
+.cropCard strong {
+  font-size: var(--type-label-size);
+}
+
+.cropCard small {
+  margin-top: var(--space-1);
+  color: var(--color-forest-mist);
+  font-size: var(--type-micro-size);
+}
+
+.cropCard > b {
+  position: absolute;
+  z-index: 3;
+  top: var(--space-2);
+  right: var(--space-2);
+  display: grid;
+  width: var(--space-6);
+  height: var(--space-6);
+  place-items: center;
+  border: var(--line-thin) solid var(--color-on-photo);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-forest-night) 62%, transparent);
+  color: var(--color-leaf-bright);
+  font-size: var(--type-caption-size);
+}
+
+.cropSceneLabel {
+  display: grid;
+  justify-self: end;
+  width: 48%;
+  gap: var(--space-1);
+  border-left: var(--line-thin) solid var(--color-sunbeam);
+  padding-left: var(--space-4);
+}
+
+.cropSceneLabel span {
+  color: var(--color-sunbeam);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.cropSceneLabel strong {
+  font-size: var(--type-title-sm-size);
+}
+
+.cropSceneLabel small {
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.conditionStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-28) var(--space-18) var(--space-16);
+}
+
+.conditionStage > header {
+  text-align: center;
+}
+
+.conditionStage > header h1,
+.resultStage > header h1 {
+  margin: var(--space-3) 0 0;
+  font-size: var(--type-h2-size);
+  letter-spacing: var(--tracking-section);
+}
+
+.conditionSummary {
+  display: grid;
+  width: min(100%, var(--layout-result-max));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-8);
+  margin-top: var(--space-10);
+}
+
+.conditionGroup {
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.conditionGroup legend {
+  width: 100%;
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.conditionGroup > div {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.conditionGroup label {
+  display: grid;
+  min-height: var(--space-16);
+  cursor: pointer;
+  place-content: center;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3);
+  background: color-mix(in srgb, var(--color-forest-panel) 70%, transparent);
+  backdrop-filter: blur(var(--blur-panel));
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+}
+
+.conditionGroup label:hover {
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
+.conditionGroup .conditionSelected {
+  border-color: var(--color-leaf-bright);
+  background: color-mix(in srgb, var(--color-primary) 28%, var(--color-forest-panel));
+}
+
+.conditionGroup input {
+  position: absolute;
+  width: var(--line-thin);
+  height: var(--line-thin);
+  opacity: 0;
+}
+
+.conditionGroup strong,
+.conditionGroup small {
+  display: block;
+}
+
+.conditionGroup strong {
+  font-size: var(--type-body-size);
+}
+
+.conditionGroup small {
+  margin-top: var(--space-1);
+  color: var(--color-forest-mist);
+  font-size: var(--type-micro-size);
+  line-height: 1.4;
+}
+
+.conditionStage > .navigation {
+  width: min(100%, var(--layout-result-max));
+  margin-top: var(--space-8);
+}
+
+.analysisStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-28) var(--layout-gutter) var(--space-16);
+  text-align: center;
+}
+
+.analysisPanel {
+  position: relative;
+  display: grid;
+  width: min(100%, calc(var(--layout-question-max) + var(--space-10)));
+  min-height: calc(var(--space-36) + var(--space-12));
+  margin-top: var(--space-5);
+  place-content: center;
+  overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 12%, transparent);
+  border-radius: var(--radius-2xl);
+  background: color-mix(in srgb, var(--color-forest-panel) 92%, transparent);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(var(--blur-panel));
+}
+
+.analysisPanel::before,
+.analysisPanel::after {
+  position: absolute;
+  width: var(--space-24);
+  height: var(--space-36);
+  border-radius: var(--radius-pill) 0 var(--radius-pill) 0;
+  background: color-mix(in srgb, var(--color-leaf-bright) 10%, transparent);
+  content: "";
+  transform: rotate(32deg);
+}
+
+.analysisPanel::before {
+  top: calc(var(--space-20) * -1);
+  left: var(--space-6);
+}
+
+.analysisPanel::after {
+  right: var(--space-6);
+  bottom: calc(var(--space-24) * -1);
+}
+
+.scanLine {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: var(--line-thin);
+  background: var(--color-leaf-bright);
+  box-shadow: 0 0 var(--space-6) var(--color-leaf-bright);
+  animation: scan 1200ms var(--ease-scene) infinite;
+}
+
+.analysisLeaf {
+  display: none;
+}
+
+.analysisPanel strong {
+  position: relative;
+  z-index: 3;
+  font-size: var(--type-title-sm-size);
+  line-height: 1.45;
+}
+
+.analysisPanel small {
+  position: relative;
+  z-index: 3;
+  margin-top: var(--space-3);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.loadingTrack {
+  width: min(62%, calc(var(--space-36) * 2));
+  height: var(--space-1);
+  margin-top: var(--space-6);
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-on-photo) 14%, transparent);
+}
+
+.loadingTrack span {
+  display: block;
+  width: 44%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-primary);
+  animation: loading 900ms var(--ease-scene) infinite alternate;
+}
+
+.resultStage {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: var(--space-24) var(--space-18) var(--space-12);
+}
+
+.resultStage > header {
+  text-align: center;
+}
+
+.resultStage > header > span {
+  display: block;
+  margin-top: var(--space-2);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.planGrid {
+  display: grid;
+  width: min(100%, var(--layout-result-max));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.planCard {
+  position: relative;
+  display: grid;
+  min-height: calc(var(--space-36) * 2);
+  cursor: pointer;
+  grid-template-rows: var(--space-36) var(--space-18) auto;
+  overflow: hidden;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  border-radius: var(--radius-2xl);
+  padding: 0;
+  background: color-mix(in srgb, var(--color-forest-panel) 92%, transparent);
+  color: var(--color-on-photo);
+  text-align: left;
+  box-shadow: var(--shadow-planter);
+  transform: rotateY(3deg);
+  transform-style: preserve-3d;
+  transition: transform var(--motion-base) var(--ease-out), border-color var(--motion-base) var(--ease-out);
+}
+
+.planCard:nth-child(2) {
+  transform: rotateY(-3deg);
+}
+
+.planCard:hover {
+  transform: rotateY(0) translateY(calc(var(--space-1) * -1));
+}
+
+.planSelected {
+  border-color: var(--color-leaf-bright);
+}
+
+.planPlants {
+  position: relative;
+  grid-column: 1;
+  grid-row: 1 / 3;
+  overflow: hidden;
+}
+
+.planPlants::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, var(--color-forest-panel), transparent 68%);
+  content: "";
+}
+
+.planPlants img {
+  object-fit: cover;
+  transition: transform var(--motion-slow) var(--ease-out);
+}
+
+.planCard:hover .planPlants img {
+  transform: scale(1.025);
+}
+
+.planterModel {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 2;
+  width: 76%;
+  margin: 0 auto;
+  transform: translateY(var(--space-4));
+}
+
+.planterModel i,
+.planterModel b {
+  position: absolute;
+  right: 0;
+  left: 0;
+  display: block;
+}
+
+.planterModel i {
+  top: 0;
+  height: var(--space-5);
+  border: var(--line-thin) solid var(--color-planter-edge);
+  border-radius: var(--radius-pill);
+  background: var(--color-forest-night);
+  transform: rotateX(62deg);
+}
+
+.planterModel b {
+  top: var(--space-2);
+  height: var(--space-16);
+  border: var(--line-thin) solid var(--color-planter-edge);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: linear-gradient(90deg, var(--color-planter-face), var(--color-planter-edge), var(--color-planter-face));
+}
+
+.planCopy {
+  position: relative;
+  z-index: 3;
+  display: block;
+  grid-column: 1;
+  grid-row: 3;
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  background: var(--color-forest-panel);
+}
+
+.planCopy small,
+.planCopy strong,
+.planCopy span {
+  display: block;
+}
+
+.planCopy small {
+  color: var(--color-leaf-bright);
+  font-size: var(--type-caption-size);
+  font-weight: 700;
+}
+
+.planCopy strong {
+  margin-top: var(--space-2);
+  font-size: var(--type-body-size);
+}
+
+.planCopy span {
+  margin-top: var(--space-2);
+  color: var(--color-forest-mist);
+  font-size: var(--type-caption-size);
+}
+
+.planCard > em {
+  position: absolute;
+  z-index: 4;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  display: grid;
+  width: var(--space-7);
+  height: var(--space-7);
+  place-items: center;
+  border: var(--line-thin) solid var(--color-leaf-bright);
+  border-radius: var(--radius-pill);
+  background: var(--color-forest-panel);
+  color: var(--color-leaf-bright);
+  font-size: var(--type-caption-size);
+  font-style: normal;
+}
+
+.planSelected > em {
+  background: var(--color-leaf-bright);
+  color: var(--color-forest-night);
+}
+
+.resultDescription {
+  max-width: calc(var(--layout-result-max) - var(--space-30));
+  margin: var(--space-5) auto 0;
+  color: var(--color-forest-mist);
+  text-align: center;
+  font-size: var(--type-body-sm-size);
+}
+
+.navigation,
+.resultActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.resultActions {
+  justify-content: center;
+}
+
+.primaryButton,
+.secondaryButton,
+.backButton {
+  display: inline-flex;
+  min-height: var(--control-md);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-6);
+  font: inherit;
+  font-size: var(--type-label-size);
+  font-weight: 700;
+  transition: transform var(--motion-fast) var(--ease-out), opacity var(--motion-fast) var(--ease-out);
+}
+
+/* 랜딩 CTA · 대시보드 .primary-action 과 같은 브랜드 그린을 쓴다 */
+.primaryButton {
+  border: var(--line-thin) solid var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-on-photo);
+}
+
+.secondaryButton,
+.backButton {
+  border: var(--line-thin) solid color-mix(in srgb, currentColor 28%, transparent);
+  background: transparent;
+  color: inherit;
+}
+
+.primaryButton:hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-hover);
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
+.secondaryButton:hover,
+.backButton:hover {
+  border-color: color-mix(in srgb, currentColor 55%, transparent);
+  transform: translateY(calc(var(--space-1) * -1));
+}
+
+.primaryButton:active,
+.secondaryButton:active,
+.backButton:active,
+.cropCard:active,
+.planCard:active {
+  transform: scale(0.98);
+}
+
+.primaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.36;
+  transform: none;
+}
+
+.measurement button:focus-visible,
+.cropCard:focus-visible,
+.conditionGroup input:focus-visible + strong,
+.primaryButton:focus-visible,
+.secondaryButton:focus-visible,
+.backButton:focus-visible,
+.planCard:focus-visible,
+.stepRail button:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+/* ------------------------------------------------------------------
+   진행 단계 — 랜딩의 장면 인덱스와 같은 언어
+
+   현재 단계  브랜드 그린으로 확실하게
+   지난 단계  옅게 채워 "지나온 곳"으로
+   남은 단계  낮은 대비
+------------------------------------------------------------------ */
+.stepRail {
+  position: absolute;
+  z-index: 12;
+  top: 50%;
+  right: clamp(var(--space-5), 3vw, var(--space-10));
+  display: grid;
+  gap: var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  transform: translateY(-50%);
+}
+
+.stepRail::before {
+  position: absolute;
+  z-index: -1;
+  top: var(--control-md);
+  right: calc((var(--control-md) / 2) - var(--line-thin));
+  bottom: var(--control-md);
+  border-left: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 16%, transparent);
+  content: "";
+}
+
+.stepRail button {
+  display: flex;
+  cursor: pointer;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  border: 0;
+  background: transparent;
+  color: color-mix(in srgb, var(--color-on-photo) 32%, transparent);
+  font: inherit;
+  transition: color var(--motion-base) var(--ease-out);
+}
+
+.stepRail button:disabled {
+  cursor: not-allowed;
+}
+
+.stepRail button:not(:disabled):hover {
+  color: color-mix(in srgb, var(--color-on-photo) 74%, transparent);
+}
+
+.stepRail small {
+  display: block;
+  font-size: var(--type-body-sm-size);
+  font-weight: 500;
+  letter-spacing: var(--tracking-body);
+  white-space: nowrap;
+}
+
+.stepRail span {
+  display: grid;
+  width: var(--control-md);
+  height: var(--control-md);
+  flex: 0 0 auto;
+  place-items: center;
+  border: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 18%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-forest) 55%, transparent);
+  font-size: var(--type-body-sm-size);
+  font-variant-numeric: tabular-nums;
+  transition:
+    background var(--motion-base) var(--ease-out),
+    border-color var(--motion-base) var(--ease-out),
+    box-shadow var(--motion-base) var(--ease-out),
+    color var(--motion-base) var(--ease-out);
+}
+
+.stepRail .completeStep button {
+  color: color-mix(in srgb, var(--color-on-photo) 64%, transparent);
+}
+
+.stepRail .completeStep span {
+  border-color: color-mix(in srgb, var(--color-secondary) 52%, transparent);
+  background: color-mix(in srgb, var(--color-secondary) 18%, transparent);
+  color: var(--color-on-photo);
+}
+
+.stepRail .activeStep button {
+  color: var(--color-on-photo);
+  font-weight: 600;
+}
+
+.stepRail .activeStep span {
+  border-color: transparent;
+  background: var(--color-primary);
+  color: var(--color-white);
+  box-shadow: 0 0 0 var(--space-1) color-mix(in srgb, var(--color-primary) 32%, transparent);
+}
+
+@keyframes scene-in {
+  from { opacity: 0; transform: scale(1.025); filter: blur(var(--space-1)); }
+  to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+@keyframes stage-in {
+  from { opacity: 0; transform: translate3d(0, var(--space-3), 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes scan {
+  from { opacity: 0; transform: translateY(0); }
+  20% { opacity: 1; }
+  to { opacity: 0; transform: translateY(calc(var(--space-36) + var(--space-12))); }
+}
+
+@keyframes loading {
+  from { transform: translateX(-80%); }
+  to { transform: translateX(210%); }
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  .planterViewport {
+    right: 0;
+    width: 60%;
+  }
+}
+
+@media (min-width: 1025px) {
+  .dimensionHeading {
+    width: min(44%, calc(var(--layout-question-max) + var(--space-24)));
+  }
+
+  .dimensionHeading h1 {
+    font-size: var(--type-display-hero-size);
+    line-height: var(--leading-page);
+  }
+
+  .dimensionHeading > span {
+    max-width: calc(var(--layout-question-max) + var(--space-8));
+    margin-top: var(--space-4);
+    font-size: var(--type-body-size);
+    line-height: 1.55;
+  }
+
+  .measurementGrid {
+    width: calc(var(--space-36) * 3 + var(--space-16));
+  }
+
+  .measurement {
+    min-height: calc(var(--space-20) + var(--space-3));
+    grid-template-columns: var(--control-lg) var(--space-18) var(--control-md) var(--control-lg) var(--space-16) var(--control-lg);
+    column-gap: var(--space-3);
+  }
+
+  .measurementIcon {
+    width: var(--control-lg);
+    height: var(--control-lg);
+    font-size: var(--type-body-lg-size);
+  }
+
+  .measurementLabel {
+    font-size: var(--type-body-size);
+  }
+
+  .measurement small {
+    font-size: var(--type-caption-size);
+  }
+
+  .measurement button {
+    width: var(--control-lg);
+    height: var(--control-lg);
+    font-size: var(--type-body-lg-size);
+  }
+
+  .measurement strong {
+    height: var(--control-lg);
+    font-size: var(--type-stat-size);
+  }
+
+  .dimensionActions {
+    width: calc(var(--space-36) * 3 + var(--space-16));
+  }
+
+  .dimensionActions .primaryButton,
+  .dimensionActions .backButton {
+    min-height: var(--space-16);
+    font-size: var(--type-body-size);
+  }
+}
+
+@media (max-width: 1024px) {
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .resultStage {
+    padding-inline: var(--space-8) var(--space-16);
+  }
+
+  .whiteSweep {
+    width: 52%;
+  }
+
+  .planterViewport {
+    right: calc(21% - 20vw);
+    width: 58%;
+  }
+
+  .cropStage {
+    grid-template-columns: 58% 42%;
+  }
+
+  .cropGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cropSceneLabel {
+    width: 70%;
+  }
+
+  .stepRail {
+    right: var(--space-4);
+  }
+
+  .stepRail small {
+    display: none;
+  }
+
+  .stepRail::before {
+    right: calc((var(--control-sm) / 2) - var(--line-thin));
+    top: var(--control-sm);
+    bottom: var(--control-sm);
+  }
+
+  .stepRail span {
+    width: var(--control-sm);
+    height: var(--control-sm);
+  }
+
+}
+
+@media (max-width: 768px) {
+  .diagnosis {
+    overflow-x: hidden;
+    overflow-y: visible;
+  }
+
+  .sceneBackdrop,
+  .sceneShade,
+  .sceneTexture {
+    position: fixed;
+  }
+
+  .sceneImage {
+    object-position: 64% center;
+  }
+
+  .sceneShade {
+    background: linear-gradient(0deg, var(--color-forest-night) 10%, color-mix(in srgb, var(--color-forest-night) 10%, transparent) 58%, color-mix(in srgb, var(--color-forest-night) 48%, transparent));
+  }
+
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage {
+    min-height: 100svh;
+    padding: var(--space-24) var(--space-4) var(--space-20);
+  }
+
+  .dimensionStage {
+    min-height: calc(100svh + var(--space-36));
+    padding-bottom: 0;
+  }
+
+  .dimensionHeading {
+    width: 92%;
+  }
+
+  .dimensionHeading h1,
+  .cropPanel h1 {
+    font-size: var(--type-h2-size);
+  }
+
+  .dimensionHeading > span {
+    max-width: 92%;
+  }
+
+  .whiteSweep {
+    position: absolute;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /*
+      곡선이 정점에서 카드 높이의 12%까지 올라온다. 46%로는 첫 번째
+      측정값 줄("가로")이 그 곡선 자리에 걸려 배경 사진과 겹쳐 보였다.
+      곡선이 시작하는 바닥 기준 위치를 낮추기 위해 카드를 더 키운다.
+    */
+    height: 54%;
+    min-height: 0;
+    border-radius: 50% 50% 0 0 / 12% 12% 0 0;
+    padding: 0;
+    clip-path: none;
+  }
+
+  .measurementGrid {
+    bottom: calc(var(--space-16) + var(--control-xl) + var(--space-5));
+    left: var(--space-6);
+    width: calc(100% - (var(--space-6) * 2));
+  }
+
+  .dimensionActions {
+    bottom: var(--space-16);
+    left: var(--space-6);
+    width: calc(100% - (var(--space-6) * 2));
+  }
+
+  .planterViewport {
+    top: 18svh;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: 100%;
+    height: 48svh;
+    min-height: calc((var(--space-36) * 2) + var(--space-12));
+  }
+
+  .cropStage {
+    display: block;
+  }
+
+  .cropPanel {
+    margin-top: 22svh;
+    padding: var(--space-5);
+  }
+
+  .cropGrid {
+    margin-top: var(--space-4);
+  }
+
+  .cropCard {
+    min-height: var(--space-20);
+  }
+
+  .cropSceneLabel {
+    position: absolute;
+    top: var(--space-20);
+    right: var(--space-4);
+    width: 48%;
+  }
+
+  .conditionStage {
+    align-content: end;
+  }
+
+  .conditionStage > header h1,
+  .resultStage > header h1 {
+    font-size: var(--type-h3-size);
+  }
+
+  .conditionSummary {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-top: var(--space-6);
+  }
+
+  .conditionGroup > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .conditionGroup label {
+    min-height: var(--control-xl);
+    padding: var(--space-2);
+  }
+
+  .conditionGroup small {
+    display: none;
+  }
+
+  .analysisPanel {
+    min-height: calc(var(--space-36) + var(--space-6));
+  }
+
+  .planGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .planCard {
+    min-height: calc(var(--space-36) + var(--space-30));
+    grid-template-rows: var(--space-24) var(--space-14) auto;
+    transform: none;
+  }
+
+  .planCard:nth-child(2) {
+    transform: none;
+  }
+
+  .planterModel b {
+    height: var(--space-12);
+  }
+
+  .resultActions {
+    width: 100%;
+    flex-direction: column-reverse;
+  }
+
+  .resultActions .primaryButton,
+  .resultActions .secondaryButton {
+    width: 100%;
+  }
+
+  .stepRail {
+    position: absolute;
+    top: auto;
+    right: var(--space-4);
+    bottom: var(--space-4);
+    left: var(--space-4);
+    display: flex;
+    justify-content: center;
+    gap: var(--space-10);
+    transform: none;
+  }
+
+  .stepRail::before {
+    top: calc((var(--space-8) / 2) - var(--line-thin));
+    right: calc(50% - var(--space-16));
+    bottom: auto;
+    left: calc(50% - var(--space-16));
+    border-top: var(--line-thin) solid color-mix(in srgb, var(--color-on-photo) 36%, transparent);
+    border-left: 0;
+  }
+
+  .stepRail span {
+    width: var(--space-8);
+    height: var(--space-8);
+    font-size: var(--type-caption-size);
+  }
+
+}
+
+@media (max-width: 420px) {
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage {
+    padding-inline: var(--space-3);
+  }
+
+  .cropPanel {
+    padding: var(--space-5);
+  }
+
+  .measurement {
+    grid-template-columns: var(--control-sm) var(--space-16) var(--space-8) var(--control-sm) var(--space-12) var(--control-sm);
+    column-gap: var(--space-1);
+  }
+
+  .planterViewport {
+    top: 19svh;
+    left: 0;
+    width: 100%;
+    height: 42svh;
+    min-height: calc(var(--space-36) * 2);
+    transform: none;
+  }
+
+  .cropCard strong,
+  .conditionGroup strong {
+    font-size: var(--type-caption-size);
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sceneBackdrop,
+  .sceneImage,
+  .dimensionStage,
+  .cropStage,
+  .conditionStage,
+  .analysisStage,
+  .resultStage,
+  .cropSceneLabel,
+  .scanLine,
+  .loadingTrack span,
+  .cropCard img,
+  .planPlants img {
+    animation: none;
+    transition: none;
+  }
+}

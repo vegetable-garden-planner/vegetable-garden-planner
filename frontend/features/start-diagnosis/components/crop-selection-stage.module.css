@@ -1,0 +1,651 @@
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  min-height: 45rem;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.stage::before {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(1, 17, 12, 0.9) 0%, rgba(2, 21, 14, 0.78) 38%, rgba(2, 19, 13, 0.28) 60%, rgba(2, 13, 9, 0.04) 78%),
+    linear-gradient(0deg, rgba(1, 13, 9, 0.72) 0%, transparent 36%, rgba(2, 15, 10, 0.08) 68%);
+  content: "";
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  z-index: 6;
+  width: clamp(34.5rem, 43vw, 38.75rem);
+  margin-left: clamp(4.5rem, 7.2vw, 8.5rem);
+  padding-top: clamp(7.3rem, 15.8vh, 8.2rem);
+}
+
+.heading h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(2.55rem, 3.35vw, 3rem);
+  font-weight: 760;
+  line-height: var(--leading-page);
+  letter-spacing: var(--tracking-page);
+  text-shadow: 0 0.18rem 1.4rem rgba(0, 0, 0, 0.5);
+}
+
+.heading p {
+  margin: 1.45rem 0 0;
+  color: rgba(226, 234, 229, 0.72);
+  font-size: clamp(0.78rem, 1vw, 0.9rem);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-card);
+  text-shadow: 0 0.08rem 0.6rem rgba(0, 0, 0, 0.48);
+}
+
+.progress {
+  position: absolute;
+  z-index: 10;
+  top: calc(var(--control-lg) + clamp(1.65rem, 3.7vh, 2.25rem));
+  right: clamp(2.5rem, 6.8vw, 7.5rem);
+  width: clamp(10.5rem, 14vw, 13rem);
+  pointer-events: none;
+  text-align: right;
+}
+
+.progress p {
+  margin: 0;
+  /* 숫자도 Pretendard로 통일한다 (표기 안정용 tabular-nums만 사용) */
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.025em;
+}
+
+.progress strong {
+  color: #0dc88f;
+  font-weight: 500;
+}
+
+.progress span {
+  color: rgba(196, 207, 201, 0.5);
+}
+
+.progress > i {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 1px;
+  margin-top: 0.75rem;
+  overflow: hidden;
+  background: rgba(169, 185, 176, 0.22);
+}
+
+.progress > i > b {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(14, 197, 141, 0.38), #18d29a);
+}
+
+.cropGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(0.8rem, 1.25vw, 1.15rem);
+  margin-top: clamp(1.6rem, 3.2vh, 2rem);
+}
+
+.cropCard {
+  position: relative;
+  display: block;
+  height: clamp(7.4rem, 18.2vh, 9.1rem);
+  min-width: 0;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(137, 177, 155, 0.22);
+  border-radius: 0.82rem;
+  background: rgba(7, 31, 22, 0.72);
+  box-shadow: 0 0.6rem 1.6rem rgba(0, 8, 5, 0.14);
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  transform: translateZ(0);
+  transition:
+    border-color var(--motion-base) var(--ease-out),
+    box-shadow var(--motion-base) var(--ease-out),
+    filter var(--motion-base) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
+}
+
+.cropCard:hover {
+  border-color: rgba(82, 212, 161, 0.58);
+  filter: brightness(1.08);
+}
+
+.cropCard:active {
+  transform: scale(0.985);
+}
+
+.cropCard:focus-visible {
+  outline: var(--line-focus) solid #72e7b6;
+  outline-offset: 0.2rem;
+}
+
+.selectedCard {
+  border-color: #55dba8;
+  box-shadow: inset 0 0 0 1px rgba(39, 218, 151, 0.24), 0 0 1.3rem rgba(11, 196, 132, 0.13);
+}
+
+.attentionCard {
+  animation: crop-attention 820ms var(--ease-scene) both;
+}
+
+.cropImage {
+  object-fit: cover;
+  object-position: center;
+  transform: scale(1.01);
+  transition: transform var(--motion-slow) var(--ease-out), filter var(--motion-base) var(--ease-out);
+}
+
+.cropCard:hover .cropImage {
+  transform: scale(1.025);
+}
+
+.cropShade {
+  position: absolute;
+  inset: 42% 0 0;
+  background: linear-gradient(0deg, rgba(3, 23, 16, 0.98) 8%, rgba(3, 23, 16, 0.82) 54%, transparent 100%);
+}
+
+.cropMeta {
+  position: absolute;
+  right: 0.78rem;
+  bottom: 0.62rem;
+  left: 0.78rem;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.cropMeta strong {
+  overflow: hidden;
+  font-size: clamp(0.72rem, 0.95vw, 0.84rem);
+  font-weight: 650;
+  letter-spacing: var(--tracking-card);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cropMeta small {
+  flex: none;
+  border-radius: var(--radius-pill);
+  background: rgba(82, 102, 91, 0.42);
+  color: rgba(229, 237, 233, 0.64);
+  font-size: 0.59rem;
+  font-weight: 650;
+  line-height: 1;
+  padding: 0.28rem 0.46rem;
+}
+
+.cropMeta small[data-difficulty="쉬움"] {
+  background: rgba(4, 114, 75, 0.48);
+  color: #47d99f;
+}
+
+.cropMeta small[data-difficulty="어려움"] {
+  background: rgba(121, 92, 31, 0.45);
+  color: #e1b75b;
+}
+
+.check {
+  position: absolute;
+  top: 0.48rem;
+  right: 0.48rem;
+  display: grid;
+  width: 1.45rem;
+  height: 1.45rem;
+  place-items: center;
+  border: 1px solid rgba(178, 255, 220, 0.28);
+  border-radius: 50%;
+  background: linear-gradient(145deg, #39d3a0, #079d70);
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 24, 15, 0.3);
+  color: #effff9;
+  font-size: 0.78rem;
+  font-weight: 800;
+  opacity: 0;
+  transform: scale(0.72);
+  transition: opacity var(--motion-base) var(--ease-out), transform var(--motion-base) var(--ease-out);
+}
+
+.selectedCard .check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.navigation {
+  display: flex;
+  gap: 1.15rem;
+  margin-top: clamp(1.5rem, 3.3vh, 2.1rem);
+}
+
+.backButton,
+.createButton {
+  display: inline-flex;
+  min-height: 3.85rem;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  /* 랜딩 CTA · 다른 단계 버튼과 같은 모양 */
+  border-radius: var(--radius-pill);
+  color: #fff;
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 650;
+  letter-spacing: var(--tracking-body);
+  transition:
+    background-color var(--motion-base) var(--ease-out),
+    border-color var(--motion-base) var(--ease-out),
+    filter var(--motion-base) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
+}
+
+.backButton {
+  width: 12.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: transparent;
+}
+
+.createButton {
+  width: 19.25rem;
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+}
+
+.backButton:hover {
+  border-color: rgba(255, 255, 255, 0.58);
+}
+
+.createButton:not(:disabled):hover {
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-hover);
+}
+
+.backButton:active,
+.createButton:not(:disabled):active {
+  transform: scale(0.985);
+}
+
+.backButton:focus-visible,
+.createButton:focus-visible,
+.chip button:focus-visible,
+.addButton:focus-visible {
+  outline: var(--line-focus) solid #79ebbd;
+  outline-offset: 0.22rem;
+}
+
+.createButton:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.35);
+  opacity: 0.48;
+}
+
+.viewport {
+  position: absolute;
+  z-index: 3;
+  right: -2.5vw;
+  bottom: 4.2rem;
+  width: 57vw;
+  height: 66vh;
+  min-height: 28rem;
+  pointer-events: none;
+  filter: drop-shadow(0 2rem 2rem rgba(0, 8, 5, 0.34));
+}
+
+.viewport > div,
+.viewport canvas {
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+}
+
+.selectedBar {
+  position: absolute;
+  z-index: 9;
+  right: clamp(2rem, 6.8vw, 7.5rem);
+  bottom: clamp(1.8rem, 4.6vh, 2.8rem);
+  display: flex;
+  width: clamp(33.5rem, 42vw, 40rem);
+  min-height: 4.45rem;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(132, 177, 154, 0.24);
+  border-radius: 0.86rem;
+  background: rgba(6, 31, 22, 0.7);
+  box-shadow: 0 0.75rem 2.5rem rgba(0, 10, 6, 0.28);
+  padding: 0.65rem 0.75rem 0.65rem 1rem;
+  backdrop-filter: blur(16px);
+}
+
+.selectedBar > p {
+  flex: none;
+  margin: 0;
+  color: rgba(229, 236, 232, 0.7);
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.selectedBar > p strong {
+  margin-left: 0.3rem;
+  color: #20d59b;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.selectedBar > p span {
+  color: rgba(203, 214, 208, 0.46);
+  font-variant-numeric: tabular-nums;
+}
+
+.chipList {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+}
+
+.chipList::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  display: inline-flex;
+  min-width: max-content;
+  min-height: 2.35rem;
+  align-items: center;
+  gap: 0.38rem;
+  border: 1px solid rgba(121, 170, 147, 0.18);
+  border-radius: 0.48rem;
+  background: rgba(14, 47, 35, 0.8);
+  color: rgba(241, 247, 244, 0.8);
+  padding: 0.22rem 0.36rem 0.22rem 0.24rem;
+  font-size: 0.68rem;
+}
+
+.chipImage {
+  position: relative;
+  width: 1.8rem;
+  height: 1.8rem;
+  overflow: hidden;
+  flex: none;
+  border-radius: 0.35rem;
+}
+
+.chipImage img {
+  object-fit: cover;
+}
+
+.chip button {
+  display: grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  cursor: pointer;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(224, 237, 230, 0.08);
+  color: rgba(229, 239, 234, 0.68);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.chip button:hover {
+  background: rgba(224, 237, 230, 0.16);
+  color: #fff;
+}
+
+.addButton {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  flex: none;
+  cursor: pointer;
+  place-items: center;
+  border: 1px dashed rgba(169, 219, 193, 0.7);
+  border-radius: 0.5rem;
+  background: rgba(9, 35, 25, 0.48);
+  color: rgba(234, 244, 239, 0.86);
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 300;
+}
+
+.addButton:hover:not(:disabled) {
+  border-color: #64dcaa;
+  background: rgba(19, 68, 49, 0.7);
+}
+
+.addButton:disabled {
+  cursor: default;
+  opacity: 0.28;
+}
+
+@media (max-width: 1240px) {
+  .content {
+    width: min(48vw, 35.25rem);
+    margin-left: 4rem;
+  }
+
+  .cropCard {
+    height: 8rem;
+  }
+
+  .viewport {
+    right: -5vw;
+    width: 59vw;
+  }
+
+  .selectedBar {
+    right: 3.5rem;
+    width: min(43vw, 35rem);
+  }
+}
+
+@media (max-height: 760px) and (min-width: 901px) {
+  .content {
+    padding-top: 6.2rem;
+  }
+
+  .heading h1 {
+    font-size: 2.4rem;
+  }
+
+  .heading p {
+    margin-top: 1rem;
+    font-size: 0.76rem;
+  }
+
+  .cropGrid {
+    margin-top: 1.15rem;
+  }
+
+  .cropCard {
+    height: 7.15rem;
+  }
+
+  .navigation {
+    margin-top: 1.2rem;
+  }
+
+  .backButton,
+  .createButton {
+    min-height: 3.35rem;
+  }
+
+  .selectedBar {
+    min-height: 3.9rem;
+    bottom: 1.4rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .stage {
+    height: 100svh;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .stage::before {
+    background: linear-gradient(180deg, rgba(1, 17, 12, 0.9) 0 47rem, rgba(2, 17, 12, 0.5) 60rem, rgba(1, 12, 8, 0.82));
+  }
+
+  .stage::after {
+    position: fixed;
+    z-index: 8;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 5rem;
+    background: linear-gradient(180deg, rgba(1, 18, 12, 0.94), rgba(1, 18, 12, 0.62) 68%, transparent);
+    content: "";
+    pointer-events: none;
+  }
+
+  .progress {
+    top: calc(var(--control-lg) + 1.35rem);
+    right: 1rem;
+    width: 8rem;
+  }
+
+  .content {
+    width: calc(100% - 2rem);
+    margin: 0 auto;
+    padding-top: 6.8rem;
+  }
+
+  .heading h1 {
+    font-size: clamp(2rem, 8.5vw, 2.75rem);
+  }
+
+  .heading p {
+    max-width: 30rem;
+    font-size: 0.8rem;
+  }
+
+  .cropGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-top: 1.6rem;
+  }
+
+  .cropCard {
+    height: 7.8rem;
+  }
+
+  .navigation {
+    gap: 0.7rem;
+  }
+
+  .backButton {
+    width: 38%;
+  }
+
+  .createButton {
+    width: 62%;
+  }
+
+  .backButton,
+  .createButton {
+    min-height: 3.5rem;
+    font-size: 0.82rem;
+  }
+
+  .viewport {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: 118%;
+    height: 23rem;
+    min-height: 0;
+    margin: -1.2rem 0 -2rem -9%;
+  }
+
+  .selectedBar {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    width: calc(100% - 2rem);
+    min-height: 4.25rem;
+    margin: 0 auto 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .content {
+    width: calc(100% - 1.5rem);
+    padding-top: 7.25rem;
+  }
+
+  .heading h1 {
+    font-size: 2rem;
+  }
+
+  .cropCard {
+    height: 7.15rem;
+  }
+
+  .cropMeta {
+    right: 0.55rem;
+    bottom: 0.5rem;
+    left: 0.55rem;
+  }
+
+  .cropMeta strong {
+    max-width: 6.4rem;
+    font-size: 0.72rem;
+  }
+
+  .cropMeta small {
+    padding-inline: 0.35rem;
+    font-size: 0.53rem;
+  }
+
+  .selectedBar {
+    width: calc(100% - 1.5rem);
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+
+  .chipList {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attentionCard {
+    animation: none;
+  }
+
+  .cropCard,
+  .cropImage,
+  .check,
+  .backButton,
+  .createButton {
+    transition: none;
+  }
+}
+
+@keyframes crop-attention {
+  0%, 100% { box-shadow: 0 0 0 rgba(51, 226, 161, 0); }
+  38% { box-shadow: 0 0 0 0.28rem rgba(51, 226, 161, 0.22), 0 0 1.8rem rgba(19, 220, 148, 0.25); }
+}

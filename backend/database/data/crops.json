@@ -1,0 +1,479 @@
+{
+  "sources": [
+    {
+      "id": "nongsaro-beginner-garden-manual",
+      "organization": "농촌진흥청 농사로",
+      "title": "초보자를 위한 텃밭 매뉴얼 - 텃밭작물별 파종시기(예)",
+      "url": "https://www.nongsaro.go.kr/portal/ps/psz/psza/contentMain.ps?menuId=PS65328",
+      "reviewedAt": "2026-08-06"
+    },
+    {
+      "id": "iowa-state-cut-flower-care",
+      "organization": "Iowa State University Extension and Outreach",
+      "title": "How to Harvest, Condition, and Care for Cut Flowers",
+      "url": "https://yardandgarden.extension.iastate.edu/how-to/how-harvest-condition-and-care-cut-flowers",
+      "reviewedAt": "2026-08-12"
+    },
+    {
+      "id": "rhs-phalaenopsis-guide",
+      "organization": "Royal Horticultural Society",
+      "title": "How to grow moth orchids (Phalaenopsis)",
+      "url": "https://www.rhs.org.uk/plants/phalaenopsis/growing-guide/",
+      "reviewedAt": "2026-08-07"
+    },
+    {
+      "id": "rhs-african-violet-guide",
+      "organization": "Royal Horticultural Society",
+      "title": "How to grow African violets",
+      "url": "https://www.rhs.org.uk/plants/african-violets/growing-guide",
+      "reviewedAt": "2026-08-07"
+    },
+    {
+      "id": "rda-companion-planting-2018",
+      "organization": "농촌진흥청 국립원예특작과학원",
+      "title": "식물에도 '궁합'이 있다... 함께 심으면 좋은 '동반식물'",
+      "url": "https://www.rda.go.kr/board/board.do?mode=view&prgId=day_farmprmninfoEntry&dataNo=100000744525",
+      "reviewedAt": "2026-08-27"
+    },
+    {
+      "id": "nongsaro-crop-companion-curation",
+      "organization": "농촌진흥청 농사로",
+      "title": "작지만 알찬 텃밭 꾸미려면 심을 작물들 궁합 먼저 보세요",
+      "url": "https://www.nongsaro.go.kr/portal/ps/psv/psvr/psvre/curationDtl.ps?menuId=PS03352&srchCurationNo=1678",
+      "reviewedAt": "2026-08-27"
+    }
+  ],
+  "crops": [
+    {
+      "id": "potato",
+      "name": "감자",
+      "familyName": "가지과",
+      "category": "tuber",
+      "difficulty": "normal",
+      "plantingMaterial": "seed-potato",
+      "supportedSpaces": [
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 3,
+        "endMonth": 4,
+        "label": "3월 말~4월 초"
+      },
+      "harvestPeriod": {
+        "startMonth": 6,
+        "endMonth": 7,
+        "label": "6월 말~7월 초"
+      },
+      "plantSpacingCm": 25,
+      "minPotDepthCm": 30,
+      "sunRequirement": "full",
+      "needsSupport": false,
+      "summary": "씨감자를 심어 초여름에 수확하는 대표적인 텃밭 작물입니다.",
+      "sourceId": "nongsaro-beginner-garden-manual"
+    },
+    {
+      "id": "lettuce",
+      "name": "상추",
+      "familyName": "국화과",
+      "category": "leaf",
+      "difficulty": "easy",
+      "plantingMaterial": "seedling",
+      "supportedSpaces": [
+        "indoor",
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 4,
+        "endMonth": 4,
+        "label": "4월 초~4월 말"
+      },
+      "harvestPeriod": {
+        "startMonth": 5,
+        "endMonth": 6,
+        "label": "5월 중순~6월 말"
+      },
+      "plantSpacingCm": 25,
+      "minPotDepthCm": 15,
+      "sunRequirement": "partial",
+      "needsSupport": false,
+      "summary": "화분과 텃밭에서 모두 시작하기 쉬운 잎채소입니다.",
+      "sourceId": "nongsaro-beginner-garden-manual"
+    },
+    {
+      "id": "kidney-bean",
+      "name": "강낭콩",
+      "familyName": "콩과",
+      "category": "legume",
+      "difficulty": "easy",
+      "plantingMaterial": "seed",
+      "supportedSpaces": [
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 4,
+        "endMonth": 4,
+        "label": "4월 초~4월 말"
+      },
+      "harvestPeriod": {
+        "startMonth": 7,
+        "endMonth": 7,
+        "label": "7월 초"
+      },
+      "plantSpacingCm": 30,
+      "minPotDepthCm": 25,
+      "sunRequirement": "full",
+      "needsSupport": true,
+      "summary": "씨앗으로 바로 심고 지지대를 활용해 기르는 콩과 작물입니다.",
+      "sourceId": "nongsaro-beginner-garden-manual"
+    },
+    {
+      "id": "young-radish",
+      "name": "열무",
+      "familyName": "배추과",
+      "category": "root",
+      "difficulty": "easy",
+      "plantingMaterial": "seed",
+      "supportedSpaces": [
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 4,
+        "endMonth": 4,
+        "label": "4월 초~4월 말"
+      },
+      "harvestPeriod": {
+        "startMonth": 5,
+        "endMonth": 5,
+        "label": "5월 중순부터"
+      },
+      "plantSpacingCm": 5,
+      "minPotDepthCm": 15,
+      "sunRequirement": "partial",
+      "needsSupport": false,
+      "summary": "생육 기간이 짧아 작은 구역에서도 빠르게 수확할 수 있습니다.",
+      "sourceId": "nongsaro-beginner-garden-manual"
+    },
+    {
+      "id": "spinach",
+      "name": "시금치",
+      "familyName": "비름과",
+      "category": "leaf",
+      "difficulty": "easy",
+      "plantingMaterial": "seed",
+      "supportedSpaces": [
+        "indoor",
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 4,
+        "endMonth": 4,
+        "label": "4월 초~4월 말"
+      },
+      "harvestPeriod": {
+        "startMonth": 5,
+        "endMonth": 5,
+        "label": "5월 중순부터"
+      },
+      "plantSpacingCm": 5,
+      "minPotDepthCm": 15,
+      "sunRequirement": "partial",
+      "needsSupport": false,
+      "summary": "줄뿌림 후 솎아주며 기르는 대표적인 잎채소입니다.",
+      "sourceId": "nongsaro-beginner-garden-manual",
+      "companions": [
+        {
+          "cropId": "green-onion",
+          "reason": "대파와 시금치는 함께 심으면 잘 어울리는 궁합이에요.",
+          "sourceId": "nongsaro-crop-companion-curation"
+        }
+      ]
+    },
+    {
+      "id": "green-onion",
+      "name": "대파",
+      "familyName": "수선화과",
+      "category": "leaf",
+      "difficulty": "normal",
+      "plantingMaterial": "seedling",
+      "supportedSpaces": [
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 4,
+        "endMonth": 4,
+        "label": "4월 초~4월 말"
+      },
+      "harvestPeriod": {
+        "startMonth": 6,
+        "endMonth": 6,
+        "label": "모종은 6월 초부터"
+      },
+      "plantSpacingCm": 10,
+      "minPotDepthCm": 20,
+      "sunRequirement": "partial",
+      "needsSupport": false,
+      "summary": "모종이나 씨앗으로 시작해 필요한 만큼 나누어 수확할 수 있습니다.",
+      "sourceId": "nongsaro-beginner-garden-manual",
+      "companions": [
+        {
+          "cropId": "cucumber",
+          "reason": "대파 뿌리의 천연 항생물질이 오이 덩굴쪼김병을 예방하는 데 도움이 돼요.",
+          "sourceId": "rda-companion-planting-2018"
+        },
+        {
+          "cropId": "tomato",
+          "reason": "대파 뿌리에 사는 미생물이 만든 천연 항생물질이 병해충을 막아줘요.",
+          "sourceId": "nongsaro-crop-companion-curation"
+        },
+        {
+          "cropId": "spinach",
+          "reason": "대파와 시금치는 함께 심으면 잘 어울리는 궁합이에요.",
+          "sourceId": "nongsaro-crop-companion-curation"
+        }
+      ]
+    },
+    {
+      "id": "carrot",
+      "name": "당근",
+      "familyName": "미나리과",
+      "category": "root",
+      "difficulty": "normal",
+      "plantingMaterial": "seed",
+      "supportedSpaces": [
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 4,
+        "endMonth": 4,
+        "label": "4월 초~4월 말"
+      },
+      "harvestPeriod": {
+        "startMonth": 7,
+        "endMonth": 7,
+        "label": "7월 초부터"
+      },
+      "plantSpacingCm": 10,
+      "minPotDepthCm": 25,
+      "sunRequirement": "full",
+      "needsSupport": false,
+      "summary": "깊이가 충분한 흙에 씨앗을 바로 뿌려 기르는 뿌리채소입니다.",
+      "sourceId": "nongsaro-beginner-garden-manual"
+    },
+    {
+      "id": "tomato",
+      "name": "토마토",
+      "familyName": "가지과",
+      "category": "fruit",
+      "difficulty": "challenging",
+      "plantingMaterial": "seedling",
+      "supportedSpaces": [
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 5,
+        "endMonth": 5,
+        "label": "5월 초"
+      },
+      "harvestPeriod": {
+        "startMonth": 6,
+        "endMonth": 6,
+        "label": "6월 말부터"
+      },
+      "plantSpacingCm": 45,
+      "minPotDepthCm": 30,
+      "sunRequirement": "full",
+      "needsSupport": true,
+      "summary": "햇빛과 지지대가 필요하며 곁순 관리가 중요한 열매채소입니다.",
+      "sourceId": "nongsaro-beginner-garden-manual",
+      "companions": [
+        {
+          "cropId": "green-onion",
+          "reason": "대파 뿌리에 사는 미생물이 만든 천연 항생물질이 병해충을 막아줘요.",
+          "sourceId": "nongsaro-crop-companion-curation"
+        }
+      ]
+    },
+    {
+      "id": "cucumber",
+      "name": "오이",
+      "familyName": "박과",
+      "category": "fruit",
+      "difficulty": "challenging",
+      "plantingMaterial": "seedling",
+      "supportedSpaces": [
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 5,
+        "endMonth": 5,
+        "label": "5월 초"
+      },
+      "harvestPeriod": {
+        "startMonth": 6,
+        "endMonth": 6,
+        "label": "6월 중순부터"
+      },
+      "plantSpacingCm": 40,
+      "minPotDepthCm": 30,
+      "sunRequirement": "full",
+      "needsSupport": true,
+      "summary": "덩굴을 유인할 지지 구조와 꾸준한 물 관리가 필요합니다.",
+      "sourceId": "nongsaro-beginner-garden-manual",
+      "companions": [
+        {
+          "cropId": "green-onion",
+          "reason": "대파 뿌리의 천연 항생물질이 덩굴쪼김병을 예방하는 데 도움이 돼요.",
+          "sourceId": "rda-companion-planting-2018"
+        }
+      ]
+    },
+    {
+      "id": "pepper",
+      "name": "고추",
+      "familyName": "가지과",
+      "category": "fruit",
+      "difficulty": "normal",
+      "plantingMaterial": "seedling",
+      "supportedSpaces": [
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 5,
+        "endMonth": 5,
+        "label": "5월 초"
+      },
+      "harvestPeriod": {
+        "startMonth": 6,
+        "endMonth": 6,
+        "label": "6월 중순부터"
+      },
+      "plantSpacingCm": 45,
+      "minPotDepthCm": 25,
+      "sunRequirement": "full",
+      "needsSupport": true,
+      "summary": "모종을 심고 지지대를 세워 여름 동안 차례로 수확합니다.",
+      "sourceId": "nongsaro-beginner-garden-manual"
+    },
+    {
+      "id": "gift-bouquet",
+      "name": "꽃다발",
+      "familyName": "혼합 절화",
+      "category": "flower",
+      "difficulty": "easy",
+      "plantingMaterial": "cut-flower",
+      "supportedSpaces": [
+        "indoor"
+      ],
+      "plantingPeriod": {
+        "startMonth": 1,
+        "endMonth": 12,
+        "label": "선물 받은 날부터"
+      },
+      "harvestPeriod": {
+        "startMonth": 1,
+        "endMonth": 12,
+        "label": "꽃병에서 감상"
+      },
+      "plantSpacingCm": 1,
+      "minPotDepthCm": null,
+      "sunRequirement": "partial",
+      "needsSupport": false,
+      "summary": "선물 받은 꽃을 바로 손질하고 물을 관리해 가능한 오래 감상하는 방법을 안내합니다.",
+      "sourceId": "iowa-state-cut-flower-care",
+      "careGuide": {
+        "lifespan": "꽃 종류와 신선도에 따라 보통 며칠에서 2주 안팎",
+        "light": "직사광선과 강한 조명을 피해 서늘하고 밝은 곳",
+        "watering": "깨끗한 꽃병 물을 자주 갈고 물에 잠기는 잎은 제거",
+        "temperature": "난방기·에어컨 바람과 과일 옆을 피한 서늘한 실내",
+        "actions": [
+          "깨끗하고 날카로운 가위로 줄기 끝을 사선으로 다시 자르세요.",
+          "물에 잠길 잎을 모두 떼고 깨끗이 씻은 꽃병에 꽂으세요.",
+          "시든 꽃과 잎은 바로 제거하고 물이 흐려지기 전에 갈아 주세요."
+        ]
+      }
+    },
+    {
+      "id": "moth-orchid",
+      "name": "호접란",
+      "familyName": "난초과",
+      "category": "flower",
+      "difficulty": "normal",
+      "plantingMaterial": "potted-plant",
+      "supportedSpaces": [
+        "indoor",
+        "balcony"
+      ],
+      "plantingPeriod": {
+        "startMonth": 1,
+        "endMonth": 12,
+        "label": "연중 실내 관리"
+      },
+      "harvestPeriod": {
+        "startMonth": 1,
+        "endMonth": 12,
+        "label": "꽃이 수개월 지속될 수 있음"
+      },
+      "plantSpacingCm": 20,
+      "minPotDepthCm": 15,
+      "sunRequirement": "partial",
+      "needsSupport": false,
+      "summary": "밝은 간접광과 통풍이 좋은 난 전용 배지가 필요한 오래 사는 실내 꽃입니다.",
+      "sourceId": "rhs-phalaenopsis-guide",
+      "careGuide": {
+        "lifespan": "건강한 포기는 여러 해 살며 꽃은 수개월 지속될 수 있음",
+        "light": "여름 직사광선을 피한 밝은 간접광",
+        "watering": "생육기에는 약 주 1회 물을 주고 완전히 배수하며 받침 물은 버리기",
+        "temperature": "낮 19~30℃, 밤 16~19℃ 정도의 안정된 실내",
+        "actions": [
+          "뿌리가 계속 젖어 있지 않도록 물을 준 뒤 완전히 빼 주세요.",
+          "꽃이 진 뒤 건강한 마디 위에서 꽃대를 잘라 다시 피는지 지켜보세요.",
+          "일반 흙이 아닌 통기성 좋은 난 전용 바크 배지를 사용하세요."
+        ]
+      }
+    },
+    {
+      "id": "african-violet",
+      "name": "아프리칸 바이올렛",
+      "familyName": "게스네리아과",
+      "category": "flower",
+      "difficulty": "normal",
+      "plantingMaterial": "potted-plant",
+      "supportedSpaces": [
+        "indoor"
+      ],
+      "plantingPeriod": {
+        "startMonth": 1,
+        "endMonth": 12,
+        "label": "연중 실내 관리"
+      },
+      "harvestPeriod": {
+        "startMonth": 1,
+        "endMonth": 12,
+        "label": "환경이 맞으면 여러 달 개화"
+      },
+      "plantSpacingCm": 15,
+      "minPotDepthCm": 10,
+      "sunRequirement": "partial",
+      "needsSupport": false,
+      "summary": "작은 공간에서 키우기 좋고 밝은 간접광에서 오랫동안 꽃을 볼 수 있는 화분 식물입니다.",
+      "sourceId": "rhs-african-violet-guide",
+      "careGuide": {
+        "lifespan": "여러 해 살 수 있으며 조건이 맞으면 여러 달 연속 개화",
+        "light": "강한 직사광선을 피한 밝은 간접광",
+        "watering": "겉흙이 마르면 실온의 물을 흙에만 주고 잎과 중심부는 적시지 않기",
+        "temperature": "낮 18~24℃, 밤 16℃ 이상",
+        "actions": [
+          "찬물이나 잎에 직접 닿는 물은 반점과 부패를 만들 수 있어 피하세요.",
+          "화분을 물에 계속 담가 두지 말고 과습을 막으세요.",
+          "시든 꽃대를 밑부분에서 잘라 새 꽃이 올라오도록 도와주세요."
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+.offerings {
+  display: grid;
+  gap: 24px;
+  padding-bottom: 24px;
+}
+
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+
+.card {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  padding: 32px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.featured { border-color: rgb(255 255 255 / 18%); color: #fff; background: linear-gradient(145deg, var(--color-ink-strong), var(--color-primary-hover)); box-shadow: var(--shadow-md); }
+
+.cardHead { display: flex; align-items: start; justify-content: space-between; gap: 16px; }
+.cardHead > div > p { margin: 0; color: var(--color-primary); font-size: 0.82rem; font-weight: 800; }
+.featured .cardHead > div > p { color: var(--color-accent); }
+.price { margin: 8px 0 0; color: var(--color-ink-strong); font-size: 1.9rem; font-weight: 700; letter-spacing: var(--tracking-section); }
+.featured .price { color: #fff; }
+
+.status { flex: 0 0 auto; border-radius: 999px; padding: 7px 12px; font-size: 0.72rem; font-weight: 800; }
+.statusReady { color: var(--color-primary-hover); background: var(--color-primary-soft); }
+.statusPending { color: #fff; background: rgb(255 255 255 / 14%); }
+
+.summary { margin: 0; color: var(--color-muted); line-height: 1.7; word-break: keep-all; }
+.featured .summary { color: rgb(255 255 255 / 72%); }
+
+.benefits { display: grid; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.benefits li { display: grid; gap: 6px; border-top: 1px solid var(--color-border); padding-top: 14px; }
+.featured .benefits li { border-top-color: rgb(255 255 255 / 14%); }
+.benefitHead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.benefitHead > strong { color: var(--color-ink-strong); font-size: 0.98rem; font-weight: 800; word-break: keep-all; }
+.featured .benefitHead > strong { color: #fff; }
+.benefits p { margin: 0; color: var(--color-muted); font-size: 0.88rem; line-height: var(--leading-body); word-break: keep-all; }
+.featured .benefits p { color: rgb(255 255 255 / 66%); }
+
+.badge { flex: 0 0 auto; border-radius: 999px; padding: 5px 10px; font-size: 0.68rem; font-weight: 800; white-space: nowrap; }
+.badgeAvailable { color: var(--color-primary-hover); background: var(--color-primary-soft); }
+.badgePending { color: var(--color-accent); background: rgb(255 255 255 / 12%); }
+
+.action { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; border: none; border-radius: 999px; padding: 0 22px; font-weight: 800; font-family: inherit; font-size: 1rem; cursor: pointer; }
+.actionReady { color: #fff; background: var(--color-primary); transition: background var(--motion-fast) var(--ease-out); }
+.actionPending { color: rgb(255 255 255 / 62%); background: rgb(255 255 255 / 10%); cursor: default; }
+
+.subscriptionPanel { display: grid; gap: 12px; }
+.subscribeAction { width: 100%; color: var(--color-ink-strong); background: #fff; }
+.ghostAction { width: 100%; color: rgb(255 255 255 / 82%); background: transparent; border: 1px solid rgb(255 255 255 / 30%); }
+.statusLine { margin: 0; color: rgb(255 255 255 / 82%); font-size: 0.92rem; font-weight: 700; }
+.warning { margin: 0; color: #fecaca; font-size: 0.85rem; font-weight: 700; }
+
+.principle { border: 1px solid var(--color-border); border-radius: 24px; padding: 32px; background: var(--color-surface-warm); }
+.principle > p { margin: 0; color: var(--color-primary); font-size: 0.82rem; font-weight: 800; }
+.principle h2 { margin: 8px 0 0; color: var(--color-ink-strong); font-size: 1.4rem; letter-spacing: var(--tracking-section); }
+.principle > p:last-child { max-width: 720px; margin-top: 14px; color: var(--color-muted); font-size: 1rem; font-weight: 400; line-height: var(--leading-body); word-break: keep-all; }
+
+@media (hover: hover) {
+  .actionReady:hover { background: var(--color-primary-hover); }
+}
+
+@media (max-width: 900px) {
+  .cards { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  .card,
+  .principle { padding: 24px 20px; border-radius: 20px; }
+  .price { font-size: 1.6rem; }
+  .benefitHead { align-items: start; flex-direction: column; gap: 8px; }
+}

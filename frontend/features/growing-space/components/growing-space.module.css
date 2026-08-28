@@ -1,0 +1,927 @@
+.listPage {
+  display: grid;
+  gap: 42px;
+}
+
+.listOverview {
+  display: grid;
+  min-height: 190px;
+  padding: 32px 36px;
+  align-items: center;
+  gap: 36px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 82% 10%, rgba(92, 179, 126, 0.3), transparent 21rem),
+    linear-gradient(120deg, #0c2e23, #0b6047);
+  color: white;
+  box-shadow: var(--shadow-md);
+  grid-template-columns: minmax(0, 1.2fr) minmax(430px, 0.8fr);
+}
+
+.listOverview > div > p,
+.listHeading p,
+.formAside > p {
+  color: #73dfb4;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.listOverview h2 {
+  margin-top: 7px;
+  font-size: clamp(1.65rem, 3vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: var(--tracking-section);
+}
+
+.listOverview > div > span {
+  display: block;
+  max-width: 580px;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.listOverview dl {
+  display: grid;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  background: rgba(6, 30, 21, 0.46);
+  backdrop-filter: blur(14px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.listOverview dl > div {
+  padding: 13px 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+  text-align: center;
+}
+
+.listOverview dl > div:first-child {
+  border-left: 0;
+}
+
+.listOverview dt {
+  color: rgba(255, 255, 255, 0.67);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.listOverview dd {
+  margin-top: 8px;
+  color: #77dfb7;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.listHeading {
+  display: flex;
+  margin-bottom: -22px;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.listHeading p {
+  color: var(--color-primary);
+}
+
+.listHeading h2 {
+  margin-top: 5px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-section);
+}
+
+.listHeading > a {
+  color: var(--color-primary-hover);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.spaceGrid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.spaceCard {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 410px;
+  padding: 28px;
+  overflow: hidden;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--motion-base), transform var(--motion-base), box-shadow var(--motion-base);
+}
+
+.spaceCard:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
+}
+
+.cardTopline {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+}
+
+.spaceCard[data-space-type="indoor"] .cardTopline {
+  background: linear-gradient(90deg, #6c9537, #9fc35f);
+}
+
+.spaceCard[data-space-type="balcony"] .cardTopline {
+  background: linear-gradient(90deg, #079568, #55c3a0);
+}
+
+.spaceCard[data-space-type="garden"] .cardTopline {
+  background: linear-gradient(90deg, #925a3f, #c38a61);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.cardHeader p {
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.cardHeader h3 {
+  margin-top: 8px;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-section);
+}
+
+.cardHeader > span {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  padding: 7px 10px;
+  color: var(--color-primary-hover);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.cardFacts {
+  margin-top: 25px;
+}
+
+.cardFacts > div {
+  display: flex;
+  padding: 15px 0;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-border);
+  gap: 20px;
+}
+
+.cardFacts dt {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.cardFacts dd {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.cardActions {
+  display: flex;
+  margin-top: auto;
+  padding-top: 22px;
+  align-items: center;
+  gap: 12px;
+}
+
+.cardActions a,
+.cardActions button {
+  border: 0;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.cardActions button {
+  color: var(--color-danger);
+}
+
+.cardActions .cardPrimaryLink {
+  display: flex;
+  min-height: 42px;
+  margin-right: auto;
+  padding: 0 16px;
+  align-items: center;
+  gap: 14px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 13px;
+}
+
+.addSeasonLink {
+  display: flex;
+  margin-top: 16px;
+  padding-top: 15px;
+  justify-content: center;
+  border-top: 1px dashed #d8d2c8;
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.emptyState {
+  display: grid;
+  min-height: 390px;
+  padding: 50px 24px;
+  place-items: center;
+  align-content: center;
+  border: 1px dashed color-mix(in srgb, var(--color-primary) 34%, var(--color-border));
+  border-radius: 24px;
+  background: linear-gradient(135deg, white, var(--color-surface-warm));
+  text-align: center;
+}
+
+.emptyState > span {
+  display: grid;
+  width: 66px;
+  height: 66px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.emptyState > p {
+  margin-top: 20px;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.emptyState h2 {
+  margin-top: 7px;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.emptyState strong {
+  max-width: 480px;
+  margin-top: 12px;
+  color: var(--color-muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.7;
+}
+
+.emptyState a,
+.submitButton {
+  display: inline-flex;
+  min-height: 50px;
+  margin-top: 24px;
+  padding: 0 24px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: white;
+  font-weight: 800;
+}
+
+.loading {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.loading > div {
+  min-height: 370px;
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: linear-gradient(100deg, #f3f0ea 20%, #faf9f6 45%, #f3f0ea 70%);
+  background-size: 220% 100%;
+  animation: loading-sweep 1.4s ease-in-out infinite;
+}
+
+.errorMessage {
+  border: 1px solid #efcbc6;
+  border-radius: 18px;
+  background: #fff4f2;
+  padding: 18px 20px;
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.errorMessage a,
+.errorMessage button {
+  display: inline-flex;
+  margin-top: 10px;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.formLayout {
+  display: grid;
+  align-items: start;
+  gap: 22px;
+  grid-template-columns: minmax(0, 1fr) 330px;
+}
+
+.formMain {
+  display: grid;
+  gap: 18px;
+}
+
+.formSection,
+.formAside {
+  border: 1px solid var(--color-border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-sm);
+}
+
+.formSection {
+  padding: 28px;
+}
+
+.formSection > legend,
+.sectionHeading {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.formSection > legend > span,
+.sectionHeading > span {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.formSection > legend > strong,
+.sectionHeading h2 {
+  padding-top: 7px;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.sectionHeading p,
+.sectionDescription {
+  margin-top: 5px;
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: var(--leading-body);
+}
+
+.sectionDescription {
+  margin: 6px 0 0 54px;
+}
+
+.diagnosisNotice {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-primary-soft);
+  background: var(--color-primary-soft);
+  padding: 12px 16px;
+  color: var(--color-ink-strong);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.optionGrid,
+.presetGrid {
+  display: grid;
+  margin-top: 22px;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.optionCard {
+  position: relative;
+  display: grid;
+  min-height: 150px;
+  padding: 18px;
+  align-content: start;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: white;
+  cursor: pointer;
+  transition: border-color var(--motion-fast), background var(--motion-fast), transform var(--motion-fast);
+}
+
+.optionCard:hover {
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+  transform: translateY(-2px);
+}
+
+.optionCard input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.optionIndex {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 15px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.optionCard strong {
+  font-size: 15px;
+}
+
+.optionCard > span:last-child {
+  margin-top: 7px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.optionCardSelected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.optionCardSelected .optionIndex {
+  background: var(--color-primary);
+  color: white;
+}
+
+.field {
+  margin-top: 24px;
+}
+
+.field > label,
+.locationSearch label,
+.locationLabel {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.field > p {
+  margin-top: 8px;
+  color: var(--color-danger);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.input {
+  width: 100%;
+  min-height: 50px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: white;
+  padding: 13px 15px;
+  color: var(--color-ink);
+}
+
+.input:focus {
+  border-color: var(--color-primary);
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 14%, transparent);
+  outline-offset: 1px;
+}
+
+.textarea {
+  min-height: 118px;
+  resize: vertical;
+}
+
+.sizeFieldset {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--color-border);
+}
+
+.sizeFieldset legend {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sizeFieldset > p {
+  margin-top: 5px;
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.presetGrid {
+  margin-top: 15px;
+}
+
+.presetButton {
+  display: grid;
+  padding: 16px;
+  text-align: left;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: white;
+  cursor: pointer;
+}
+
+.presetButton strong,
+.presetButton span,
+.presetButton small {
+  display: block;
+}
+
+.presetButton strong {
+  font-size: 13px;
+}
+
+.presetButton span {
+  margin-top: 6px;
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.presetButton small {
+  margin-top: 4px;
+  color: var(--color-muted);
+}
+
+.presetButtonSelected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+}
+
+.measureGuide,
+.locationGuide {
+  margin-top: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  padding: 14px 16px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: var(--leading-body);
+}
+
+.measureGuide summary,
+.locationGuide summary {
+  color: var(--color-ink);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.measureGuide p,
+.locationGuide ol,
+.locationGuide p {
+  margin-top: 9px;
+}
+
+.locationGuide ol {
+  padding-left: 19px;
+  list-style: decimal;
+}
+
+.fieldGrid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.locationAssistant {
+  margin-top: 22px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 22%, var(--color-border));
+  border-radius: 18px;
+  background: linear-gradient(135deg, var(--color-primary-soft), #f8fcfa);
+  padding: 20px;
+}
+
+.locationHeading {
+  display: flex;
+  gap: 12px;
+}
+
+.locationHeading > span {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: white;
+  font-size: 20px;
+}
+
+.locationHeading h2 {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.locationHeading p {
+  margin-top: 5px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.locationSearch {
+  display: grid;
+  margin-top: 18px;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.locationSearch label {
+  margin: 0;
+  grid-column: 1 / -1;
+}
+
+.locationSearch button,
+.locationButton {
+  min-height: 50px;
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  background: white;
+  padding: 0 18px;
+  color: var(--color-primary-hover);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.locationButton {
+  width: 100%;
+  background: var(--color-primary);
+  color: white;
+}
+
+.locationSearch button:disabled,
+.locationButton:disabled {
+  cursor: wait;
+  opacity: 0.5;
+}
+
+.locationDivider {
+  display: flex;
+  margin: 14px 0;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-muted);
+  font-size: 10px;
+}
+
+.locationDivider span {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.locationValue {
+  display: flex;
+  margin-top: 14px;
+  padding: 12px 14px;
+  justify-content: space-between;
+  border-radius: 12px;
+  background: white;
+  gap: 14px;
+  font-size: 12px;
+}
+
+.locationValue span {
+  color: var(--color-muted);
+  text-align: right;
+}
+
+.locationLabel {
+  margin-top: 16px;
+}
+
+.locationMessage,
+.mapLink {
+  display: block;
+  margin-top: 12px;
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.mapLink {
+  text-decoration: underline;
+}
+
+.submitButton {
+  width: 100%;
+  margin: 0;
+  cursor: pointer;
+  gap: 14px;
+  font-size: 15px;
+}
+
+.formAside {
+  position: sticky;
+  top: 100px;
+  padding: 25px;
+}
+
+.formAside > p {
+  color: var(--color-primary);
+}
+
+.formAside > h2 {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-card);
+}
+
+.formAside > span {
+  display: inline-flex;
+  margin-top: 11px;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  padding: 7px 10px;
+  color: var(--color-primary-hover);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.formAside dl {
+  margin-top: 20px;
+}
+
+.formAside dl > div {
+  display: flex;
+  padding: 13px 0;
+  justify-content: space-between;
+  border-top: 1px solid var(--color-border);
+  gap: 18px;
+}
+
+.formAside dt {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+
+.formAside dd {
+  overflow-wrap: anywhere;
+  color: var(--color-ink);
+  font-size: 12px;
+  font-weight: 800;
+  text-align: right;
+}
+
+.asideGuide {
+  margin-top: 20px;
+  border-radius: 16px;
+  background: var(--color-surface-warm);
+  padding: 16px;
+}
+
+.asideGuide strong {
+  color: #d87524;
+  font-size: 11px;
+}
+
+.asideGuide p {
+  margin-top: 7px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: var(--leading-body);
+}
+
+@keyframes loading-sweep {
+  to { background-position: -120% 0; }
+}
+
+@media (max-width: 1000px) {
+  .listOverview,
+  .formLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .formAside {
+    position: static;
+  }
+
+  .spaceGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 700px) {
+  .listOverview {
+    padding: 26px 22px;
+    gap: 24px;
+  }
+
+  .listOverview dl {
+    padding: 7px;
+  }
+
+  .listOverview dl > div {
+    padding: 10px 7px;
+  }
+
+  .listOverview dd {
+    font-size: 20px;
+  }
+
+  .spaceGrid,
+  .loading,
+  .optionGrid,
+  .presetGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .spaceCard {
+    min-height: 380px;
+  }
+
+  .optionCard {
+    min-height: 126px;
+  }
+}
+
+@media (max-width: 520px) {
+  .listHeading {
+    align-items: flex-start;
+  }
+
+  .listHeading h2 {
+    font-size: 24px;
+  }
+
+  .listHeading > a {
+    padding-top: 5px;
+  }
+
+  .formSection,
+  .formAside,
+  .spaceCard {
+    padding: 22px 19px;
+  }
+
+  .sectionDescription {
+    margin-left: 0;
+  }
+
+  .fieldGrid,
+  .locationSearch {
+    grid-template-columns: 1fr;
+  }
+
+  .locationSearch label {
+    grid-column: auto;
+  }
+
+  .cardActions {
+    flex-wrap: wrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading > div {
+    animation: none;
+  }
+}

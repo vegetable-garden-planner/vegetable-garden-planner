@@ -1,0 +1,87 @@
+name: 지속적 통합
+
+on:
+  pull_request:
+    branches:
+      - develop
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  backend:
+    name: Laravel 검증
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v6
+
+      - name: PHP 설정
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: mbstring, pdo_sqlite
+          coverage: none
+          tools: composer:v2
+
+      - name: Laravel 환경 파일 준비
+        run: cp .env.example .env
+
+      - name: Composer 의존성 설치
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: 애플리케이션 키 생성
+        run: php artisan key:generate --ansi
+
+      - name: Laravel 테스트
+        run: php artisan test
+
+      - name: PHP 코드 스타일 검사
+        run: vendor/bin/pint --test
+
+  frontend:
+    name: Next.js 검증
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v6
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: npm 의존성 설치
+        run: npm ci
+
+      - name: 프론트엔드 테스트
+        run: npm test
+
+      - name: TypeScript 검사
+        run: npm run typecheck
+
+      - name: ESLint 및 의존성 경계 검사
+        run: npm run lint
+
+      - name: Next.js 프로덕션 빌드
+        run: npm run build

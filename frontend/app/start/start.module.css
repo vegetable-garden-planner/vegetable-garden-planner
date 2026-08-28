@@ -1,0 +1,76 @@
+.page {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--color-forest-night);
+  color: var(--color-on-photo);
+  font-family: var(--font-garden);
+  isolation: isolate;
+}
+
+.headerShell {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  padding: var(--space-5) var(--space-16) 0;
+  pointer-events: none;
+}
+
+.header {
+  display: flex;
+  min-height: var(--control-lg);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  pointer-events: auto;
+}
+
+.loginLink {
+  display: inline-flex;
+  align-items: center;
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  background: color-mix(in srgb, var(--color-forest-night) 40%, transparent);
+  color: var(--color-white);
+  font-size: var(--type-body-sm-size);
+  font-weight: 600;
+  backdrop-filter: blur(var(--blur-panel));
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-primary);
+  font-size: var(--type-title-sm-size);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* 브랜드명 "심어봄"만 Gugi. 페이지 제목은 Pretendard를 그대로 쓴다 */
+.brand > span {
+  font-family: var(--font-brand);
+  line-height: 1.1;
+}
+
+@media (min-width: 1025px) {
+  .brand {
+    font-size: var(--type-h2-compact-size);
+  }
+}
+
+@media (max-width: 768px) {
+  .headerShell {
+    padding-inline: var(--space-4);
+  }
+}
+
+@media (max-width: 640px) {
+  .headerShell {
+    padding-inline: var(--space-3);
+  }
+}

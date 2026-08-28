@@ -1,0 +1,209 @@
+import Link from "next/link";
+import { SessionAwareLink } from "@/components/session-aware-link";
+import { encodeNextPath } from "@/features/auth/domain/auth";
+import { CropArtwork } from "@/features/crop-catalog/components/crop-artwork";
+import {
+  CROP_CATEGORY_LABELS,
+  CROP_DIFFICULTY_LABELS,
+  GROWING_SPACE_LABELS,
+  PLANTING_MATERIAL_LABELS,
+  SUNLIGHT_LABELS,
+} from "@/features/crop-catalog/data/crop-labels";
+import { isYearRoundPeriod, monthsInRange } from "@/features/crop-catalog/domain/crop-calendar";
+import type { CompanionCrop, CropPeriod, CropReference, CropSource } from "@/features/crop-catalog/domain/crop-reference";
+import styles from "./crop-detail.module.css";
+
+const MONTHS = Array.from({ length: 12 }, (_, index) => index + 1);
+
+export function CropDetail({
+  crop,
+  crops,
+  source,
+  sources,
+}: {
+  crop: CropReference;
+  crops: readonly CropReference[];
+  source?: CropSource;
+  sources: readonly CropSource[];
+}) {
+  const startPath = `/seasons/new?cropId=${encodeURIComponent(crop.id)}`;
+  const startLabel = crop.plantingMaterial === "cut-flower" ? "꽃 관리 시작하기" : `${crop.name} 키우기 시작`;
+
+  return (
+    <div className={styles.detail}>
+      <section className={styles.overview} aria-labelledby="crop-overview-title">
+        <CropArtwork crop={crop} priority variant="hero" />
+        <div className={styles.overviewCopy}>
+          <div className={styles.identity}>
+            <div><p>{CROP_CATEGORY_LABELS[crop.category]} · {crop.familyName}</p><h2 id="crop-overview-title">{crop.name} 재배 핵심</h2></div>
+            <span>{CROP_DIFFICULTY_LABELS[crop.difficulty]}</span>
+          </div>
+          <p className={styles.overviewSummary}>{crop.summary}</p>
+          <dl className={styles.overviewFacts}>
+            <Fact label="시작 형태" value={PLANTING_MATERIAL_LABELS[crop.plantingMaterial]} />
+            <Fact label="시작 시기" value={crop.plantingPeriod.label} />
+            <Fact label="수확·감상" value={crop.harvestPeriod.label} />
+            <Fact label="권장 간격" value={`${crop.plantSpacingCm}cm`} />
+            {crop.sunRequirement && <Fact label="필요한 햇빛" value={`하루 ${SUNLIGHT_LABELS[crop.sunRequirement]}`} />}
+            {crop.minPotDepthCm !== null && <Fact label="권장 화분 깊이" value={`${crop.minPotDepthCm}cm 이상`} />}
+          </dl>
+          <div className={styles.spaceTags} aria-label="지원 재배 공간">
+            {crop.supportedSpaces.map((space) => <span key={space}>{GROWING_SPACE_LABELS[space]}</span>)}
+          </div>
+        </div>
+      </section>
+
+      <div className={styles.workspace}>
+        <div className={styles.mainColumn}>
+          <GrowingSteps crop={crop} />
+          <GrowingCalendar crop={crop} />
+          {crop.careGuide && <CareGuide crop={crop} />}
+          {crop.companions && crop.companions.length > 0 && (
+            <CompanionCrops companions={crop.companions} crops={crops} sources={sources} />
+          )}
+        </div>
+        <aside className={styles.sideColumn}>
+          <StartCard crop={crop} startLabel={startLabel} startPath={startPath} />
+          {source && <SourceCard source={source} />}
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function GrowingSteps({ crop }: { crop: CropReference }) {
+  return (
+    <section className={styles.steps} aria-labelledby="growing-steps-title">
+      <div className={styles.sectionHeading}><p>재배 계획 요약</p><h2 id="growing-steps-title">시작부터 수확까지</h2><span>품종과 실제 환경에 따라 시기는 달라질 수 있어요.</span></div>
+      <ol>
+        <Step index={1} title="준비와 시작" description={`${crop.plantingPeriod.label}에 ${PLANTING_MATERIAL_LABELS[crop.plantingMaterial]} 형태로 시작해요.`} />
+        <Step index={2} title="공간 확보" description={`포기 사이 ${crop.plantSpacingCm}cm를 기준으로 통풍과 성장 공간을 확보해요.`} />
+        <Step index={3} title="수확과 감상" description={`${crop.harvestPeriod.label}을 기준으로 상태를 살펴 수확하거나 감상해요.`} />
+      </ol>
+    </section>
+  );
+}
+
+function Step({ description, index, title }: { description: string; index: number; title: string }) {
+  return <li><span>{index}</span><div><h3>{title}</h3><p>{description}</p></div></li>;
+}
+
+function GrowingCalendar({ crop }: { crop: CropReference }) {
+  const yearRound = isYearRoundPeriod(crop.plantingPeriod) && isYearRoundPeriod(crop.harvestPeriod);
+
+  return (
+    <section className={styles.calendar} aria-labelledby="crop-calendar-title">
+      <div className={styles.sectionHeading}>
+        <p>성장 시기</p>
+        <h2 id="crop-calendar-title">언제 심고 언제 거둘까요</h2>
+        <span>실제 시기는 지역과 환경에 따라 달라질 수 있어요.</span>
+      </div>
+
+      {yearRound ? (
+        <p className={styles.calendarYearRound}>실내에서는 연중 심고 거둘 수 있어요.</p>
+      ) : (
+        <div className={styles.calendarChart}>
+          <div className={styles.calendarMonths} aria-hidden="true">
+            {MONTHS.map((month) => <span key={month}>{month}</span>)}
+          </div>
+          <CalendarRow label="파종" period={crop.plantingPeriod} />
+          <CalendarRow label="수확" period={crop.harvestPeriod} />
+        </div>
+      )}
+    </section>
+  );
+}
+
+function CalendarRow({ label, period }: { label: string; period: CropPeriod }) {
+  const activeMonths = new Set(monthsInRange(period));
+
+  return (
+    <div className={styles.calendarRow}>
+      <span className={styles.calendarRowLabel}>{label}</span>
+      {MONTHS.map((month) => (
+        <span
+          className={activeMonths.has(month) ? styles.calendarCellOn : styles.calendarCellOff}
+          key={month}
+        />
+      ))}
+      <span className={styles.calendarRowNote}>{period.label}</span>
+    </div>
+  );
+}
+
+function CareGuide({ crop }: { crop: CropReference }) {
+  const guide = crop.careGuide;
+  if (!guide) return null;
+
+  return (
+    <section className={styles.care} aria-labelledby="care-guide-title">
+      <div className={styles.sectionHeading}><p>오래 건강하게 돌보기</p><h2 id="care-guide-title">첫날부터 이렇게 관리하세요</h2><span>꽃과 실내 식물은 자리와 물 관리가 가장 중요해요.</span></div>
+      <dl><CareFact label="함께할 수 있는 기간" value={guide.lifespan} /><CareFact label="빛" value={guide.light} /><CareFact label="물" value={guide.watering} /><CareFact label="온도와 자리" value={guide.temperature} /></dl>
+      <ol>{guide.actions.map((action, index) => <li key={action}><span>{index + 1}</span><p>{action}</p></li>)}</ol>
+    </section>
+  );
+}
+
+function CareFact({ label, value }: { label: string; value: string }) {
+  return <div><dt>{label}</dt><dd>{value}</dd></div>;
+}
+
+function CompanionCrops({
+  companions,
+  crops,
+  sources,
+}: {
+  companions: readonly CompanionCrop[];
+  crops: readonly CropReference[];
+  sources: readonly CropSource[];
+}) {
+  return (
+    <section className={styles.companions} aria-labelledby="companion-crops-title">
+      <div className={styles.sectionHeading}>
+        <p>궁합이 좋은 작물</p>
+        <h2 id="companion-crops-title">함께 심으면 좋은 작물</h2>
+        <span>공식 재배 자료가 실제로 확인한 조합만 보여드려요.</span>
+      </div>
+      <ul>
+        {companions.map((companion) => {
+          const companionCrop = crops.find((candidate) => candidate.id === companion.cropId);
+          if (!companionCrop) return null;
+          const source = sources.find((candidate) => candidate.id === companion.sourceId);
+
+          return (
+            <li key={companion.cropId}>
+              <Link href={`/crops/${companionCrop.id}`}>{companionCrop.name}</Link>
+              <p>{companion.reason}</p>
+              {source && <span>{source.organization}</span>}
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function StartCard({ crop, startLabel, startPath }: { crop: CropReference; startLabel: string; startPath: string }) {
+  return (
+    <section className={styles.startCard} aria-labelledby="crop-start-title">
+      <p>내 재배 계획에 담기</p><h2 id="crop-start-title">{crop.name} 재배를 시작해 볼까요?</h2>
+      <span>공간과 기간을 정하면 일정과 기록을 한곳에서 이어갈 수 있습니다.</span>
+      <SessionAwareLink anonymousHref={`/login?next=${encodeNextPath(startPath)}`} anonymousLabel={startLabel} authenticatedHref={startPath} authenticatedLabel={startLabel} className={styles.startAction} />
+      <small>선택한 작물을 키울 수 있는 공간만 시즌 생성 화면에 표시됩니다.</small>
+    </section>
+  );
+}
+
+function SourceCard({ source }: { source: CropSource }) {
+  return (
+    <section className={styles.sourceCard} aria-labelledby="crop-source-title">
+      <p>정보 출처</p><h2 id="crop-source-title">공식 자료를 확인했어요</h2>
+      <dl><div><dt>기관</dt><dd>{source.organization}</dd></div><div><dt>최종 검토</dt><dd>{source.reviewedAt}</dd></div></dl>
+      <a href={source.url} rel="noreferrer" target="_blank">{source.title} <span aria-hidden="true">↗</span></a>
+    </section>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return <div><dt>{label}</dt><dd>{value}</dd></div>;
+}
