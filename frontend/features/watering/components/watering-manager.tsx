@@ -56,9 +56,9 @@ export function WateringManager({ seasonId }: { seasonId: string }) {
   }
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
-  if (!season) return <WateringLoadError message="재배 시즌을 찾을 수 없습니다." />;
+  if (!season) return <WateringLoadError message="재배 계획을 찾을 수 없습니다." />;
   const space = spacesState.spaces.find((item) => item.id === season.spaceId);
-  if (!space) return <WateringLoadError message="시즌에 연결된 재배 공간을 찾을 수 없습니다." />;
+  if (!space) return <WateringLoadError message="재배 계획에 연결된 재배 공간을 찾을 수 없습니다." />;
 
   let placedCropIds: string[];
   if (space.type === "garden") {

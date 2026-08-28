@@ -79,7 +79,7 @@ export function validateCultivationRecordDraft(
   } else {
     const occurredOn = draft.occurredAtLocal.slice(0, 10);
     if (occurredOn < season.startDate || occurredOn > season.endDate) {
-      errors.occurredAtLocal = "기록 시각은 재배 시즌 안이어야 합니다.";
+      errors.occurredAtLocal = "기록 시각은 재배 계획 안이어야 합니다.";
     }
   }
   if (notes.length > 2000) errors.notes = "메모는 2,000자 이하로 입력해 주세요.";

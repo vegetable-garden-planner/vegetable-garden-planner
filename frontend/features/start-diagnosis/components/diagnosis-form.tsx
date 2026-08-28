@@ -28,21 +28,27 @@ import { PlanterViewport } from "./planter-viewport";
 import { RecommendationGuide } from "./recommendation-guide";
 import {
   SunlightStage,
+  defaultPlacementFor,
   type PlantPlacement,
   type SunlightDuration,
   type SunlightSelection,
 } from "./sunlight-stage";
 import styles from "./diagnosis-form.module.css";
 
-const STAGES = ["화분 크기", "햇빛 조건", "작물 선택"] as const;
+const STAGES = ["화분 크기", "공간의 빛", "작물 선택"] as const;
 
-const SCENE_IMAGES = [
+/**
+ * 단계별 배경 사진.
+ * 2단계(공간의 빛)는 사진을 쓰지 않는다 — 빛 자체가 화면의 내용이라
+ * SunlightStage 안에서 CSS로 그린 밝은 장면을 그대로 쓴다.
+ */
+const SCENE_IMAGES: readonly (string | null)[] = [
   "/figma/diagnosis-greenhouse-reference-empty.png",
-  "/figma/diagnosis-sunlight-greenhouse-v2.png",
+  null,
   "/figma/garden-room-clean.webp",
   "/figma/image1.png",
   "/figma/diagnosis-result-greenhouse-v1.png",
-] as const;
+];
 
 type Measurements = { width: number; length: number; height: number; count: number };
 
@@ -59,10 +65,11 @@ export function DiagnosisForm() {
   const [configuration, setConfiguration] = useState<GardenConfiguratorState>(() => createDefaultConfiguration());
   const [recommendation, setRecommendation] = useState<GardenRecommendation | null>(null);
   const [storageReady, setStorageReady] = useState(false);
+  const [placementTouched, setPlacementTouched] = useState(false);
   const measurements: Measurements = {
     width: configuration.planter.widthCm,
-    length: configuration.planter.heightCm,
-    height: configuration.planter.depthCm,
+    length: configuration.planter.depthCm,
+    height: configuration.planter.heightCm,
     count: configuration.planter.count,
   };
   const sunlightSelection: SunlightSelection = {
@@ -72,6 +79,7 @@ export function DiagnosisForm() {
   const selectedCrops = configuration.preferences.selectedCrops;
   const completeConfiguration = toGardenConfiguration(configuration);
   const railStep = Math.min(step, STAGES.length - 1);
+  const sceneImage = SCENE_IMAGES[step] ?? null;
   const isFollowUpState = step >= STAGES.length;
 
   useEffect(() => {
@@ -80,6 +88,7 @@ export function DiagnosisForm() {
       if (restored) {
         setConfiguration(restored.configuration);
         setRecommendation(restored.recommendation);
+        if (restored.configuration.sunlight.location) setPlacementTouched(true);
         if (new URLSearchParams(window.location.search).get("stage") === "crops") {
           setStep(2);
           setMaxVisitedStep(4);
@@ -116,12 +125,14 @@ export function DiagnosisForm() {
 
   function changeMeasurement(key: keyof Measurements, amount: number) {
     const { max, min } = MEASUREMENT_LIMITS[key];
+    // 화면의 "세로"는 바닥 깊이(depthCm), "깊이"는 흙이 차는 높이(heightCm)다.
+    // 작물의 최소 재배 깊이는 heightCm 과 비교하므로 이 대응이 맞아야 한다.
     const planterKey = key === "width"
       ? "widthCm"
       : key === "length"
-        ? "heightCm"
+        ? "depthCm"
         : key === "height"
-          ? "depthCm"
+          ? "heightCm"
           : "count";
     setConfiguration((current) => ({
       ...current,
@@ -136,12 +147,21 @@ export function DiagnosisForm() {
   function updateSunlightDuration(duration: SunlightDuration) {
     setConfiguration((current) => ({
       ...current,
-      sunlight: { ...current.sunlight, duration },
+      sunlight: {
+        ...current.sunlight,
+        duration,
+        // 위치는 추천 계산에 실제로 쓰인다. 사용자가 직접 고르기 전까지는
+        // 선택한 빛 상태에서 가장 흔한 위치를 채워 둔다.
+        location: placementTouched && current.sunlight.location
+          ? current.sunlight.location
+          : defaultPlacementFor(duration),
+      },
     }));
     setRecommendation(null);
   }
 
   function updatePlantPlacement(placement: PlantPlacement) {
+    setPlacementTouched(true);
     setConfiguration((current) => ({
       ...current,
       sunlight: { ...current.sunlight, location: placement },
@@ -163,6 +183,7 @@ export function DiagnosisForm() {
     if (!complete) return;
     setRecommendation(createGardenRecommendation({
       planter: complete.planter,
+      selectedCrops: complete.preferences.selectedCrops,
       sunlight: complete.sunlight,
     }));
     advance(3);
@@ -178,13 +199,17 @@ export function DiagnosisForm() {
       aria-label="맞춤 재배 시작 진단"
       className={`${styles.diagnosis} ${styles[`stage${step}`]}`}
     >
-      <StartHeader lightLogo={step === 1} />
+      <StartHeader />
 
-      <div className={styles.sceneBackdrop} aria-hidden="true">
-        <Image alt="" className={styles.sceneImage} fill key={SCENE_IMAGES[step]} priority={step === 0} sizes="100vw" src={SCENE_IMAGES[step]} />
-      </div>
-      <div className={styles.sceneShade} aria-hidden="true" />
-      <div className={styles.sceneTexture} aria-hidden="true" />
+      {sceneImage && (
+        <>
+          <div className={styles.sceneBackdrop} aria-hidden="true">
+            <Image alt="" className={styles.sceneImage} fill key={sceneImage} priority={step === 0} sizes="100vw" src={sceneImage} />
+          </div>
+          <div className={styles.sceneShade} aria-hidden="true" />
+          <div className={styles.sceneTexture} aria-hidden="true" />
+        </>
+      )}
 
       {step === 0 && (
         <DimensionStage measurements={measurements} onAdvance={() => advance(1)} onChange={changeMeasurement} />
@@ -358,12 +383,12 @@ function getMeasurementLabel(key: keyof Measurements) {
   return "화분 개수";
 }
 
-function StartHeader({ lightLogo }: { lightLogo: boolean }) {
+function StartHeader() {
   return (
     <div className={pageStyles.headerShell}>
       <header className={pageStyles.header}>
         <Link className={pageStyles.brand} href="/">
-          <BrandMark size={22} variant={lightLogo ? "color" : "white"} />
+          <BrandMark size={22} variant="white" />
           <span>심어봄</span>
         </Link>
         <SessionAwareLink

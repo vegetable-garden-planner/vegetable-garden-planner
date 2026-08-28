@@ -129,7 +129,7 @@ class GrowingSeasonApiTest extends TestCase
         $this->actingAs($user)
             ->postJson('/api/v1/seasons', [
                 ...$this->validPayload($space),
-                'featuredCropId' => 'tomato',
+                'featuredCropId' => 'lettuce',
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['featuredCropId'], 'error.fields');

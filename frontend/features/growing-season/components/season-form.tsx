@@ -88,7 +88,7 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
       await persistSeason(season, input);
       router.push(`/seasons?spaceId=${encodeURIComponent(input.spaceId)}`);
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "시즌을 저장하지 못했습니다.");
+      setFormError(error instanceof Error ? error.message : "재배 계획을 저장하지 못했습니다.");
       setIsSaving(false);
       isRunningRef.current = false;
     }
@@ -113,7 +113,7 @@ export function SeasonForm({ initialCropId = "", initialSpaceId, season }: Seaso
       <div className={styles.emptyState}>
         <span aria-hidden="true">01</span>
         <h2 className="text-xl font-bold">먼저 재배 공간을 등록해 주세요</h2>
-        <strong>시즌은 텃밭, 베란다 또는 실내 화분 공간에 연결해서 관리합니다.</strong>
+        <strong>재배 계획은 텃밭, 베란다 또는 실내 화분 공간에 연결해서 관리합니다.</strong>
         <div><Link href="/spaces/new">재배 공간 등록 →</Link></div>
       </div>
     );
@@ -199,7 +199,7 @@ function SeasonFormView(props: SeasonFormViewProps) {
             <div>
               <p>선택한 식물</p>
               <h2>{props.initialCrop.name}</h2>
-              <span>권장 시기를 포함하도록 시즌 기간을 정하면 자동 일정을 만들 수 있어요.</span>
+              <span>권장 시기를 포함하도록 재배 기간을 정하면 자동 일정을 만들 수 있어요.</span>
             </div>
             <div className={styles.cropNoticeStats}>
               <dl>
@@ -216,7 +216,7 @@ function SeasonFormView(props: SeasonFormViewProps) {
         )}
         <section className={styles.formSection}>
           <SeasonSectionHeading
-            description="이번 시즌을 연결할 공간을 고르면 가능한 작물만 안내합니다."
+            description="이번 재배을 연결할 공간을 고르면 가능한 작물만 안내합니다."
             number="01"
             title="공간과 작물"
           />
@@ -249,7 +249,7 @@ function SeasonFormView(props: SeasonFormViewProps) {
             number="02"
             title="이름과 재배 기간"
           />
-          <SeasonField error={props.errors.name} id="season-name" label="시즌 이름">
+          <SeasonField error={props.errors.name} id="season-name" label="재배 계획 이름">
             <input
               aria-describedby={props.errors.name ? "season-name-error" : undefined}
               aria-invalid={Boolean(props.errors.name)}
@@ -257,7 +257,7 @@ function SeasonFormView(props: SeasonFormViewProps) {
               id="season-name"
               maxLength={30}
               onChange={(event) => props.onUpdate("name", event.target.value)}
-              placeholder="예: 2026년 봄 시즌"
+              placeholder="예: 2026년 봄 재배"
               value={props.values.name}
             />
           </SeasonField>
@@ -289,9 +289,9 @@ function SeasonFormView(props: SeasonFormViewProps) {
         </section>
         <section className={styles.formSection}>
           <SeasonSectionHeading
-            description="이번 시즌의 목표나 확인할 환경 변화를 남겨두세요."
+            description="이번 재배의 목표나 확인할 환경 변화를 남겨두세요."
             number="03"
-            title="시즌 메모"
+            title="재배 메모"
           />
           <SeasonField id="season-notes" label="메모 (선택)">
             <textarea
@@ -299,14 +299,14 @@ function SeasonFormView(props: SeasonFormViewProps) {
               id="season-notes"
               maxLength={300}
               onChange={(event) => props.onUpdate("notes", event.target.value)}
-              placeholder="이번 시즌의 목표나 키우고 싶은 작물을 기록해 보세요."
+              placeholder="이번 재배의 목표나 키우고 싶은 작물을 기록해 보세요."
               value={props.values.notes}
             />
           </SeasonField>
         </section>
         {props.formError && <p className={styles.errorMessage} role="alert">{props.formError}</p>}
         <button className={styles.submitButton} disabled={props.isSaving} type="submit">
-          {props.season ? "변경 내용 저장" : "시즌 등록하기"} <span>→</span>
+          {props.season ? "변경 내용 저장" : "재배 시작하기"} <span>→</span>
         </button>
       </div>
       <SeasonFormSummary
@@ -354,9 +354,9 @@ function SeasonFormSummary({
   startDate: string;
 }) {
   return (
-    <aside className={styles.formAside} aria-label="입력 중인 시즌 요약">
-      <p>시즌 미리보기</p>
-      <h2>{seasonName.trim() || "시즌 이름을 입력해 주세요"}</h2>
+    <aside className={styles.formAside} aria-label="입력 중인 재배 계획 요약">
+      <p>재배 계획 미리보기</p>
+      <h2>{seasonName.trim() || "재배 계획 이름을 입력해 주세요"}</h2>
       <span>{space?.name ?? "공간 선택 전"}</span>
       <dl>
         <div><dt>작물</dt><dd>{getSummaryCropName(space, cropName)}</dd></div>
@@ -413,10 +413,10 @@ function getSeasonFormStatus(input: SeasonFormStatusInput) {
     return { isError: true, message: "선택한 작물 정보를 찾을 수 없습니다." };
   }
   if (input.seasonState.status === "error") {
-    return { isError: true, message: input.seasonState.message ?? "시즌 정보를 불러오지 못했습니다." };
+    return { isError: true, message: input.seasonState.message ?? "재배 계획 정보를 불러오지 못했습니다." };
   }
   if (input.spaceState.status === "loading" || input.seasonState.status === "loading") {
-    return { isError: false, message: "시즌 입력 정보를 불러오고 있습니다." };
+    return { isError: false, message: "재배 계획 입력 정보를 불러오고 있습니다." };
   }
 
   return null;
@@ -434,7 +434,7 @@ function requireReadySpaces(state: GrowingSpacesState): GrowingSpace[] {
 }
 
 function requireReadySeasons(state: GrowingSeasonsState): PersistedGrowingSeason[] {
-  if (state.status !== "ready") throw new Error("재배 시즌을 불러오지 못했습니다.");
+  if (state.status !== "ready") throw new Error("재배 계획을 불러오지 못했습니다.");
   return state.seasons;
 }
 

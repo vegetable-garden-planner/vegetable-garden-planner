@@ -13,7 +13,6 @@ import {
 } from "react";
 import * as THREE from "three";
 import {
-  CROP_OPTIONS,
   getPlantingSlots,
   type CropId,
 } from "@/features/start-diagnosis/data/crop-selection";
@@ -32,44 +31,20 @@ const PLANTER_URL = "/models/garden/planter.glb";
 const BASE_PLANTER = { width: 0.6, depth: 0.2, height: 0.25 } as const;
 const BASE_SOIL_HEIGHT = 0.229;
 
-const CROP_ASSETS: Record<CropId, CropAsset> = {
-  lettuce: {
-    phase: 0.34,
-    scale: 1,
-    timeScale: 0.94,
-    url: "/models/garden/crop-lettuce.glb",
-  },
-  "cherry-tomato": {
-    phase: 1.16,
-    scale: 0.94,
-    timeScale: 1.08,
-    url: "/models/garden/crop-cherry-tomato.glb",
-  },
-  basil: {
-    phase: 2.08,
-    scale: 1,
-    timeScale: 0.88,
-    url: "/models/garden/crop-basil.glb",
-  },
-  chili: {
-    phase: 3.02,
-    scale: 0.94,
-    timeScale: 1.12,
-    url: "/models/garden/crop-chili.glb",
-  },
-  spinach: {
-    phase: 4.22,
-    scale: 1,
-    timeScale: 0.97,
-    url: "/models/garden/crop-spinach.glb",
-  },
-  strawberry: {
-    phase: 5.12,
-    scale: 1,
-    timeScale: 1.03,
-    url: "/models/garden/crop-strawberry.glb",
-  },
+/*
+  전용 3D 모델이 있는 작물만 화분에 심는다.
+
+  열무 · 대파 · 당근은 모델이 없다. 다른 작물 모델을 빌려 쓰면
+  사용자가 잘못된 모습으로 알게 되므로 3D에는 넣지 않는다.
+  고른 작물은 아래 카드와 칩으로 이름과 함께 확인할 수 있다.
+*/
+const CROP_ASSETS: Partial<Record<CropId, CropAsset>> = {
+  lettuce: { phase: 0.34, scale: 1, timeScale: 0.94, url: "/models/garden/crop-lettuce.glb" },
+  spinach: { phase: 4.22, scale: 1, timeScale: 0.97, url: "/models/garden/crop-spinach.glb" },
+  tomato: { phase: 1.16, scale: 0.94, timeScale: 1.08, url: "/models/garden/crop-cherry-tomato.glb" },
 };
+
+const MODELLED_CROP_IDS = Object.keys(CROP_ASSETS) as CropId[];
 
 export const CropGardenViewport = memo(function CropGardenViewport({
   selectedCrops,
@@ -94,7 +69,7 @@ export const CropGardenViewport = memo(function CropGardenViewport({
       className={styles.viewport}
       data-camera="fixed-perspective"
       data-camera-controls="none"
-      data-crop-models={CROP_OPTIONS.map((crop) => crop.id).join(",")}
+      data-crop-models={MODELLED_CROP_IDS.join(",")}
       data-model-source="blender-glb"
       data-planter-depth-cm="20"
       data-planter-height-cm="25"
@@ -142,16 +117,18 @@ export const CropGardenViewport = memo(function CropGardenViewport({
         <Suspense fallback={null}>
           <group name="COL_GardenStep3_Web">
             <PlanterModel />
-            {CROP_OPTIONS.map((crop) => {
-              const selectedIndex = selectedCrops.indexOf(crop.id);
+            {MODELLED_CROP_IDS.map((cropId) => {
+              const asset = CROP_ASSETS[cropId];
+              if (!asset) return null;
+              const selectedIndex = selectedCrops.indexOf(cropId);
               const active = selectedIndex >= 0;
               return (
                 <CropModel
                   active={active}
-                  cropId={crop.id}
-                  key={crop.id}
+                  cropId={cropId}
+                  key={cropId}
                   position={active ? plantingSlots[selectedIndex] : [0, BASE_SOIL_HEIGHT, 0]}
-                  scale={CROP_ASSETS[crop.id].scale * cropScale}
+                  scale={asset.scale * cropScale}
                 />
               );
             })}
@@ -233,7 +210,8 @@ function CropModel({
   position: Vec3;
   scale: number;
 }) {
-  const asset = CROP_ASSETS[cropId];
+  // MODELLED_CROP_IDS 로만 렌더하므로 여기서는 반드시 존재한다.
+  const asset = CROP_ASSETS[cropId]!;
   const { animations, scene } = useGLTF(asset.url);
   const group = useRef<THREE.Group>(null);
   const progress = useRef(active ? 1 : 0);

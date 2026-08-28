@@ -10,26 +10,16 @@ export interface SeasonNextStep {
 }
 
 export function getSeasonNextStep(
-  season: Pick<GrowingSeason, "id" | "featuredCropId">,
+  season: Pick<GrowingSeason, "id">,
   spaceType: GrowingSpaceType,
   layout: GardenLayout | undefined,
-  hasContainerPlacement = false,
 ): SeasonNextStep {
   if (spaceType !== "garden") {
-    if (!season.featuredCropId && !hasContainerPlacement) {
-      return {
-        title: "다음 단계 · 화분 작물 배치하기",
-        description: "화분마다 키울 작물과 수량을 추가하면 재배 일정을 만들 수 있어요.",
-        href: `/seasons/${season.id}/placements`,
-        label: "화분 배치하기",
-      };
-    }
-
     return {
-      title: "다음 단계 · 작물별 재배 일정 만들기",
-      description: "배치한 작물과 시즌 기간을 기준으로 심기와 수확 일정을 만들 수 있어요.",
-      href: `/seasons/${season.id}/tasks`,
-      label: "재배 일정 만들기",
+      title: "다음 단계 · 화분 작물 배치하기",
+      description: "화분마다 키울 작물과 수량을 추가하면 재배 일정을 만들 수 있어요.",
+      href: `/seasons/${season.id}/placements`,
+      label: "화분 배치하기",
     };
   }
 
@@ -55,7 +45,7 @@ export function getSeasonNextStep(
 
   return {
     title: "다음 단계 · 작물별 재배 일정 만들기",
-    description: "배치한 작물과 시즌 기간을 기준으로 심기와 수확 일정을 만들 수 있어요.",
+    description: "배치한 작물과 재배 기간을 기준으로 심기와 수확 일정을 만들 수 있어요.",
     href: `/seasons/${season.id}/tasks`,
     label: "재배 일정 만들기",
   };

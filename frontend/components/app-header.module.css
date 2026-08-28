@@ -1,0 +1,9 @@
+/* 헤더 왼쪽 — 메뉴 버튼과 브랜드를 한 덩어리로 묶는다.
+   globals.css의 .app-header-inner(3칸 그리드)는 그대로 두고,
+   첫 번째 칸 안에서만 배치한다. */
+.lead {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  justify-self: start;
+}

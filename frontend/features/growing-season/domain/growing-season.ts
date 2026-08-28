@@ -49,7 +49,7 @@ export function validateGrowingSeason(
     errors.spaceId = "등록된 재배 공간을 선택해 주세요.";
   }
   if (name.length < 2 || name.length > 30) {
-    errors.name = "시즌 이름은 2자 이상 30자 이하로 입력해 주세요.";
+    errors.name = "재배 계획 이름은 2자 이상 30자 이하로 입력해 주세요.";
   }
   if (startTimestamp === null) {
     errors.startDate = "올바른 시작일을 입력해 주세요.";
@@ -70,7 +70,7 @@ export function validateGrowingSeason(
         editingSeasonId,
       )
     ) {
-      errors.startDate = "같은 공간에 기간이 겹치는 시즌이 있습니다.";
+      errors.startDate = "같은 공간에 기간이 겹치는 재배 계획이 있습니다.";
     }
   }
 
@@ -174,7 +174,7 @@ function validateDateRange(
 
   const durationDays = (endTimestamp - startTimestamp) / DAY_IN_MILLISECONDS;
   if (durationDays > MAX_SEASON_DURATION_DAYS) {
-    errors.endDate = "한 시즌은 730일 이내로 설정해 주세요.";
+    errors.endDate = "한 번의 재배은 730일 이내로 설정해 주세요.";
   }
 }
 

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { CropCategory, CropReference } from "@/features/crop-catalog/domain/crop-reference";
-import { CROP_IMAGES } from "@/features/crop-catalog/components/crop-visual";
+import { CROP_PHOTOS } from "@/features/crop-catalog/data/crop-photos";
 import styles from "./crop-artwork.module.css";
 
 const CATEGORY_CLASSES: Record<CropCategory, string> = {
@@ -21,7 +21,7 @@ export function CropArtwork({
   priority?: boolean;
   variant?: "card" | "hero";
 }) {
-  const image = CROP_IMAGES[crop.id];
+  const image = CROP_PHOTOS[crop.id];
 
   return (
     <div className={`${styles.artwork} ${styles[variant]} ${CATEGORY_CLASSES[crop.category]}`}>

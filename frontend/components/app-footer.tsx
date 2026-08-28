@@ -2,10 +2,10 @@ import Link from "next/link";
 import { BrandMark } from "@/components/brand-mark";
 
 const links = [
-  { label: "재배 홈", href: "/dashboard" },
-  { label: "재배 공간", href: "/spaces" },
-  { label: "재배 시즌", href: "/seasons" },
-  { label: "작물 정보", href: "/crops" },
+  { label: "홈", href: "/dashboard" },
+  { label: "화분/공간", href: "/spaces" },
+  { label: "내 재배 계획", href: "/seasons" },
+  { label: "작물 도감", href: "/crops" },
 ];
 
 export function AppFooter() {

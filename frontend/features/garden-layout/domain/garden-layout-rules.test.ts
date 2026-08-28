@@ -36,7 +36,7 @@ test("작물 사이 거리가 필요한 포기 간격보다 좁으면 경고한�
   );
 });
 
-test("시즌 기간과 권장 심는 시기가 겹치지 않으면 작물별로 한 번 경고한다", () => {
+test("재배 기간과 권장 심는 시기가 겹치지 않으면 작물별로 한 번 경고한다", () => {
   const season = createSeason("current", "2026-06-01", "2026-08-31");
   const layout = createLayout("current", 50, 2, [
     { cellIndex: 0, cropId: "lettuce" },
@@ -51,7 +51,7 @@ test("시즌 기간과 권장 심는 시기가 겹치지 않으면 작물별로 
   assert.match(periodWarnings[0]?.message ?? "", /4월 초~4월 말/);
 });
 
-test("시즌 기간 안에 권장 심는 달이 있으면 시기 경고를 만들지 않는다", () => {
+test("재배 기간 안에 권장 심는 달이 있으면 시기 경고를 만들지 않는다", () => {
   const season = createSeason("current", "2026-03-01", "2026-06-30");
   const layout = createLayout("current", 50, 2, [
     { cellIndex: 0, cropId: "tomato" },
@@ -96,7 +96,7 @@ test("심기 또는 수확 시기가 시즌 밖이면 자동 일정 불가 상�
   );
 });
 
-test("권장 시기가 맞지 않는 작물의 심기·수확 달을 모두 포함하는 시즌 기간을 제안한다", () => {
+test("권장 시기가 맞지 않는 작물의 심기·수확 달을 모두 포함하는 재배 기간을 제안한다", () => {
   const season = createSeason("mismatch", "2026-08-09", "2026-09-30");
   const lettuce = crops.find((crop) => crop.id === "lettuce")!;
 
@@ -140,7 +140,7 @@ test("작물 사이 거리가 요구 간격과 정확히 같으면 경고하지 
   assert.equal(warnings.some((warning) => warning.type === "spacing"), false);
 });
 
-test("가장 최근 이전 재배 시즌의 같은 구역에 같은 과 작물을 배치하면 경고한다", () => {
+test("가장 최근 이전 재배 계획의 같은 구역에 같은 과 작물을 배치하면 경고한다", () => {
   const previousSeason = createSeason("previous", "2025-03-01", "2025-06-30", "지난 봄");
   const currentSeason = createSeason("current", "2026-03-01", "2026-06-30", "올봄");
   const previousLayout = createLayout("previous", 50, 2, [
@@ -167,7 +167,7 @@ test("가장 최근 이전 재배 시즌의 같은 구역에 같은 과 작물�
   );
 });
 
-test("이전 시즌과 구역이 겹치지 않거나 과가 다르면 연작 경고를 만들지 않는다", () => {
+test("지난 재배과 구역이 겹치지 않거나 과가 다르면 연작 경고를 만들지 않는다", () => {
   const previousSeason = createSeason("previous", "2025-03-01", "2025-06-30");
   const currentSeason = createSeason("current", "2026-03-01", "2026-06-30");
   const previousLayout = createLayout("previous", 25, 4, [
@@ -193,7 +193,7 @@ test("이전 시즌과 구역이 겹치지 않거나 과가 다르면 연작 경
 test("연작 검사는 같은 공간에서 가장 최근에 배치가 저장된 시즌을 기준으로 한다", () => {
   const oldSeason = createSeason("old", "2024-03-01", "2024-06-30", "오래된 시즌");
   const previousSeason = createSeason("previous", "2025-03-01", "2025-06-30", "직전 시즌");
-  const currentSeason = createSeason("current", "2026-03-01", "2026-06-30", "현재 시즌");
+  const currentSeason = createSeason("current", "2026-03-01", "2026-06-30", "이번 재배");
   const oldLayout = createLayout("old", 25, 2, [
     { cellIndex: 0, cropId: "potato" },
   ]);
@@ -227,7 +227,7 @@ test("등록되지 않은 작물이 배치된 손상 데이터는 경고 없이 
   );
 });
 
-test("잘못되거나 역전된 시즌 기간은 시기 검사를 진행하지 않는다", () => {
+test("잘못되거나 역전된 재배 기간은 시기 검사를 진행하지 않는다", () => {
   const layout = createLayout("current", 25, 2, [
     { cellIndex: 0, cropId: "lettuce" },
   ]);
@@ -275,7 +275,7 @@ function createSeason(
   id: string,
   startDate: string,
   endDate: string,
-  name = "봄 시즌",
+  name = "봄 재배",
 ): GrowingSeason {
   return {
     id,

@@ -9,7 +9,7 @@ export function SeasonEditor({ seasonId }: { seasonId: string }) {
   const seasonsState = useGrowingSeasons();
 
   if (seasonsState.status === "loading") {
-    return <p className="surface-panel p-5 text-muted" role="status">시즌 정보를 불러오고 있습니다.</p>;
+    return <p className="surface-panel p-5 text-muted" role="status">재배 계획 정보를 불러오고 있습니다.</p>;
   }
 
   if (seasonsState.status === "error") {
@@ -18,7 +18,7 @@ export function SeasonEditor({ seasonId }: { seasonId: string }) {
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
   if (!season) {
-    return <Message message="수정할 시즌을 찾을 수 없습니다." />;
+    return <Message message="수정할 재배 계획을 찾을 수 없습니다." />;
   }
 
   return <SeasonForm initialSpaceId={season.spaceId} season={season} />;
@@ -28,7 +28,7 @@ function Message({ message }: { message: string }) {
   return (
     <div className={styles.errorMessage} role="alert">
       <p>{message}</p>
-      <Link href="/seasons">시즌 목록으로 돌아가기 →</Link>
+      <Link href="/seasons">내 재배 계획으로 돌아가기 →</Link>
     </div>
   );
 }

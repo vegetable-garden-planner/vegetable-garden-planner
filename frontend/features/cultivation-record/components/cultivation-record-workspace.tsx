@@ -50,7 +50,7 @@ export function CultivationRecordWorkspace(props: CultivationRecordWorkspaceProp
       <div className={styles.workspace}>
         <main className={styles.timelineColumn}>
           <div className={styles.listHeading}>
-            <div><p>재배 타임라인</p><h2 id="record-list-title">시즌의 변화를 시간순으로</h2></div>
+            <div><p>재배 타임라인</p><h2 id="record-list-title">재배의 변화를 시간순으로</h2></div>
             <span>{visibleRecords.length}개 기록</span>
           </div>
           <RecordFilters counts={counts} onChange={props.onFilterChange} selected={props.filter} total={props.records.length} />
@@ -137,7 +137,7 @@ function RecordGuide({ seasonId, space }: { seasonId: string; space: GrowingSpac
       <p>기록을 잘 남기는 방법</p>
       <h2>작은 변화도 날짜와 함께 적어 두세요</h2>
       <ul><li>작업에는 파종, 지주 세우기, 비료 주기를 남겨요.</li><li>성장 관찰에는 크기나 잎 상태를 수량과 함께 적어요.</li><li>수확량은 수량과 단위를 함께 입력해야 해요.</li></ul>
-      <nav aria-label="시즌 관리 바로가기">
+      <nav aria-label="재배 계획 바로가기">
         {space.type === "garden" && <Link href={`/seasons/${seasonId}/layout`}><span>작물 배치</span><strong>이동 →</strong></Link>}
         <Link href={`/seasons/${seasonId}/tasks`}><span>재배 일정</span><strong>이동 →</strong></Link>
         <Link href={`/seasons/${seasonId}/watering`}><span>물주기 관리</span><strong>이동 →</strong></Link>
@@ -152,14 +152,14 @@ function RecordEmptyState({ filtered }: { filtered: boolean }) {
       <span aria-hidden="true">일지</span>
       <p>{filtered ? "선택한 종류의 기록이 없어요" : "아직 남긴 기록이 없어요"}</p>
       <h3>{filtered ? "다른 종류를 확인해 보세요" : "첫 기록을 남겨 보세요"}</h3>
-      <strong>한 일과 식물의 작은 변화를 기록하면 다음 시즌을 계획할 때 좋은 기준이 됩니다.</strong>
+      <strong>한 일과 식물의 작은 변화를 기록하면 다음 재배를 계획할 때 좋은 기준이 됩니다.</strong>
       {!filtered && <Link href="#record-create-form">기록 남기러 가기 →</Link>}
     </div>
   );
 }
 
 export function CultivationRecordLoadingState() {
-  return <div aria-label="시즌 기록을 불러오는 중" className={styles.loading} role="status"><div /><div><span /><span /></div></div>;
+  return <div aria-label="재배 기록을 불러오는 중" className={styles.loading} role="status"><div /><div><span /><span /></div></div>;
 }
 
 export function CultivationRecordLoadError({ message, onRetry }: { message: string; onRetry?: () => void }) {
@@ -167,7 +167,7 @@ export function CultivationRecordLoadError({ message, onRetry }: { message: stri
     <div className={styles.errorState} role="alert">
       <p>기록을 불러오지 못했어요</p>
       <h2>{message}</h2>
-      {onRetry ? <button onClick={onRetry} type="button">다시 시도</button> : <Link href="/seasons">시즌 목록으로 돌아가기</Link>}
+      {onRetry ? <button onClick={onRetry} type="button">다시 시도</button> : <Link href="/seasons">내 재배 계획으로 돌아가기</Link>}
     </div>
   );
 }

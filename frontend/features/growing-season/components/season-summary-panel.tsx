@@ -13,7 +13,7 @@ export function SeasonSummaryPanel({ seasonId }: { seasonId: string }) {
   if (state.status === "loading") {
     return (
       <section className={styles.panel} aria-labelledby="season-summary-title">
-        <p>시즌 요약</p>
+        <p>재배 계획 요약</p>
         <h2 id="season-summary-title">지금까지의 재배 결과</h2>
         <p className={styles.status} role="status">요약을 불러오고 있습니다.</p>
       </section>
@@ -23,7 +23,7 @@ export function SeasonSummaryPanel({ seasonId }: { seasonId: string }) {
   if (state.status === "error") {
     return (
       <section className={styles.panel} aria-labelledby="season-summary-title">
-        <p>시즌 요약</p>
+        <p>재배 계획 요약</p>
         <h2 id="season-summary-title">지금까지의 재배 결과</h2>
         <p className={styles.error} role="alert">{state.message}</p>
         <button onClick={() => void state.reload()} type="button">다시 시도</button>
@@ -35,7 +35,7 @@ export function SeasonSummaryPanel({ seasonId }: { seasonId: string }) {
 
   return (
     <section className={styles.panel} aria-labelledby="season-summary-title">
-      <p>시즌 요약</p>
+      <p>재배 계획 요약</p>
       <h2 id="season-summary-title">지금까지의 재배 결과</h2>
 
       <dl className={styles.stats}>

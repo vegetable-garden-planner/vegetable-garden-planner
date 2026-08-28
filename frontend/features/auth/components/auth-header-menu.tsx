@@ -34,11 +34,15 @@ export function AuthHeaderMenu() {
           <span className="text-muted transition group-open:rotate-180" aria-hidden="true">⌄</span>
         </summary>
         <div className="absolute right-0 top-[calc(100%+0.5rem)] z-30 w-44 overflow-hidden rounded-2xl border border-ink/10 bg-white p-2 text-ink shadow-xl">
-          <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/dashboard">내 텃밭 홈</Link>
-          <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/spaces">재배 공간</Link>
-          <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/seasons">재배 시즌</Link>
+          {/*
+            화면 이동은 왼쪽 위 메뉴(사이드바)가 맡는다.
+            여기에 홈·공간·계획을 또 두면 같은 화면을 두 이름으로 부르게 된다.
+            (예: 헤더 "재배 홈" / 드롭다운 "내 텃밭 홈" — 둘 다 /dashboard 였다)
+            이 메뉴는 내 계정 화면과 계정 관련 동작만 남긴다.
+          */}
+          <Link className="block rounded-xl px-3 py-2.5 font-bold hover:bg-cream" href="/mypage">마이페이지</Link>
           {(push.state.status === "subscribed" || push.state.status === "unsubscribed" || push.state.status === "error") && (
-            <button className="block w-full rounded-xl px-3 py-2.5 text-left font-bold hover:bg-cream" onClick={() => void handleTogglePush()} type="button">
+            <button className="block w-full border-t border-ink/10 px-3 py-2.5 text-left font-bold hover:bg-cream" onClick={() => void handleTogglePush()} type="button">
               {push.state.status === "subscribed" ? "알림 끄기" : "알림 받기"}
             </button>
           )}

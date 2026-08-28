@@ -16,7 +16,7 @@ export function useSeasonSummary(
   const { state, reload } = useCachedResource<SeasonSummary>(
     `season-summary:${seasonId}`,
     () => fetchSeasonSummary(seasonId),
-    "시즌 요약을 불러오지 못했습니다.",
+    "재배 계획 요약을 불러오지 못했습니다.",
   );
 
   return useMemo(() => {

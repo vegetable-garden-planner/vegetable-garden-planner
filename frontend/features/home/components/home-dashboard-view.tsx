@@ -123,7 +123,7 @@ function GardenStatus({
             <h2>{resourcesLoading ? "재배 현황을 준비하고 있어요" : model.primaryCrop ? primaryName : "첫 작물을 등록해요"}</h2>
             <span className={styles.shortRule} aria-hidden="true" />
             <p><strong>{resourcesLoading ? "–" : model.growingDay}일째</strong><br />{resourcesLoading ? "저장된 시즌과 작물 정보를 확인하고 있어요" : model.primarySeason ? `${model.primarySeason.name} 일정을 따라 관리 중이에요` : "공간을 등록하면 재배 현황이 여기에 보여요"}</p>
-            <div className={styles.progressMeta}><span>시즌 진행률</span><b>{resourcesLoading ? "계산 중" : `${model.progress}%`}</b></div>
+            <div className={styles.progressMeta}><span>재배 진행률</span><b>{resourcesLoading ? "계산 중" : `${model.progress}%`}</b></div>
             <div className={styles.progressTrack}><span style={{ width: `${model.progress}%` }} /></div>
           </div>
         </article>
@@ -132,7 +132,7 @@ function GardenStatus({
           <p className={styles.sectionLabel}>다음 단계</p>
           <h2>{harvestCopy}<br /><em>{harvestValue}</em></h2>
           <span className={styles.shortRule} aria-hidden="true" />
-          <p className={styles.supportingCopy}>{resourcesLoading ? "서버에 저장된 재배 현황을\n안전하게 불러오고 있어요." : model.primarySeason ? "저장된 재배 일정에서\n다음 작업을 확인해 보세요." : "재배 공간과 시즌을 만들면\n맞춤 일정을 관리할 수 있어요."}</p>
+          <p className={styles.supportingCopy}>{resourcesLoading ? "서버에 저장된 재배 현황을\n안전하게 불러오고 있어요." : model.primarySeason ? "저장된 재배 일정에서\n다음 작업을 확인해 보세요." : "재배 화분과 재배 계획을 만들면\n맞춤 일정을 관리할 수 있어요."}</p>
           <span className={styles.nextBadge}>다음 할 일</span>
           <Link className={styles.inlineAction} href={resourcesLoading ? "/dashboard" : authenticated ? nextHref : `/login?next=${encodeNextPath("/dashboard")}`}><span>{resourcesLoading ? "내 홈 열기" : model.primarySeason ? "일정 확인하기" : "공간 등록하기"}</span><b aria-hidden="true">→</b></Link>
         </article>
@@ -178,7 +178,7 @@ function GrowthSummary({ model, resourcesLoading }: HomeDashboardViewProps) {
       <div className={styles.growthCard}>
         <div className={styles.dayCount}><strong>{resourcesLoading ? "–" : model.growingDay}</strong><span>일</span></div>
         <div className={styles.seedling}><Image src="/figma/image8.webp" alt="흙에서 돋아난 새싹" fill sizes="160px" /></div>
-        <div className={styles.growthCopy}><h2>{resourcesLoading ? <>재배 기록을<br />불러오고 있어요</> : model.primarySeason ? <>{model.primarySeason.name}<br />기록이 쌓이고 있어요</> : <>작은 화분부터<br />재배 기록을 시작해요</>}</h2><p>{resourcesLoading ? "계정에 저장된 시즌과 일정을 확인하고 있습니다." : model.primarySpace ? `${model.primarySpace.name}의 변화와 일정을 한곳에서 관리합니다.` : "공간과 시즌을 등록하면 날짜와 진행률을 자동으로 계산합니다."}</p></div>
+        <div className={styles.growthCopy}><h2>{resourcesLoading ? <>재배 기록을<br />불러오고 있어요</> : model.primarySeason ? <>{model.primarySeason.name}<br />기록이 쌓이고 있어요</> : <>작은 화분부터<br />재배 기록을 시작해요</>}</h2><p>{resourcesLoading ? "계정에 저장된 시즌과 일정을 확인하고 있습니다." : model.primarySpace ? `${model.primarySpace.name}의 변화와 일정을 한곳에서 관리합니다.` : "화분과 재배 계획을 등록하면 날짜와 진행률을 자동으로 계산합니다."}</p></div>
       </div>
     </section>
   );

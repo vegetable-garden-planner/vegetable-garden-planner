@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { InlineConfirm } from "@/components/inline-confirm";
-import { useAllContainerPlacements } from "@/features/container-placement/hooks/use-all-container-placements";
 import { useCropCatalog } from "@/features/crop-catalog/hooks/use-crop-catalog";
 import { useGardenLayouts } from "@/features/garden-layout/hooks/use-garden-layouts";
 import {
@@ -26,7 +25,7 @@ const STATUS_LABELS: Record<GrowingSeasonStatus, string> = {
 const SEASON_DELETE_BLOCKERS: Record<string, { label: string; href: (seasonId: string) => string }> = {
   SEASON_HAS_LAYOUT: { label: "격자 배치에서 정리하기 →", href: (id) => `/seasons/${id}/layout` },
   SEASON_HAS_TASKS: { label: "재배 일정에서 정리하기 →", href: (id) => `/seasons/${id}/tasks` },
-  SEASON_HAS_RECORDS: { label: "시즌 기록에서 정리하기 →", href: (id) => `/seasons/${id}/records` },
+  SEASON_HAS_RECORDS: { label: "재배 기록에서 정리하기 →", href: (id) => `/seasons/${id}/records` },
   SEASON_HAS_WATERING_SCHEDULES: { label: "물주기에서 정리하기 →", href: (id) => `/seasons/${id}/watering` },
   SEASON_HAS_CONTAINER_PLACEMENTS: { label: "화분 배치에서 정리하기 →", href: (id) => `/seasons/${id}/placements` },
 };
@@ -36,7 +35,6 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   const spacesState = useGrowingSpaces();
   const cropCatalog = useCropCatalog();
   const layoutsState = useGardenLayouts();
-  const containerPlacementsState = useAllContainerPlacements();
   const [actionError, setActionError] = useState("");
   const [actionErrorCode, setActionErrorCode] = useState("");
   const [deletingId, setDeletingId] = useState("");
@@ -47,21 +45,11 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
   if (spacesState.status === "error") return <ErrorMessage message={spacesState.message} onRetry={() => void spacesState.reload()} />;
   if (cropCatalog.status === "error") return <ErrorMessage message={cropCatalog.message} onRetry={() => window.location.reload()} />;
   if (layoutsState.status === "error") return <ErrorMessage message={layoutsState.message} onRetry={() => void layoutsState.reload()} />;
-  if (containerPlacementsState.status === "error") return <ErrorMessage message={containerPlacementsState.message} onRetry={() => void containerPlacementsState.reload()} />;
-  if (
-    seasonsState.status === "loading"
-    || spacesState.status === "loading"
-    || cropCatalog.status === "loading"
-    || layoutsState.status === "loading"
-    || containerPlacementsState.status === "loading"
-  ) return <SeasonListLoading />;
+  if (seasonsState.status === "loading" || spacesState.status === "loading" || cropCatalog.status === "loading" || layoutsState.status === "loading") return <SeasonListLoading />;
   const spacesById = new Map(spacesState.spaces.map((space) => [space.id, space]));
   const cropsById = new Map(cropCatalog.crops.map((crop) => [crop.id, crop]));
   const layoutsBySeasonId = new Map(
     layoutsState.layouts.map((layout) => [layout.seasonId, layout]),
-  );
-  const containerPlacementSeasonIds = new Set(
-    containerPlacementsState.placements.map((placement) => placement.seasonId),
   );
   const selectedSpace = selectedSpaceId ? spacesById.get(selectedSpaceId) : undefined;
   if (selectedSpaceId && !selectedSpace) {
@@ -88,7 +76,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
       await deleteGrowingSeason(season);
       setDeletingId("");
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : "시즌을 삭제하지 못했습니다.");
+      setActionError(error instanceof Error ? error.message : "재배 계획을 삭제하지 못했습니다.");
       setActionErrorCode(error instanceof ApiError ? error.code : "");
     } finally {
       setBusy(false);
@@ -98,14 +86,14 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
 
   return (
     <div className={styles.listPage}>
-      <section className={styles.listOverview} aria-label="재배 시즌 현황">
-        <div><p>현재 계획</p><h2>{visibleSeasons.length}개의 재배 시즌이 있어요</h2><span>기간과 공간을 기준으로 작물 배치부터 재배 일정과 기록까지 이어서 관리합니다.</span></div>
-        <dl><SeasonStat label="전체 시즌" value={`${visibleSeasons.length}개`} /><SeasonStat label="진행 중" value={`${activeCount}개`} /><SeasonStat label="예정" value={`${plannedCount}개`} /></dl>
+      <section className={styles.listOverview} aria-label="재배 계획 현황">
+        <div><p>현재 계획</p><h2>{visibleSeasons.length}개의 재배 계획이 있어요</h2><span>기간과 공간을 기준으로 작물 배치부터 재배 일정과 기록까지 이어서 관리합니다.</span></div>
+        <dl><SeasonStat label="전체 계획" value={`${visibleSeasons.length}개`} /><SeasonStat label="진행 중" value={`${activeCount}개`} /><SeasonStat label="예정" value={`${plannedCount}개`} /></dl>
       </section>
       {selectedSpace && (
         <div className={styles.filterNotice}>
-          <p>‘{selectedSpace.name}’에서 키우는 시즌만 보고 있어요.</p>
-          <Link href="/seasons">전체 시즌 보기 →</Link>
+          <p>‘{selectedSpace.name}’에서 키우는 계획만 보고 있어요.</p>
+          <Link href="/seasons">전체 계획 보기 →</Link>
         </div>
       )}
       {actionError && (
@@ -116,7 +104,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
           message={actionError}
         />
       )}
-      <div className={styles.listHeading}><div><p>재배 흐름</p><h2>시즌별 계획</h2></div><Link href={selectedSpaceId ? `/seasons/new?spaceId=${encodeURIComponent(selectedSpaceId)}` : "/seasons/new"}>새 시즌 만들기 →</Link></div>
+      <div className={styles.listHeading}><div><p>재배 흐름</p><h2>계획 목록</h2></div><Link href={selectedSpaceId ? `/seasons/new?spaceId=${encodeURIComponent(selectedSpaceId)}` : "/seasons/new"}>새 재배 시작 →</Link></div>
       <ul className={styles.seasonGrid}>
         {visibleSeasons.map((season) => {
           const status = season.status;
@@ -128,7 +116,6 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
             season,
             linkedSpace?.type ?? "garden",
             layoutsBySeasonId.get(season.id),
-            containerPlacementSeasonIds.has(season.id),
           );
           return (
             <li className={styles.seasonCard} key={season.id}>
@@ -138,7 +125,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
               </div>
               <dl className={styles.cardFacts}>
                 <div><dt>재배 기간</dt><dd>{season.startDate}<span>~</span>{season.endDate}</dd></div>
-                <div><dt>재배 방식</dt><dd>{linkedSpace?.type === "garden" ? "격자 작물 배치" : "화분별 작물 배치"}</dd></div>
+                <div><dt>배치 방식</dt><dd>{linkedSpace?.type === "garden" ? "격자 배치" : "화분별 배치"}</dd></div>
               </dl>
               {featuredCrop && <Link className={styles.cropLink} href={`/crops/${featuredCrop.id}`}>선택 식물 · {featuredCrop.name} →</Link>}
               {season.notes && <p className={styles.cardNotes}>{season.notes}</p>}
@@ -150,7 +137,7 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
                 <Link href={linkedSpace?.type === "garden" ? `/seasons/${season.id}/layout` : `/seasons/${season.id}/placements`}>작물 배치</Link>
                 <Link href={`/seasons/${season.id}/tasks`}>재배 일정</Link>
                 <Link href={`/seasons/${season.id}/watering`}>물주기</Link>
-                <Link href={`/seasons/${season.id}/records`}>시즌 기록</Link>
+                <Link href={`/seasons/${season.id}/records`}>재배 기록</Link>
               </div>
               {deletingId === season.id ? (
                 <InlineConfirm
@@ -158,11 +145,11 @@ export function SeasonList({ selectedSpaceId = "" }: { selectedSpaceId?: string 
                   disabled={busy}
                   onCancel={() => setDeletingId("")}
                   onConfirm={() => void removeSeason(season)}
-                  title={`'${season.name}' 시즌을 삭제할까요?`}
+                  title={`'${season.name}' 계획을 삭제할까요?`}
                 />
               ) : (
                 <div className={styles.cardActions}>
-                  <Link href={`/seasons/${season.id}/edit`}>시즌 수정</Link>
+                  <Link href={`/seasons/${season.id}/edit`}>계획 수정</Link>
                   <button onClick={() => setDeletingId(season.id)} type="button">삭제</button>
                 </div>
               )}
@@ -188,9 +175,9 @@ function EmptySeasonList({
     <div className={styles.emptyState}>
       <span aria-hidden="true">02</span>
       <p>공간 다음에 이어지는 단계</p>
-      <h2 className="text-xl font-bold">{spaceName ? `‘${spaceName}’에 등록한 시즌이 없어요` : "아직 등록한 시즌이 없어요"}</h2>
+      <h2 className="text-xl font-bold">{spaceName ? `‘${spaceName}’에 만든 재배 계획이 없어요` : "아직 만든 재배 계획이 없어요"}</h2>
       <strong>재배 기간을 등록하면 식물 배치와 일정 관리의 기준이 됩니다.</strong>
-      <div><Link href={newSeasonHref}>첫 시즌 등록하기 →</Link>{selectedSpaceId && <Link href="/seasons">전체 시즌 보기</Link>}</div>
+      <div><Link href={newSeasonHref}>첫 재배 시작하기 →</Link>{selectedSpaceId && <Link href="/seasons">전체 계획 보기</Link>}</div>
     </div>
   );
 }
@@ -228,5 +215,5 @@ function SeasonStat({ label, value }: { label: string; value: string }) {
 }
 
 function SeasonListLoading() {
-  return <div className={styles.loading} aria-label="재배 시즌을 불러오는 중" aria-live="polite"><div /><div /></div>;
+  return <div className={styles.loading} aria-label="재배 계획을 불러오는 중" aria-live="polite"><div /><div /></div>;
 }

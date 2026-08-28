@@ -15,7 +15,7 @@
     radial-gradient(circle at 78% 10%, rgba(72, 167, 119, 0.34), transparent 22rem),
     linear-gradient(120deg, #0d3025, #0b6549);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elev-3);
   grid-template-columns: minmax(0, 1.2fr) minmax(430px, 0.8fr);
 }
 
@@ -32,7 +32,7 @@
   margin-top: 7px;
   font-size: clamp(1.65rem, 3vw, 2.25rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .listOverview > div > span {
@@ -114,7 +114,7 @@
   margin-top: 5px;
   font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--tracking-section);
 }
 
 .listHeading > a {
@@ -137,13 +137,13 @@
   border: 1px solid var(--color-border);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--elev-2);
   transition: border-color var(--motion-base), transform var(--motion-base), box-shadow var(--motion-base);
 }
 
 .seasonCard:hover {
   border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-border));
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elev-3);
   transform: translateY(-3px);
 }
 
@@ -164,7 +164,7 @@
   margin-top: 8px;
   font-size: 22px;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: var(--tracking-section);
 }
 
 .cardHeader > span {
@@ -236,7 +236,7 @@
   margin-top: 15px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .nextStep {
@@ -464,7 +464,7 @@
   border: 1px solid var(--color-border);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--elev-2);
 }
 
 .formSection {
@@ -500,7 +500,7 @@
   margin-top: 5px;
   color: var(--color-muted);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
   word-break: keep-all;
 }
 
@@ -681,7 +681,7 @@
   margin-top: 8px;
   font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--tracking-card);
 }
 
 .formAside > span {
@@ -735,7 +735,7 @@
   margin-top: 7px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 @keyframes loading-sweep {

@@ -5,8 +5,8 @@ import { encodeNextPath } from "@/features/auth/domain/auth";
 import { SeasonForm } from "@/features/growing-season/components/season-form";
 
 export const metadata: Metadata = {
-  title: "시즌 등록 | 심어봄",
-  description: "재배 공간에 새로운 시즌과 기간을 등록하세요.",
+  title: "새 재배 시작 | 심어봄",
+  description: "화분과 기간을 정해 새 재배 계획을 만드세요.",
 };
 
 export default async function NewSeasonPage(props: PageProps<"/seasons/new">) {
@@ -24,9 +24,9 @@ export default async function NewSeasonPage(props: PageProps<"/seasons/new">) {
     <AuthGate loginHref={`/login?next=${encodeNextPath(returnPath)}`}>
       <AppPageShell
         backHref="/seasons"
-        backLabel="시즌 목록"
-        description="시즌은 작물 배치와 재배 일정, 성장 기록을 하나로 묶는 기준이 됩니다."
-        eyebrow="재배 시즌 등록"
+        backLabel="내 재배 계획"
+        description="재배 계획은 작물 배치와 일정, 기록을 하나로 묶는 기준이 됩니다."
+        eyebrow="새 재배 시작"
         heroSize="compact"
         title="이번 재배 기간을 정해 주세요"
         width="full"

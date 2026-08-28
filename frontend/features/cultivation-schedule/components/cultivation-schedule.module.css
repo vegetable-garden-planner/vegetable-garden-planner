@@ -10,7 +10,7 @@
   border: 1px solid var(--color-border);
   border-radius: 22px;
   background: linear-gradient(125deg, #f8f3e8, #eef8f3);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--elev-2);
   grid-template-columns: minmax(0, 1.25fr) minmax(420px, 0.75fr);
 }
 
@@ -29,7 +29,7 @@
   color: var(--color-ink-strong);
   font-size: 26px;
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--tracking-section);
 }
 
 .overviewCopy > span,
@@ -107,7 +107,7 @@
   border: 1px solid var(--color-border);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--elev-2);
 }
 
 .commandCard {
@@ -285,7 +285,7 @@
 
 .taskCard:hover {
   transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--elev-2);
 }
 
 .taskCardHeader {
@@ -319,7 +319,7 @@
   margin-top: 10px;
   color: var(--color-muted);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .taskActions {
@@ -448,7 +448,7 @@
   margin-top: 18px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .empty {
@@ -537,5 +537,19 @@
 
   .sideColumn {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------------
+   모바일 탭 영역
+
+   손가락으로 누르는 버튼은 44px 아래로 내려가지 않게 한다.
+   크기만 키우고 동작·마크업은 그대로 둔다.
+------------------------------------------------------------------ */
+@media (max-width: 640px) {
+  .completeButton,
+  .deleteButton {
+    min-height: var(--control-height-md);
+    padding-inline: var(--space-4);
   }
 }

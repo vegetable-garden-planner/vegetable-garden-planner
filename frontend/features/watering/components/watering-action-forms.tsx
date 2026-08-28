@@ -35,7 +35,7 @@ export function WateringCompleteForm({
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(submittedWateredAt)
       || submittedWateredAt.slice(0, 10) < season.startDate
       || submittedWateredAt.slice(0, 10) > season.endDate) {
-      setError("완료 시각은 재배 시즌 안이어야 합니다.");
+      setError("완료 시각은 재배 계획 안이어야 합니다.");
       return;
     }
     if (amount !== null && (!Number.isInteger(amount) || amount < 1 || amount > 100000)) {
@@ -135,7 +135,7 @@ export function WateringSnoozeForm({
     }
     if (submittedSnoozedUntil.slice(0, 10) < season.startDate
       || submittedSnoozedUntil.slice(0, 10) > season.endDate) {
-      setError("미루기 시각은 재배 시즌 안이어야 합니다.");
+      setError("미루기 시각은 재배 계획 안이어야 합니다.");
       return;
     }
     if (Date.parse(snoozedUntil) <= Date.parse(schedule.nextWateringAt)) {

@@ -15,6 +15,14 @@ export async function createSpaceMemo(spaceId: string, input: SpaceMemoInput): P
   })).data;
 }
 
+export async function updateSpaceMemo(memo: SpaceMemo, input: SpaceMemoInput): Promise<SpaceMemo> {
+  return (await apiRequest<ItemResponse>(`/memos/${encodeURIComponent(memo.id)}`, {
+    method: "PATCH",
+    headers: { "If-Match": `"${memo.version}"` },
+    body: JSON.stringify(input),
+  })).data;
+}
+
 export async function deleteSpaceMemo(memo: SpaceMemo): Promise<void> {
   await apiRequest<void>(`/memos/${encodeURIComponent(memo.id)}`, {
     method: "DELETE",

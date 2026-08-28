@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { GrowingSeasonStatus } from "@/features/growing-season/domain/growing-season";
 import type { RegisteredPlantSummary } from "@/features/dashboard/domain/registered-plant-summary";
-import { SpaceMemoPanel } from "@/features/space-memo/components/space-memo-panel";
+import { SpaceMemoSummary } from "@/features/space-memo/components/space-memo-summary";
 
 const STATUS_LABELS: Readonly<Record<GrowingSeasonStatus, string>> = {
   active: "관리 중",
@@ -51,7 +51,8 @@ export function RegisteredPlantList({
               <Link className="mt-4 inline-flex text-sm font-bold text-ink" href="/seasons">
                 관리 기간 보기 <span className="ml-1 text-leaf" aria-hidden="true">→</span>
               </Link>
-              <SpaceMemoPanel spaceId={plant.spaceId} />
+              {/* 메모를 쓰고 지우는 일은 화분/공간 화면에서 한다. 홈은 읽기만 한다. */}
+              <SpaceMemoSummary spaceId={plant.spaceId} />
             </li>
           ))}
         </ul>

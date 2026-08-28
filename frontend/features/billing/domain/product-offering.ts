@@ -36,7 +36,7 @@ const BENEFITS: Readonly<Record<PlanCode, readonly ProductBenefit[]>> = {
     {
       key: "basic-care-plan",
       title: "기본 재배 계획과 앱 내부 알림",
-      description: "공간과 시즌을 등록하고 일정이 가까워지면 내 홈에서 확인합니다.",
+      description: "화분과 재배 계획을 등록하고 일정이 가까워지면 내 홈에서 확인합니다.",
       availability: "available",
     },
   ],
@@ -62,7 +62,7 @@ const BENEFITS: Readonly<Record<PlanCode, readonly ProductBenefit[]>> = {
     {
       key: "push-report",
       title: "푸시 알림과 재배 리포트",
-      description: "앱을 열지 않아도 할 일을 받고 시즌별 관리 결과를 정리합니다.",
+      description: "앱을 열지 않아도 할 일을 받고 재배 계획별 관리 결과를 정리합니다.",
       availability: "requires-backend",
     },
   ],

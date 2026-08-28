@@ -14,7 +14,7 @@ export function useGrowingSeasons(): GrowingSeasonsState & { reload: () => Promi
   const { state, reload } = useCachedResource<PersistedGrowingSeason[]>(
     "seasons",
     fetchGrowingSeasons,
-    "시즌 목록을 불러오지 못했습니다.",
+    "재배 계획 목록을 불러오지 못했습니다.",
   );
 
   return useMemo(() => {

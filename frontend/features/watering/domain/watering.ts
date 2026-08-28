@@ -103,7 +103,7 @@ export function validateWateringScheduleDraft(
   if (!isLocalDateTime(draft.nextWateringAtLocal)) {
     errors.nextWateringAtLocal = "올바른 첫 물주기 시각을 입력해 주세요.";
   } else if (localDate < season.startDate || localDate > season.endDate) {
-    errors.nextWateringAtLocal = "첫 물주기 시각은 재배 시즌 안이어야 합니다.";
+    errors.nextWateringAtLocal = "첫 물주기 시각은 재배 계획 안이어야 합니다.";
   }
 
   if (Object.keys(errors).length > 0) return { valid: false, errors };

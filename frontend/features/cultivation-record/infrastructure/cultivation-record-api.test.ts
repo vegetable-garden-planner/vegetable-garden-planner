@@ -19,7 +19,7 @@ test.afterEach(() => {
   else Reflect.deleteProperty(globalThis, "document");
 });
 
-test("시즌 기록을 최신순 목록 API에서 조회하고 종류를 필터링한다", async () => {
+test("재배 기록을 최신순 목록 API에서 조회하고 종류를 필터링한다", async () => {
   const urls: string[] = [];
   globalThis.fetch = async (input) => {
     urls.push(String(input));

@@ -1,0 +1,151 @@
+/* ==================================================================
+   재배 계획 내부 탭
+
+   계획 안에 들어온 뒤 배치 · 일정 · 물주기 · 기록 · 수정을 오간다.
+   지금 어느 계획의 어느 화면인지도 함께 보여 준다.
+   ================================================================== */
+
+.wrap {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-6);
+  padding: var(--space-4) var(--space-5);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  box-shadow: var(--elev-2);
+}
+
+@media (max-width: 640px) {
+  /* 모바일에서는 계획 이름 줄을 줄이고 탭만 남겨 상단 밀도를 낮춘다 */
+  .wrap {
+    margin: 0 0 var(--space-4);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ------------------------------------------------------------ 계획 이름 */
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-label, 0.12em);
+  text-transform: uppercase;
+}
+
+.name {
+  margin: 0;
+  color: var(--color-ink, #14251d);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-card);
+  line-height: var(--leading-card, 1.45);
+}
+
+.space {
+  color: var(--color-muted, #7d8b84);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------ 탭 목록 */
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 0 2px;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+
+.tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-raised);
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  transition:
+    border-color var(--motion-fast) var(--ease-out),
+    background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.tab:hover {
+  border-color: var(--border-brand);
+  background: var(--surface-brand);
+  color: var(--color-primary-hover);
+}
+
+.tab:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-focus, var(--color-primary));
+  outline-offset: 2px;
+}
+
+/* 현재 탭 — 색만이 아니라 채움으로 구분한다 */
+.tab[aria-current="page"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--text-on-brand);
+  box-shadow: var(--elev-1);
+}
+
+.tab[aria-current="page"]:hover {
+  background: var(--color-primary-hover);
+  color: #fff;
+}
+
+/* 계획 수정은 보조 동작이라 한 칸 띄우고 톤을 낮춘다 */
+.minor {
+  margin-left: auto;
+  border-style: dashed;
+}
+
+@media (max-width: 640px) {
+  .minor {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  /*
+    탭이 화면 밖으로 잘려도 더 있다는 표시가 없었다.
+    좌우 여백만큼 넓혀 화면 끝까지 흐르게 하고, 끝에서 자연스럽게 페이드시킨다.
+    스크롤 스냅으로 탭 하나가 반쯤 걸리지 않게 한다.
+  */
+  .tabs {
+    margin: 0 calc(var(--space-4) * -1);
+    padding: 0 var(--space-4) var(--space-1);
+    scroll-snap-type: x proximity;
+    mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 22px), transparent 100%);
+  }
+
+  .tabs > li { scroll-snap-align: start; }
+  .tab { height: var(--control-height-md); font-size: 13px; }
+}

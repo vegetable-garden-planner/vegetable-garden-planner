@@ -1,30 +1,68 @@
 @import "tailwindcss";
+/* 심어봄 소개 랜딩(/) 전용 스타일 — 전부 `lp-` namespace. 기존 토큰은 건드리지 않는다 */
+@import "../features/landing/landing.css";
+/* 공통 UI 프리미티브(.ui-*) — 페이지별 중복 정의를 대신한다 */
+@import "./ui.css";
 
 :root {
-  --cream: #f7f5ef;
+  --cream: #fbf8f1;
   --paper: #ffffff;
-  --ink: #1c3029;
-  --muted: #6f7772;
-  --leaf: #079568;
-  --leaf-dark: #087653;
-  --leaf-soft: #e9f5f0;
+  --ink: #14251d;
+  --muted: #56675e;
+  --leaf: #0c9769;
+  --leaf-dark: #076f4d;
+  --leaf-soft: #e8f4ef;
   --soil: #ad6848;
   --sun: #ffc283;
   --color-page: #ffffff;
-  --color-surface: #f7f5ef;
+  --color-surface: #fbf8f1;
   --color-surface-warm: #fbf6ed;
-  --color-ink-strong: #17251f;
-  --color-primary: #079568;
-  --color-primary-hover: #087653;
-  --color-primary-soft: #e9f5f0;
+  --color-ink-strong: #14251d;
+  --color-primary: #0c9769;
+  --color-primary-hover: #076f4d;
+  --color-primary-soft: #e8f4ef;
   --color-secondary: #46b18d;
   --color-accent: #ffc283;
-  --color-border: #e8e4dc;
+  --color-border: #e7e1d4;
   --color-on-photo: #ffffff;
   --color-overlay: #0b2118;
   --color-danger: #b84c42;
   --color-focus: #0c9769;
-  --font-garden: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  /* 랜딩과 공유하는 브랜드 톤 (landing.css의 --color-lp-* 와 같은 값) */
+  --color-ink-soft: #56675e;
+  --color-ink-faint: #8d9a92;
+  --color-brand-tint: #e8f4ef;
+  --color-forest: #06170f;
+  --color-forest-soft: #0c2519;
+  /* 제품 UI 전체 서체 — Pretendard (app/layout.tsx에서 한 번만 로드한다) */
+  --font-garden: "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  /* 브랜드명 "심어봄" 로고타이프 전용 — 일반 제목에는 쓰지 않는다 */
+  --font-brand: "Gugi", var(--font-garden);
+
+  /* ----------------------------------------------------------------
+     자간 · 행간 — 소개 랜딩과 같은 값을 서비스 전체가 함께 쓴다
+     (landing.css 의 --lp-tracking-* 와 1:1로 대응한다)
+
+     큰 글자일수록 자간을 넓게 열어 두는 심어봄 특유의 리듬이다.
+     화면마다 임의의 letter-spacing 을 새로 만들지 말고 이 토큰을 쓴다.
+  ---------------------------------------------------------------- */
+  --tracking-display: 0.09em;
+  --tracking-hero: 0.08em;
+  --tracking-page: 0.06em;
+  --tracking-section: 0.045em;
+  --tracking-card: 0.03em;
+  --tracking-body: 0.02em;
+  --tracking-caption: 0.015em;
+  --tracking-numeral: 0em;
+  --tracking-label: 0.18em;
+
+  --leading-display: 1.24;
+  --leading-hero: 1.26;
+  --leading-page: 1.28;
+  --leading-section: 1.34;
+  --leading-card: 1.45;
+  --leading-body: 1.68;
+  --leading-caption: 1.5;
   --type-display-size: 48px;
   --type-h1-mobile-size: 40px;
   --type-h2-size: 32px;
@@ -98,6 +136,88 @@
   --type-stat-size: 30px;
   --type-display-compact-size: 40px;
   --type-display-hero-size: 56px;
+
+  /* ================================================================
+     심어봄 UI 시스템 (2026-08 디자인 정리)
+
+     기존 토큰은 하나도 지우지 않는다. 24개 CSS 모듈이 --leaf,
+     --color-primary 같은 이름을 그대로 쓰고 있어서, 지우면 한꺼번에 깨진다.
+     여기서는 "표면 단계 / 깊이 / 상태"처럼 지금까지 없던 축만 새로 세운다.
+
+     화면이 밋밋해 보이는 원인은 색이 아니라 이 세 가지가 없어서다.
+       1) 표면 단계 - 배경과 카드가 구분되지 않는다
+       2) 깊이     - 그림자가 2종뿐이라 계층이 안 보인다
+       3) 상태     - hover/active/focus 가 페이지마다 다르다
+     ---------------------------------------------------------------- */
+
+  /* --- 표면 3단계 (아래에서 위로) --- */
+  --surface-sunken: #f4f1e9;   /* 카드 안에 파인 영역, 목록 배경 */
+  --surface-base: #faf8f3;     /* 페이지 바탕 */
+  --surface-raised: #ffffff;   /* 카드 */
+  --surface-overlay: #ffffff;  /* 시트 · 팝오버 */
+  --surface-brand: #f2f9f6;    /* 브랜드 톤 강조 영역 */
+  --surface-brand-strong: #e8f4ef;
+
+  /* --- 테두리 3단계 --- */
+  --border-subtle: #efeae0;
+  --border-default: #e7e1d4;
+  --border-strong: #d6cec0;
+  --border-brand: #bfdfd1;
+
+  /* --- 글자 4단계 --- */
+  --text-strong: #14251d;
+  --text-default: #2c3d35;
+  --text-soft: #56675e;
+  --text-faint: #8d9a92;
+  --text-on-brand: #ffffff;
+
+  /* --- 깊이 4단계 (녹빛 그림자. 순수 검정은 때가 탄 것처럼 보인다) --- */
+  --elev-0: none;
+  --elev-1: 0 1px 2px rgba(20, 37, 29, 0.04);
+  --elev-2: 0 1px 2px rgba(20, 37, 29, 0.04), 0 4px 12px rgba(20, 37, 29, 0.06);
+  --elev-3: 0 2px 4px rgba(20, 37, 29, 0.05), 0 12px 28px rgba(20, 37, 29, 0.09);
+  --elev-4: 0 4px 8px rgba(20, 37, 29, 0.06), 0 24px 56px rgba(20, 37, 29, 0.14);
+
+  /* --- 상태 --- */
+  --state-hover: rgba(20, 37, 29, 0.035);
+  --state-active: rgba(20, 37, 29, 0.06);
+  --state-selected: var(--surface-brand);
+  --state-disabled-bg: #f2f0ec;
+  --state-disabled-text: #a8b2ac;
+  --focus-ring: 0 0 0 3px rgba(12, 151, 105, 0.22);
+  --focus-ring-danger: 0 0 0 3px rgba(184, 76, 66, 0.2);
+
+  /* --- 의미 색 (배지 · 안내 박스) --- */
+  --tone-good: #087653;
+  --tone-good-bg: #e9f5ef;
+  --tone-good-border: #bfdfd1;
+  --tone-warn: #8a6200;
+  --tone-warn-bg: #fdf4e0;
+  --tone-warn-border: #eed89f;
+  --tone-bad: #b33b3b;
+  --tone-bad-bg: #fdeceb;
+  --tone-bad-border: #f0c6c2;
+  --tone-info: #35608c;
+  --tone-info-bg: #eaf2fa;
+  --tone-info-border: #c6dbee;
+  --tone-neutral: #53625b;
+  --tone-neutral-bg: #f1f3f1;
+  --tone-neutral-border: #e2e6e3;
+
+  /* --- 컨트롤 높이 (탭 영역 최소 44px 규칙과 맞춘다) --- */
+  --control-height-sm: 36px;
+  --control-height-md: 44px;
+  --control-height-lg: 52px;
+
+  /* --- 반응형 기준선 3종 --- */
+  /* CSS 변수는 media query 에 못 쓰므로 값 자체는 각 파일에 적되,
+     640 / 1024 / 1280 세 개만 쓴다. (지금은 12종이 뒤섞여 있다) */
+  --bp-mobile: 640px;
+  --bp-tablet: 1024px;
+  --bp-desktop: 1280px;
+
+  /* 상단 헤더 높이. sticky 요소가 헤더 아래에 붙도록 기준을 하나로 둔다. */
+  --app-header-h: 77px;
 }
 
 @theme inline {
@@ -110,7 +230,7 @@
   --color-leaf-soft: var(--leaf-soft);
   --color-soil: var(--soil);
   --color-sun: var(--sun);
-  --font-sans: var(--font-geist), "Pretendard", "Noto Sans KR", sans-serif;
+  --font-sans: var(--font-garden);
 }
 
 * {
@@ -123,9 +243,7 @@ html {
 }
 
 @supports (overflow: clip) {
-  html {
-    overflow-x: clip;
-  }
+  html { overflow-x: clip; }
 }
 
 body {
@@ -133,6 +251,12 @@ body {
   background: var(--color-page);
   color: var(--ink);
   font-family: var(--font-garden);
+  /* 랜딩과 같은 본문 리듬 */
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+  /* 한글은 어절 단위로 끊어야 큰 타이포가 어색하게 갈라지지 않는다 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 @layer base {
@@ -161,16 +285,28 @@ body {
 
 .app-page {
   min-height: 100vh;
-  overflow: hidden;
+  /* 가로만 잘라 낸다.
+     overflow:hidden 은 스크롤 컨테이너를 만들어 자손의 position:sticky 를 죽인다.
+     (작물 가이드의 고정 검색 바가 이것 때문에 안 붙었다)
+     overflow-x:clip 은 같은 가로 클리핑을 하면서 sticky 를 살려 둔다. */
+  overflow-x: hidden; /* 구형 브라우저 대비 */
+  overflow-x: clip;   /* 지원하면 이 값이 이긴다 */
   padding: 0;
+  /* 카드(흰색)가 바탕 위로 떠 보이도록 바탕을 한 단계 낮춘다.
+     지금까지 바탕이 거의 흰색이라 카드가 평면으로 읽혔다. */
   background:
-    radial-gradient(circle at 92% 24%, rgba(255, 208, 151, 0.16), transparent 28rem),
-    linear-gradient(180deg, #fff 0, #fbfaf7 45%, #f7f5ef 100%);
+    radial-gradient(circle at 92% 18%, rgba(255, 208, 151, 0.14), transparent 30rem),
+    radial-gradient(circle at 6% 0%, rgba(12, 151, 105, 0.05), transparent 26rem),
+    linear-gradient(180deg, #fdfcf9 0, var(--surface-base) 40%, #f6f3ec 100%);
   color: var(--color-ink);
 }
 
 .app-page-content {
-  padding: 0 24px 88px;
+  padding: 0 var(--layout-gutter) 96px;
+}
+
+@media (max-width: 640px) {
+  .app-page-content { padding: 0 16px 96px; }
 }
 
 .app-header {
@@ -201,7 +337,7 @@ body {
   color: var(--color-primary);
   font-size: 1.35rem;
   font-weight: 800;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
 }
 
 .app-header .app-brand {
@@ -217,7 +353,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  overflow-x: auto;
   color: #3e4c47;
   font-size: 14px;
   font-weight: 700;
@@ -236,21 +371,49 @@ body {
   color: var(--color-primary-hover);
 }
 
+/* 메인 홈 — 헤더 + 한 화면이 정확히 뷰포트 높이에 맞도록 세로로 나눈다 */
+.home-page {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+}
+
+/* 헤더 안의 조용한 바로가기 — 주요 동작(primary-action)과 경쟁하지 않는다 */
+.app-header-quiet-link {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 9px 14px;
+  color: #3e4c47;
+  font-size: 14px;
+  font-weight: 700;
+  transition: color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out);
+}
+
+.app-header-quiet-link:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+/* 좁은 화면에서는 헤더가 두 줄로 접히므로 뺀다. 같은 링크가 메뉴와 프로필에 있다. */
+@media (max-width: 640px) {
+  .app-header-quiet-link { display: none; }
+}
+
 .app-header-actions {
   display: flex;
-  flex-shrink: 0;
   align-items: center;
   justify-self: end;
   gap: 10px;
-  white-space: nowrap;
 }
 
 .page-hero {
   position: relative;
   max-width: 760px;
-  margin: 64px 0 38px;
+  margin: 56px 0 var(--space-10);
   padding-left: 0;
 }
+
 
 .page-hero-copy {
   position: relative;
@@ -287,7 +450,8 @@ body {
 }
 
 .page-hero-photo .page-title {
-  max-width: 640px;
+  /* 랜딩과 같은 넓은 자간을 쓰면 줄이 하나 더 생겨 폭을 조금 넓힌다 */
+  max-width: 780px;
   color: white;
   font-size: clamp(2.7rem, 5.6vw, 4.8rem);
 }
@@ -313,36 +477,38 @@ body {
 
 .page-kicker {
   color: var(--color-primary);
-  font-size: var(--type-label-size);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
 }
 
 .page-title {
-  margin-top: 12px;
+  margin-top: var(--space-3);
   color: var(--color-ink-strong);
   font-size: clamp(2.1rem, 5vw, 3.4rem);
   font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1.12;
+  letter-spacing: var(--tracking-page);
+  line-height: var(--leading-page);
   text-wrap: balance;
   word-break: keep-all;
 }
 
 .page-lead {
   max-width: 680px;
-  margin-top: 18px;
-  color: var(--color-muted);
-  font-size: 1.05rem;
-  line-height: 1.75;
+  margin-top: var(--space-4);
+  color: var(--text-soft);
+  font-size: 1.02rem;
+  line-height: var(--leading-body);
   word-break: keep-all;
 }
 
 .back-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 28px;
+  gap: var(--space-2);
+  min-height: var(--control-height-md);
+  margin-top: var(--space-6);
   color: var(--color-muted);
   font-size: 14px;
   font-weight: 700;
@@ -355,21 +521,25 @@ body {
 }
 
 .surface-panel {
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+  box-shadow: var(--elev-2);
 }
 
 .primary-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--color-primary);
-  color: var(--color-on-photo);
+  color: var(--text-on-brand);
   font-weight: 700;
-  transition: background var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+  box-shadow: var(--elev-1);
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
 }
 
 .primary-action:hover {
@@ -466,18 +636,22 @@ body {
 
 .form-input {
   width: 100%;
-  border: 1px solid color-mix(in srgb, var(--ink) 15%, transparent);
-  border-color: var(--color-border);
-  border-radius: 1rem;
-  background: var(--color-page);
-  padding: 0.875rem 1rem;
-  color: var(--ink);
+  min-height: var(--control-height-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-raised);
+  padding: 0.7rem 1rem;
+  color: var(--text-strong);
+  transition: border-color var(--motion-fast) var(--ease-out), box-shadow var(--motion-fast) var(--ease-out);
 }
+
+.form-input::placeholder { color: var(--text-faint); }
+.form-input:hover { border-color: var(--border-strong); }
 
 .form-input:focus {
   border-color: var(--color-primary);
-  outline: 3px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
-  outline-offset: 1px;
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .hero-glow {
@@ -556,8 +730,10 @@ body {
   font-weight: 800;
 }
 
+/* 컷 그림(배경이 없는 PNG)이라서 잘라내지 않고 안쪽에 맞춘다 */
 .crop-visual img {
-  object-fit: cover;
+  object-fit: contain;
+  padding: 4px;
 }
 
 .crop-visual-compact {
@@ -575,87 +751,16 @@ body {
 .crop-visual-tuber { background: linear-gradient(145deg, #b88a5c, #86603d); }
 .crop-visual-flower { background: linear-gradient(145deg, #d8869f, #a95079); }
 
-.planner-context {
-  display: grid;
-  margin-bottom: 18px;
-  padding: 22px 24px;
-  align-items: center;
-  gap: 26px;
-  grid-template-columns: minmax(180px, 0.7fr) 2fr;
-  border: 1px solid var(--color-border);
-  border-radius: 20px;
-  background: white;
-  box-shadow: var(--shadow-sm);
-}
 
-.planner-context > div span,
-.planner-context dt {
-  color: var(--color-primary-hover);
-  font-size: 12px;
-  font-weight: 800;
-}
 
-.planner-context > div strong {
-  display: block;
-  margin-top: 4px;
-  font-size: 20px;
-}
 
-.planner-context dl {
-  display: grid;
-  gap: 16px;
-  grid-template-columns: repeat(3, 1fr);
-}
 
-.planner-context dl > div {
-  padding-left: 18px;
-  border-left: 1px solid var(--color-border);
-}
 
-.planner-context dd {
-  margin-top: 4px;
-  font-size: 14px;
-  font-weight: 700;
-}
 
-.planner-context-sidebar {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
-  margin-bottom: 0;
-  padding: 20px;
-}
 
-.planner-context-sidebar dl {
-  display: grid;
-  margin-top: 16px;
-  gap: 0;
-  grid-template-columns: 1fr;
-}
 
-.planner-context-sidebar dl > div {
-  display: flex;
-  padding: 11px 0;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid var(--color-border);
-  border-left: 0;
-  gap: 14px;
-}
 
-.planner-context-sidebar dd {
-  margin-top: 0;
-  text-align: right;
-}
 
-.planner-context-sidebar > a {
-  display: inline-flex;
-  margin-top: 14px;
-  color: var(--color-primary-hover);
-  font-size: 12px;
-  font-weight: 800;
-}
 
 .planner-workspace-tip {
   display: flex;
@@ -1013,7 +1118,7 @@ body {
   gap: 10px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .planner-guide-card li {
@@ -1105,8 +1210,8 @@ body {
   margin-top: 14px;
   font-size: clamp(2.8rem, 4.6vw, 4rem);
   font-weight: 750;
-  letter-spacing: -0.055em;
-  line-height: 1.12;
+  letter-spacing: var(--tracking-page);
+  line-height: var(--leading-page);
   text-wrap: balance;
 }
 
@@ -1116,7 +1221,7 @@ body {
   margin-top: 22px;
   color: rgba(255, 255, 255, 0.82);
   font-size: 17px;
-  line-height: 1.75;
+  line-height: var(--leading-body);
 }
 
 .dashboard-hero-summary {
@@ -1183,7 +1288,7 @@ body {
   color: var(--color-ink-strong);
   font-size: 30px;
   font-weight: 750;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .dashboard-section-heading > a {
@@ -1394,7 +1499,7 @@ body {
   margin-top: 10px;
   color: var(--color-muted);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .dashboard-guide-card > a {
@@ -1488,7 +1593,7 @@ body {
   color: var(--color-ink-strong);
   font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .dashboard-start-copy span {
@@ -1497,7 +1602,7 @@ body {
   margin-top: 10px;
   color: var(--color-muted);
   font-size: 14px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .dashboard-start-actions {
@@ -1580,9 +1685,6 @@ body {
     grid-template-columns: 1fr;
   }
 
-  .planner-context {
-    grid-template-columns: 1fr;
-  }
 
   .planner-workspace {
     grid-template-columns: minmax(0, 1fr);
@@ -1772,19 +1874,62 @@ body {
     background: linear-gradient(90deg, rgba(4, 24, 17, 0.9), rgba(5, 28, 20, 0.42));
   }
 
-  .planner-context dl,
-  .planner-inspector {
-    grid-template-columns: 1fr;
+
+
+
+}
+
+/* ==================================================================
+   브랜드 워드마크 — "심어봄" 글자만 Gugi
+
+   일반 제목·본문은 전부 Pretendard(--font-garden)를 쓴다.
+   기존 브랜드 링크 클래스(.app-brand / .app-footer-brand)와
+   새로 쓰는 .brand-wordmark 에만 적용해 전역 요소를 덮어쓰지 않는다.
+   ================================================================== */
+.brand-wordmark,
+.app-brand > span,
+.app-footer-brand > span {
+  font-family: var(--font-brand);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+}
+
+/* Gugi는 단일 굵기라 기존 800 굵기 자리보다 살짝 크게 잡아야 균형이 맞는다 */
+.app-brand,
+.app-footer-brand {
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.app-brand > span,
+.app-footer-brand > span {
+  font-size: 1.15em;
+}
+
+@media (max-width: 640px) {
+  /* ----------------------------------------------------------------
+     모바일 상단 재구성
+
+     데스크톱 크기를 그대로 줄이면 제목·설명만으로 첫 화면이 다 찬다.
+     실제로 /seasons/{id}/tasks 는 본문이 두 번째 화면에서야 시작됐다.
+     모바일에서는 제목을 실제 앱 헤더 크기로 낮추고 여백을 조인다.
+  ---------------------------------------------------------------- */
+  .page-hero { margin: var(--space-5) 0 var(--space-5); }
+  .page-kicker { font-size: 11px; }
+
+  .page-title {
+    margin-top: var(--space-2);
+    font-size: 1.55rem;
+    letter-spacing: var(--tracking-section);
+    line-height: 1.34;
   }
 
-  .planner-context dl > div {
-    padding: 0 0 10px;
-    border-bottom: 1px solid var(--color-border);
-    border-left: 0;
+  .page-lead {
+    margin-top: var(--space-2);
+    font-size: 0.9rem;
+    line-height: 1.55;
   }
 
-  .planner-context dl > div:last-child {
-    border-bottom: 0;
-  }
-
+  .back-link { margin-top: var(--space-3); font-size: 13px; }
 }

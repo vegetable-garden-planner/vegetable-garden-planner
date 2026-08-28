@@ -1,0 +1,882 @@
+/* ==================================================================
+   심어봄 메인 홈
+
+   한 화면 안에서 "지금 무엇을 키우는지"를 보여 준다.
+   배경은 새 이미지를 만들지 않고, 소개 페이지(랜딩)와 같은
+   forest → ivory 계열 색과 부드러운 빛만으로 만든다.
+   ================================================================== */
+
+.stage {
+  position: relative;
+  display: flex;
+  /* 헤더 아래 남은 높이를 그대로 채운다 (부모 .home-page 가 100svh) */
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-surface-warm, #fbf6ed);
+}
+
+/* ------------------------------------------------------------ 배경 빛 */
+/*
+  랜딩과 같은 계열의 따뜻한 빛. 이미지가 아니라 그라데이션 레이어다.
+  위쪽에서 들어오는 햇빛 + 아래쪽 바닥의 은은한 초록 반사.
+
+  네 장을 서로 다른 속도로 아주 느리게 움직여 "창가 공기"를 만든다.
+  전부 transform / opacity 만 쓰므로 합성 단계에서 처리되고 다시 그리지 않는다.
+  색과 대비는 그대로라서 그 위의 글씨 가독성은 달라지지 않는다.
+*/
+.light {
+  position: absolute;
+  z-index: 0;
+  /* 확대·이동해도 가장자리가 드러나지 않도록 화면보다 넉넉히 크게 잡는다 */
+  inset: -12%;
+  background:
+    radial-gradient(58% 42% at 76% -4%, rgba(255, 231, 186, 0.85), transparent 62%),
+    radial-gradient(46% 34% at 12% 4%, rgba(255, 245, 224, 0.7), transparent 66%),
+    radial-gradient(70% 44% at 50% 104%, rgba(12, 151, 105, 0.14), transparent 68%),
+    linear-gradient(180deg, #fdfaf3 0%, #f7f2e6 52%, #eef2ea 100%);
+  pointer-events: none;
+  animation: sunBreathe 34s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* 잎 그림자처럼 아주 옅은 결. 장식이지 정보가 아니다. */
+.leaves {
+  position: absolute;
+  z-index: 0;
+  inset: -16%;
+  background:
+    radial-gradient(28% 18% at 8% 22%, rgba(12, 151, 105, 0.07), transparent 70%),
+    radial-gradient(24% 16% at 94% 34%, rgba(12, 151, 105, 0.06), transparent 70%),
+    radial-gradient(30% 20% at 82% 88%, rgba(70, 177, 141, 0.07), transparent 72%);
+  pointer-events: none;
+  /* 빛보다 느리고 반대로 움직여 앞뒤 거리가 생긴다 */
+  animation: leafDrift 52s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* 창으로 비스듬히 들어오는 햇살 한 줄기. 밝기만 아주 약하게 오간다. */
+.beam {
+  position: absolute;
+  z-index: 0;
+  inset: -30% -20%;
+  background: linear-gradient(
+    104deg,
+    transparent 34%,
+    rgba(255, 240, 205, 0.5) 44%,
+    rgba(255, 248, 228, 0.28) 52%,
+    transparent 63%
+  );
+  opacity: 0.55;
+  pointer-events: none;
+  animation: beamShift 28s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+
+/* 햇살 속 먼지. 아주 옅은 점들이 천천히 위로 흐른다. */
+.motes {
+  position: absolute;
+  z-index: 0;
+  top: -100%;
+  right: 0;
+  bottom: -100%;
+  left: 0;
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.9) 0 1.4px, transparent 1.8px),
+    radial-gradient(circle at 72% 34%, rgba(255, 252, 236, 0.85) 0 1.7px, transparent 2.1px),
+    radial-gradient(circle at 44% 68%, rgba(255, 255, 255, 0.75) 0 1.2px, transparent 1.6px),
+    radial-gradient(circle at 88% 82%, rgba(255, 250, 230, 0.8) 0 1.5px, transparent 1.9px);
+  /* 네 겹의 세로 타일 높이를 같게 맞춰야 한 칸만 올려도 이음매가 없다 */
+  background-size: 340px 240px, 460px 240px, 280px 240px, 520px 240px;
+  opacity: 0.5;
+  pointer-events: none;
+  animation: moteRise 46s linear infinite;
+  will-change: transform;
+}
+
+@keyframes sunBreathe {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.055) translate3d(-1.1%, 1.4%, 0); }
+}
+
+@keyframes leafDrift {
+  from { transform: scale(1.02) translate3d(1.4%, -0.8%, 0); }
+  to { transform: scale(1) translate3d(-1.6%, 1%, 0); }
+}
+
+@keyframes beamShift {
+  from { opacity: 0.38; transform: translate3d(-2.5%, 0, 0) rotate(-0.6deg); }
+  to { opacity: 0.72; transform: translate3d(2.5%, 0, 0) rotate(0.6deg); }
+}
+
+/* 타일 한 칸(240px)만큼 올려서 이음매가 보이지 않는다 */
+@keyframes moteRise {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -240px, 0); }
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  width: 100%;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------ 상단 문구 */
+.intro {
+  display: grid;
+  width: min(100%, var(--layout-max, 1320px));
+  justify-items: center;
+  gap: 6px;
+  margin: 0 auto;
+  padding: clamp(16px, 3vh, 34px) 24px 0;
+  text-align: center;
+}
+
+.greeting {
+  margin: 0;
+  color: var(--color-primary-hover, #076f4d);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-label, 0.1em);
+}
+
+.headline {
+  max-width: 30ch;
+  margin: 0;
+  color: var(--color-ink-strong, #14251d);
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 700;
+  letter-spacing: var(--tracking-page);
+  line-height: var(--leading-page, 1.3);
+  text-wrap: balance;
+}
+
+.subline {
+  max-width: 42ch;
+  margin: 0;
+  color: var(--color-ink-soft, #56675e);
+  font-size: 14.5px;
+  line-height: var(--leading-body, 1.7);
+}
+
+/* ------------------------------------------------------------ 캐러셀 무대 */
+.deck {
+  position: relative;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: clamp(10px, 2vh, 22px) 0 clamp(20px, 4vh, 40px);
+  /* 카드에 원근을 준다. 이 값이 앞뒤 깊이의 세기다. */
+  perspective: 1600px;
+  perspective-origin: 50% 46%;
+}
+
+.track {
+  position: relative;
+  width: min(100%, 1180px);
+  height: clamp(330px, 46vh, 430px);
+  transform-style: preserve-3d;
+  /*
+    뒤로 물러난 카드(translateZ 음수)는 track 자신의 평면보다 뒤에 있어서,
+    track 이 클릭을 먼저 가로챈다. 그래서 track 은 클릭을 받지 않게 두고
+    카드에서만 받는다. (옆 카드를 눌러 가운데로 가져오는 동작에 필요하다)
+  */
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------ 카드 */
+.card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: min(86vw, 392px);
+  align-content: start;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 26px;
+  /* 뒤 카드가 비쳐 글씨가 흐려지지 않도록 아주 옅은 반투명까지만 쓴다 */
+  background: rgba(255, 253, 248, 0.9);
+  backdrop-filter: blur(12px);
+  pointer-events: auto;
+  text-align: left;
+  transform-style: preserve-3d;
+  transition:
+    transform 560ms cubic-bezier(0.22, 0.72, 0.25, 1),
+    opacity 560ms cubic-bezier(0.22, 0.72, 0.25, 1),
+    box-shadow 560ms cubic-bezier(0.22, 0.72, 0.25, 1);
+  will-change: transform;
+}
+
+/* 중앙 — 가장 앞, 가장 크고 선명 */
+.card[data-slot="0"] {
+  z-index: 3;
+  opacity: 1;
+  /* 중앙 카드는 읽는 곳이다. 뒤 카드가 비치지 않게 불투명하게 둔다.
+     반투명(글래스)은 뒤로 물러난 카드와 작은 배지에만 남긴다. */
+  background: #fffdf8;
+  backdrop-filter: none;
+  transform: translate(-50%, -50%) translateZ(0) scale(1);
+  /*
+    한 겹이 아니라 네 겹으로 나눠 "떠 있는" 거리를 만든다.
+      접촉 그림자(아주 좁고 진함) → 가까운 그림자 → 먼 그림자 → 아주 먼 잔영
+    맨 위 inset 한 줄은 종이 윗면에 닿는 빛이다.
+  */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 2px rgba(20, 37, 29, 0.06),
+    0 8px 16px -10px rgba(20, 37, 29, 0.18),
+    0 30px 58px -26px rgba(20, 37, 29, 0.42),
+    0 64px 92px -62px rgba(20, 37, 29, 0.4);
+  cursor: default;
+  /*
+    자리 이동(560ms)이 끝난 뒤부터 아주 느리게 오르내린다.
+    첫 키프레임이 위 transform 과 같은 값이라 이어지는 순간이 보이지 않는다.
+  */
+  animation: cardFloat 9s ease-in-out 620ms infinite;
+}
+
+@keyframes cardFloat {
+  0% { transform: translate(-50%, -50%) translateZ(0) scale(1) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateZ(0) scale(1) translateY(-7px); }
+  100% { transform: translate(-50%, -50%) translateZ(0) scale(1) translateY(0); }
+}
+
+/* 좌우 — 뒤로 물러나 겹치고 살짝 돌아간다 */
+.card[data-slot="-1"],
+.card[data-slot="1"] {
+  z-index: 2;
+  opacity: 0.9;
+  /* 멀어질수록 그림자는 넓고 옅어진다 */
+  box-shadow:
+    0 1px 2px rgba(20, 37, 29, 0.05),
+    0 20px 44px -26px rgba(20, 37, 29, 0.3),
+    0 48px 74px -56px rgba(20, 37, 29, 0.3);
+  cursor: pointer;
+}
+
+.card[data-slot="-1"] {
+  transform: translate(-50%, -50%) translateX(-66%) translateZ(-210px) rotateY(16deg) scale(0.88);
+}
+
+.card[data-slot="1"] {
+  transform: translate(-50%, -50%) translateX(66%) translateZ(-210px) rotateY(-16deg) scale(0.88);
+}
+
+/* 더 바깥 — 살짝만 비친다 */
+.card[data-slot="-2"],
+.card[data-slot="2"] {
+  z-index: 1;
+  opacity: 0.42;
+  box-shadow: 0 20px 44px -30px rgba(20, 37, 29, 0.26);
+  cursor: pointer;
+}
+
+.card[data-slot="-2"] {
+  transform: translate(-50%, -50%) translateX(-108%) translateZ(-380px) rotateY(22deg) scale(0.79);
+}
+
+.card[data-slot="2"] {
+  transform: translate(-50%, -50%) translateX(108%) translateZ(-380px) rotateY(-22deg) scale(0.79);
+}
+
+/* 범위 밖 — 화면에서 뺀다 */
+.card[data-slot="hidden"] {
+  z-index: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) translateZ(-520px) scale(0.74);
+}
+
+/* 옆 카드에 손을 올리면 한 걸음 앞으로 나온다 */
+.card[data-slot="-1"]:hover,
+.card[data-slot="-2"]:hover {
+  transform: translate(-50%, -50%) translateX(-66%) translateZ(-160px) rotateY(13deg) scale(0.915);
+  opacity: 1;
+}
+
+.card[data-slot="1"]:hover,
+.card[data-slot="2"]:hover {
+  transform: translate(-50%, -50%) translateX(66%) translateZ(-160px) rotateY(-13deg) scale(0.915);
+  opacity: 1;
+}
+
+.card:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 4px;
+}
+
+/* 뒤 카드 전체를 덮는 선택 버튼 — 눌러서 중앙으로 가져온다 */
+.pick {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  border: 0;
+  border-radius: 26px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+/*
+  바닥 그림자 — 카드가 어디쯤 떠 있는지 알려 주는 유일한 단서다.
+  카드가 올라가는 동안 그림자는 작아지고 옅어진다. (카드와 같은 주기·같은 지연)
+  box-shadow 를 애니메이션하면 매 프레임 다시 그려야 해서, 대신 이 한 겹만 움직인다.
+*/
+.shadow {
+  position: absolute;
+  z-index: 0;
+  bottom: clamp(18px, 4vh, 40px);
+  left: 50%;
+  width: min(70vw, 330px);
+  height: 26px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(20, 37, 29, 0.2), transparent 78%);
+  filter: blur(9px);
+  pointer-events: none;
+  transform: translateX(-50%);
+  animation: groundBreathe 9s ease-in-out 620ms infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes groundBreathe {
+  0% { opacity: 1; transform: translateX(-50%) scale(1); }
+  50% { opacity: 0.7; transform: translateX(-50%) scale(0.9, 0.84); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+
+/* ------------------------------------------------------- 카드 머리 */
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.place {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.place i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* 실제로 기한이 지난 작업이 있을 때만 붙는다 */
+.alert {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-danger, #a0433a);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ------------------------------------------------------- 작물 */
+.crops {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.crop {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cropArt {
+  position: relative;
+  display: grid;
+  width: clamp(58px, 15vw, 74px);
+  height: clamp(58px, 15vw, 74px);
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(160deg, #eef6f1 0%, #e2efe7 100%);
+  color: var(--color-primary-hover, #076f4d);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* 배경을 뗀 컷 그림이라 잘라내지 않고 원 안에 맞춘다 */
+.cropArt img {
+  object-fit: contain;
+  padding: 7px;
+}
+
+.cropName {
+  color: var(--color-ink-strong, #14251d);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.cropQty {
+  color: var(--color-ink-soft, #56675e);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.noCrops {
+  margin: 0;
+  padding: 14px 0;
+  color: var(--color-ink-faint, #8d9a92);
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ------------------------------------------------------- 카드 이름 */
+.planName {
+  margin: 0;
+  color: var(--color-ink-strong, #14251d);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-card);
+  line-height: var(--leading-card, 1.4);
+  text-align: center;
+}
+
+.planWhere {
+  margin: -8px 0 0;
+  color: var(--color-ink-faint, #8d9a92);
+  font-size: 12.5px;
+  text-align: center;
+}
+
+/* ------------------------------------------------------- 카드 사실 */
+.facts {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: 16px;
+  background: rgba(240, 246, 241, 0.72);
+}
+
+.fact {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  align-items: center;
+  gap: 9px;
+  color: var(--color-ink-strong, #14251d);
+  font-size: 13px;
+}
+
+.fact span:first-child {
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.fact b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.factWarn { color: var(--color-danger, #a0433a); }
+.factWarn span:first-child { color: var(--color-danger, #a0433a); }
+
+/* 실제 저장된 메모가 있을 때만 나온다 */
+.note {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  padding: 10px 13px;
+  border-radius: 14px;
+  background: rgba(255, 244, 214, 0.92);
+  box-shadow: 0 1px 2px rgba(20, 37, 29, 0.05);
+}
+
+.note span {
+  color: #9a7526;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-label, 0.1em);
+}
+
+.note p {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 0;
+  color: #5c4a1c;
+  font-size: 12.5px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* ------------------------------------------------------- 카드 바로가기 */
+.links {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.link {
+  display: grid;
+  height: 36px;
+  place-items: center;
+  border: 1px solid rgba(20, 37, 29, 0.12);
+  border-radius: var(--radius-pill, 999px);
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--color-ink-strong, #14251d);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition:
+    border-color var(--motion-fast, 140ms) var(--ease-out),
+    background var(--motion-fast, 140ms) var(--ease-out),
+    color var(--motion-fast, 140ms) var(--ease-out);
+}
+
+.link:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.link:active { transform: translateY(1px); }
+
+.link:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.openPlan {
+  display: grid;
+  height: 40px;
+  place-items: center;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  transition: background var(--motion-fast, 140ms) var(--ease-out);
+}
+
+.openPlan:hover { background: var(--color-primary-hover); }
+.openPlan:active { transform: translateY(1px); }
+
+.openPlan:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------ 좌우 이동 */
+.arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid rgba(20, 37, 29, 0.1);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 22px -12px rgba(20, 37, 29, 0.35);
+  color: var(--color-ink-strong, #14251d);
+  cursor: pointer;
+  font-size: 18px;
+  transform: translateY(-50%);
+  transition: background var(--motion-fast, 140ms) var(--ease-out), transform var(--motion-fast, 140ms) var(--ease-out);
+}
+
+.arrow:hover:not(:disabled) { background: #fff; }
+.arrow:active:not(:disabled) { transform: translateY(-50%) scale(0.94); }
+
+.arrow:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+
+.arrow:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.arrowPrev { left: clamp(8px, 4vw, 48px); }
+.arrowNext { right: clamp(8px, 4vw, 48px); }
+
+/* ------------------------------------------------------------ 아래 표시 */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 clamp(16px, 3vh, 28px);
+  padding: 0;
+  list-style: none;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(20, 37, 29, 0.18);
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--motion-fast, 140ms) var(--ease-out), width var(--motion-fast, 140ms) var(--ease-out);
+}
+
+.dot[aria-current="true"] {
+  width: 22px;
+  border-radius: 999px;
+  background: var(--color-primary);
+}
+
+.dot:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------ 새 재배 */
+.newPlan {
+  position: fixed;
+  right: clamp(16px, 3vw, 36px);
+  bottom: clamp(16px, 3vh, 36px);
+  z-index: 20;
+  display: inline-flex;
+  height: 56px;
+  align-items: center;
+  gap: 8px;
+  padding: 0 22px 0 18px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-primary);
+  box-shadow: 0 12px 28px -12px rgba(12, 151, 105, 0.6);
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 700;
+  transition: background var(--motion-base, 220ms) var(--ease-out), transform var(--motion-base, 220ms) var(--ease-out);
+}
+
+.newPlan:hover { background: var(--color-primary-hover); transform: translateY(-2px); }
+.newPlan:active { transform: translateY(0); }
+
+.newPlan:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.newPlan b { font-size: 19px; font-weight: 400; line-height: 1; }
+
+/* ------------------------------------------------------------ 빈 상태 */
+.empty {
+  display: grid;
+  width: min(100%, 440px);
+  justify-items: center;
+  gap: 12px;
+  margin: auto;
+  padding: 36px 24px;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 26px;
+  background: rgba(255, 253, 248, 0.9);
+  box-shadow: 0 22px 54px -30px rgba(20, 37, 29, 0.3);
+  text-align: center;
+}
+
+.empty h2 {
+  margin: 0;
+  color: var(--color-ink-strong, #14251d);
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.empty p {
+  margin: 0;
+  color: var(--color-ink-soft, #56675e);
+  font-size: 14px;
+  line-height: var(--leading-body, 1.7);
+}
+
+.emptyAction {
+  display: inline-flex;
+  height: 48px;
+  align-items: center;
+  margin-top: 6px;
+  padding: 0 26px;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.emptyAction:hover { background: var(--color-primary-hover); }
+
+.emptyAction:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.empty .errorDetail {
+  color: var(--color-danger, #a0433a);
+  font-size: 13px;
+}
+
+.errorLogin {
+  color: var(--color-primary-hover, #076f4d);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------ 상태 */
+.state {
+  display: grid;
+  place-items: center;
+  margin: auto;
+  padding: 40px 24px;
+  color: var(--color-ink-soft, #56675e);
+  font-size: 15px;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------ 모바일 */
+@media (max-width: 760px) {
+  /* 위에 찾기 바가 한 층 더 생겼으므로 무대 높이를 그만큼 양보한다 */
+  .intro { padding-top: clamp(12px, 2vh, 24px); }
+  .track { height: clamp(300px, 46vh, 420px); }
+  .deck { padding-top: clamp(6px, 1.4vh, 14px); }
+  .card { width: min(84vw, 340px); padding: 18px; gap: 12px; }
+  .cropArt { width: clamp(54px, 15vw, 70px); height: clamp(54px, 15vw, 70px); }
+  .planName { font-size: 1.1rem; }
+  .dots { margin-bottom: 16px; }
+
+  /* 옆 카드는 가장자리만 살짝 보인다 */
+  .card[data-slot="-1"] { transform: translate(-50%, -50%) translateX(-80%) translateZ(-220px) rotateY(17deg) scale(0.85); }
+  .card[data-slot="1"] { transform: translate(-50%, -50%) translateX(80%) translateZ(-220px) rotateY(-17deg) scale(0.85); }
+  .card[data-slot="-2"], .card[data-slot="2"] { opacity: 0; pointer-events: none; }
+
+  /* 손가락으로 넘기므로 hover 로 커지지 않는다 */
+  .card[data-slot="-1"]:hover { transform: translate(-50%, -50%) translateX(-80%) translateZ(-220px) rotateY(17deg) scale(0.85); opacity: 0.9; }
+  .card[data-slot="1"]:hover { transform: translate(-50%, -50%) translateX(80%) translateZ(-220px) rotateY(-17deg) scale(0.85); opacity: 0.9; }
+
+  /* 작은 화면에서는 배경 움직임을 더 얕게 (배터리·발열) */
+  .motes { opacity: 0.34; }
+  .beam { opacity: 0.42; }
+
+  .arrow { width: 44px; height: 44px; font-size: 16px; }
+  .arrowPrev { left: 6px; }
+  .arrowNext { right: 6px; }
+
+  .newPlan { height: 50px; padding: 0 18px 0 15px; font-size: 13.5px; }
+  .crops { gap: 8px; }
+  .links { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .link { font-size: 11.5px; }
+}
+
+/* 움직임을 줄여 달라고 한 사용자에게는 이동을 없앤다 */
+@media (prefers-reduced-motion: reduce) {
+  /* 배경 숨쉬기, 카드 부유, 바닥 그림자 — 움직이는 것은 전부 멈춘다 */
+  .light,
+  .leaves,
+  .beam,
+  .motes,
+  .shadow,
+  .card[data-slot="0"] {
+    animation: none;
+  }
+
+  /* 멈춘 상태에서도 어색하지 않도록 중간값으로 고정한다 */
+  .beam { opacity: 0.5; }
+
+  .card,
+  .arrow,
+  .link,
+  .newPlan,
+  .dot {
+    transition: none;
+  }
+
+  /* 앞뒤 구조는 남기되 회전과 큰 이동은 줄인다 */
+  .card[data-slot="-1"] { transform: translate(-50%, -50%) translateX(-58%) translateZ(-90px) scale(0.9); }
+  .card[data-slot="1"] { transform: translate(-50%, -50%) translateX(58%) translateZ(-90px) scale(0.9); }
+  .card[data-slot="-2"] { transform: translate(-50%, -50%) translateX(-96%) translateZ(-190px) scale(0.82); }
+  .card[data-slot="2"] { transform: translate(-50%, -50%) translateX(96%) translateZ(-190px) scale(0.82); }
+
+  .card[data-slot="-1"]:hover { transform: translate(-50%, -50%) translateX(-58%) translateZ(-90px) scale(0.9); }
+  .card[data-slot="1"]:hover { transform: translate(-50%, -50%) translateX(58%) translateZ(-90px) scale(0.9); }
+  .card[data-slot="-2"]:hover { transform: translate(-50%, -50%) translateX(-96%) translateZ(-190px) scale(0.82); }
+  .card[data-slot="2"]:hover { transform: translate(-50%, -50%) translateX(96%) translateZ(-190px) scale(0.82); }
+
+  .newPlan:hover { transform: none; }
+}
+
+/* ==================================================================
+   낮은 화면 (노트북 창을 줄였을 때, 작은 휴대폰)
+
+   카드는 track 안에 절대 배치라서 세로 공간이 모자라면 위아래가 잘린다.
+   그래서 먼저 카드와 머리글을 촘촘하게 줄이고(1단계),
+   그래도 모자라면 무대 안에서 스크롤되게 열어 준다(2단계).
+   어느 쪽이든 "요소가 잘려서 안 보이는" 상태는 만들지 않는다.
+   (미디어 쿼리는 우선순위를 올리지 않으므로 파일 맨 끝에 둔다)
+   ================================================================== */
+@media (max-height: 900px) {
+  .intro { gap: 4px; padding-top: clamp(10px, 1.6vh, 20px); }
+  .headline { font-size: clamp(1.28rem, 2.1vw, 1.62rem); }
+  .subline { font-size: 13.5px; }
+
+  .deck { padding: clamp(6px, 1.2vh, 12px) 0 clamp(12px, 2vh, 20px); }
+  .track { height: clamp(286px, 40vh, 384px); }
+
+  .card { gap: 9px; padding: 16px; }
+  .cropArt { width: clamp(52px, 13vw, 60px); height: clamp(52px, 13vw, 60px); }
+  .facts { padding: 9px 12px; }
+  .note p { -webkit-line-clamp: 1; }
+  .openPlan { height: 38px; }
+  .link { height: 33px; }
+  .dots { margin-bottom: clamp(10px, 2vh, 18px); }
+}
+
+@media (max-height: 790px) {
+  /*
+    여기서부터는 아무리 줄여도 한 화면에 다 들어가지 않는다.
+    무대 안쪽(.content)만 스크롤되게 하고, track 을 카드보다 크게 잡아
+    카드가 track 밖으로 나가 잘리는 일이 없게 한다.
+  */
+  /*
+    무대 높이를 헤더 아래 한 화면으로 묶어야 .content 가 스크롤 상자가 된다.
+    묶지 않으면 .home-page(min-height:100svh)가 그냥 늘어나 문서 전체가 스크롤되고,
+    그때는 배경 빛 레이어까지 같이 밀려 올라가 위쪽이 비어 보인다.
+  */
+  .stage { max-height: calc(100svh - var(--app-header-h, 77px)); }
+
+  .content {
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior-y: contain;
+  }
+
+  /* 끝까지 내렸을 때 떠 있는 "새 재배 시작" 버튼이 카드 아래 버튼을 가리지 않게 자리를 둔다 */
+  .deck { flex: 0 0 auto; padding-bottom: 82px; }
+  .track { height: 470px; }
+  .card { width: min(88vw, 360px); }
+  .crops { gap: 7px; }
+  .cropArt { width: 50px; height: 50px; }
+  .planName { font-size: 1.05rem; }
+}

@@ -59,7 +59,9 @@ export function CropSelectionStage({
                 onClick={() => onToggle(crop.id)}
                 type="button"
               >
-                <Image alt="" className={styles.cropImage} fill sizes="(max-width: 900px) 42vw, 200px" src={crop.image} />
+                {crop.image
+                  ? <Image alt="" className={styles.cropImage} fill sizes="(max-width: 900px) 42vw, 200px" src={crop.image} />
+                  : <span aria-hidden="true" className={styles.cropInitial}>{crop.name.slice(0, 1)}</span>}
                 <span className={styles.cropShade} aria-hidden="true" />
                 <span className={styles.cropMeta}>
                   <strong>{crop.name}</strong>
@@ -81,7 +83,7 @@ export function CropSelectionStage({
             onClick={onAdvance}
             type="button"
           >
-            첫 텃밭 생성하기 <span aria-hidden="true">→</span>
+            추천 구성 보기 <span aria-hidden="true">→</span>
           </button>
         </div>
       </section>
@@ -95,8 +97,10 @@ export function CropSelectionStage({
             const crop = getCropOption(cropId);
             return (
               <span className={styles.chip} key={crop.id}>
-                <span className={styles.chipImage}>
-                  <Image alt="" fill sizes="32px" src={crop.image} />
+                <span aria-hidden="true" className={styles.chipImage}>
+                  {crop.image
+                    ? <Image alt="" fill sizes="32px" src={crop.image} />
+                    : crop.name.slice(0, 1)}
                 </span>
                 <span>{crop.name}</span>
                 <button aria-label={`${crop.name} 선택 해제`} onClick={() => onToggle(crop.id)} type="button">×</button>

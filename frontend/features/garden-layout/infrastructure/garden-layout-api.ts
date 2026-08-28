@@ -1,6 +1,5 @@
 import type { GardenLayout } from "../domain/garden-layout.ts";
 import { apiRequest } from "../../../shared/infrastructure/api-client.ts";
-import { invalidateResource } from "../../../shared/infrastructure/resource-cache.ts";
 
 interface GardenLayoutResponse {
   data: GardenLayout;
@@ -24,13 +23,11 @@ export async function putGardenLayout(layout: GardenLayout): Promise<GardenLayou
     ? { "If-Match": `"${layout.version}"` }
     : undefined;
 
-  const result = (await apiRequest<GardenLayoutResponse>(layoutPath(layout.seasonId), {
+  return (await apiRequest<GardenLayoutResponse>(layoutPath(layout.seasonId), {
     method: "PUT",
     headers,
     body: JSON.stringify(toInput(layout)),
   })).data;
-  invalidateResource("layouts");
-  return result;
 }
 
 export async function deleteGardenLayout(layout: GardenLayout): Promise<void> {
@@ -38,7 +35,6 @@ export async function deleteGardenLayout(layout: GardenLayout): Promise<void> {
     method: "DELETE",
     headers: { "If-Match": `"${layout.version}"` },
   });
-  invalidateResource("layouts");
 }
 
 function toInput(layout: GardenLayout): GardenLayoutInput {

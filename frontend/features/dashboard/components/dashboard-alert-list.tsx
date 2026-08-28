@@ -43,7 +43,7 @@ export function DashboardAlertList({
       )}
 
       {hiddenCount > 0 && (
-        <p className="mt-4 text-sm font-bold text-muted">알림 {hiddenCount}개가 더 있습니다. 각 시즌의 재배 일정에서 확인해 주세요.</p>
+        <p className="mt-4 text-sm font-bold text-muted">알림 {hiddenCount}개가 더 있습니다. 각 재배 계획의 일정에서 확인해 주세요.</p>
       )}
       <p className="mt-4 text-xs leading-5 text-muted">현재 알림은 앱을 열었을 때 대시보드에서 확인할 수 있습니다. 푸시·이메일 알림은 후속 알림 인프라 연결 후 제공됩니다.</p>
     </section>

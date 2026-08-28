@@ -140,7 +140,7 @@ export function WateringLoadError({ message, onRetry }: { message: string; onRet
     <section className={styles.errorState} role="alert">
       <p>물주기 관리 정보를 불러오지 못했습니다.</p>
       <h2>{message}</h2>
-      {onRetry ? <button onClick={onRetry} type="button">다시 시도</button> : <Link href="/seasons">시즌 목록으로 돌아가기</Link>}
+      {onRetry ? <button onClick={onRetry} type="button">다시 시도</button> : <Link href="/seasons">내 재배 계획으로 돌아가기</Link>}
     </section>
   );
 }
@@ -175,10 +175,10 @@ function WateringGuide({ placementHref, seasonId }: { placementHref: string; sea
         <li>완료 기록에는 실제 물 준 시각과 양을 남길 수 있습니다.</li>
         <li>한 번 미룬 일정과 완료 취소는 이력에서 확인할 수 있습니다.</li>
       </ul>
-      <nav aria-label="시즌 관련 화면">
+      <nav aria-label="재배 계획 관련 화면">
         <Link href={placementHref}><span>배치 확인</span><strong>이동 →</strong></Link>
         <Link href={`/seasons/${seasonId}/tasks`}><span>재배 일정</span><strong>이동 →</strong></Link>
-        <Link href={`/seasons/${seasonId}/records`}><span>시즌 기록</span><strong>이동 →</strong></Link>
+        <Link href={`/seasons/${seasonId}/records`}><span>재배 기록</span><strong>이동 →</strong></Link>
       </nav>
     </section>
   );

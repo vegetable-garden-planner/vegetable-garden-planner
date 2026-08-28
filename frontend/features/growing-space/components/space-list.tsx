@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { InlineConfirm } from "@/components/inline-confirm";
+import { SpaceMemoPanel } from "@/features/space-memo/components/space-memo-panel";
 import type { GrowingSpace } from "@/features/growing-space/domain/growing-space";
 import { useGrowingSeasons } from "@/features/growing-season/hooks/use-growing-seasons";
 import { deleteGrowingSpace } from "@/features/growing-space/infrastructure/space-api";
@@ -23,8 +24,8 @@ const SUNLIGHT_LABELS: Record<NonNullable<GrowingSpace["sunlight"]>, string> = {
 };
 
 const SPACE_DELETE_BLOCKERS: Record<string, { label: string; href: (spaceId: string) => string }> = {
-  SPACE_HAS_SEASONS: { label: "시즌 목록에서 정리하기 →", href: (id) => `/seasons?spaceId=${encodeURIComponent(id)}` },
-  SPACE_HAS_CONTAINER_PLACEMENTS: { label: "시즌에서 화분 배치 정리하기 →", href: (id) => `/seasons?spaceId=${encodeURIComponent(id)}` },
+  SPACE_HAS_SEASONS: { label: "재배 계획에서 정리하기 →", href: (id) => `/seasons?spaceId=${encodeURIComponent(id)}` },
+  SPACE_HAS_CONTAINER_PLACEMENTS: { label: "재배 계획에서 화분 배치 정리하기 →", href: (id) => `/seasons?spaceId=${encodeURIComponent(id)}` },
   SPACE_HAS_MEMOS: { label: "대시보드에서 메모 정리하기 →", href: () => "/dashboard" },
 };
 
@@ -71,11 +72,11 @@ export function SpaceList() {
         <div>
           <p>등록된 환경</p>
           <h2>{spaces.length}개의 공간을 관리하고 있어요</h2>
-          <span>공간마다 햇빛과 크기를 기록해 두면 다음 시즌의 작물 선택이 더 정확해집니다.</span>
+          <span>공간마다 햇빛과 크기를 기록해 두면 다음 재배의 작물 선택이 더 정확해집니다.</span>
         </div>
         <dl>
           <SpaceStat label="전체 공간" value={`${spaces.length}개`} />
-          <SpaceStat label="시즌 연결" value={`${activeSpaceCount}개`} />
+          <SpaceStat label="재배 계획" value={`${activeSpaceCount}개`} />
           <SpaceStat label="마당·텃밭" value={`${gardenCount}개`} />
         </dl>
       </section>
@@ -106,7 +107,7 @@ export function SpaceList() {
               <dl className={styles.cardFacts}>
                 <div><dt>공간 크기</dt><dd>{space.widthCm} × {space.lengthCm}{space.depthCm !== null ? ` × ${space.depthCm}` : ""}cm</dd></div>
                 <div><dt>예상 햇빛</dt><dd>{space.estimatedSunlightHours !== null ? `하루 약 ${space.estimatedSunlightHours}시간` : space.sunlight === null ? "모름" : SUNLIGHT_LABELS[space.sunlight]}</dd></div>
-                <div><dt>연결 시즌</dt><dd>{seasonCount}개</dd></div>
+                <div><dt>재배 계획</dt><dd>{seasonCount}개</dd></div>
               </dl>
               {deletingId === space.id ? (
                 <InlineConfirm
@@ -118,12 +119,14 @@ export function SpaceList() {
                 />
               ) : (
                 <div className={styles.cardActions}>
-                  <Link className={styles.cardPrimaryLink} href={`/seasons?spaceId=${encodeURIComponent(space.id)}`}>시즌 보기 <span>→</span></Link>
+                  <Link className={styles.cardPrimaryLink} href={`/seasons?spaceId=${encodeURIComponent(space.id)}`}>재배 계획 보기 <span>→</span></Link>
                   <Link href={`/spaces/${space.id}/edit`}>수정</Link>
                   <button onClick={() => setDeletingId(space.id)} type="button">삭제</button>
                 </div>
               )}
-              <Link className={styles.addSeasonLink} href={`/seasons/new?spaceId=${space.id}`}>이 공간에 새 시즌 추가하기</Link>
+              <Link className={styles.addSeasonLink} href={`/seasons/new?spaceId=${space.id}`}>이 화분으로 새 재배 시작하기</Link>
+              {/* 메모는 공간(spaceId)에 붙는 정보라 이 화면이 제자리다. 홈에는 요약만 보여 준다. */}
+              <SpaceMemoPanel spaceId={space.id} />
             </li>
           );
         })}

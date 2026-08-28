@@ -44,9 +44,9 @@ export function CultivationRecordManager({ seasonId }: { seasonId: string }) {
   }
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
-  if (!season) return <CultivationRecordLoadError message="재배 시즌을 찾을 수 없습니다." />;
+  if (!season) return <CultivationRecordLoadError message="재배 계획을 찾을 수 없습니다." />;
   const space = spacesState.spaces.find((item) => item.id === season.spaceId);
-  if (!space) return <CultivationRecordLoadError message="시즌에 연결된 재배 공간을 찾을 수 없습니다." />;
+  if (!space) return <CultivationRecordLoadError message="재배 계획에 연결된 재배 공간을 찾을 수 없습니다." />;
 
   async function runAction(key: string, action: () => Promise<void>): Promise<boolean> {
     if (isRunningRef.current) return false;
@@ -134,5 +134,5 @@ function toMessage(error: unknown): string {
     const firstFieldMessage = Object.values(error.fields)[0]?.[0];
     if (firstFieldMessage) return firstFieldMessage;
   }
-  return error instanceof Error ? error.message : "시즌 기록 요청을 처리하지 못했습니다.";
+  return error instanceof Error ? error.message : "재배 기록 요청을 처리하지 못했습니다.";
 }

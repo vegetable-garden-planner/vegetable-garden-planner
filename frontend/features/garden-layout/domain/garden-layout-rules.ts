@@ -64,7 +64,7 @@ export interface SeasonPeriodSuggestion {
 }
 
 /**
- * 심는·수확 권장 시기가 시즌과 맞지 않는 작물들을 모두 포함하는 시즌 기간을 제안한다.
+ * 심는·수확 권장 시기가 시즌과 맞지 않는 작물들을 모두 포함하는 재배 기간을 제안한다.
  * 어느 작물이든 심는 시기가 연말을 넘기면(예: 11월~2월) 하나의 기간으로 묶을 수 없어 제안하지 않는다.
  */
 export function suggestSeasonPeriodCoveringCrops(
@@ -257,7 +257,7 @@ function assertValidSeasonPeriod(
     || season.startDate > season.endDate
   ) {
     throw new InvalidGardenLayoutRuleDataError(
-      "재배 시기를 검사할 시즌 기간이 올바르지 않습니다.",
+      "재배 시기를 검사할 재배 기간이 올바르지 않습니다.",
     );
   }
 }

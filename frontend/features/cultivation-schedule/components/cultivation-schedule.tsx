@@ -66,9 +66,9 @@ export function CultivationSchedule({ seasonId }: { seasonId: string }) {
   }
 
   const season = seasonsState.seasons.find((item) => item.id === seasonId);
-  if (!season) return <Message message="재배 일정을 만들 시즌을 찾을 수 없습니다." />;
+  if (!season) return <Message message="재배 일정을 만들 재배 계획을 찾을 수 없습니다." />;
   const space = spacesState.spaces.find((item) => item.id === season.spaceId);
-  if (!space) return <Message message="시즌에 연결된 재배 공간을 찾을 수 없습니다." />;
+  if (!space) return <Message message="재배 계획에 연결된 재배 공간을 찾을 수 없습니다." />;
   const currentSeason = season;
   const currentSpace = space;
 
@@ -237,9 +237,9 @@ function ScheduleView(props: ScheduleViewProps) {
     <div className={styles.page}>
       <section className={styles.overview} aria-labelledby="schedule-season-title">
         <div className={styles.overviewCopy}>
-          <p>현재 재배 계획</p>
-          <h2 id="schedule-season-title">{props.seasonName}</h2>
-          <span>{props.spaceName} · {props.seasonStartDate} ~ {props.seasonEndDate}</span>
+          {/* 계획 이름과 공간은 위 탭 머리에 이미 있다. 여기서는 기간과 작물만 말한다. */}
+          <p>재배 기간</p>
+          <h2 id="schedule-season-title">{props.seasonStartDate} ~ {props.seasonEndDate}</h2>
           <strong>{cropDescription}</strong>
         </div>
         <dl className={styles.overviewStats} aria-label="일정 진행 현황">
@@ -253,7 +253,7 @@ function ScheduleView(props: ScheduleViewProps) {
         ? <EmptySchedule {...props.emptyState} />
         : <ScheduleReadyContent {...props} />}
 
-      <p className={styles.note}>날짜는 작물 기준 데이터의 월 단위 권장 시기와 시즌 기간이 처음 겹치는 날입니다. 지역·품종·날씨와 실제 생육 상태에 따라 조정해 주세요.</p>
+      <p className={styles.note}>날짜는 작물 기준 데이터의 월 단위 권장 시기와 재배 기간이 처음 겹치는 날입니다. 지역·품종·날씨와 실제 생육 상태에 따라 조정해 주세요.</p>
     </div>
   );
 }
@@ -270,7 +270,7 @@ function ScheduleReadyContent(props: ScheduleViewProps) {
       <main className={styles.mainColumn}>
         <section className={styles.commandCard} aria-labelledby="schedule-command-title">
           <div className={styles.commandHeader}>
-            <div><p>일정 만들기</p><h2 id="schedule-command-title">{sourceTitle}</h2><span>작물별 권장 심기와 수확 시기를 시즌 안에서 계산합니다.</span></div>
+            <div><p>일정 만들기</p><h2 id="schedule-command-title">{sourceTitle}</h2><span>작물별 권장 심기와 수확 시기를 재배 기간 안에서 계산합니다.</span></div>
             <div className={styles.actionButtons}>
               {hasTasks && <button className={styles.dangerButton} disabled={props.isSaving} onClick={props.onRemoveSchedule} type="button">일정 모두 삭제</button>}
               <button className={styles.primaryButton} disabled={props.isSaving} onClick={props.onGenerate} type="button">
@@ -281,7 +281,7 @@ function ScheduleReadyContent(props: ScheduleViewProps) {
           {props.confirmingRemoveAll && (
             <InlineConfirm
               confirmLabel="모두 삭제하기"
-              description="이 시즌의 재배 일정을 모두 삭제합니다. 되돌릴 수 없습니다."
+              description="이 재배 계획의 일정을 모두 삭제합니다. 되돌릴 수 없습니다."
               disabled={props.isSaving}
               onCancel={props.onCancelRemoveAll}
               onConfirm={() => { void props.onConfirmRemoveAll(); }}
@@ -305,7 +305,7 @@ function ScheduleReadyContent(props: ScheduleViewProps) {
             <p>{props.actionError}</p>
             {props.actionErrorCode === "CROP_PERIOD_OUTSIDE_SEASON" && (
               <div className={styles.actionButtons}>
-                <Link href={`/seasons/${props.seasonId}/edit`}>시즌 기간 수정하기</Link>
+                <Link href={`/seasons/${props.seasonId}/edit`}>재배 기간 수정하기</Link>
                 <Link href={planHref}>작물 다시 선택하기</Link>
               </div>
             )}
@@ -330,19 +330,10 @@ function ScheduleReadyContent(props: ScheduleViewProps) {
       <aside className={styles.sideColumn} aria-label="일정 관리 보조 정보">
         <ScheduleProgress completed={props.completedCount} total={props.tasks.length} />
         <section className={styles.sideCard}>
-          <p>함께 관리하기</p>
-          <h2>재배 기록과 물주기</h2>
-          <nav className={styles.sideLinks}>
-            <Link href={`/seasons/${props.seasonId}/watering`}><span>물주기 일정</span><strong>관리하기 →</strong></Link>
-            <Link href={`/seasons/${props.seasonId}/records`}><span>재배 기록</span><strong>기록하기 →</strong></Link>
-            <Link href={planHref}><span>작물 계획</span><strong>수정하기 →</strong></Link>
-          </nav>
-        </section>
-        <section className={styles.sideCard}>
           <p>일정 계산 기준</p>
           <h2>추천 시기를 참고해요</h2>
           <ul className={styles.basisList}>
-            <li>시즌 기간과 작물별 권장 월을 겹쳐 계산합니다.</li>
+            <li>재배 기간과 작물별 권장 월을 겹쳐 계산합니다.</li>
             <li>지역·품종·날씨에 따라 실제 날짜는 달라질 수 있습니다.</li>
             <li>생육 상태를 확인해 완료 여부를 직접 관리하세요.</li>
           </ul>
@@ -361,7 +352,7 @@ function ScheduleProgress({ completed, total }: { completed: number; total: numb
 
   return (
     <section className={styles.sideCard}>
-      <div className={styles.progressHeader}><div><p>진행 현황</p><h2>이번 시즌 일정</h2></div><strong>{percentage}%</strong></div>
+      <div className={styles.progressHeader}><div><p>진행 현황</p><h2>이번 재배 일정</h2></div><strong>{percentage}%</strong></div>
       <div className={styles.progressTrack} aria-label={`일정 ${percentage}% 완료`} role="progressbar" aria-valuemax={100} aria-valuemin={0} aria-valuenow={percentage}>
         <span style={{ width: `${percentage}%` }} />
       </div>
@@ -487,7 +478,7 @@ function Message({ message, onRetry }: { message: string; onRetry?: () => void }
       {onRetry ? (
         <button className="mt-4 inline-flex font-bold underline" onClick={onRetry} type="button">다시 시도</button>
       ) : (
-        <Link className="mt-4 inline-flex font-bold underline" href="/seasons">시즌 목록으로 돌아가기</Link>
+        <Link className="mt-4 inline-flex font-bold underline" href="/seasons">내 재배 계획으로 돌아가기</Link>
       )}
     </div>
   );

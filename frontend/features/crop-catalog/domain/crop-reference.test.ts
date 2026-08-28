@@ -7,8 +7,8 @@ import {
   type CropReference,
 } from "./crop-reference.ts";
 
-test("대표 채소와 꽃 13종 기준 데이터가 유효하다", () => {
-  assert.equal(CROP_REFERENCES.length, 13);
+test("대표 채소와 꽃 16종 기준 데이터가 유효하다", () => {
+  assert.equal(CROP_REFERENCES.length, 16);
   assert.deepEqual(validateCropReferenceData(CROP_REFERENCES, CROP_SOURCES), []);
 });
 
@@ -37,7 +37,7 @@ test("이름·과명·설명으로 작물을 검색한다", () => {
       category: "all",
       space: "all",
     }).map((crop) => crop.name),
-    ["감자", "토마토", "고추"],
+    ["감자", "토마토", "고추", "방울토마토"],
   );
   assert.deepEqual(
     filterCropReferences(CROP_REFERENCES, {
@@ -56,7 +56,7 @@ test("카테고리와 공간 조건을 함께 적용한다", () => {
     space: "balcony",
   });
 
-  assert.deepEqual(result.map((crop) => crop.name), ["상추", "시금치", "대파"]);
+  assert.deepEqual(result.map((crop) => crop.name), ["상추", "시금치", "대파", "바질"]);
 });
 
 test("꽃과 꽃다발 관리 내용도 검색하고 꽃 관리 안내 누락을 거부한다", () => {

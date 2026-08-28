@@ -93,8 +93,8 @@ export function RecommendationGuide({
                         } as CSSProperties}
                       >
                         <span className={styles.cropBadge}>
-                          <span className={styles.badgeThumbnail}>
-                            <Image alt="" fill sizes="24px" src={CROP_RULES[crop.cropId].mark} />
+                          <span aria-hidden="true" className={styles.badgeThumbnail}>
+                            {CROP_RULES[crop.cropId].name.slice(0, 1)}
                           </span>
                           <span className={styles.badgeName}>{CROP_RULES[crop.cropId].name}</span>
                           <b>{crop.seedlingCount}개</b>
@@ -113,15 +113,38 @@ export function RecommendationGuide({
 
         <section aria-label="추천 준비물 합계" className={styles.summaryBar}>
           <div>
-            <span aria-hidden="true" className={styles.summaryIcon}>흙</span>
+            <span className={styles.summaryImage}>
+              <Image
+                alt=""
+                fill
+                sizes="30px"
+                src="/figma/summary-soil-mark-v2.png"
+              />
+            </span>
             <p>필요한 흙 <strong>약 {formatNumber(recommendation.totalSoilLiters)}L</strong></p>
           </div>
           <i aria-hidden="true" />
           <div>
-            <span aria-hidden="true" className={styles.summaryIcon}>모</span>
+            <span className={styles.summaryImage}>
+              <Image alt="" fill sizes="30px" src="/figma/summary-seedling-mark-v2.png" />
+            </span>
             <p>모종 <strong>{recommendation.totalSeedlings}개</strong></p>
           </div>
         </section>
+
+        {recommendation.unplacedCrops.length > 0 && (
+          <aside className={styles.unplaced}>
+            <p className={styles.unplacedTitle}>이번 구성에 넣지 못한 작물</p>
+            <ul>
+              {recommendation.unplacedCrops.map((crop) => (
+                <li key={crop.cropId}>
+                  <strong>{CROP_RULES[crop.cropId].name}</strong>
+                  <span>{crop.reason}</span>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        )}
 
         {recommendation.warnings.length > 0 && (
           <aside className={styles.warnings}>
@@ -137,10 +160,10 @@ export function RecommendationGuide({
             <span aria-hidden="true">←</span> 다시 선택
           </a>
           <SessionAwareLink
-            anonymousHref={`/signup?next=${encodeNextPath("/spaces/new")}`}
-            anonymousLabel={<>이 구성으로 내 텃밭 만들기 <span aria-hidden="true">→</span></>}
-            authenticatedHref="/spaces/new"
-            authenticatedLabel={<>이 구성으로 내 텃밭 만들기 <span aria-hidden="true">→</span></>}
+            anonymousHref={`/login?next=${encodeNextPath("/start")}`}
+            anonymousLabel={<>로그인하고 배치 확인하기 <span aria-hidden="true">→</span></>}
+            authenticatedHref="/start/plan"
+            authenticatedLabel={<>배치 확인하기 <span aria-hidden="true">→</span></>}
             className={styles.homeButton}
           />
         </div>
@@ -161,10 +184,10 @@ const CALLOUT_LAYOUT: Readonly<Record<CropId, {
 }>> = {
   lettuce: { leaderHeightRem: 2.8, topRem: 5.3 },
   spinach: { leaderHeightRem: 2.85, topRem: 5.25 },
-  basil: { leaderHeightRem: 1, topRem: 1 },
-  strawberry: { leaderHeightRem: 2.4, topRem: 4.5 },
-  chili: { leaderHeightRem: 0.95, topRem: 0.75 },
-  "cherry-tomato": { leaderHeightRem: 0.85, topRem: 0.55 },
+  "young-radish": { leaderHeightRem: 2.7, topRem: 5.1 },
+  "green-onion": { leaderHeightRem: 2.2, topRem: 4.2 },
+  carrot: { leaderHeightRem: 2.6, topRem: 5 },
+  tomato: { leaderHeightRem: 0.85, topRem: 0.55 },
 };
 
 function createCropCallouts(

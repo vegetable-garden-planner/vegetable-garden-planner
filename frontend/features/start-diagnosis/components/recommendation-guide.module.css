@@ -79,8 +79,8 @@
 .heading h1 {
   margin: 0;
   font-size: clamp(2.45rem, 3.35vw, 3rem);
-  line-height: 1.12;
-  letter-spacing: -0.045em;
+  line-height: var(--leading-page);
+  letter-spacing: var(--tracking-page);
 }
 
 .heading p {
@@ -136,7 +136,7 @@
   color: var(--color-primary);
   font-size: 1.22rem;
   font-weight: 600;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--tracking-card);
 }
 
 .cardHeading p {
@@ -229,32 +229,27 @@
   background: linear-gradient(180deg, rgba(76, 213, 147, 0.58), rgba(117, 220, 164, 0.34));
 }
 
-.badgeThumbnail {
+.badgeThumbnail,
+.summaryImage {
   position: relative;
   display: inline-block;
   flex: 0 0 auto;
   overflow: hidden;
   border-radius: var(--radius-pill);
+}
+
+.badgeThumbnail {
   width: 1.35rem;
   height: 1.35rem;
 }
 
-.badgeThumbnail img {
+.badgeThumbnail img,
+.summaryImage img {
   object-fit: contain;
 }
 
-.summaryIcon {
-  display: flex;
-  flex: 0 0 auto;
-  width: 2.15rem;
-  height: 2.15rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--color-sunbeam);
-  font-size: 0.85rem;
-  font-weight: 700;
+.summaryImage img {
+  object-fit: contain;
 }
 
 .cropBadge b {
@@ -300,6 +295,11 @@
   width: 1px;
   height: 2.05rem;
   background: rgba(255, 255, 255, 0.2);
+}
+
+.summaryImage {
+  width: 2.15rem;
+  height: 2.15rem;
 }
 
 .summaryBar p {
@@ -348,26 +348,31 @@
   margin-top: 0.9rem;
 }
 
+/* 랜딩 CTA · /start 다른 단계와 같은 버튼 시스템 */
 .reselectButton,
 .homeButton {
   display: inline-flex;
-  width: 12rem;
-  min-height: 3rem;
+  min-width: 12rem;
+  min-height: var(--control-lg);
   cursor: pointer;
   align-items: center;
   justify-content: center;
   gap: 0.7rem;
-  border-radius: 0.65rem;
-  padding: 0 1.2rem;
+  border-radius: var(--radius-pill);
+  padding: 0 1.6rem;
   font: inherit;
-  font-size: 1.02rem;
+  font-size: 0.98rem;
   font-weight: 600;
-  transition: opacity var(--motion-fast) var(--ease-out), transform var(--motion-fast) var(--ease-out);
+  white-space: nowrap;
+  transition:
+    background var(--motion-base) var(--ease-out),
+    border-color var(--motion-base) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
 }
 
 .reselectButton {
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  background: rgba(4, 22, 15, 0.46);
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: transparent;
   color: var(--color-on-photo);
 }
 
@@ -377,9 +382,14 @@
   color: var(--color-on-photo);
 }
 
-.reselectButton:hover,
+.reselectButton:hover {
+  border-color: rgba(255, 255, 255, 0.58);
+  transform: translateY(-2px);
+}
+
 .homeButton:hover {
-  opacity: 0.86;
+  border-color: var(--color-primary-hover);
+  background: var(--color-primary-hover);
   transform: translateY(-2px);
 }
 
@@ -530,4 +540,53 @@
     animation: none;
     transition: none;
   }
+}
+
+/* ------------------------------------------------------------------
+   이번 구성에 넣지 못한 작물
+
+   고른 작물이 결과에 없으면 사용자는 "왜 없지?" 에서 멈춘다.
+   빠진 이유를 작물마다 한 줄로 알려 준다.
+------------------------------------------------------------------ */
+.unplaced {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border: var(--line-thin, 1px) solid rgba(255, 210, 111, 0.45);
+  border-radius: var(--radius-lg, 18px);
+  background: rgba(255, 210, 111, 0.1);
+  text-align: left;
+}
+
+.unplacedTitle {
+  margin: 0;
+  color: #ffd26f;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-label, 0.12em);
+}
+
+.unplaced ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.unplaced li {
+  display: grid;
+  gap: 2px;
+}
+
+.unplaced li strong {
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.unplaced li span {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  line-height: var(--leading-caption, 1.5);
 }

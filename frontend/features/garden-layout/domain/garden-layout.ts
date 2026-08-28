@@ -41,7 +41,7 @@ export function createGardenLayout(
   updatedAt: string,
 ): GardenLayoutCreation {
   if (!seasonId || !spaceId) {
-    return { valid: false, message: "연결된 시즌과 재배 공간이 필요합니다." };
+    return { valid: false, message: "연결된 재배 계획과 재배 공간이 필요합니다." };
   }
   if (!isPositiveFinite(spaceWidthCm) || !isPositiveFinite(spaceLengthCm)) {
     return { valid: false, message: "재배 공간 크기가 올바르지 않습니다." };

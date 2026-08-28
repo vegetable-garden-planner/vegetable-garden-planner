@@ -27,6 +27,27 @@
       "title": "How to grow African violets",
       "url": "https://www.rhs.org.uk/plants/african-violets/growing-guide",
       "reviewedAt": "2026-08-07"
+    },
+    {
+      "id": "nongsaro-cherry-tomato-schedule",
+      "organization": "농촌진흥청 농사로",
+      "title": "토마토·방울토마토 작기 - 심는 거리와 유인",
+      "url": "https://www.nongsaro.go.kr/portal/ps/psb/psbl/workScheduleDtl.ps?menuId=PS00087&cntntsNo=30646",
+      "reviewedAt": "2026-08-28"
+    },
+    {
+      "id": "nongsaro-strawberry-home-garden",
+      "organization": "농촌진흥청 농사로",
+      "title": "딸기 텃밭가꾸기 - 재배력과 심는 거리",
+      "url": "https://nongsaro.go.kr/portal/ps/psz/psza/contentSub.ps?menuId=PS03172&sSeCode=335001&cntntsNo=101593",
+      "reviewedAt": "2026-08-28"
+    },
+    {
+      "id": "usu-basil-guide",
+      "organization": "Utah State University Extension",
+      "title": "How to Grow Basil in Your Garden",
+      "url": "https://extension.usu.edu/yardandgarden/research/basil-in-the-garden",
+      "reviewedAt": "2026-08-28"
     }
   ],
   "crops": [
@@ -65,7 +86,6 @@
       "difficulty": "easy",
       "plantingMaterial": "seedling",
       "supportedSpaces": [
-        "indoor",
         "balcony",
         "garden"
       ],
@@ -149,7 +169,6 @@
       "difficulty": "easy",
       "plantingMaterial": "seed",
       "supportedSpaces": [
-        "indoor",
         "balcony",
         "garden"
       ],
@@ -307,6 +326,91 @@
       "needsSupport": true,
       "summary": "모종을 심고 지지대를 세워 여름 동안 차례로 수확합니다.",
       "sourceId": "nongsaro-beginner-garden-manual"
+    },
+    {
+      "id": "cherry-tomato",
+      "name": "방울토마토",
+      "familyName": "가지과",
+      "category": "fruit",
+      "difficulty": "normal",
+      "plantingMaterial": "seedling",
+      "supportedSpaces": [
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 5,
+        "endMonth": 5,
+        "label": "5월 초"
+      },
+      "harvestPeriod": {
+        "startMonth": 6,
+        "endMonth": 6,
+        "label": "6월 말부터"
+      },
+      "plantSpacingCm": 40,
+      "minPotDepthCm": 30,
+      "sunRequirement": "full",
+      "needsSupport": true,
+      "summary": "알이 작아 베란다에서도 기르기 좋지만 유인 줄이나 받침대가 필요합니다.",
+      "sourceId": "nongsaro-cherry-tomato-schedule"
+    },
+    {
+      "id": "basil",
+      "name": "바질",
+      "familyName": "꿀풀과",
+      "category": "leaf",
+      "difficulty": "easy",
+      "plantingMaterial": "seedling",
+      "supportedSpaces": [
+        "indoor",
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 5,
+        "endMonth": 5,
+        "label": "5월 (서리가 끝난 뒤)"
+      },
+      "harvestPeriod": {
+        "startMonth": 6,
+        "endMonth": 9,
+        "label": "6월~9월 수시 수확"
+      },
+      "plantSpacingCm": 30,
+      "minPotDepthCm": null,
+      "sunRequirement": "full",
+      "needsSupport": false,
+      "summary": "볕이 잘 드는 따뜻한 자리에서 잎을 수시로 잘라 쓰는 허브입니다.",
+      "sourceId": "usu-basil-guide"
+    },
+    {
+      "id": "strawberry",
+      "name": "딸기",
+      "familyName": "장미과",
+      "category": "fruit",
+      "difficulty": "normal",
+      "plantingMaterial": "seedling",
+      "supportedSpaces": [
+        "balcony",
+        "garden"
+      ],
+      "plantingPeriod": {
+        "startMonth": 9,
+        "endMonth": 10,
+        "label": "9월 중하순~10월 초순"
+      },
+      "harvestPeriod": {
+        "startMonth": 12,
+        "endMonth": 1,
+        "label": "12월~이듬해 1월"
+      },
+      "plantSpacingCm": 20,
+      "minPotDepthCm": null,
+      "sunRequirement": "full",
+      "needsSupport": false,
+      "summary": "가을에 아들묘를 심어 겨울에 수확하는 텃밭 딸기입니다.",
+      "sourceId": "nongsaro-strawberry-home-garden"
     },
     {
       "id": "gift-bouquet",

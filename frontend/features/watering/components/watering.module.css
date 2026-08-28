@@ -16,7 +16,7 @@
     radial-gradient(circle at 76% 0%, rgba(70, 177, 141, 0.34), transparent 23rem),
     linear-gradient(122deg, #0b2e23, #0b6549);
   color: white;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elev-3);
   grid-template-columns: minmax(0, 1.25fr) minmax(430px, 0.75fr);
 }
 
@@ -35,7 +35,7 @@
   margin-top: 7px;
   font-size: clamp(1.7rem, 3vw, 2.35rem);
   font-weight: 800;
-  letter-spacing: -0.04em;
+  letter-spacing: var(--tracking-section);
 }
 
 .overviewCopy > span,
@@ -48,7 +48,7 @@
   margin-top: 10px;
   color: rgba(255, 255, 255, 0.72);
   font-size: 13px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .overviewCopy > strong {
@@ -56,7 +56,7 @@
   margin-top: 15px;
   color: #8ce8c5;
   font-size: 14px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .overviewStats {
@@ -105,7 +105,7 @@
   color: var(--color-danger);
   font-size: 13px;
   font-weight: 750;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .workspace {
@@ -141,7 +141,7 @@
   color: var(--color-ink-strong);
   font-size: 27px;
   font-weight: 800;
-  letter-spacing: -0.035em;
+  letter-spacing: var(--tracking-section);
 }
 
 .sectionHeading > span {
@@ -168,7 +168,7 @@
   border: 1px solid var(--color-border);
   border-radius: 21px;
   background: rgba(255, 255, 255, 0.97);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--elev-2);
 }
 
 .scheduleCard {
@@ -191,7 +191,7 @@
 
 .scheduleCard:hover {
   border-color: color-mix(in srgb, var(--color-primary) 26%, var(--color-border));
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elev-3);
   transform: translateY(-2px);
 }
 
@@ -234,7 +234,7 @@
   overflow-wrap: anywhere;
   font-size: 20px;
   font-weight: 800;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--tracking-card);
 }
 
 .statusChip {
@@ -286,7 +286,7 @@
   color: var(--color-ink-strong);
   font-size: 19px;
   font-weight: 850;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--tracking-card);
 }
 
 .nextWatering span {
@@ -509,7 +509,7 @@
   color: var(--color-ink-strong);
   font-size: 17px;
   font-weight: 800;
-  letter-spacing: -0.025em;
+  letter-spacing: var(--tracking-card);
 }
 
 .createDescription,
@@ -518,7 +518,7 @@
   margin-top: 12px;
   color: var(--color-muted);
   font-size: 12px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
   word-break: keep-all;
 }
 
@@ -630,7 +630,7 @@
   gap: 9px;
   color: var(--color-muted);
   font-size: 11px;
-  line-height: 1.65;
+  line-height: var(--leading-body);
 }
 
 .guidePanel li {
@@ -913,7 +913,7 @@
   margin-top: 7px;
   font-size: 24px;
   font-weight: 800;
-  letter-spacing: -0.03em;
+  letter-spacing: var(--tracking-section);
 }
 
 .emptyState > strong {
@@ -1163,5 +1163,19 @@
   .loading > div:first-child,
   .loadingGrid > span {
     animation: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   모바일 탭 영역
+
+   손가락으로 누르는 버튼은 44px 아래로 내려가지 않게 한다.
+   크기만 키우고 동작·마크업은 그대로 둔다.
+------------------------------------------------------------------ */
+@media (max-width: 640px) {
+  .deleteButton,
+  .snoozeButton {
+    min-height: var(--control-height-md);
+    padding-inline: var(--space-4);
   }
 }

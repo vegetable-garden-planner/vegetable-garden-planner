@@ -10,7 +10,7 @@ import {
 
 const validValues: GrowingSeasonFormValues = {
   spaceId: "space-1",
-  name: "2026년 봄 시즌",
+  name: "2026년 봄 재배",
   startDate: "2026-03-01",
   endDate: "2026-06-30",
   notes: "상추와 토마토 재배",
@@ -20,7 +20,7 @@ test("등록된 공간과 정상 날짜의 시즌 입력을 허용한다", () =>
   const result = validateGrowingSeason(validValues, ["space-1"]);
   assert.equal(result.valid, true);
   if (result.valid) {
-    assert.equal(result.value.name, "2026년 봄 시즌");
+    assert.equal(result.value.name, "2026년 봄 재배");
     assert.equal(result.value.spaceId, "space-1");
   }
 });
@@ -120,7 +120,7 @@ test("다른 공간, 겹치지 않는 기간과 현재 수정 중인 시즌은 �
   assert.equal(editingCurrent.valid, true);
 });
 
-test("오늘 날짜가 시즌 기간 전, 중, 후인지 상태를 계산한다", () => {
+test("오늘 날짜가 재배 기간 전, 중, 후인지 상태를 계산한다", () => {
   const season = createGrowingSeason(
     validValues,
     "season-1",

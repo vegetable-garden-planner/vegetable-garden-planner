@@ -1,0 +1,266 @@
+/* ==================================================================
+   전역 사이드바
+
+   좌측 상단 메뉴 버튼으로 열고 닫는다.
+   "이 서비스에 어떤 기능이 있는지" 를 한 번에 보여주는 것이 목적이라
+   주요 기능을 접지 않고 모두 펼쳐 둔다.
+
+   기존 전역 클래스(app-header 등)와 겹치지 않도록 CSS Module 로만 쓴다.
+   globals.css 는 건드리지 않는다.
+   ================================================================== */
+
+/* ------------------------------------------------------------ 열기 버튼 */
+.trigger {
+  display: inline-flex;
+  width: var(--control-md, 44px);
+  height: var(--control-md, 44px);
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: var(--line-thin, 1px) solid var(--color-border);
+  border-radius: var(--radius-pill, 999px);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.trigger:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.trigger:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-focus, var(--color-primary));
+  outline-offset: 2px;
+}
+
+/* 오버레이 헤더(대시보드 히어로 위) 에서는 흰 선으로 */
+.triggerOverlay {
+  border-color: rgba(255, 255, 255, 0.34);
+  color: #fff;
+}
+
+.triggerOverlay:hover {
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.bars {
+  display: grid;
+  width: 17px;
+  gap: 4px;
+}
+
+.bars i {
+  display: block;
+  height: 1.5px;
+  border-radius: 2px;
+  background: currentColor;
+}
+
+/* ------------------------------------------------------------ 뒷배경 */
+.scrim {
+  position: fixed;
+  z-index: 90;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(6, 23, 15, 0.42);
+  cursor: pointer;
+  animation: sidebarFade var(--motion-base, 220ms) var(--ease-out) both;
+}
+
+@keyframes sidebarFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ------------------------------------------------------------ 패널 */
+.panel {
+  position: fixed;
+  z-index: 91;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: min(310px, 86vw);
+  flex-direction: column;
+  border-right: var(--line-thin, 1px) solid var(--color-border);
+  background: var(--surface-overlay, #fff);
+  box-shadow: var(--elev-4);
+  animation: sidebarSlide var(--motion-base, 220ms) var(--ease-out) both;
+}
+
+@keyframes sidebarSlide {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .scrim {
+    animation: none;
+  }
+}
+
+/* ------------------------------------------------------------ 패널 머리 */
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3, 12px);
+  padding: 20px 18px 16px;
+  border-bottom: var(--line-thin, 1px) solid var(--color-border);
+}
+
+.panelBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* 브랜드 워드마크만 Gugi */
+.panelBrand span {
+  font-family: var(--font-brand);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+.close {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: var(--line-thin, 1px) solid var(--color-border);
+  border-radius: var(--radius-pill, 999px);
+  background: transparent;
+  color: var(--color-muted, #5c6b64);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+
+.close:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.close:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-focus, var(--color-primary));
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ 본문 */
+.body {
+  flex: 1 1 auto;
+  padding: 16px 12px 20px;
+  overflow-y: auto;
+}
+
+.groupLabel {
+  margin: 4px 0 8px;
+  padding-inline: 10px;
+  color: var(--color-muted, #7d8b84);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-label, 0.12em);
+}
+
+.group + .groupLabel {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: var(--line-thin, 1px) solid var(--color-border);
+}
+
+.group {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ------------------------------------------------------------ 메뉴 항목 */
+.item {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 26px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 10px;
+  border-radius: var(--radius-md, 12px);
+  color: var(--color-ink, #14251d);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  transition: background var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+
+.item:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.item:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-focus, var(--color-primary));
+  outline-offset: -2px;
+}
+
+/* 현재 위치 */
+.item[aria-current="page"] {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+.item[aria-current="page"] .mark {
+  border-color: transparent;
+  background: var(--color-primary);
+  color: #fff;
+}
+
+/* 아이콘 자리 — 글자 한 자로 기능을 구분한다 */
+.mark {
+  display: grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border: var(--line-thin, 1px) solid var(--color-border);
+  border-radius: 9px;
+  color: var(--color-muted, #5c6b64);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.itemNote {
+  color: var(--color-muted, #8b9a92);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+
+/* 보조 메뉴 (요금제 등) — 핵심 기능과 우선순위를 구분한다 */
+.minor {
+  padding: 9px 10px 9px 46px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-muted, #5c6b64);
+}
+
+.minor:hover {
+  color: var(--color-primary-hover);
+}
+
+.foot {
+  padding: 14px 22px 20px;
+  border-top: var(--line-thin, 1px) solid var(--color-border);
+  color: var(--color-muted, #8b9a92);
+  font-size: 12px;
+  line-height: var(--leading-caption, 1.5);
+}

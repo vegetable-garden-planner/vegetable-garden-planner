@@ -33,11 +33,11 @@ const CROP_ASSETS: Record<CropId, {
   timeScale: number;
 }> = {
   lettuce: { animationName: "AN_Lettuce_IdleSway", height: 0.105, phase: 0.34, scale: 1.35, timeScale: 0.94 },
-  "cherry-tomato": { animationName: "AN_CherryTomato_IdleSway", height: 0.245, phase: 1.16, scale: 1.22, timeScale: 1.08 },
-  basil: { animationName: "AN_Basil_IdleSway", height: 0.205, phase: 2.08, scale: 1.28, timeScale: 0.88 },
-  chili: { animationName: "AN_Chili_IdleSway", height: 0.235, phase: 3.02, scale: 1.24, timeScale: 1.12 },
   spinach: { animationName: "AN_Spinach_IdleSway", height: 0.105, phase: 4.22, scale: 1.35, timeScale: 0.97 },
-  strawberry: { animationName: "AN_Strawberry_IdleSway", height: 0.125, phase: 5.12, scale: 1.28, timeScale: 1.03 },
+  "young-radish": { animationName: "AN_Spinach_IdleSway", height: 0.11, phase: 2.08, scale: 1.32, timeScale: 0.91 },
+  "green-onion": { animationName: "AN_Lettuce_IdleSway", height: 0.14, phase: 3.02, scale: 1.2, timeScale: 1.05 },
+  carrot: { animationName: "AN_Spinach_IdleSway", height: 0.1, phase: 5.12, scale: 1.28, timeScale: 1.02 },
+  tomato: { animationName: "AN_CherryTomato_IdleSway", height: 0.245, phase: 1.16, scale: 1.22, timeScale: 1.08 },
 };
 
 export function RecommendationPlanterView({
@@ -134,7 +134,7 @@ function PlanterScene({
         <PlanterModel
           lod={lod}
         />
-        {cropInstances.map((instance) => (
+        {cropInstances.filter((instance) => hasOwnModel(instance.cropId)).map((instance) => (
           <AnimatedCrop
             cropId={instance.cropId}
             instanceIndex={instance.instanceIndex}
@@ -400,15 +400,51 @@ function planterUrl(lod: LodLevel) {
   return lod === 0 ? "/models/garden/planter.glb" : `/models/garden/planter-lod${lod}.glb`;
 }
 
+/*
+  3D 모델 파일은 작물 ID와 이름이 다르다.
+  준비된 모델은 lettuce / spinach / cherry-tomato 세 가지뿐이라,
+  전용 모델이 없는 작물은 잎 모양이 가까운 모델을 빌려 쓴다.
+  (추천·배치 계산과는 무관한 장식이다)
+*/
+const MODEL_BASE: Partial<Record<CropId, string>> = {
+  lettuce: "lettuce",
+  spinach: "spinach",
+  tomato: "cherry-tomato",
+};
+
+/**
+ * 전용 3D 모델이 있는 작물인지.
+ *
+ * 열무·대파·당근은 모델이 없다. 다른 작물 모델을 빌려 쓰면
+ * 사용자가 잘못된 모습으로 알게 되므로 3D에는 심지 않고,
+ * 화분 위 이름표(콜아웃)로만 알려 준다.
+ */
+function hasOwnModel(cropId: CropId): boolean {
+  return MODEL_BASE[cropId] !== undefined;
+}
+
+/** 실제로 파일이 있는 LOD만 적어 둔다. 없는 단계를 요청하면 가장 가까운 것으로 내린다. */
+const AVAILABLE_LODS: Record<string, readonly LodLevel[]> = {
+  lettuce: [0, 1, 2],
+  spinach: [0, 2],
+  "cherry-tomato": [0, 2],
+};
+
 function cropUrl(cropId: CropId, lod: LodLevel) {
-  return lod === 0
-    ? `/models/garden/crop-${cropId}.glb`
-    : `/models/garden/crop-${cropId}-lod${lod}.glb`;
+  const base = MODEL_BASE[cropId] ?? "lettuce";
+  const available = AVAILABLE_LODS[base] ?? [0];
+  const resolved = available.includes(lod)
+    ? lod
+    : [...available].sort((a, b) => Math.abs(a - lod) - Math.abs(b - lod))[0];
+
+  return resolved === 0
+    ? `/models/garden/crop-${base}.glb`
+    : `/models/garden/crop-${base}-lod${resolved}.glb`;
 }
 
 for (const lod of [0, 1, 2] as const) {
   useGLTF.preload(planterUrl(lod));
-  (Object.keys(CROP_ASSETS) as CropId[]).forEach((cropId) => {
+  (Object.keys(MODEL_BASE) as CropId[]).forEach((cropId) => {
     useGLTF.preload(cropUrl(cropId, lod));
   });
 }

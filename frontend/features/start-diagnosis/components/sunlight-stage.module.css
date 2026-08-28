@@ -1,0 +1,441 @@
+/* ==================================================================
+   /start · 2단계 — 공간의 빛
+
+   랜딩과 같은 브랜드 언어를 쓴다.
+     짙은 forest 배경 + brand green accent + 랜딩과 같은 자간/행간
+
+   선택지는 같은 공간을 서로 다른 빛에서 담은 사진 세 장이다.
+   선택하지 않은 카드는 한 톤 가라앉고, 고른 카드의 빛이 또렷해진다.
+   ================================================================== */
+
+.stage {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 100svh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-20) var(--space-6) var(--space-14);
+}
+
+/* 랜딩 히어로와 같은 계열의 깊은 초록 + 부드러운 빛 */
+.ambient {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background:
+    radial-gradient(62% 46% at 50% 8%, rgba(70, 177, 141, 0.24), transparent 70%),
+    radial-gradient(80% 55% at 50% 104%, rgba(255, 194, 131, 0.1), transparent 68%),
+    linear-gradient(180deg, var(--color-forest-soft) 0%, var(--color-forest) 62%);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  width: min(100%, 1000px);
+  gap: var(--space-10);
+}
+
+/* ---------------------------------------------------------------- 제목 */
+.heading {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+
+.kicker {
+  margin: 0;
+  color: var(--color-secondary);
+  font-size: var(--type-kicker-size);
+  font-weight: 600;
+  letter-spacing: var(--tracking-label);
+  line-height: var(--leading-caption);
+}
+
+.heading h1 {
+  max-width: 20ch;
+  margin: 0;
+  color: var(--color-white);
+  font-size: clamp(1.7rem, 3.2vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: var(--tracking-page);
+  line-height: var(--leading-page);
+}
+
+.lead {
+  max-width: 44ch;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: var(--type-body-size);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+}
+
+/* ------------------------------------------------------------ 빛 선택지 */
+.options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.option {
+  position: relative;
+  display: grid;
+  align-content: end;
+  min-height: 17rem;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border: var(--line-thin) solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-lg);
+  background: var(--color-forest);
+  color: inherit;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition:
+    border-color var(--motion-base) var(--ease-out),
+    box-shadow var(--motion-base) var(--ease-out);
+}
+
+.option:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.option[aria-checked="true"] {
+  border-color: var(--color-secondary);
+  box-shadow: 0 0 0 1px var(--color-secondary), 0 18px 44px rgba(3, 19, 14, 0.34);
+}
+
+.option:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: var(--space-1);
+}
+
+/* 사진마다 가장 잘 보여야 하는 부분이 다르다 */
+.option[data-level="low"] { --photo-focus: 26% 58%; }
+.option[data-level="mid"] { --photo-focus: 58% 52%; }
+.option[data-level="high"] { --photo-focus: 62% 56%; }
+
+/* 같은 공간, 서로 다른 빛 — 고르지 않은 카드는 한 톤 가라앉는다 */
+.photo {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.photo img {
+  object-fit: cover;
+  object-position: var(--photo-focus, 50% 50%);
+  filter: brightness(0.78) saturate(0.9);
+  transform: scale(1.02);
+  transition:
+    filter var(--motion-slow) var(--ease-out),
+    transform var(--motion-slow) var(--ease-out);
+}
+
+.option:hover .photo img {
+  filter: brightness(0.9) saturate(0.96);
+  transform: scale(1.045);
+}
+
+.option[aria-checked="true"] .photo img {
+  filter: none;
+  transform: scale(1.045);
+}
+
+/* 글자가 읽히도록 아래쪽을 눌러 준다 */
+.scrim {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(3, 19, 14, 0.06) 0%,
+    rgba(3, 19, 14, 0.34) 46%,
+    rgba(3, 19, 14, 0.86) 100%
+  );
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------------ 빛 눈금 */
+.meter {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 6px;
+}
+
+.meter i {
+  display: block;
+  width: 22px;
+  height: 3px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.28);
+  transition: background var(--motion-base) var(--ease-out);
+}
+
+.meter[data-steps="1"] i:nth-child(-n + 1),
+.meter[data-steps="2"] i:nth-child(-n + 2),
+.meter[data-steps="3"] i:nth-child(-n + 3) {
+  background: var(--color-secondary);
+}
+
+.option[aria-checked="true"] .meter[data-steps="1"] i:nth-child(-n + 1),
+.option[aria-checked="true"] .meter[data-steps="2"] i:nth-child(-n + 2),
+.option[aria-checked="true"] .meter[data-steps="3"] i:nth-child(-n + 3) {
+  background: var(--color-leaf-bright);
+}
+
+/* ----------------------------------------------------------- 카드 텍스트 */
+.optionCopy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.optionCopy strong {
+  color: var(--color-white);
+  font-size: var(--type-body-lg-size);
+  font-weight: 600;
+  letter-spacing: var(--tracking-card);
+  line-height: var(--leading-card);
+}
+
+.optionCopy small {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: var(--type-body-sm-size);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+}
+
+.check {
+  position: absolute;
+  z-index: 1;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 24px;
+  height: 24px;
+  border: var(--line-thin) solid rgba(255, 255, 255, 0.5);
+  border-radius: var(--radius-pill);
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease-out);
+}
+
+.option[aria-checked="true"] .check {
+  border-color: transparent;
+  background: var(--color-primary);
+  opacity: 1;
+}
+
+.option[aria-checked="true"] .check::after {
+  position: absolute;
+  top: 5px;
+  left: 8px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--color-white);
+  border-width: 0 2px 2px 0;
+  content: "";
+  transform: rotate(45deg);
+}
+
+/* -------------------------------------------------------- 보조: 위치 선택 */
+.placement {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.placement legend {
+  width: 100%;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: var(--type-body-sm-size);
+  letter-spacing: var(--tracking-body);
+  line-height: var(--leading-body);
+  text-align: center;
+}
+
+.segmented {
+  display: inline-flex;
+  padding: 4px;
+  border: var(--line-thin) solid rgba(255, 255, 255, 0.16);
+  border-radius: var(--radius-pill);
+  background: rgba(251, 248, 241, 0.06);
+}
+
+.segment input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.segment span {
+  display: grid;
+  min-width: 88px;
+  height: var(--control-sm);
+  place-items: center;
+  border-radius: var(--radius-pill);
+  color: rgba(255, 255, 255, 0.62);
+  cursor: pointer;
+  font-size: var(--type-body-sm-size);
+  font-weight: 500;
+  letter-spacing: var(--tracking-body);
+  transition: background var(--motion-base) var(--ease-out), color var(--motion-base) var(--ease-out);
+}
+
+.segment span:hover {
+  color: var(--color-white);
+}
+
+.segment input:checked + span {
+  background: var(--color-white);
+  color: var(--color-forest);
+  font-weight: 600;
+}
+
+.segment input:focus-visible + span {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.placementHint {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--type-caption-size);
+  letter-spacing: var(--tracking-caption);
+  line-height: var(--leading-caption);
+}
+
+/* --------------------------------------------------------------- 버튼 */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.back,
+.next {
+  display: inline-flex;
+  min-width: 148px;
+  height: var(--control-lg);
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: var(--line-thin) solid transparent;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: var(--type-body-size);
+  font-weight: 600;
+  letter-spacing: var(--tracking-body);
+  transition:
+    background var(--motion-base) var(--ease-out),
+    border-color var(--motion-base) var(--ease-out),
+    color var(--motion-base) var(--ease-out);
+}
+
+.back {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.back:hover {
+  border-color: rgba(255, 255, 255, 0.55);
+  color: var(--color-white);
+}
+
+.next {
+  background: var(--color-primary);
+  color: var(--color-white);
+}
+
+.next:not(:disabled):hover {
+  background: var(--color-primary-hover);
+}
+
+.next:disabled {
+  background: rgba(251, 248, 241, 0.14);
+  color: rgba(255, 255, 255, 0.38);
+  cursor: not-allowed;
+}
+
+.back:focus-visible,
+.next:focus-visible {
+  outline: var(--line-focus) solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ responsive */
+@media (max-width: 900px) {
+  .options {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+
+  .option {
+    min-height: 11.5rem;
+    padding: var(--space-4);
+  }
+
+  .optionCopy {
+    padding-right: var(--space-8);
+  }
+}
+
+@media (max-width: 768px) {
+  .stage {
+    align-items: flex-start;
+    padding: var(--space-20) var(--space-4) var(--space-20);
+  }
+
+  .content {
+    gap: var(--space-8);
+  }
+}
+
+@media (max-width: 480px) {
+  .segmented {
+    width: 100%;
+  }
+
+  .segment {
+    flex: 1;
+  }
+
+  .segment span {
+    min-width: 0;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .back,
+  .next {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option,
+  .photo img,
+  .meter i,
+  .check,
+  .segment span,
+  .back,
+  .next {
+    transition: none;
+  }
+}

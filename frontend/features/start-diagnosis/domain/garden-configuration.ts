@@ -29,7 +29,7 @@ export const DEFAULT_GARDEN_CONFIGURATOR_STATE: GardenConfiguratorState = {
   },
   sunlight: {},
   preferences: {
-    selectedCrops: ["lettuce", "basil"],
+    selectedCrops: ["lettuce", "spinach"],
   },
 };
 
