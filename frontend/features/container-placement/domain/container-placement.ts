@@ -1,3 +1,8 @@
+export interface GridCellPosition {
+  col: number;
+  row: number;
+}
+
 export interface ContainerPlacement {
   id: string;
   spaceId: string;
@@ -26,6 +31,8 @@ export interface ContainerPlacementRow {
   spaceId: string;
   cropId: string;
   quantity: number;
+  /** 격자 캔버스에서의 칸 위치. 화분에 아직 안 넣었거나 격자 배치 전이면 빈 배열. */
+  cells: GridCellPosition[];
 }
 
 export interface ContainerPlacementInput {
@@ -49,6 +56,7 @@ export function toEditableRows(placements: readonly ContainerPlacement[]): Conta
       spaceId: placement.spaceId,
       cropId: placement.cropId,
       quantity: placement.quantity,
+      cells: cellsOf(placement),
     }));
 }
 
@@ -57,8 +65,21 @@ export function toPlacementInputs(rows: readonly ContainerPlacementRow[]): Conta
     spaceId: row.spaceId,
     cropId: row.cropId,
     quantity: row.quantity,
-    position: { order: index },
+    position: { order: index, cells: row.cells },
   }));
+}
+
+/** position(JSON)에 저장된 칸 위치를 읽는다. 없거나 형식이 다르면 빈 배열. */
+export function cellsOf(placement: Pick<ContainerPlacement, "position">): GridCellPosition[] {
+  const position = placement.position;
+  if (!position || typeof position !== "object" || !("cells" in position)) return [];
+  const cells = (position as { cells: unknown }).cells;
+  if (!Array.isArray(cells)) return [];
+  return cells.filter(
+    (cell): cell is GridCellPosition =>
+      typeof cell === "object" && cell !== null && typeof (cell as GridCellPosition).col === "number"
+      && typeof (cell as GridCellPosition).row === "number",
+  );
 }
 
 export function validatePlacementRows(rows: readonly ContainerPlacementRow[]): string {
