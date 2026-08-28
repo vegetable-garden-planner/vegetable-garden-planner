@@ -25,43 +25,60 @@ final class AskGenerativeAssistant
     public function execute(GrowingContext $context, array $cropNamesById, string $message): string
     {
         $apiKey = config('services.gemini.key');
-        if (blank($apiKey)) {
+        $models = config('services.gemini.models');
+        if (blank($apiKey) || $models === []) {
             return self::FALLBACK_ANSWER;
         }
 
-        $model = config('services.gemini.model');
+        $systemPrompt = $this->buildSystemPrompt($context, $cropNamesById);
+
+        foreach ($models as $model) {
+            $answer = $this->callModel($model, $apiKey, $systemPrompt, $message);
+            if ($answer !== null) {
+                return $answer;
+            }
+        }
+
+        return self::FALLBACK_ANSWER;
+    }
+
+    /**
+     * @return string|null 성공하면 답변 텍스트, 이 모델로는 답을 못 얻었으면(할당량 초과 등) null —
+     *                     호출자가 다음 모델로 넘어간다.
+     */
+    private function callModel(string $model, string $apiKey, string $systemPrompt, string $message): ?string
+    {
         $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
 
         try {
             $response = Http::timeout(self::TIMEOUT_SECONDS)->post($url, [
-                'system_instruction' => [
-                    'parts' => [['text' => $this->buildSystemPrompt($context, $cropNamesById)]],
-                ],
-                'contents' => [
-                    ['parts' => [['text' => $message]]],
-                ],
+                'system_instruction' => ['parts' => [['text' => $systemPrompt]]],
+                'contents' => [['parts' => [['text' => $message]]]],
                 'generationConfig' => [
                     'maxOutputTokens' => self::MAX_OUTPUT_TOKENS,
                     'temperature' => 0.4,
                 ],
             ]);
         } catch (ConnectionException $exception) {
-            Log::warning('Gemini API 호출 실패(연결)', ['message' => $exception->getMessage()]);
+            Log::warning('Gemini API 호출 실패(연결)', ['model' => $model, 'message' => $exception->getMessage()]);
 
-            return self::FALLBACK_ANSWER;
+            return null;
         }
 
         if ($response->failed()) {
-            Log::warning('Gemini API 호출 실패(응답)', ['status' => $response->status()]);
+            Log::warning('Gemini API 호출 실패(응답)', ['model' => $model, 'status' => $response->status()]);
 
-            return self::FALLBACK_ANSWER;
+            return null;
         }
 
         $answer = $response->json('candidates.0.content.parts.0.text');
         if (! is_string($answer) || trim($answer) === '') {
-            Log::warning('Gemini API 응답에 답변 텍스트 없음', ['blockReason' => $response->json('promptFeedback.blockReason')]);
+            Log::warning('Gemini API 응답에 답변 텍스트 없음', [
+                'model' => $model,
+                'blockReason' => $response->json('promptFeedback.blockReason'),
+            ]);
 
-            return self::FALLBACK_ANSWER;
+            return null;
         }
 
         return trim($answer);
