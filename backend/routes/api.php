@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\Assistant\AskAiChatController;
 use App\Http\Controllers\Api\V1\Assistant\AskGardenAssistantController;
 use App\Http\Controllers\Api\V1\Auth\CheckEmailAvailabilityController;
 use App\Http\Controllers\Api\V1\Auth\CurrentUserController;
@@ -112,6 +113,7 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/layouts', IndexGardenLayoutController::class);
         Route::get('/container-placements', IndexContainerPlacementsController::class);
         Route::get('/growing-context', ShowGrowingContextController::class);
+        Route::post('/ai/chat', AskAiChatController::class)->middleware('throttle:20,1');
 
         Route::get('/tasks', IndexTaskController::class);
         Route::patch('/tasks/{cultivationTask}', UpdateTaskController::class);
