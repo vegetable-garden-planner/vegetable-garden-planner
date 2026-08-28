@@ -98,6 +98,30 @@ class AiChatApiTest extends TestCase
             && $request['contents'][0]['parts'][0]['text'] === '오늘 저녁 뭐 먹지');
     }
 
+    public function test_falls_back_to_the_next_model_when_the_first_is_rate_limited(): void
+    {
+        config([
+            'services.gemini.key' => 'test-key',
+            'services.gemini.models' => ['model-a', 'model-b'],
+        ]);
+        Http::fake([
+            '*/models/model-a:generateContent*' => Http::response(['error' => 'quota exceeded'], 429),
+            '*/models/model-b:generateContent*' => Http::response([
+                'candidates' => [
+                    ['content' => ['parts' => [['text' => 'model-b가 답한 문장.']]]],
+                ],
+            ]),
+        ]);
+        [$owner] = $this->ownedSeason();
+
+        $this->actingAs($owner)
+            ->postJson('/api/v1/ai/chat', ['message' => '오늘 저녁 뭐 먹지'])
+            ->assertOk()
+            ->assertJsonPath('data.answer', 'model-b가 답한 문장.');
+
+        Http::assertSentCount(2);
+    }
+
     public function test_gemini_failure_returns_a_graceful_fallback_instead_of_an_error(): void
     {
         config(['services.gemini.key' => 'test-key']);

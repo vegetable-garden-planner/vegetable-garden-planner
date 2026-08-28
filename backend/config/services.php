@@ -32,7 +32,11 @@ return [
 
     'gemini' => [
         'key' => env('GEMINI_API_KEY'),
-        'model' => env('GEMINI_MODEL', 'gemini-2.5-flash-lite'),
+        // 앞 모델의 할당량이 소진(429)되면 다음 모델로 자동 전환한다. 쉼표로 구분.
+        'models' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('GEMINI_MODELS', 'gemini-2.5-flash-lite,gemini-2.5-flash')),
+        ))),
     ],
 
     /*
