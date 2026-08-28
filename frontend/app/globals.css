@@ -255,6 +255,13 @@ body {
   object-fit: contain;
 }
 
+/* 메인 홈 — 헤더 + 한 화면이 정확히 뷰포트 높이에 맞도록 세로로 나눈다 */
+.home-page {
+  display: flex;
+  min-height: 100svh;
+  flex-direction: column;
+}
+
 .app-header-nav {
   display: flex;
   align-items: center;
@@ -276,6 +283,27 @@ body {
 .app-header-nav a:hover {
   background: var(--color-primary-soft);
   color: var(--color-primary-hover);
+}
+
+.app-header-quiet-link {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 9px 14px;
+  color: #3e4c47;
+  font-size: 14px;
+  font-weight: 700;
+  transition: color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out);
+}
+
+.app-header-quiet-link:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+}
+
+/* 좁은 화면에서는 헤더가 두 줄로 접히므로 뺀다. 같은 링크가 메뉴와 프로필에 있다. */
+@media (max-width: 640px) {
+  .app-header-quiet-link { display: none; }
 }
 
 .app-header-actions {

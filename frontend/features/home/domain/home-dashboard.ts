@@ -114,7 +114,8 @@ function selectPrimarySeason(seasons: readonly GrowingSeason[], today: string) {
   })[0] ?? null;
 }
 
-function calculateProgress(season: GrowingSeason, today: string) {
+/** 재배 진행률(0~100). 새 홈의 재배 카드에서도 같은 계산을 쓴다. */
+export function calculateProgress(season: GrowingSeason, today: string) {
   const totalDays = Math.max(1, daysBetween(season.startDate, season.endDate) + 1);
   const elapsedDays = daysBetween(season.startDate, today) + 1;
   return Math.max(0, Math.min(100, Math.round((elapsedDays / totalDays) * 100)));
@@ -158,6 +159,7 @@ function compareTasks(left: CultivationTask, right: CultivationTask) {
     || left.title.localeCompare(right.title, "ko-KR");
 }
 
-function daysBetween(from: string, to: string) {
+/** 두 날짜(YYYY-MM-DD) 사이의 일수. 재배 일수·D-day 계산에 함께 쓴다. */
+export function daysBetween(from: string, to: string) {
   return Math.round((Date.parse(`${to}T00:00:00.000Z`) - Date.parse(`${from}T00:00:00.000Z`)) / DAY_MS);
 }

@@ -1,0 +1,398 @@
+/* ==================================================================
+   재배 홈
+
+   통계판이 아니라 "지금 키우는 것과 지금 할 일" 을 보는 곳이다.
+   그래서 수치보다 재배 카드와 바로가기를 먼저 둔다.
+
+   기존 전역 dashboard-* 클래스와 겹치지 않도록 CSS Module 로만 쓴다.
+   ================================================================== */
+
+/* ------------------------------------------------------------ 공통 머리 */
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+  margin-bottom: var(--space-4, 16px);
+}
+
+.sectionHead p {
+  margin: 0;
+  color: var(--color-muted, #7d8b84);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-label, 0.12em);
+}
+
+.sectionHead h2 {
+  margin: 2px 0 0;
+  color: var(--color-ink, #14251d);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-section);
+  line-height: var(--leading-section, 1.34);
+}
+
+.sectionMore {
+  color: var(--color-primary);
+  font-size: 13.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sectionMore:hover {
+  color: var(--color-primary-hover);
+}
+
+.section {
+  margin-bottom: var(--space-10, 40px);
+}
+
+/* ------------------------------------------------------------ 오늘 할 일 */
+.today {
+  display: grid;
+  gap: var(--space-4, 16px);
+  padding: 20px 22px;
+  border: var(--line-thin, 1px) solid var(--color-border);
+  border-radius: var(--radius-lg, 18px);
+  background: var(--color-surface, #fff);
+}
+
+.todayList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.todayItem {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: var(--line-thin, 1px) solid var(--color-border);
+  border-radius: var(--radius-md, 12px);
+  color: inherit;
+  transition: border-color var(--motion-fast) var(--ease-out), background var(--motion-fast) var(--ease-out);
+}
+
+.todayItem:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.todayMark {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 10px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-hover);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.todayCopy {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+
+.todayCopy strong {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.todayCopy small {
+  overflow: hidden;
+  color: var(--color-muted, #7d8b84);
+  font-size: 12.5px;
+  line-height: var(--leading-caption, 1.5);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.todayGo {
+  color: var(--color-muted, #8b9a92);
+  font-size: 14px;
+}
+
+.todayEmpty {
+  margin: 0;
+  padding: 18px 0 4px;
+  color: var(--color-muted, #7d8b84);
+  font-size: 14px;
+  line-height: var(--leading-body, 1.7);
+  text-align: center;
+}
+
+/* ------------------------------------------------------------ 재배 카드 */
+.cards {
+  display: grid;
+  gap: var(--space-4, 16px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+}
+
+.card {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 20px;
+  border: var(--line-thin, 1px) solid var(--color-border);
+  border-radius: var(--radius-lg, 18px);
+  background: var(--color-surface, #fff);
+}
+
+/* 주의가 필요한 카드는 왼쪽 선으로 먼저 눈에 띄게 한다 */
+.cardAttention {
+  border-left: 3px solid var(--color-danger, #a0433a);
+}
+
+.cardHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cardTitle {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.cardTitle h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: var(--tracking-card);
+  line-height: var(--leading-card, 1.45);
+}
+
+.cardTitle p {
+  margin: 0;
+  color: var(--color-muted, #7d8b84);
+  font-size: 12.5px;
+  line-height: var(--leading-caption, 1.5);
+}
+
+.status {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill, 999px);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.statusActive { background: var(--color-primary-soft); color: var(--color-primary-hover); }
+.statusPlanned { background: #eaf1f7; color: #45647e; }
+.statusCompleted { background: #f0efec; color: #6d716b; }
+
+/* ------------------------------------------------------- 진행 상태 */
+.progressRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12.5px;
+}
+
+.progressRow span { color: var(--color-muted, #7d8b84); }
+
+.progressRow b {
+  color: var(--color-ink, #14251d);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  height: 5px;
+  overflow: hidden;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-surface-warm, #efeade);
+}
+
+.track i {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill, 999px);
+  background: var(--color-primary);
+}
+
+/* ------------------------------------------------------- 카드 안 다음 할 일 */
+.cardNext {
+  display: grid;
+  gap: 2px;
+  padding: 11px 13px;
+  border-radius: var(--radius-md, 12px);
+  background: var(--color-surface-warm, #f7f4ec);
+}
+
+.cardNext span {
+  color: var(--color-muted, #7d8b84);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-label, 0.12em);
+}
+
+.cardNext strong {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: var(--leading-card, 1.45);
+}
+
+.cardNextWarn {
+  background: #fbeeeb;
+}
+
+.cardNextWarn strong { color: var(--color-danger, #a0433a); }
+
+/* ------------------------------------------------------- 카드 바로가기 */
+.cardLinks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.cardLink {
+  display: grid;
+  height: var(--control-sm, 38px);
+  place-items: center;
+  border: var(--line-thin, 1px) solid var(--color-border);
+  border-radius: var(--radius-pill, 999px);
+  color: var(--color-ink, #14251d);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+
+.cardLink:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary-hover);
+}
+
+.cardLink:focus-visible {
+  outline: var(--line-focus, 2px) solid var(--color-focus, var(--color-primary));
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------ 최근 기록 */
+.records {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recordItem {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border: var(--line-thin, 1px) solid var(--color-border);
+  border-radius: var(--radius-md, 12px);
+  background: var(--color-surface, #fff);
+  color: inherit;
+  transition: border-color var(--motion-fast) var(--ease-out);
+}
+
+.recordItem:hover { border-color: var(--color-primary); }
+
+.recordCopy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.recordCopy strong {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recordCopy small {
+  color: var(--color-muted, #7d8b84);
+  font-size: 12px;
+}
+
+.recordDate {
+  color: var(--color-muted, #8b9a92);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ 다음 단계 */
+.nextAction {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px 20px;
+  padding: 20px 22px;
+  border-radius: var(--radius-lg, 18px);
+  background: var(--color-forest, #0f513f);
+  color: #fff;
+}
+
+.nextActionCopy { display: grid; gap: 3px; min-width: 0; }
+
+.nextActionCopy p {
+  margin: 0;
+  color: #ffd26f;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-label, 0.12em);
+}
+
+.nextActionCopy strong {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: var(--leading-card, 1.45);
+}
+
+.nextActionCopy span {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 13px;
+  line-height: var(--leading-caption, 1.5);
+}
+
+.nextActionGo {
+  display: inline-flex;
+  height: var(--control-md, 44px);
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 0 20px;
+  border-radius: var(--radius-pill, 999px);
+  background: #fff;
+  color: var(--color-forest, #0f513f);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.nextActionGo:hover { background: #eef8f3; }
+
+@media (max-width: 560px) {
+  .cardLinks { grid-template-columns: 1fr; }
+  .nextActionGo { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .todayItem,
+  .cardLink,
+  .recordItem {
+    transition: none;
+  }
+}
