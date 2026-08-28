@@ -3,6 +3,10 @@
 import { useRef } from "react";
 import { band, track } from "../hooks/use-motion";
 import { useScenePlay } from "../hooks/use-scene-play";
+import {
+  advanceScene,
+  useSceneTouchNav,
+} from "../hooks/use-scene-touch-nav";
 
 const RESULTS = [
   { label: "상추", value: 4, unit: "포기" },
@@ -21,11 +25,23 @@ const RESULTS = [
 export function ResultScene() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const p = useScenePlay(sectionRef, 2.6);
+  // 네 숫자가 다 세어지고 문장까지 뜬 뒤에만 다음 장면으로 넘어갈 수 있다
+  const done = p > 0.999;
+
+  /*
+    화면을 터치하거나 위로 드래그하면 다음 장면으로, 아래로 드래그하면
+    이전 장면(하는 일)으로 넘어간다. 숫자가 다 세어지기 전에는 다음 장면으로
+    넘어가지 못한다.
+  */
+  useSceneTouchNav(sectionRef, done);
 
   return (
     <section
       id="scene-result"
       ref={sectionRef}
+      onClick={() => {
+        if (done) advanceScene();
+      }}
       className="lp-snap-scene relative z-10 flex h-[100svh] items-center overflow-hidden"
     >
       {/* 오른쪽 절반은 3D 무대의 화분 자리로 비워 둔다 */}

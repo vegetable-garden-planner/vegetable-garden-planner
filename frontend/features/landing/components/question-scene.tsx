@@ -2,6 +2,10 @@
 
 import { useRef } from "react";
 import { clamp01, track, usePinnedProgress } from "../hooks/use-motion";
+import {
+  advanceScene,
+  useSceneTouchNav,
+} from "../hooks/use-scene-touch-nav";
 
 const QUESTIONS = [
   { text: "무엇을 심어야 할까요", note: "상추? 방울토마토? 어디서부터" },
@@ -20,16 +24,16 @@ const QUESTIONS = [
  */
 export function QuestionScene() {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const stickyRef = useRef<HTMLDivElement | null>(null);
   const p = usePinnedProgress(sectionRef, 0.14);
 
   /*
     휴대폰에서는 스크롤 제스처만으로 다음 질문 정지점까지 이동시키기가
-    쉽지 않다. 화면을 터치해도 한 걸음 넘어가도록, 다음 정지점까지
-    정확히 한 화면 높이만큼 부드럽게 스크롤해 준다.
+    쉽지 않다. 화면을 터치해도, 위로 드래그해도 다음 정지점까지 한 화면
+    높이만큼 부드럽게 넘어가고, 아래로 드래그하면 이전 정지점으로
+    돌아간다.
   */
-  function advanceOnTap() {
-    window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
-  }
+  useSceneTouchNav(stickyRef, true);
 
   return (
     <section id="about" ref={sectionRef} className="relative z-10 h-[300vh]">
@@ -41,8 +45,9 @@ export function QuestionScene() {
       </div>
 
       <div
+        ref={stickyRef}
         className="sticky top-0 flex h-[100svh] items-center overflow-hidden"
-        onClick={advanceOnTap}
+        onClick={advanceScene}
       >
         <div className="lp-shell-rail lp-shell-wide w-full">
           <p className="lp-type-caption font-medium text-lp-brand-soft">
